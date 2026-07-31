@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Rhino / Grasshopper
+*.3dm.bak
+*.gh.bak
+*.ghx.bak
+*.3dmbak
+*.lock
+$Recycle.Bin/
+
+# Datos grandes (usar Git LFS o no commitear)
+data/pot-geojson/*.gpkg
+data/pot-geojson/*.geojson
+data/pot-cache/*.json
+data/ideca-cache/*
+data/neighbors/*.3dm
+
+# Exports
+exports/json/*.json
+exports/logs/*.log
+exports/logs/*.txt
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/launch.json
+.idea/
+
+# Claude Code
+.claude/
+
+# Obsidian (si llega a vivir aquí)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/

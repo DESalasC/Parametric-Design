@@ -1,0 +1,70 @@
+# CLAUDE.md — Proyecto DiseñoParametrico
+
+## Contexto
+Ecosistema BIM-GIS-AI para diseño arquitectónico paramétrico en Bogotá.
+Stack: Rhino 8 + Grasshopper + Archicad + Tapir + Rhino.Compute (puerto 6001) + Ollama + Claude Code.
+
+## Hardware del sistema
+- CPU: Intel i5-12600K (12th Gen)
+- RAM: 64 GB
+- GPU: NVIDIA RTX 4070 Ti (12 GB VRAM)
+- OS: Windows 11 Pro 25H2
+
+## Reglas obligatorias
+
+### Normativa
+1. Toda referencia POT debe citar el Decreto 555/2021 y consultar el .gpkg de la geobase Bogotá.
+2. Toda referencia NSR-10 debe citar el Título y sección (ej: NSR-10 Título A.2).
+3. Coordenadas: MAGNA-SIRGAS Origen Bogotá (EPSG:9377).
+4. Aplicar desfase virtual si se compara con origen local (0,0,0) de Archicad.
+
+### Grasshopper / GHPython
+5. Entradas JSON a GHPython: No Type Hint + Item Access.
+6. Entradas geométricas a GHPython: List Access + Flatten.
+7. Lotes deben ser polilíneas (LineSegments), no NURBS.
+8. No usar APIs online (epsg.io, IDECA) dentro de GHPython; usar data/ local.
+9. Si una entrada falla, usar valor por defecto (retiro 3.0m) y loggear warning.
+
+### Código
+10. Todo script GHPython nuevo requiere test antes de merge.
+11. Todo script va en src/fase-N-<nombre>/ con fixture en 	ests/.
+12. Convención de nombre: MAYUS_FASE_VERBO_vNN.py (ej: F1_CONTEXTO_v09.py).
+13. Versión Python externa: 3.12. IronPython interno GH: 2.7.
+14. Type hints obligatorios en Python externo. En GHPython, opcionales.
+
+### Datos
+15. Archivo POT: D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg
+16. Caché POT: data/pot-cache/<predio-id>.json (generado por gpkg-to-cache.py).
+17. Vecinos: modelado manual en Archicad (Morph), validar con alidate-neighbors.py antes de pasar a GH.
+
+### Modelos IA
+18. Modelo primario: qwen2.5-coder:14b (9 GB VRAM).
+19. Si Rhino.Compute activo: cambiar a qwen2.5:7b (5 GB VRAM).
+20. Fallback emergencia: llama3.2:3b.
+21. Claude Code enruta vía fcc-server en http://127.0.0.1:8787.
+
+## Comandos útiles
+- python scripts/utilities/gpkg-to-cache.py --lot <geojson> — genera caché POT
+- python scripts/utilities/validate-neighbors.py --input <file> — valida vecinos
+- powershell scripts/rhino-compute/start-compute.ps1 — arranca compute
+- powershell scripts/rhino-compute/health-check.ps1 — verifica servicios
+- pytest src/fase-1-contexto/tests/ — corre tests Fase 1
+
+## Limitaciones conocidas
+- Vecinos: modelado manual (no hay modelo 3D público de Bogotá).
+- Lotes curvos: NO soportados en ANALISIS_VECINOS (requiere polilínea).
+- POT: 2455 campos en geobase, solo ~30 relevantes (ver config/field-whitelist.json).
+- IronPython en GH: sin acceso a equests, iona, geopandas. Usar System.Net para HTTP si imprescindible.
+
+## Próximos pasos (roadmap)
+- Fase 1: Reforzar tests (en curso).
+- Fase 2: MOTOR_DEMANDA.py (próximo).
+- Fase 3: VOLUMEN_v04.py.
+- Fase 4: mapeo-tapir.py + inyección BIM.
+
+## Referencias
+- POT Bogotá: Decreto 555 de 2021
+- NSR-10: Reglamento Colombiano de Construcción Sismo Resistente
+- Tapir: [https://github.com/ogix/Tapir](https://github.com/ogix/Tapir) (verificar URL oficial)
+- Grasshopper-Archicad Live Connection: Graphisoft
+- Geobase Bogotá: [https://geobogota.maps.arcgis.com/](https://geobogota.maps.arcgis.com/)
