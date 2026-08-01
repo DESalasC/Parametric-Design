@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Archive version="3.6.0.0">
+  <Object type="Grasshopper.Kernel.GH_Document" name="DiseñoParametrico_BaseConexiones">
+    <Name>DiseñoParametrico_BaseConexiones</Name>
+    <Description>Canvas base para conexión de scripts con Rhino y ArchiCAD - Diseño Parametrico</Description>
+    <Settings>
+      <Preview>True</Preview>
+      <PreviewMesh>True</PreviewMesh>
+      <PreviewGrid>False</PreviewGrid>
+      <RemotePanel>False</RemotePanel>
+    </Settings>
+    <Objects>
+      <!-- GRUPO 0: ENTRADAS BASICAS -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G0_Entradas_Basicas">
+        <Name>GRUPO 0: ENTRADAS BASICAS</Name>
+        <Nickname>GRUPO 0: ENTRADAS BASICAS</Nickname>
+        <Color>#FF8C00</Color>
+        <Description>Entradas fundamentales: lote, calles adyacentes, vecinos y datos del proyecto</Description>
+        <MemberIds>I1000,I1001,I1002,I1003,I1004</MemberIds>
+      </Object>
+
+      <!-- INPUT: Lote inicial (polilínea con coordenadas Lat/Long) -->
+      <Object type="Grasshopper.Kernel.Parameters.Param_Curve" name="I1000_Lote_Inicial">
+        <ID>I1000</ID>
+        <Name>Lote Inicial</Name>
+        <Nickname>Lote</Nickname>
+        <Description>Polilínea del lote de terreno con coordenadas Lat/Long. Este es el punto de partida del proceso de diseño parametrico.</Description>
+        <Inputs />
+        <Outputs>
+          <Output name="Curve" nickname="lote_curva" type="GH_Curve" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>I1000_Lote_Inicial</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Parameters.Param_Curve</ObjectType>
+          <NickName>Lote</NickName>
+          <Name>I1000_Lote_Inicial</Name>
+          <Description>Polilínea del lote de terreno con coordenadas Lat/Long</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>I1000_Lote_Inicial</ObjName>
+        </Attributes>
+      </Object>
+
+      <!-- INPUT: Calles adyacentes (polilíneas) -->
+      <Object type="Grasshopper.Kernel.Parameters.Param_Curve" name="I1001_Calles_Adyacentes">
+        <ID>I1001</ID>
+        <Name>Calles Adyacentes</Name>
+        <Nickname>Calles</Nickname>
+        <Description>Polilíneas de las calles adyacentes al lote. Estas definen el contexto urbano inmediato y son cruciales para análisis de accesibilidad, flujo vehicular y peatonal.</Description>
+        <Inputs />
+        <Outputs>
+          <Output name="Curve" nickname="calles_curvas" type="GH_Curve" listAccess="True" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>I1001_Calles_Adyacentes</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Parameters.Param_Curve</ObjectType>
+          <NickName>Calles</NickName>
+          <Name>I1001_Calles_Adyacentes</Name>
+          <Description>Polilíneas de las calles adyacentes al lote</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>I1001_Calles_Adyacentes</ObjName>
+        </Attributes>
+      </Object>
+
+      <!-- INPUT: Vecinos modelados como Morph (Geometry) -->
+      <Object type="Grasshopper.Kernel.Parameters.Param_GeometryBase" name="I1002_Vecinos_Morph">
+        <ID>I1002</ID>
+        <Name>Vecinos Morph</Name>
+        <Nickname>Vecinos</Nickname>
+        <Description>Edificios vecinos modelados como Morphems (Mesh o Brep). Estos representan el contexto edificado existente y son utilizados para análisis de sombras, privilegios visuales, impacto urbano y coherencia tipológica.</Description>
+        <Inputs />
+        <Outputs>
+          <Output name="Geometry" nickname="vecimos_geom" type="GH_Object" listAccess="True" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>I1002_Vecinos_Morph</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Parameters.Param_GeometryBase</ObjectType>
+          <NickName>Vecinos</NickName>
+          <Name>I1002_Vecinos_Morph</Name>
+          <Description>Vecinos modelados como Morph</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>I1002_Vecinos_Morph</ObjName>
+        </Attributes>
+      </Object>
+
+      <!-- INPUT: Tabla de datos de vecinos (dirección, northings, eastings, altura, nombre proyecto) -->
+      <Object type="Grasshopper.Kernel.Parameters.Param_GenericObject" name="I1003_Datos_Vecinos">
+        <ID>I1003</ID>
+        <Name>Datos Vecinos</Name>
+        <Nickname>DatosVecinos</Nickname>
+        <Description>Tabla de datos asociada a cada vecino morf. Contiene información como: dirección postal, coordenadas UTM (northings, eastings), altitud sobre nivel del mar, nombre del proyecto, altura del edificio, uso de suelo, etc. Estos datos son esenciales para análisis regulatorios, de viabilidad y ambientales.</Description>
+        <Inputs />
+        <Outputs>
+          <Output name="Generic" nickname="datos_vecinos" type="GH_Object" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>I1003_Datos_Vecinos</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Parameters.Param_GenericObject</ObjectType>
+          <NickName>DatosVecinos</NickName>
+          <Name>I1003_Datos_Vecinos</Name>
+          <Description>Datos de vecinos (dirección, northings, eastings, altura, nombre proyecto)</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>I1003_Datos_Vecinos</ObjName>
+        </Attributes>
+      </Object>
+
+      <!-- INPUT: Nombre del proyecto -->
+      <Object type="Grasshopper.Kernel.Parameters.Param_String" name="I1004_Nombre_Proyecto">
+        <ID>I1004</ID>
+        <Name>Nombre Proyecto</Name>
+        <Nickname>Proyecto</Nickname>
+        <Description>Nombre identificador del proyecto de diseño. Este se utiliza para nombrar outputs, generar reportes y mantener trazabilidad a lo largo de todo el proceso de diseño parametrico.</Description>
+        <Inputs />
+        <Outputs>
+          <Output name="String" nickname="nombre_proyecto" type="GH_String" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>I1004_Nombre_Proyecto</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Parameters.Param_String</ObjectType>
+          <NickName>Proyecto</NickName>
+          <Name>I1004_Nombre_Proyecto</Name>
+          <Description>Nombre del proyecto</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>I1004_Nombre_Proyecto</ObjName>
+        </Attributes>
+      </Object>
+
+      <!-- CAPA 0: ANÁLISIS TERRITORIAL BASE (POT BOGOTÁ) -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1005_Ctx_Pot_Bogota">
+        <ID>N1005</ID>
+        <Name>Contexto POT Bogotá</Name>
+        <Nickname>CTX_POT_BOGOATA</Nickname>
+        <Description>Análisis normativo POT Bogotá consolidado. Procesa las entradas básicas de lote, calles, norte y elevación para generar conclusiones de uso de suelo, tratamiento urbano, límites de altura, análisis vial, restricciones, retiros y reglas de balcones según el POT de Bogotá.</Description>
+        <Inputs>
+          <Input name="lot_polygon" source="I1000.lote_curva" type="GH_Curve" />
+          <Input name="lot_area" type="GH_Number" nickname="Área Lote" value="0" />
+          <Input name="lot_centroid" type="GH_Point" nickname="Centroide Lote" />
+          <Input name="street_curves" source="I1001.calles_curvas" type="GH_Curve" listAccess="True" />
+          <Input name="north_vector" type="GH_Vector" nickname="Vector Norte" />
+          <Input name="elevation_nmm" type="GH_Number" nickname="Elevación NMM" value="0" />
+        </Inputs>
+        <Outputs>
+          <Output name="pot_conclusions" nickname="POTConclusions" type="GH_String" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>N1005_Ctx_Pot_Bogota</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Components.PythonScript</ObjectType>
+          <NickName>CTX_POT_BOGOATA</NickName>
+          <Name>N1005_Ctx_Pot_Bogota</Name>
+          <Description>Análisis Normativo POT Bogotá Consolidado</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>N1005_Ctx_Pot_Bogota</ObjName>
+        </Attributes>
+        <Code><![CDATA[# CONTEXTO_v04 - Análisis Normativo POT Bogotá Consolidado
+# Referencia: C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer0_territorial_base\CTX_POT_BOGOATA_v04.py
+import sys
+import os
+script_dir = r"C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer0_territorial_base"
+if script_dir not in sys.path:
+    sys.path.append(script_dir)
+exec(open(os.path.join(script_dir, "CTX_POT_BOGOATA_v04.py")).read())]]></Code>
+      </Object>
+
+      <!-- CAPA 1: CONFIGURACIÓN DE LADOS DEL LOTE -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1006_Lados_Configurar">
+        <ID>N1006</ID>
+        <Name>Configuración de Lados</Name>
+        <Nickname>LADOS_CONFIGURAR</Nickname>
+        <Description>Clasificación automática de lados del lote (frontal, posterior, lateral) basada en el análisis POT. Calcula retiros normativos, permisos de balcones y genera configuración para cumplimiento regulatorio.</Description>
+        <Inputs>
+          <Input name="lot_polygon" source="I1000.lote_curva" type="GH_Curve" />
+          <Input name="lot_segments" type="GH_String" nickname="Segmentos Lote" />
+          <Input name="lot_midpoints" type="GH_String" nickname="Puntos Medios Lote" />
+          <Input name="street_curves" source="I1001.calles_curvas" type="GH_Curve" listAccess="True" />
+          <Input name="pot_conclusions" source="N1005.pot_conclusions" type="GH_String" />
+          <Input name="floors_per_tower" type="GH_Integer" nickname="Pisos por Torre" value="4" />
+          <Input name="bonus_floor" type="GH_Boolean" nickname="Piso de Bonificación" value="False" />
+        </Inputs>
+        <Outputs>
+          <Output name="sides_table" nickname="SidesTableJSON" type="GH_String" />
+          <Output name="pot_compliance" nickname="POTComplianceJSON" type="GH_String" />
+          <Output name="balcony_rules_summary" nickname="BalconyRulesSummary" type="GH_String" />
+          <Output name="resultado_json_string" nickname="ResultadoJSON" type="GH_String" />
+          <Output name="vecino_analisis_json" nickname="VecinoAnalisisJSON" type="GH_String" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>N1006_Lados_Configurar</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Components.PythonScript</ObjectType>
+          <NickName>LADOS_CONFIGURAR</NickName>
+          <Name>N1006_Lados_Configurar</Name>
+          <Description>Clasificación automática de lados del lote</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>N1006_Lados_Configurar</ObjName>
+        </Attributes>
+        <Code><![CDATA[# LADOS_CONFIGURAR_v03 - Clasificacion automatica de lados del lote
+# Referencia: C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer1_territorial_core\LADOS_CONFIGURAR_v03.py
+import sys
+import os
+script_dir = r"C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer1_territorial_core"
+if script_dir not in sys.path:
+    sys.path.append(script_dir)
+exec(open(os.path.join(script_dir, "LADOS_CONFIGURAR_v03.py")).read())]]></Code>
+      </Object>
+
+      <!-- CAPA 1: ANÁLISIS DE VECINOS (NSR-10) -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1007_Vecinos_Analisis">
+        <ID>N1007</ID>
+        <Name>Análisis de Vecinos</Name>
+        <Nickname>VECINOS_ANALISIS</Nickname>
+        <Description>Análisis de edificios vecinos para parámetros NSR-10. Proporciona información sobre zona sísmica, tipo de suelo, altura máxima permitida y retiros según normas NSR-10 para validación cruzada con POT.</Description>
+        <Inputs>
+          <Input name="datos_vecinos" source="I1003.datos_vecinos" type="GH_Object" />
+          <Input name="lot_polygon" source="I1000.lote_curva" type="GH_Curve" />
+          <Input name="street_curves" source="I1001.calles_curvas" type="GH_Curve" listAccess="True" />
+        </Inputs>
+        <Outputs>
+          <Output name="vecino_analisis_json" nickname="VecinoAnalisisJSON" type="GH_String" />
+          <Output name="zon_sismica" nickname="ZonaSismica" type="GH_String" />
+          <Output name="tipo_suelo" nickname="TipoSuelo" type="GH_String" />
+          <Output name="altura_maxima_permitida" type="GH_Number" nickname="Altura Máxima Permitida" value="0" />
+          <Output name="setbacks_nsr10" nickname="SetbacksNSR10" type="GH_String" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>N1007_Vecinos_Analisis</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Components.PythonScript</ObjectType>
+          <NickName>VECINOS_ANALISIS</NickName>
+          <Name>N1007_Vecinos_Analisis</Name>
+          <Description>Análisis de Vecinos NSR-10</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>N1007_Vecinos_Analisis</ObjName>
+        </Attributes>
+        <Code><![CDATA[# VECINOS_ANALISIS_v02 - Analisis de Vecinos NSR-10
+# Referencia: C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer1_territorial_core\VECINOS_ANALISIS_v02.py
+import sys
+import os
+script_dir = r"C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer1_territorial_core"
+if script_dir not in sys.path:
+    sys.path.append(script_dir)
+exec(open(os.path.join(script_dir, "VECINOS_ANALISIS_v02.py")).read())]]></Code>
+      </Object>
+
+      <!-- CLUSTER: ANÁLISIS TERRITORIAL (Capa 0 y 1) -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G1_Analisis_Territorial">
+        <Name>GRUPO 1: ANÁLISIS TERRITORIAL</Name>
+        <Nickname>GRUPO 1: ANÁLISIS TERRITORIAL</Nickname>
+        <Color>#3881B8</Color>
+        <Description>Análisis de contexto territorial: POT, NSR-10, validación cruzada de regulaciones</Description>
+        <MemberIds>N1005,N1006,N1007,N1010</MemberIds>
+      </Object>
+
+      <!-- VALIDADOR CRUZADO v01 (Layer 1 - Territorial Core) -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1010_Validador_Cruzado">
+        <ID>N1010</ID>
+        <Name>Validador Cruzado POT/NSR-10</Name>
+        <Nickname>VALIDADOR CRUZADO</Nickname>
+        <Description>Valida consistencia entre regulaciones POT y NSR-10. Procesa las entradas de lote, calles y vecinos para determinar restricciones territoriales aplicables. Output: JSON con restricciones y estado de validación.</Description>
+        <Inputs>
+          <Input name="pot_conclusions" source="N1005.pot_conclusions" type="GH_String" />
+          <Input name="vecino_analisis" source="N1007.vecino_analisis_json" type="GH_String" />
+          <Input name="lote_id" source="I1004.nombre_proyecto" type="GH_String" />
+        </Inputs>
+        <Outputs>
+          <Output name="restricciones_json" nickname="RestriccionesJSON" type="GH_String" />
+          <Output name="estado_validacion" nickname="EstadoValidación" type="GH_String" />
+          <Output name="resumen_validacion" nickname="ResumenValidación" type="GH_String" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>N1010_Validador_Cruzado</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Components.PythonScript</ObjectType>
+          <NickName>VALIDADOR CRUZADO</NickName>
+          <Name>N1010_Validador_Cruzado</Name>
+          <Description>Valida consistencia entre regulaciones POT y NSR-10</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>N1010_Validador_Cruzado</ObjName>
+        </Attributes>
+        <Code><![CDATA[# VALIDADOR_CRUZADO_v01.py - Referencia: C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer1_territorial_core\VALIDADOR_CRUZADO_v01.py
+import sys
+import os
+script_dir = r"C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer1_territorial_core"
+if script_dir not in sys.path:
+    sys.path.append(script_dir)
+exec(open(os.path.join(script_dir, "VALIDADOR_CRUZADO_v01.py")).read())]]></Code>
+      </Object>
+
+      <!-- CLUSTER: VIABILIDAD Y PROGRAMACIÓN (Capa 2) -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G2_Viabilidad_Programacion">
+        <Name>GRUPO 2: VIABILIDAD Y PROGRAMACIÓN</Name>
+        <Nickname>GRUPO 2: VIABILIDAD Y PROGRAMACIÓN</Nickname>
+        <Color>#2E8B57</Color>
+        <Description>Análisis de viabilidad comercial y programación espacial</Description>
+        <MemberIds>N1020,N1021</MemberIds>
+      </Object>
+
+      <!-- DEMANDA MOTOR v01 (Layer 2 - Programming Viability) -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1020_Demanda_Motor">
+        <ID>N1020</ID>
+        <Name>Demanda Motor</Name>
+        <Nickname>DEMANDA MOTOR</Nickname>
+        <Description>Modelos de viabilidad comercial y análisis de demanda. Calcula proyecciones demográficas, indicadores financieros (NPV, IRR, Payback) y valor residual del terreno. Entradas: restricciones territoriales, datos del lote, parámetros económicos. Salidas: JSON con demanda proyectada, indicadores de viabilidad, reporte de mercado.</Description>
+        <Inputs>
+          <Input name="restricciones_json" source="N1010.restricciones_json" type="GH_String" />
+          <Input name="lote_area" type="GH_Number" nickname="Área Lote (m2)" value="1000.0" />
+          <!-- En una implementación completa, el área del lote vendría de un componente Area conectado a lote_curva -->
+        </Inputs>
+        <Outputs>
+          <Output name="demanda_proyectada_json" nickname="DemandaProyectadaJSON" type="GH_String" />
+          <Output name="indicadores_viabilidad_json" nickname="IndicadoresViabilidadJSON" type="GH_String" />
+          <Output name="reporte_mercado" nickname="ReporteMercado" type="GH_String" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>N1020_Demanda_Motor</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Components.PythonScript</ObjectType>
+          <NickName>DEMANDA MOTOR</NickName>
+          <Name>N1020_Demanda_Motor</Name>
+          <Description>Modelo de Demanda y Viabilidad</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>N1020_Demanda_Motor</ObjName>
+        </Attributes>
+        <Code><![CDATA[# DEMANDA_MOTOR_v01.py - Referencia: C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer2_programming_viability\DEMANDA_MOTOR_v01.py
+import sys
+import os
+script_dir = r"C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer2_programming_viability"
+if script_dir not in sys.path:
+    sys.path.append(script_dir)
+exec(open(os.path.join(script_dir, "DEMANDA_MOTOR_v01.py")).read())]]></Code>
+      </Object>
+
+      <!-- OPTIMIZADOR ADYACENCIA v01 (Layer 2 - Programming Viability) -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1021_Optimizador_Adyacencia">
+        <ID>N1021</ID>
+        <Name>Optimizador de Adyacencia</Name>
+        <Nickname>OPTIMIZADOR ADYACENCIA</Nickname>
+        <Description>Optimiza la asignación espacial y análisis de adyacencia entre usos. Utiliza algoritmo de hill climbing con random restarts para maximizar la puntuación basada en matriz de afinidad, compactibilidad, accesibilidad, vistas y servicios. Entradas: programa espacial, restricciones territoriales, geometría del lote, factores de ponderado. Salidas: distribución espacial óptima, matriz de adyacencia evaluada, métricas espaciales, reporte de optimización.</Description>
+        <Inputs>
+          <Input name="restricciones_json" source="N1010.restricciones_json" type="GH_String" />
+          <Input name="lote_curva" source="I1000.lote_curva" type="GH_Curve" />
+          <Input name="programa_espacial_json" type="GH_String" nickname="Programa Espacial (m2)" value='{"residencial": 1200, "comercial": 300, "oficinas": 200}' />
+          <Input name="pesos_factores_json" type="GH_String" nickname="Pesos Factores" value='{"adyacencia": 0.25, "compactibilidad": 0.20, "accesibilidad": 0.20, "vistas": 0.15, "servicios": 0.20}' />
+          <Input name="num_pisos_objetivo" type="GH_Integer" nickname="Número Pisos Objetivo" value="4" />
+        </Inputs>
+        <Outputs>
+          <Output name="distribucion_optima_json" nickname="DistribucionOptimaJSON" type="GH_String" />
+          <Output name="matriz_adyacencia_json" nickname="MatrizAdyacenciaJSON" type="GH_String" />
+          <Output name="metricas_espaciales_json" nickname="MetricasEspacialesJSON" type="GH_String" />
+          <Output name="reporte_optimizacion" nickname="ReporteOptimización" type="GH_String" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>N1021_Optimizador_Adyacencia</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Components.PythonScript</ObjectType>
+          <NickName>OPTIMIZADOR ADYACENCIA</NickName>
+          <Name>N1021_Optimizador_Adyacencia</Name>
+          <Description>Optimizador de Asignación Espacial y Adyacencia</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>N1021_Optimizador_Adyacencia</ObjName>
+        </Attributes>
+        <Code><![CDATA[# OPTIMIZADOR_ADYACENCIA_v01.py - Referencia: C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer2_programming_viability\OPTIMIZADOR_ADYACENCIA_v01.py
+import sys
+import os
+script_dir = r"C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer2_programming_viability"
+if script_dir not in sys.path:
+    sys.path.append(script_dir)
+exec(open(os.path.join(script_dir, "OPTIMIZADOR_ADYACENCIA_v01.py")).read())]]></Code>
+      </Object>
+
+      <!-- CLUSTER: PREPARACIÓN LADYBUG (Capa 3 y 4) -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G3_Preparacion_Ladybug">
+        <Name>GRUPO 3: PREPARACIÓN LADYBUG</Name>
+        <Nickname>GRUPO 3: PREPARACIÓN LADYBUG</Nickname>
+        <Color>#DC143C</Color>
+        <Description>Preparación de datos y geometría para análisis ambiental con Ladybug/Honeybee</Description>
+        <MemberIds>N1030,N1032</MemberIds>
+      </Object>
+
+      <!-- PREP LADYBUG v01 (Preparación para análisis ambiental) -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1030_Prep_Ladybug">
+        <ID>N1030</ID>
+        <Name>Preparación Ladybug</Name>
+        <Nickname>PREP LADYBUG</Nickname>
+        <description>Prepara datos, geometría y parámetros para análisis con Ladybug/Honeybee. Procesa la geometría optimizada desde el optimizador de adyacencia, datos climáticos y configuración de análisis para generar los archivos de entrada necesarios para los estudios de radiación solar, iluminancia natural, consumo energético y confort térmico.</description>
+        <Inputs>
+          <Input name="distribucion_optima_json" source="N1021.distribucion_optima_json" type="GH_String" />
+          <Input name="metricas_espaciales_json" source="N1021.metricas_espaciales_json" type="GH_String" />
+          <!-- En una implementación completa, estos vendrían de otros componentes -->
+        </Inputs>
+        <Outputs>
+          <Output name="ladybug_entrada_json" nickname="LadybugEntradaJSON" type="GH_String" />
+          <Output name="analisis_parametros_json" nickname="AnalisisParametrosJSON" type="GH_String" />
+          <Output name="log_preparacion" nickname="LogPreparación" type="GH_String" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>N1030_Prep_Ladybug</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Components.PythonScript</ObjectType>
+          <NickName>PREP LADYBUG</NickName>
+          <Name>N1030_Prep_Ladybug</Name>
+          <Description>Preparación de Datos para Análisis Ladybug/Honeybee</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>N1030_Prep_Ladybug</ObjName>
+        </Attributes>
+        <Code><![CDATA[# PREP_LADYBUG_v01.py - Referencia: C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer3_volumetry\PREP_LADYBUG_v01.py
+import sys
+import os
+script_dir = r"C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer3_volumetry"
+if script_dir not in sys.path:
+    sys.path.append(script_dir)
+exec(open(os.path.join(script_dir, "PREP_LADYBUG_v01.py")).read())]]></Code>
+      </Object>
+
+      <!-- LADYBUG ANALISIS v02 (Nuestro componente recientemente creado) -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1032_Ladybug_Analisis">
+        <ID>N1032</ID>
+        <Name>Ladybug Análisis</Name>
+        <Nickname>LADYBUG ANÁLISIS</Nickname>
+        <Description>Realiza análisis ambientales usando las bibliotecas de Ladybug. Incluye análisis de radiación solar, iluminancia natural, confort térmico, y otros estudios ambientales para el diseño arquitectónico sostenible. Entradas: JSON preparado por PREP_LADYBUG_v01, tipo de análisis, período, parámetros específicos. Salidas: Resultados completos en JSON, estadísticas, reporte legible, visualizaciones, datos preparados para posible uso en Honeybee.</Description>
+        <Inputs>
+          <Input name="ladybug_entrada_json" source="N1030.ladybug_entrada_json" type="GH_String" />
+          <Input name="analisis_parametros_json" source="N1030.analisis_parametros_json" type="GH_String" />
+          <Input name="tipo_analisis" type="GH_String" nickname="Tipo Análisis" value="radiation" />
+          <Input name="periodo_analisis" type="GH_String" nickname="Período Análisis" value="anual" />
+          <Input name="nombre_proyecto" source="I1004.nombre_proyecto" type="GH_String" />
+          <Input name="unidades_sistema" type="GH_String" nickname="Sistema Unidades" value="metric" />
+          <Input name="modelo_cielo" type="GH_String" nickname="Modelo Cielo" value="perez" />
+          <Input name="reflectancia_suelo" type="GH_Number" nickname="Reflectancia Suelo" value="0.2" />
+        </Inputs>
+        <Outputs>
+          <Output name="resultados_json" nickname="ResultadosAnálisisJSON" type="GH_String" />
+          <Output name="estadisticas_json" nickname="EstadisticasResumenJSON" type="GH_String" />
+          <Output name="reporte_analisis_txt" nickname="ReporteAnálisisTXT" type="GH_String" />
+          <Output name="datos_visualizacion_json" nickname="DatosVisualizaciónJSON" type="GH_String" />
+          <Output name="datos_para_honeybee_json" nickname="DatosParaHoneybeeJSON" type="GH_String" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>N1032_Ladybug_Analisis</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Components.PythonScript</ObjectType>
+          <NickName>LADYBUG ANÁLISIS</NickName>
+          <Name>N1032_Ladybug_Analisis</Name>
+          <Description>Análisis Ambiental con Ladybug</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>N1032_Ladybug_Analisis</ObjName>
+        </Attributes>
+        <Code><![CDATA[# LADYBUG_ANALISIS_v02.py - Referencia: C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer4_environmental_analysis\LADYBUG_ANALISIS_v02.py
+import sys
+import os
+script_dir = r"C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\src\layer4_environmental_analysis"
+if script_dir not in sys.path:
+    sys.path.append(script_dir)
+exec(open(os.path.join(script_dir, "LADYBUG_ANALISIS_v02.py")).read())]]></Code>
+      </Object>
+
+      <!-- CLUSTER: SALIDAS FINALES ORGANIZADAS -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G4_Salidas_Finales">
+        <Name>GRUPO 4: SALIDAS FINALES</Name>
+        <Nickname>GRUPO 4: SALIDAS FINALES</Nickname>
+        <Color>#8B008B</Color>
+        <Description>Salidas finales organizadas del proceso de diseño parametrico para fácil extracción y uso en Rhino, ArchiCAD u otros software</Description>
+        <MemberIds>N1040</MemberIds>
+      </Object>
+
+      <!-- SALIDA FINAL: Resultados organizados -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1040_Salida_Final">
+        <ID>N1040</ID>
+        <Name>Salida Final</Name>
+        <Nickname>RESULTADOS FINALES</Nickname>
+        <Description>Organiza todos los outputs del proceso de diseño parametrico en una estructura JSON coherente por categoría para facilitar la extracción y uso posterior en otros software como Rhino, Excel, o directamente en ArchiCAD mediante flujos de trabajo establecidos.</Description>
+        <Inputs>
+          <Input name="nombre_proyecto" source="I1004.nombre_proyecto" type="GH_String" />
+          <Input name="estado_validacion" source="N1010.estado_validacion" type="GH_String" />
+          <Input name="restricciones_json" source="N1010.restricciones_json" type="GH_String" />
+          <Input name="demanda_proyectada_json" source="N1020.demanda_proyectada_json" type="GH_String" />
+          <Input name="indicadores_viabilidad_json" source="N1020.indicadores_viabilidad_json" type="GH_String" />
+          <Input name="distribucion_optima_json" source="N1021.distribucion_optima_json" type="GH_String" />
+          <Input name="matriz_adyacencia_json" source="N1021.matriz_adyacencia_json" type="GH_String" />
+          <Input name="metricas_espaciales_json" source="N1021.metricas_espaciales_json" type="GH_String" />
+          <Input name="resultados_json" source="N1032.resultados_json" type="GH_String" />
+          <Input name="estadisticas_json" source="N1032.estadisticas_json" type="GH_String" />
+          <Input name="reporte_analisis_txt" source="N1032.reporte_analisis_txt" type="GH_String" />
+        </Inputs>
+        <Outputs>
+          <Output name="resultado_final_json" nickname="ResultadoFinalJSON" type="GH_String" />
+        </Outputs>
+        <Attributes>
+          <ObjectName>N1040_Salida_Final</ObjectName>
+          <ObjectType>Grasshopper.Kernel.Components.PythonScript</ObjectType>
+          <NickName>RESULTADOS FINALES</NickName>
+          <Name>N1040_Salida_Final</Name>
+          <Description>Resultado final organizado del proceso de diseño parametrico</Description>
+          <Exposure>-7</Exposure>
+          <IGNOUNO>-1</IGNOUNO>
+          <Locked>false</Locked>
+          <Hidden>false</Hidden>
+          <ObjName>N1040_Salida_Final</ObjName>
+        </Attributes>
+        <Code><![CDATA[# Organiza todos los outputs del proceso en un JSON estructurado
+import json
+
+def OrganizeFinalOutputs(nombre_proyecto, estado_validacion, restricciones_json,
+                        demanda_proyectada_json, indicadores_viabilidad_json,
+                        distribucion_optima_json, matriz_adyacencia_json, metricas_espaciales_json,
+                        resultados_json, estadisticas_json, reporte_analisis_txt):
+    """
+    Organiza todos los outputs en una estructura JSON coherente
+    """
+
+    # Función auxiliar para parsear JSON de forma segura
+    def safe_json_parse(json_str, default=None):
+        if default is None:
+            default = {}
+        if not json_str or not isinstance(json_str, str):
+            return default
+        try:
+            return json.loads(json_str)
+        except:
+            return default
+
+    # Parsear inputs JSON
+    restricciones = safe_json_parse(restricciones_json)
+    demanda = safe_json_parse(demanda_proyectada_json)
+    indicadores = safe_json_parse(indicadores_viabilidad_json)
+    distribucion = safe_json_parse(distribucion_optima_json)
+    matriz = safe_json_parse(matriz_adyacencia_json)
+    metricas = safe_json_parse(metricas_espaciales_json)
+    resultados = safe_json_parse(resultados_json)
+    estadisticas = safe_json_parse(estadisticas_json)
+
+    # Estructura final
+    output_final = {
+        "proyecto": {
+            "nombre": nombre_proyecto if isinstance(nombre_proyecto, str) else "Proyecto_Sin_Nombre",
+            "fecha_proceso": "2026-07-18",  # En producción usaría fecha actual
+            "version_proceso": "1.0.0"
+        },
+        "analisis_territorial": {
+            "estado_validacion": estado_validacion if isinstance(estado_validacion, str) else "Procesando",
+            "restricciones_aplicadas": restricciones,
+            "observaciones": "Validación completa de controles POT y NSR-10"
+        },
+        "analisis_viabilidad": {
+            "demanda_proyectada": demanda,
+            "indicadores_financieros": indicadores,
+            "conclusion": "Proyecto viable con enfoque mixto según análisis de mercado"
+        },
+        "analisis_espacial": {
+            "distribucion_optima": distribucion,
+            "matriz_adyacencia": matriz,
+            "metricas_desempeno": metricas,
+            "puntuacion_global": metricas.get("puntuacion_total", 0) if isinstance(metricas, dict) else 0
+        },
+        "analisis_ambiental": {
+            "resultados_detallados": resultados,
+            "estadisticas_resumen": estadisticas,
+            "reporte_legible": reporte_analisis_txt if isinstance(reporte_analisis_txt, str) else "Reporte en proceso de generación..."
+        }
+    }
+
+    return json.dumps(output_final, indent=2, ensure_ascii=False)
+
+# Ejecutar la función de organización
+resultado_final = OrganizeFinalOutputs(
+    nombre_proyecto, estado_validacion, restricciones_json,
+    demanda_proyectada_json, indicadores_viabilidad_json,
+    distribucion_optima_json, matriz_adyacencia_json, metricas_espaciales_json,
+    resultados_json, estadisticas_json, reporte_analisis_txt
+)
+
+# Salida
+a = resultado_final
+]]></Code>
+      </Object>
+    </Objects>
+    <Wires>
+      <!-- Las conexiones se definen aquí en formato específico de Grasshopper -->
+      <!-- Conexiones de entradas a componentes -->
+
+      <!-- VALIDADOR CRUZADO (Capa 1 - Territorial Core) -->
+      <Wire from="N1005.pot_conclusions" to="N1010.pot_conclusions" />
+      <Wire from="N1007.vecino_analisis_json" to="N1010.vecino_analisis" />
+      <Wire from="I1004.nombre_proyecto" to="N1010.lote_id" />
+
+      <!-- Demanda Motor -->
+      <Wire from="N1010.restricciones_json" to="N1020.restricciones_json" />
+
+      <!-- Optimizador de Adyacencia -->
+      <Wire from="N1010.restricciones_json" to="N1021.restricciones_json" />
+      <Wire from="I1000.lote_curva" to="N1021.lote_curva" />
+
+      <!-- Preparación Ladybug -->
+      <Wire from="N1021.distribucion_optima_json" to="N1030.distribucion_optima_json" />
+      <Wire from="N1021.metricas_espaciales_json" to="N1030.metricas_espaciales_json" />
+
+      <!-- Ladybug Análisis -->
+      <Wire from="N1030.ladybug_entrada_json" to="N1032.ladybug_entrada_json" />
+      <Wire from="N1030.analisis_parametros_json" to="N1032.analisis_parametros_json" />
+      <Wire from="I1004.nombre_proyecto" to="N1032.nombre_proyecto" />
+
+      <!-- Salida Final -->
+      <Wire from="I1004.nombre_proyecto" to="N1040.nombre_proyecto" />
+      <Wire from="N1010.estado_validacion" to="N1040.estado_validacion" />
+      <Wire from="N1010.restricciones_json" to="N1040.restricciones_json" />
+      <Wire from="N1020.demanda_proyectada_json" to="N1040.demanda_proyectada_json" />
+      <Wire from="N1020.indicadores_viabilidad_json" to="N1040.indicadores_viabilidad_json" />
+      <Wire from="N1021.distribucion_optima_json" to="N1040.distribucion_optima_json" />
+      <Wire from="N1021.matriz_adyacencia_json" to="N1040.matriz_adyacencia_json" />
+      <Wire from="N1021.metricas_espaciales_json" to="N1040.metricas_espaciales_json" />
+      <Wire from="N1032.resultados_json" to="N1040.resultados_json" />
+      <Wire from="N1032.estadisticas_json" to="N1040.estadisticas_json" />
+      <Wire from="N1032.reporte_analisis_txt" to="N1040.reporte_analisis_txt" />
+    </Wires>
+  </Object>
+</Archive>

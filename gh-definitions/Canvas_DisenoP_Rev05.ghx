@@ -1,0 +1,958 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Archive version="3.6.0.0">
+  <Object type="Grasshopper.Kernel.GH_Document" name="Canvas_DisenoP_Rev05">
+    <Name>Canvas_DisenoP_Rev05</Name>
+    <Description>Diseno Parametrico ArchiCAD-GH: NSR-10 + POT Bogota + Ladybug + Wallacei</Description>
+    <Settings>
+      <Preview>True</Preview>
+      <PreviewMesh>True</PreviewMesh>
+      <PreviewGrid>False</PreviewGrid>
+      <RemotePanel>False</RemotePanel>
+    </Settings>
+    <Objects>
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G0_TapirInput">
+        <Name>GRUPO 0: TAPIR INPUT</Name>
+        <Nickname>GRUPO 0: TAPIR INPUT</Nickname>
+        <Color>#FF8C00</Color>
+        <Description>Recepcion geometria lote desde ArchiCAD via Tapir</Description>
+        <MemberIds>N1000,N1001,N1002,N1003</MemberIds>
+      </Object>
+
+      <Object type="Tapir.GH.ReceiveGeometry" name="N1000_TapirReceive">
+        <ID>N1000</ID>
+        <Name>Tapir Receive Geometry</Name>
+        <Nickname>ArchiCAD to GH</Nickname>
+        <Description>Recibir lote (Brep/Curve) desde ArchiCAD</Description>
+        <OptionalParams />
+        <Inputs />
+        <Outputs>
+          <Output name="Geometry" type="GH_Brep, GH_Curve" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.DeconstructBrep" name="N1001_DeconstructBrep">
+        <ID>N1001</ID>
+        <Name>Deconstruct Brep</Name>
+        <Inputs>
+          <Input name="Brep" source="N1000.Geometry" />
+        </Inputs>
+        <Outputs>
+          <Output name="Faces" />
+          <Output name="Edges" />
+          <Output name="Vertices" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.JoinCurves" name="N1002_JoinCurves">
+        <ID>N1002</ID>
+        <Name>Join Curves</Name>
+        <Inputs>
+          <Input name="Curves" source="N1001.Edges" />
+        </Inputs>
+        <Outputs>
+          <Output name="Curves" nickname="lot_polygon" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Area" name="N1003_Area">
+        <ID>N1003</ID>
+        <Name>Area</Name>
+        <Inputs>
+          <Input name="Polyline" source="N1002.Curves" />
+        </Inputs>
+        <Outputs>
+          <Output name="Area" nickname="lot_area" />
+          <Output name="Centroid" nickname="lot_centroid" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G1_ConfigurarLados">
+        <Name>GRUPO 1: CONFIGURAR_LADOS_POT</Name>
+        <Nickname>GRUPO 1: CONFIGURAR_LADOS_POT</Nickname>
+        <Color>#3881B8</Color>
+        <Description>Analisis normativo lados lote: retiros, balcones, clasificacion vial</Description>
+        <MemberIds>N1010,N1011,N1012,N1013,N1014,N1015,N1,N1016,N1017</MemberIds>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Deconstruct2DPolyline" name="N1010_Deconstruct2D">
+        <ID>N1010</ID>
+        <Name>Deconstruct 2D Polyline</Name>
+        <Inputs>
+          <Input name="Polyline" source="N1002.Curves" />
+        </Inputs>
+        <Outputs>
+          <Output name="Vertices" />
+          <Output name="Edges" nickname="lot_segments" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Area" name="N1011_Area">
+        <ID>N1011</ID>
+        <Name>Area</Name>
+        <Inputs>
+          <Input name="Polyline" source="N1002.Curves" />
+        </Inputs>
+        <Outputs>
+          <Output name="Area" nickname="lot_area" />
+          <Output name="Centroid" nickname="lot_centroid" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Explode" name="N1012_Explode">
+        <ID>N1012</ID>
+        <Name>Explode</Name>
+        <Inputs>
+          <Input name="Curve" source="N1010.Edges" />
+        </Inputs>
+        <Outputs>
+          <Output name="Segments" nickname="lot_segments" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.CurveMiddle" name="N1013_CurveMiddle">
+        <ID>N1013</ID>
+        <Name>Curve Middle</Name>
+        <Inputs>
+          <Input name="Curve" source="N1012.Segments" />
+          <Input name="Parameter" value="0.5" />
+        </Inputs>
+        <Outputs>
+          <Output name="Point" nickname="lot_midpoints" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.CurveFrame" name="N1014_CurveFrame">
+        <ID>N1014</ID>
+        <Name>Curve Frame</Name>
+        <Inputs>
+          <Input name="Curve" source="N1012.Segments" />
+          <Input name="Parameter" source="N1013.Parameter" />
+        </Inputs>
+        <Outputs>
+          <Output name="Frame" />
+          <Output name="Tangent" nickname="lot_tangents" />
+          <Output name="Normal" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Angle" name="N1015_AngleNorth">
+        <ID>N1015</ID>
+        <Name>Angle</Name>
+        <Inputs>
+          <Input name="Vector A" source="N1014.Tangent" />
+          <Input name="Vector B" value="0,1,0" />
+        </Inputs>
+        <Outputs>
+          <Output name="Angle" nickname="orientations_deg" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1_CONFIGURAR_LADOS">
+        <ID>N1</ID>
+        <Name>Python 3 Script</Name>
+        <Nickname>Python - Lados POT v03</Nickname>
+        <Description>CONFIGURAR_LADOS_v03: Retiros normativos, balcones, clasificacion vial</Description>
+        <Inputs>
+          <Input name="lot_polygon" source="N1002.Curves" type="Curve" />
+          <Input name="lot_area" source="N1011.Area" type="Number" />
+          <Input name="lot_centroid" source="N1011.Centroid" type="Point" />
+          <Input name="lot_segments" source="N1012.Segments" type="Curve" list="True" />
+          <Input name="lot_midpoints" source="N1013.Point" type="Point" list="True" />
+          <Input name="lot_tangents" source="N1014.Tangent" type="Vector" list="True" />
+          <Input name="street_curves" type="Curve" list="True" />
+          <Input name="pot_conclusions" type="Generic" />
+          <Input name="floors_per_tower" type="Integer" list="True" />
+        </Inputs>
+        <Outputs>
+          <Output name="sides_table" type="Generic" />
+          <Output name="setbacks_matrix" type="Generic" />
+          <Output name="pot_compliance" type="Generic" />
+          <Output name="balcony_rules_summary" type="Generic" />
+        </Outputs>
+        <Code><![CDATA[# CONFIGURAR_LADOS_v03.py - Referencia: C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts\CONFIGURAR_LADOS_v03.py
+import sys
+sys.path.append(r"C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts")
+exec(open(r"C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts\CONFIGURAR_LADOS_v03.py").read())]]></Code>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_NumberSlider" name="N1016_GP103">
+        <ID>N1016</ID>
+        <Name>Gene Pool</Name>
+        <Nickname>genome_heights (GP103)</Nickname>
+        <Description>Alturas torres en pisos</Description>
+        <Min>2</Min>
+        <Max>15</Max>
+        <DecimalCount>0</DecimalCount>
+        <ValueList>4,6,8,10</ValueList>
+        <Output name="Values" nickname="genome_heights" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_NumberSlider" name="N1017_GP104">
+        <ID>N1017</ID>
+        <Name>Gene Pool</Name>
+        <Nickname>genome_setbacks (GP104)</Nickname>
+        <Description>Override retiros [F,L,P,R] metros</Description>
+        <Min>0</Min>
+        <Max>10</Max>
+        <DecimalCount>1</DecimalCount>
+        <ValueList>3.0,2.5,3.0,2.5</ValueList>
+        <Output name="Values" nickname="genome_setbacks" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G2_ContextoPOT">
+        <Name>GRUPO 2: CONTEXTO_POT</Name>
+        <Nickname>GRUPO 2: CONTEXTO_POT</Nickname>
+        <Color>#2E8B57</Color>
+        <Description>Analisis POT Bogota: suelo, tratamiento, altura, restricciones, vias</Description>
+        <MemberIds>N2000,N2001,N2002,N2003,N2004,N2005,N20,N2010</MemberIds>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N2000_GeoJSONFolder">
+        <ID>N2000</ID>
+        <Name>Panel</Name>
+        <Nickname>GeoJSON Folder</Nickname>
+        <Value>C:\Users\Dario Salas\proyectos\2-Entradas\Datos_Sitio_GDB\geojson_layers\</Value>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.GH_Import" name="N2001_ImportEjeVial">
+        <ID>N2001</ID>
+        <Name>Import GeoJSON</Name>
+        <Nickname>eje_vial.geojson</Nickname>
+        <Description>Cargar eje vial con CLASIFICACION_VIAL</Description>
+        <Inputs>
+          <Input name="FilePath" source="N2000.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="Curves" nickname="street_curves" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.GH_Import" name="N2002_ImportClaseSuelo">
+        <ID>N2002</ID>
+        <Name>Import GeoJSON</Name>
+        <Nickname>clase_suelo_pot.geojson</Nickname>
+        <Inputs>
+          <Input name="FilePath" source="N2000.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="Features" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.GH_Import" name="N2003_ImportTratamiento">
+        <ID>N2003</ID>
+        <Name>Import GeoJSON</Name>
+        <Nickname>tratamiento_urbanistico.geojson</Nickname>
+        <Inputs>
+          <Input name="FilePath" source="N2000.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="Features" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.GH_Import" name="N2004_ImportSector">
+        <ID>N2004</ID>
+        <Name>Import GeoJSON</Name>
+        <Nickname>sector_uso_residencial.geojson</Nickname>
+        <Inputs>
+          <Input name="FilePath" source="N2000.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="Features" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Vector2Pt" name="N2005_NorthVector">
+        <ID>N2005</ID>
+        <Name>Vector 2Pt</Name>
+        <Nickname>north_vector</Nickname>
+        <Inputs>
+          <Input name="A" value="0,0,0" />
+          <Input name="B" value="0,1,0" />
+        </Inputs>
+        <Outputs>
+          <Output name="Vector" nickname="north_vector" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N20_CONTEXTO_POT">
+        <ID>N20</ID>
+        <Name>Python 3 Script</Name>
+        <Nickname>Python - Contexto POT v04</Nickname>
+        <Description>CONTEXTO_v04: pot_layers_dict maestro + 9 salidas individuales</Description>
+        <Inputs>
+          <Input name="lot_polygon" source="N1002.Curves" type="Curve" />
+          <Input name="lot_area" source="N1011.Area" type="Number" />
+          <Input name="lot_centroid" source="N1011.Centroid" type="Point" />
+          <Input name="street_curves" source="N2001.Curves" type="Curve" list="True" />
+          <Input name="north_vector" source="N2005.Vector" type="Vector" />
+          <Input name="elevation_nmm" value="2600" type="Number" />
+        </Inputs>
+        <Outputs>
+          <Output name="pot_layers_dict" type="Generic" />
+          <Output name="soil_classification" type="String" />
+          <Output name="urban_treatment" type="String" />
+          <Output name="max_height" type="Number" />
+          <Output name="road_classification" type="String" />
+          <Output name="heritage_buffer" type="Boolean" />
+          <Output name="ecological_structure" type="Boolean" />
+          <Output name="hydric_system" type="Boolean" />
+          <Output name="protected_areas" type="Boolean" />
+          <Output name="risk_areas" type="Boolean" />
+        </Outputs>
+        <Code><![CDATA[# CONTEXTO_v04.py - Referencia: C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts\CONTEXTO_v04.py
+import sys
+sys.path.append(r"C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts")
+exec(open(r"C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts\CONTEXTO_v04.py").read())]]></Code>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N2010_ElevationPanel">
+        <ID>N2010</ID>
+        <Name>Panel</Name>
+        <Nickname>elevation_nmm</Nickname>
+        <Value>2600</Value>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G3_Wallacei">
+        <Name>GRUPO 3: WALLACEI_FITNESS</Name>
+        <Nickname>GRUPO 3: WALLACEI_FITNESS</Nickname>
+        <Color>#DC143C</Color>
+        <Description>Generacion geometrica + Diseno interior + Analisis climatico + Fitness</Description>
+        <MemberIds>N110,N200,N300,N1103,N1104,N1105,N1200,N1201,N1202,N1203,N1204,N1205,N1206,N1207</MemberIds>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_NumberSlider" name="N1103_GP103">
+        <ID>N1103</ID>
+        <Name>Gene Pool</Name>
+        <Nickname>genome_heights (GP103)</Nickname>
+        <Min>2</Min>
+        <Max>15</Max>
+        <DecimalCount>0</DecimalCount>
+        <ValueList>4,6,8,10,12</ValueList>
+        <Output name="Values" nickname="genome_heights" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_NumberSlider" name="N1104_GP104">
+        <ID>N1104</ID>
+        <Name>Gene Pool</Name>
+        <Nickname>genome_setbacks (GP104)</Nickname>
+        <Min>0</Min>
+        <Max>10</Max>
+        <DecimalCount>1</DecimalCount>
+        <ValueList>3.0,2.5,3.0,2.5</ValueList>
+        <Output name="Values" nickname="genome_setbacks" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_NumberSlider" name="N1105_GP105">
+        <ID>N1105</ID>
+        <Name>Number Slider</Name>
+        <Nickname>genome_orientation</Nickname>
+        <Min>0</Min>
+        <Max>360</Max>
+        <DecimalCount>1</DecimalCount>
+        <Value>0</Value>
+        <Output name="Value" nickname="genome_orientation" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N1200_FloorHeight">
+        <ID>N1200</ID>
+        <Name>Panel</Name>
+        <Nickname>floor_height</Nickname>
+        <Value>3.0</Value>
+        <Output name="Value" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_BooleanToggle" name="N1201_ParkingGround">
+        <ID>N1201</ID>
+        <Name>Boolean Toggle</Name>
+        <Nickname>has_parking_ground</Nickname>
+        <Value>False</Value>
+        <Output name="Value" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_BooleanToggle" name="N1202_CommunalGround">
+        <ID>N1202</ID>
+        <Name>Boolean Toggle</Name>
+        <Nickname>has_communal_ground</Nickname>
+        <Value>False</Value>
+        <Output name="Value" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N1203_ProgramAreas">
+        <ID>N1203</ID>
+        <Name>Panel</Name>
+        <Nickname>program_areas</Nickname>
+        <Value>{"1_hab": 42, "2_hab": 58, "3_hab": 75, "4_hab": 95}</Value>
+        <Output name="Value" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N1204_UnitMix">
+        <ID>N1204</ID>
+        <Name>Panel</Name>
+        <Nickname>unit_mix_target</Nickname>
+        <Value>{"1_hab": 0.2, "2_hab": 0.4, "3_hab": 0.3, "4_hab": 0.1}</Value>
+        <Output name="Value" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_FilePath" name="N1205_EPWFile">
+        <ID>N1205</ID>
+        <Name>File Path</Name>
+        <Nickname>epw_file</Nickname>
+        <Value>C:\Users\Dario Salas\proyectos\2-Entradas\Clima\BOGOTA_801510_IWEC.epw</Value>
+        <Output name="Path" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Vector2Pt" name="N1206_NorthVector">
+        <ID>N1206</ID>
+        <Name>Vector 2Pt</Name>
+        <Nickname>north_vector</Nickname>
+        <Inputs>
+          <Input name="A" value="0,0,0" />
+          <Input name="B" value="0,1,0" />
+        </Inputs>
+        <Outputs>
+          <Output name="Vector" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N1207_AnalysisPeriod">
+        <ID>N1207</ID>
+        <Name>Panel</Name>
+        <Nickname>analysis_period</Nickname>
+        <Value>annual</Value>
+        <Output name="Value" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N110_VOLUMEN_v02">
+        <ID>N110</ID>
+        <Name>Python 3 Script</Name>
+        <Nickname>Python - Volumen Envolvente v02</Nickname>
+        <Description>VOLUMEN_v02: Envolvente nativa ArchiCAD (Slab, Wall, Stair, Door, Window)</Description>
+        <Inputs>
+          <Input name="lot_polygon" source="N1002.Curves" type="Curve" />
+          <Input name="sides_table" source="N1.sides_table" type="Generic" />
+          <Input name="pot_conclusions" source="N20.pot_layers_dict" type="Generic" />
+          <Input name="genome_heights" source="N1103.Values" type="Integer" list="True" />
+          <Input name="genome_setbacks" source="N1104.Values" type="Number" list="True" />
+          <Input name="genome_orientation" source="N1105.Value" type="Number" />
+          <Input name="floor_height" source="N1200.Value" type="Number" />
+          <Input name="has_parking_ground" source="N1201.Value" type="Boolean" />
+          <Input name="has_communal_ground" source="N1202.Value" type="Boolean" />
+          <Input name="program_areas" source="N1203.Value" type="Generic" />
+        </Inputs>
+        <Outputs>
+          <Output name="out" />
+          <Output name="slab_polygons" type="Generic" />
+          <Output name="wall_curves" type="Generic" />
+          <Output name="balcony_polygons" type="Generic" />
+          <Output name="stair_polylines" type="Generic" />
+          <Output name="elevator_shafts" type="Generic" />
+          <Output name="envelope_analysis" type="Generic" />
+          <Output name="core_positions" type="Generic" />
+          <Output name="floor_data" type="Generic" />
+        </Outputs>
+        <Code><![CDATA[# VOLUMEN_v02.py - Referencia: C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts\VOLUMEN_v02.py
+import sys
+sys.path.append(r"C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts")
+exec(open(r"C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts\VOLUMEN_v02.py").read())]]></Code>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N200_DISENO_INTERIOR_v01">
+        <ID>N200</ID>
+        <Name>Python 3 Script</Name>
+        <Nickname>Python - Diseno Interior v01</Nickname>
+        <Description>DISENO_INTERIOR_v01: Distribucion unidades + NSR-10 + Cesiones POT</Description>
+        <Inputs>
+          <Input name="core_positions" source="N110.core_positions" type="Generic" />
+          <Input name="envelope_analysis" source="N110.envelope_analysis" type="Generic" />
+          <Input name="floor_plates" source="N110.slab_polygons" type="Generic" />
+          <Input name="exterior_walls" source="N110.wall_curves" type="Generic" />
+          <Input name="program_areas" source="N1203.Value" type="Generic" />
+          <Input name="unit_mix_target" source="N1204.Value" type="Generic" />
+          <Input name="common_areas_required" type="Generic" />
+          <Input name="floor_height" source="N1200.Value" type="Number" />
+        </Inputs>
+        <Outputs>
+          <Output name="out" />
+          <Output name="unit_polygons" type="Generic" />
+          <Output name="partition_walls" type="Generic" />
+          <Output name="zone_bounds" type="Generic" />
+          <Output name="unit_doors" type="Generic" />
+          <Output name="unit_windows" type="Generic" />
+          <Output name="nsr10_compliance" type="Generic" />
+          <Output name="area_schedule" type="Generic" />
+          <Output name="common_areas" type="Generic" />
+          <Output name="core_circulation" type="Generic" />
+          <Output name="unit_breps" type="Brep" list="True" />
+        </Outputs>
+        <Code><![CDATA[# DISENO_INTERIOR_v01.py - Referencia: C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts\DISENO_INTERIOR_v01.py
+import sys
+sys.path.append(r"C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts")
+exec(open(r"C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts\DISENO_INTERIOR_v01.py").read())]]></Code>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N300_LADYBUG_v01">
+        <ID>N300</ID>
+        <Name>Python 3 Script</Name>
+        <Nickname>Python - Ladybug Climate v01</Nickname>
+        <Description>LADYBUG_v01: Prepara datos para Ladybug/Honeybee nativos + Fitness f1-f8</Description>
+        <Inputs>
+          <Input name="building_envelope" source="N110.slab_polygons" type="Generic" />
+          <Input name="floor_plates" source="N110.slab_polygons" type="Generic" />
+          <Input name="exterior_walls" source="N110.wall_curves" type="Generic" />
+          <Input name="balconies" source="N110.balcony_polygons" type="Generic" />
+          <Input name="unit_polygons" source="N200.unit_polygons" type="Generic" />
+          <Input name="epw_file" source="N1205.Path" type="String" />
+          <Input name="north_vector" source="N1206.Vector" type="Vector" />
+          <Input name="analysis_period" source="N1207.Value" type="String" />
+        </Inputs>
+        <Outputs>
+          <Output name="out" />
+          <Output name="facade_sensors" type="Point" list="True" />
+          <Output name="analysis_geometry" type="Brep" list="True" />
+          <Output name="hb_rooms_data" type="Generic" list="True" />
+          <Output name="shading_efficiency" type="Number" />
+          <Output name="fitness_inputs" type="Generic" />
+          <Output name="visualization_meshes" type="Mesh" list="True" />
+        </Outputs>
+        <Code><![CDATA[# LADYBUG_v01.py - Referencia: C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts\LADYBUG_v01.py
+import sys
+sys.path.append(r"C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts")
+exec(open(r"C:\Users\Dario Salas\proyectos\3-Proceso\GH_Scripts\LADYBUG_v01.py").read())]]></Code>
+      </Object>
+
+      <Object type="Ladybug.Components.EPWFile" name="N1300_LB_EPW">
+        <ID>N1300</ID>
+        <Name>Ladybug EPW File</Name>
+        <Inputs>
+          <Input name="_epw_file" source="N1205.Path" />
+        </Inputs>
+        <Outputs>
+          <Output name="epw" />
+        </Outputs>
+      </Object>
+
+      <Object type="Ladybug.Components.SkyMatrix" name="N1301_LB_SkyMatrix">
+        <ID>N1301</ID>
+        <Name>Ladybug Sky Matrix</Name>
+        <Inputs>
+          <Input name="epw" source="N1300.epw" />
+          <Input name="hoys" source="N1207.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="skyMatrix" />
+        </Outputs>
+      </Object>
+
+      <Object type="Ladybug.Components.Radiation" name="N1302_LB_Radiation">
+        <ID>N1302</ID>
+        <Name>Ladybug Radiation</Name>
+        <Inputs>
+          <Input name="skyMatrix" source="N1301.skyMatrix" />
+          <Input name="geometry" source="N300.analysis_geometry" />
+          <Input name="testPoints" source="N300.facade_sensors" />
+        </Inputs>
+        <Outputs>
+          <Output name="totalRadiation" />
+          <Output name="radiationMesh" />
+        </Outputs>
+      </Object>
+
+      <Object type="Ladybug.Components.SunPath" name="N1303_LB_SunPath">
+        <ID>N1303</ID>
+        <Name>Ladybug Sun Path</Name>
+        <Inputs>
+          <Input name="epw" source="N1300.epw" />
+          <Input name="hoys" source="N1207.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="sunPath" />
+        </Outputs>
+      </Object>
+
+      <Object type="Ladybug.Components.DirectSunHours" name="N1304_LB_DirectSunHours">
+        <ID>N1304</ID>
+        <Name>Ladybug Direct Sun Hours</Name>
+        <Inputs>
+          <Input name="sunPath" source="N1303.sunPath" />
+          <Input name="testPoints" source="N300.facade_sensors" />
+        </Inputs>
+        <Outputs>
+          <Output name="sunHours" />
+          <Output name="sunHoursMesh" />
+        </Outputs>
+      </Object>
+
+      <Object type="Ladybug.Components.UTCI" name="N1305_LB_UTCI">
+        <ID>N1305</ID>
+        <Name>Ladybug UTCI</Name>
+        <Inputs>
+          <Input name="epw" source="N1300.epw" />
+          <Input name="testPoints" source="N300.facade_sensors" />
+        </Inputs>
+        <Outputs>
+          <Output name="utci" />
+          <Output name="utciMesh" />
+        </Outputs>
+      </Object>
+
+      <Object type="Honeybee.Components.Model" name="N1306_HB_Model">
+        <ID>N1306</ID>
+        <Name>Honeybee Model</Name>
+        <Inputs>
+          <Input name="rooms" source="N300.hb_rooms_data" />
+        </Inputs>
+        <Outputs>
+          <Output name="model" />
+        </Outputs>
+      </Object>
+
+      <Object type="Honeybee.Components.DaylightAutonomy" name="N1307_HB_sDA_ASE">
+        <ID>N1307</ID>
+        <Name>Honeybee Daylight Autonomy</Name>
+        <Inputs>
+          <Input name="model" source="N1306.model" />
+          <Input name="gridSize" value="0.5" />
+          <Input name="hoys" source="N1207.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="sDA" />
+          <Output name="ASE" />
+          <Output name="sDAMesh" />
+          <Output name="ASEMesh" />
+        </Outputs>
+      </Object>
+
+      <Object type="Honeybee.Components.DaylightFactor" name="N1308_HB_DF">
+        <ID>N1308</ID>
+        <Name>Honeybee Daylight Factor</Name>
+        <Inputs>
+          <Input name="model" source="N1306.model" />
+        </Inputs>
+        <Outputs>
+          <Output name="daylightFactor" />
+          <Output name="dfMesh" />
+        </Outputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiX" name="N1400_WallaceiX">
+        <ID>N1400</ID>
+        <Name>Wallacei X</Name>
+        <Inputs>
+          <Input name="genome" source="N1103.Values" />
+          <Input name="genome" source="N1104.Values" />
+          <Input name="genome" source="N1105.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="phenotype" />
+        </Outputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiController" name="N1401_WallaceiController">
+        <ID>N1401</ID>
+        <Name>Wallacei Controller</Name>
+        <Inputs>
+          <Input name="wallaceiX" source="N1400.phenotype" />
+          <Input name="population" value="50" />
+          <Input name="generations" value="100" />
+        </Inputs>
+        <Outputs>
+          <Output name="controller" />
+        </Outputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiObjective" name="N1402_Obj_f1">
+        <ID>N1402</ID>
+        <Name>Wallacei Objective</Name>
+        <Nickname>f1: Sun Hours (MAX)</Nickname>
+        <Inputs>
+          <Input name="objective" source="N300.fitness_inputs.f1_sun_hours_avg" />
+          <Input name="maximize" value="True" />
+        </Inputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiObjective" name="N1403_Obj_f2">
+        <ID>N1403</ID>
+        <Name>Wallacei Objective</Name>
+        <Nickname>f2: Radiation (MIN)</Nickname>
+        <Inputs>
+          <Input name="objective" source="N300.fitness_inputs.f2_radiation_kwh_m2" />
+          <Input name="maximize" value="False" />
+        </Inputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiObjective" name="N1404_Obj_f3">
+        <ID>N1404</ID>
+        <Name>Wallacei Objective</Name>
+        <Nickname>f3: UTCI Comfort (MAX)</Nickname>
+        <Inputs>
+          <Input name="objective" source="N300.fitness_inputs.f3_utci_hours_comfort" />
+          <Input name="maximize" value="True" />
+        </Inputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiObjective" name="N1405_Obj_f4">
+        <ID>N1405</ID>
+        <Name>Wallacei Objective</Name>
+        <Nickname>f4: sDA300/50% (MAX)</Nickname>
+        <Inputs>
+          <Input name="objective" source="N300.fitness_inputs.f4_sda300_50_pct" />
+          <Input name="maximize" value="True" />
+        </Inputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiObjective" name="N1406_Obj_f5">
+        <ID>N1406</ID>
+        <Name>Wallacei Objective</Name>
+        <Nickname>f5: ASE1000/250 (MIN)</Nickname>
+        <Inputs>
+          <Input name="objective" source="N300.fitness_inputs.f5_ase1000_250_pct" />
+          <Input name="maximize" value="False" />
+        </Inputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiObjective" name="N1407_Obj_f6">
+        <ID>N1407</ID>
+        <Name>Wallacei Objective</Name>
+        <Nickname>f6: Daylight Factor (MAX)</Nickname>
+        <Inputs>
+          <Input name="objective" source="N300.fitness_inputs.f6_daylight_factor_avg" />
+          <Input name="maximize" value="True" />
+        </Inputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiObjective" name="N1408_Obj_f7">
+        <ID>N1408</ID>
+        <Name>Wallacei Objective</Name>
+        <Nickname>f7: Balcony Shading (MAX)</Nickname>
+        <Inputs>
+          <Input name="objective" source="N300.fitness_inputs.f7_balcon_shading_efficiency" />
+          <Input name="maximize" value="True" />
+        </Inputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiObjective" name="N1409_Obj_f8">
+        <ID>N1409</ID>
+        <Name>Wallacei Objective</Name>
+        <Nickname>f8: NSR-10 Daylight (MAX)</Nickname>
+        <Inputs>
+          <Input name="objective" source="N300.fitness_inputs.f8_nsr10_daylight_compliance" />
+          <Input name="maximize" value="True" />
+        </Inputs>
+      </Object>
+
+      <Object type="Wallacei.Components.WallaceiSelection" name="N1410_WallaceiSelection">
+        <ID>N1410</ID>
+        <Name>Wallacei Selection</Name>
+        <Inputs>
+          <Input name="controller" source="N1401.controller" />
+          <Input name="objectives" source="N1402.objective" />
+          <Input name="objectives" source="N1403.objective" />
+          <Input name="objectives" source="N1404.objective" />
+          <Input name="objectives" source="N1405.objective" />
+          <Input name="objectives" source="N1406.objective" />
+          <Input name="objectives" source="N1407.objective" />
+          <Input name="objectives" source="N1408.objective" />
+          <Input name="objectives" source="N1409.objective" />
+        </Inputs>
+        <Outputs>
+          <Output name="selection" />
+        </Outputs>
+      </Object>
+
+      <Object type="Graphisoft.GH.ACSlab" name="N1500_AC_Slab">
+        <ID>N1500</ID>
+        <Name>AC Slab</Name>
+        <Nickname>Slabs to ArchiCAD</Nickname>
+        <Inputs>
+          <Input name="polygon" source="N110.slab_polygons" />
+          <Input name="thickness" value="0.25" />
+          <Input name="material" />
+        </Inputs>
+      </Object>
+
+      <Object type="Graphisoft.GH.ACWall" name="N1501_AC_Wall">
+        <ID>N1501</ID>
+        <Name>AC Wall</Name>
+        <Nickname>Walls to ArchiCAD</Nickname>
+        <Inputs>
+          <Input name="baseLine" source="N110.wall_curves" />
+          <Input name="height" source="N110.floor_data.height" />
+          <Input name="thickness" value="0.20" />
+        </Inputs>
+      </Object>
+
+      <Object type="Graphisoft.GH.ACSlab" name="N1502_AC_Slab_Balcony">
+        <ID>N1502</ID>
+        <Name>AC Slab</Name>
+        <Nickname>Balconies to ArchiCAD</Nickname>
+        <Inputs>
+          <Input name="polygon" source="N110.balcony_polygons" />
+          <Input name="thickness" value="0.15" />
+          <Input name="material" />
+        </Inputs>
+      </Object>
+
+      <Object type="Graphisoft.GH.ACStair" name="N1503_AC_Stair">
+        <ID>N1503</ID>
+        <Name>AC Stair</Name>
+        <Nickname>Stairs to ArchiCAD</Nickname>
+        <Inputs>
+          <Input name="baseLine" source="N110.stair_polylines" />
+          <Input name="height" source="N110.envelope_analysis.total_height_m" />
+          <Input name="width" value="1.20" />
+          <Input name="riser" value="0.17" />
+          <Input name="tread" value="0.28" />
+        </Inputs>
+      </Object>
+
+      <Object type="Graphisoft.GH.ACWall" name="N1504_AC_ElevatorShaft">
+        <ID>N1504</ID>
+        <Name>AC Wall</Name>
+        <Nickname>Elevator Shafts to ArchiCAD</Nickname>
+        <Inputs>
+          <Input name="baseLine" source="N110.elevator_shafts" />
+          <Input name="height" source="N110.envelope_analysis.total_height_m" />
+          <Input name="thickness" value="0.25" />
+        </Inputs>
+      </Object>
+
+      <Object type="Graphisoft.GH.ACZone" name="N1505_AC_Zone">
+        <ID>N1505</ID>
+        <Name>AC Zone</Name>
+        <Nickname>Units to ArchiCAD</Nickname>
+        <Inputs>
+          <Input name="boundary" source="N200.unit_polygons" />
+          <Input name="height" value="3.0" />
+        </Inputs>
+      </Object>
+
+      <Object type="Graphisoft.GH.ACWall" name="N1506_AC_PartitionWall">
+        <ID>N1506</ID>
+        <Name>AC Wall</Name>
+        <Nickname>Partitions to ArchiCAD</Nickname>
+        <Inputs>
+          <Input name="baseLine" source="N200.partition_walls" />
+          <Input name="height" value="3.0" />
+          <Input name="thickness" value="0.12" />
+        </Inputs>
+      </Object>
+
+      <Object type="Graphisoft.GH.ACDoor" name="N1507_AC_Door">
+        <ID>N1507</ID>
+        <Name>AC Door</Name>
+        <Nickname>Doors to ArchiCAD</Nickname>
+        <Inputs>
+          <Input name="location" source="N200.unit_doors" />
+          <Input name="width" value="0.90" />
+          <Input name="height" value="2.10" />
+        </Inputs>
+      </Object>
+
+      <Object type="Graphisoft.GH.ACWindow" name="N1508_AC_Window">
+        <ID>N1508</ID>
+        <Name>AC Window</Name>
+        <Nickname>Windows to ArchiCAD</Nickname>
+        <Inputs>
+          <Input name="location" source="N200.unit_windows" />
+          <Input name="width" value="1.50" />
+          <Input name="height" value="1.40" />
+          <Input name="sill" value="1.00" />
+        </Inputs>
+      </Object>
+
+    </Objects>
+    <Wires>
+      <Wire from="N1000.Geometry" to="N1001.Brep" />
+      <Wire from="N1001.Edges" to="N1002.Curves" />
+      <Wire from="N1002.Curves" to="N1003.Polyline" />
+
+      <Wire from="N1002.Curves" to="N1010.Polyline" />
+      <Wire from="N1002.Curves" to="N1011.Polyline" />
+      <Wire from="N1010.Edges" to="N1012.Curve" />
+      <Wire from="N1012.Segments" to="N1013.Curve" />
+      <Wire from="N1012.Segments" to="N1014.Curve" />
+      <Wire from="N1013.Parameter" to="N1014.Parameter" />
+      <Wire from="N1014.Tangent" to="N1015.Vector A" />
+
+      <Wire from="N1002.Curves" to="N110.lot_polygon" />
+      <Wire from="N1.sides_table" to="N110.sides_table" />
+      <Wire from="N20.pot_layers_dict" to="N110.pot_conclusions" />
+      <Wire from="N1103.Values" to="N110.genome_heights" />
+      <Wire from="N1104.Values" to="N110.genome_setbacks" />
+      <Wire from="N1105.Value" to="N110.genome_orientation" />
+      <Wire from="N1200.Value" to="N110.floor_height" />
+      <Wire from="N1201.Value" to="N110.has_parking_ground" />
+      <Wire from="N1202.Value" to="N110.has_communal_ground" />
+      <Wire from="N1203.Value" to="N110.program_areas" />
+
+      <Wire from="N110.core_positions" to="N200.core_positions" />
+      <Wire from="N110.envelope_analysis" to="N200.envelope_analysis" />
+      <Wire from="N110.slab_polygons" to="N200.floor_plates" />
+      <Wire from="N110.wall_curves" to="N200.exterior_walls" />
+      <Wire from="N1203.Value" to="N200.program_areas" />
+      <Wire from="N1204.Value" to="N200.unit_mix_target" />
+      <Wire from="N1200.Value" to="N200.floor_height" />
+
+      <Wire from="N110.slab_polygons" to="N300.building_envelope" />
+      <Wire from="N110.slab_polygons" to="N300.floor_plates" />
+      <Wire from="N110.wall_curves" to="N300.exterior_walls" />
+      <Wire from="N110.balcony_polygons" to="N300.balconies" />
+      <Wire from="N200.unit_polygons" to="N300.unit_polygons" />
+      <Wire from="N1205.Path" to="N300.epw_file" />
+      <Wire from="N1206.Vector" to="N300.north_vector" />
+      <Wire from="N1207.Value" to="N300.analysis_period" />
+
+      <Wire from="N1205.Path" to="N1300._epw_file" />
+      <Wire from="N1300.epw" to="N1301.epw" />
+      <Wire from="N1207.Value" to="N1301.hoys" />
+      <Wire from="N1301.skyMatrix" to="N1302.skyMatrix" />
+      <Wire from="N300.analysis_geometry" to="N1302.geometry" />
+      <Wire from="N300.facade_sensors" to="N1302.testPoints" />
+      <Wire from="N1300.epw" to="N1303.epw" />
+      <Wire from="N1207.Value" to="N1303.hoys" />
+      <Wire from="N1303.sunPath" to="N1304.sunPath" />
+      <Wire from="N300.facade_sensors" to="N1304.testPoints" />
+      <Wire from="N1300.epw" to="N1305.epw" />
+      <Wire from="N300.facade_sensors" to="N1305.testPoints" />
+      <Wire from="N300.hb_rooms_data" to="N1306.rooms" />
+      <Wire from="N1306.model" to="N1307.model" />
+      <Wire from="N1207.Value" to="N1307.hoys" />
+      <Wire from="N1306.model" to="N1308.model" />
+
+      <Wire from="N1103.Values" to="N1400.genome" />
+      <Wire from="N1104.Values" to="N1400.genome" />
+      <Wire from="N1105.Value" to="N1400.genome" />
+      <Wire from="N1400.phenotype" to="N1401.wallaceiX" />
+      <Wire from="N300.fitness_inputs.f1_sun_hours_avg" to="N1402.objective" />
+      <Wire from="N300.fitness_inputs.f2_radiation_kwh_m2" to="N1403.objective" />
+      <Wire from="N300.fitness_inputs.f3_utci_hours_comfort" to="N1404.objective" />
+      <Wire from="N300.fitness_inputs.f4_sda300_50_pct" to="N1405.objective" />
+      <Wire from="N300.fitness_inputs.f5_ase1000_250_pct" to="N1406.objective" />
+      <Wire from="N300.fitness_inputs.f6_daylight_factor_avg" to="N1407.objective" />
+      <Wire from="N300.fitness_inputs.f7_balcon_shading_efficiency" to="N1408.objective" />
+      <Wire from="N300.fitness_inputs.f8_nsr10_daylight_compliance" to="N1409.objective" />
+      <Wire from="N1401.controller" to="N1410.controller" />
+      <Wire from="N1402.objective" to="N1410.objectives" />
+      <Wire from="N1403.objective" to="N1410.objectives" />
+      <Wire from="N1404.objective" to="N1410.objectives" />
+      <Wire from="N1405.objective" to="N1410.objectives" />
+      <Wire from="N1406.objective" to="N1410.objectives" />
+      <Wire from="N1407.objective" to="N1410.objectives" />
+      <Wire from="N1408.objective" to="N1410.objectives" />
+      <Wire from="N1409.objective" to="N1410.objectives" />
+
+      <Wire from="N110.slab_polygons" to="N1500.polygon" />
+      <Wire from="N110.wall_curves" to="N1501.baseLine" />
+      <Wire from="N110.balcony_polygons" to="N1502.polygon" />
+      <Wire from="N110.stair_polylines" to="N1503.baseLine" />
+      <Wire from="N110.elevator_shafts" to="N1504.baseLine" />
+      <Wire from="N200.unit_polygons" to="N1505.boundary" />
+      <Wire from="N200.partition_walls" to="N1506.baseLine" />
+      <Wire from="N200.unit_doors" to="N1507.location" />
+      <Wire from="N200.unit_windows" to="N1508.location" />
+
+    </Wires>
+  </Object>
+</Archive>
