@@ -1,0 +1,7 @@
+C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\bin\Release\net8.0\win-x86\publish\GhDefinitionExplorer.exe
+C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\bin\Release\net8.0\win-x86\publish\GhDefinitionExplorer.dll
+C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\bin\Release\net8.0\win-x86\publish\GhDefinitionExplorer.deps.json
+C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\bin\Release\net8.0\win-x86\publish\GhDefinitionExplorer.runtimeconfig.json
+C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\bin\Release\net8.0\win-x86\publish\GhDefinitionExplorer.pdb
+C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\bin\Release\net8.0\win-x86\publish\GH_IO.dll
+C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\bin\Release\net8.0\win-x86\publish\GH_IO.xml

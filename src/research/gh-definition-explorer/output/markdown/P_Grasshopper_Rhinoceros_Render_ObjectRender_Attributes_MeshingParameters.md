@@ -1,0 +1,71 @@
+# P_Grasshopper_Rhinoceros_Render_ObjectRender_Attributes_MeshingParameters
+
+﻿ ObjectRender.Attributes.MeshingParameters Property 
+
+Grasshopper API
+
+[Grasshopper API](../html/723c01da-9986-4db2-8f53-6f3a7494df75.htm "Grasshopper API")
+
+[Grasshopper.Rhinoceros.Render](../html/N_Grasshopper_Rhinoceros_Render.htm "Grasshopper.Rhinoceros.Render")
+
+[ObjectRender.Attributes Structure](../html/T_Grasshopper_Rhinoceros_Render_ObjectRender_Attributes.htm "ObjectRender.Attributes Structure")
+
+[Attributes Properties](../html/Properties_T_Grasshopper_Rhinoceros_Render_ObjectRender_Attributes.htm "Attributes Properties")
+
+[CastsShadows Property](../html/P_Grasshopper_Rhinoceros_Render_ObjectRender_Attributes_CastsShadows.htm "CastsShadows Property ")
+
+[Material Property](../html/P_Grasshopper_Rhinoceros_Render_ObjectRender_Attributes_Material.htm "Material Property ")
+
+[MeshingParameters Property](../html/P_Grasshopper_Rhinoceros_Render_ObjectRender_Attributes_MeshingParameters.htm "MeshingParameters Property ")
+
+[ReceivesShadows Property](../html/P_Grasshopper_Rhinoceros_Render_ObjectRender_Attributes_ReceivesShadows.htm "ReceivesShadows Property ")
+
+![Click or drag to resize](../icons/TocOpen.gif "Click or drag to resize")![Click or drag to resize](../icons/TocClose.gif "Click or drag to resize")
+
+|  |
+| --- |
+| ObjectRenderAddLanguageSpecificTextSet("LSTFF1C9366\_0?cpp=::|nu=.");AttributesAddLanguageSpecificTextSet("LSTFF1C9366\_1?cpp=::|nu=.");MeshingParameters Property |
+
+**Namespace:**
+ [Grasshopper.Rhinoceros.Render](N_Grasshopper_Rhinoceros_Render.htm)  
+**Assembly:**
+ Grasshopper (in Grasshopper.dll)
+
+![](../icons/SectionExpanded.png)Syntax
+
+[C#](#)
+
+[VB](#)
+
+[Copy](# "Copy")
+
+```
+public ModelMeshingParameters MeshingParameters { get; set; }
+```
+
+```
+Public Property MeshingParameters As ModelMeshingParameters
+	Get
+	Set
+```
+
+AddLanguageTabSet("ID0EBCA");
+
+#### Property Value
+
+Type: [ModelMeshingParameters](T_Grasshopper_Rhinoceros_ModelMeshingParameters.htm)  
+
+[Missing <value> documentation for "P:Grasshopper.Rhinoceros.Render.ObjectRender.Attributes.MeshingParameters"]
+
+![](../icons/SectionExpanded.png)See Also
+
+#### Reference
+
+[ObjectRenderAddLanguageSpecificTextSet("LSTFF1C9366\_2?cs=.|vb=.|cpp=::|nu=.|fs=.");Attributes Structure](T_Grasshopper_Rhinoceros_Render_ObjectRender_Attributes.htm)
+
+[Grasshopper.Rhinoceros.Render Namespace](N_Grasshopper_Rhinoceros_Render.htm)
+
+Grasshopper for Rhino 8.33.26188.13000 (2026-07-07)  
+Copyright © 2009-2026 Robert McNeel & Associates
+
+[Report wishes and bugs at discourse.mcneel.com](https://discourse.mcneel.com/c/grasshopper)

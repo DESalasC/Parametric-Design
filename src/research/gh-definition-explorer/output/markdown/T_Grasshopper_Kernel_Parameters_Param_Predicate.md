@@ -1,0 +1,213 @@
+# T_Grasshopper_Kernel_Parameters_Param_Predicate
+
+﻿ Param\_Predicate Class
+
+Grasshopper API
+
+[Grasshopper API](../html/723c01da-9986-4db2-8f53-6f3a7494df75.htm "Grasshopper API")
+
+[Grasshopper.Kernel.Parameters](../html/N_Grasshopper_Kernel_Parameters.htm "Grasshopper.Kernel.Parameters")
+
+[Param\_Predicate Class](../html/T_Grasshopper_Kernel_Parameters_Param_Predicate.htm "Param_Predicate Class")
+
+[Param\_Predicate Constructor](../html/M_Grasshopper_Kernel_Parameters_Param_Predicate__ctor.htm "Param_Predicate Constructor ")
+
+[Param\_Predicate Properties](../html/Properties_T_Grasshopper_Kernel_Parameters_Param_Predicate.htm "Param_Predicate Properties")
+
+[Param\_Predicate Methods](../html/Methods_T_Grasshopper_Kernel_Parameters_Param_Predicate.htm "Param_Predicate Methods")
+
+[Param\_Predicate Events](../html/Events_T_Grasshopper_Kernel_Parameters_Param_Predicate.htm "Param_Predicate Events")
+
+![Click or drag to resize](../icons/TocOpen.gif "Click or drag to resize")![Click or drag to resize](../icons/TocClose.gif "Click or drag to resize")
+
+|  |
+| --- |
+| Param\_Predicate Class |
+
+![](../icons/SectionExpanded.png)Inheritance Hierarchy
+
+[SystemAddLanguageSpecificTextSet("LST185E0FD7\_0?cs=.|vb=.|cpp=::|nu=.|fs=.");Object](https://docs.microsoft.com/dotnet/api/system.object)  
+  [Grasshopper.KernelAddLanguageSpecificTextSet("LST185E0FD7\_1?cs=.|vb=.|cpp=::|nu=.|fs=.");GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm)  
+    [Grasshopper.KernelAddLanguageSpecificTextSet("LST185E0FD7\_2?cs=.|vb=.|cpp=::|nu=.|fs=.");GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm)  
+      [Grasshopper.KernelAddLanguageSpecificTextSet("LST185E0FD7\_3?cs=.|vb=.|cpp=::|nu=.|fs=.");GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm)  
+        [Grasshopper.KernelAddLanguageSpecificTextSet("LST185E0FD7\_4?cs=.|vb=.|cpp=::|nu=.|fs=.");GH\_Param](T_Grasshopper_Kernel_GH_Param_1.htm)AddLanguageSpecificTextSet("LST185E0FD7\_5?cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=(");[GH\_Predicate](T_Grasshopper_Kernel_Types_GH_Predicate.htm)AddLanguageSpecificTextSet("LST185E0FD7\_6?cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)");  
+          Grasshopper.Kernel.ParametersAddLanguageSpecificTextSet("LST185E0FD7\_7?cs=.|vb=.|cpp=::|nu=.|fs=.");Param\_Predicate
+
+**Namespace:**
+ [Grasshopper.Kernel.Parameters](N_Grasshopper_Kernel_Parameters.htm)  
+**Assembly:**
+ Grasshopper (in Grasshopper.dll)
+
+![](../icons/SectionExpanded.png)Syntax
+
+[C#](#)
+
+[VB](#)
+
+[Copy](# "Copy")
+
+```
+public sealed class Param_Predicate : GH_Param<GH_Predicate>
+```
+
+```
+Public NotInheritable Class Param_Predicate
+	Inherits GH_Param(Of GH_Predicate)
+```
+
+AddLanguageTabSet("ID1EBCA");
+
+The Param\_Predicate type exposes the following members.
+
+![](../icons/SectionExpanded.png)Constructors
+
+|  | Name | Description |
+| --- | --- | --- |
+| Public method | [Param\_Predicate](M_Grasshopper_Kernel_Parameters_Param_Predicate__ctor.htm) | Initializes a new instance of the Param\_Predicate class |
+
+[Top](#PageHeader)
+
+![](../icons/SectionExpanded.png)Properties
+
+|  | Name | Description |
+| --- | --- | --- |
+| Public property | [Access](P_Grasshopper_Kernel_GH_Param_1_Access.htm) | Gets or sets the Access level for this parameter. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_8?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_9?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [Attributes](P_Grasshopper_Kernel_GH_DocumentObject_Attributes.htm) | Gets or sets the attributes that are associated with this object. Only set custom attributes if you know what you are doing. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public property | [Category](P_Grasshopper_Kernel_GH_InstanceDescription_Category.htm) | Gets or sets the Category in which this object belongs. If HasCategory() returns false, this field has no meaning. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public property | [ComponentGuid](P_Grasshopper_Kernel_Parameters_Param_Predicate_ComponentGuid.htm) | (Overrides [GH\_DocumentObjectAddLanguageSpecificTextSet("LST185E0FD7\_10?cs=.|vb=.|cpp=::|nu=.|fs=.");ComponentGuid](P_Grasshopper_Kernel_GH_DocumentObject_ComponentGuid.htm).) |
+| Public property | [DataMapping](P_Grasshopper_Kernel_GH_Param_1_DataMapping.htm) | Gets or sets the data mapping of this Parameter. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_11?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_12?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [DataType](P_Grasshopper_Kernel_GH_Param_1_DataType.htm) | Type is either Void if there are no sources or Remote. Derived classes should expand on this. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_13?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_14?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [Description](P_Grasshopper_Kernel_GH_InstanceDescription_Description.htm) | Gets or sets the description of the object. This field typically remains fixed during the lifetime of an object. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public property | [Exposure](P_Grasshopper_Kernel_Parameters_Param_Predicate_Exposure.htm) | (Overrides [GH\_DocumentObjectAddLanguageSpecificTextSet("LST185E0FD7\_15?cs=.|vb=.|cpp=::|nu=.|fs=.");Exposure](P_Grasshopper_Kernel_GH_DocumentObject_Exposure.htm).) |
+| Public property | [HasCategory](P_Grasshopper_Kernel_GH_InstanceDescription_HasCategory.htm) | Gets whether or not the Category field has been set. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public property | [HasProxySources](P_Grasshopper_Kernel_GH_Param_1_HasProxySources.htm) | Gets a value indicating whether or not this parameter maintains proxy sources. Proxy sources are used during file IO, when actual sources might not be available yet. Once an IO operation has been completed there should be no more proxy sources. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_16?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_17?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [HasSubCategory](P_Grasshopper_Kernel_GH_InstanceDescription_HasSubCategory.htm) | Gets whether or not the SubCategory field has been set. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public property | [Icon\_24x24](P_Grasshopper_Kernel_GH_DocumentObject_Icon_24x24.htm) | The icon associated with this object. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public property | [Icon\_24x24\_Locked](P_Grasshopper_Kernel_GH_DocumentObject_Icon_24x24_Locked.htm) | The greyscale icon of this object. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public property | [IconCapableUI](P_Grasshopper_Kernel_GH_ActiveObject_IconCapableUI.htm) | By default the NickName menu item supports the Icon Mode override toggle. If your UI is not capable of displaying icons, then override this property and return False. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public property | [IconDisplayMode](P_Grasshopper_Kernel_GH_DocumentObject_IconDisplayMode.htm) | Gets the current display mode of the object. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public property | [InstanceDescription](P_Grasshopper_Kernel_GH_Param_1_InstanceDescription.htm) | Gets the description of this instance. The default description is about the amount and source of the local values. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_18?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_19?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [InstanceGuid](P_Grasshopper_Kernel_GH_InstanceDescription_InstanceGuid.htm) | Gets the ID of this runtime instance. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public property | [IsDataProvider](P_Grasshopper_Kernel_GH_Param_1_IsDataProvider.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_20?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_21?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [IsPrincipal](P_Grasshopper_Kernel_GH_Param_1_IsPrincipal.htm) | Gets whether this parameter is a principal parameter. Principal parameters are maintained by components and are not part of the IGH\_Param interface. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_22?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_23?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [Keywords](P_Grasshopper_Kernel_GH_InstanceDescription_Keywords.htm) | Gets a list of additional keywords that describe the object. Typically this list is empty but you can override this property to aid in object searches. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public property | [Kind](P_Grasshopper_Kernel_GH_Param_1_Kind.htm) | Gets the parameter kind. The kind is evaluated lazily and cached. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_24?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_25?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [Locked](P_Grasshopper_Kernel_GH_ActiveObject_Locked.htm) | Gets or sets the enabled flag of this object. Disabled objects are ignored during solutions. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public property | [MutableNickName](P_Grasshopper_Kernel_GH_ActiveObject_MutableNickName.htm) | Gets or sets a value that enables Nick name changes through the menu. The default is TRUE. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public property | [Name](P_Grasshopper_Kernel_GH_InstanceDescription_Name.htm) | Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public property | [Negate](P_Grasshopper_Kernel_Parameters_Param_Predicate_Negate.htm) |  |
+| Public property | [NickName](P_Grasshopper_Kernel_GH_InstanceDescription_NickName.htm) | Gets or sets the nickname of the object. This field can be changed by the user. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public property | [Obsolete](P_Grasshopper_Kernel_GH_DocumentObject_Obsolete.htm) | Gets whether this object is obsolete. Default implementation returns true if the class name contains the string "OBSOLETE" or if this class has been decorated with the ObsoleteAttribute. You are free to override this if you want, but I suggest adding the ObsoleteAttribute instead. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public property | [Optional](P_Grasshopper_Kernel_GH_Param_1_Optional.htm) | Gets or sets whether or not this parameter is considered optional by the owner component. Empty, non-optional parameters prevent the component from being solved. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_26?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_27?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [Phase](P_Grasshopper_Kernel_GH_ActiveObject_Phase.htm) | Gets or sets the solution phase this object is currenly in. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public property | [ProcessorTime](P_Grasshopper_Kernel_GH_Param_1_ProcessorTime.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_28?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_29?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [ProxySourceCount](P_Grasshopper_Kernel_GH_Param_1_ProxySourceCount.htm) | Gets the number of proxy sources for this parameter. Proxy sources are used during file IO, when actual sources might not be available yet. Once an IO operation has been completed there should be no more proxy sources. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_30?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_31?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [Recipients](P_Grasshopper_Kernel_GH_Param_1_Recipients.htm) | Gets a list of all the recipients of this parameter. I.e. a recipient has this parameter as one of the sources. The Recipient list is maintained by the parameter, do not modify it yourself. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_32?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_33?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [Reverse](P_Grasshopper_Kernel_GH_Param_1_Reverse.htm) | Gets or sets the data reverse modifier of this parameter. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_34?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_35?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [RuntimeMessageLevel](P_Grasshopper_Kernel_GH_ActiveObject_RuntimeMessageLevel.htm) | Returns the worst case flag for the current object If the object contains at least 1 error, the result is Error.  If the object contains at least 1 warning, the result is Warning.  If the object contains at least 1 message, the result is Remark.  If the object contains no errors, no warnings and no messages, the result is Blank. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public property | [Simplify](P_Grasshopper_Kernel_GH_Param_1_Simplify.htm) | Gets or sets the simplify modifier for this parameter. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_36?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_37?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [SourceCount](P_Grasshopper_Kernel_GH_Param_1_SourceCount.htm) | Gets the number of sources for this parameter. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_38?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_39?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [Sources](P_Grasshopper_Kernel_GH_Param_1_Sources.htm) | Gets a list of source parameters. Do not modify this list, if you wish to add or remove sources, use dedicated functions like AddSource() and RemoveSource() instead. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_40?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_41?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [StateTags](P_Grasshopper_Kernel_Parameters_Param_Predicate_StateTags.htm) | (Overrides [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_42?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_43?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");AddLanguageSpecificTextSet("LST185E0FD7\_44?cs=.|vb=.|cpp=::|nu=.|fs=.");StateTags](P_Grasshopper_Kernel_GH_Param_1_StateTags.htm).) |
+| Public property | [SubCategory](P_Grasshopper_Kernel_GH_InstanceDescription_SubCategory.htm) | Gets or sets the SubCategory in which this object belongs. If HasSubCategory() returns false, this field has no meaning. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public property | [Type](P_Grasshopper_Kernel_GH_Param_1_Type.htm) | Gets the Framework Type descriptor for the stored Data. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_45?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_46?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [TypeName](P_Grasshopper_Kernel_GH_Param_1_TypeName.htm) | Calls TypeName() on the first instance of T it can find. This is either an item in the volatile list, or a newly constructed instance. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_47?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_48?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [VolatileData](P_Grasshopper_Kernel_GH_Param_1_VolatileData.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_49?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_50?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [VolatileDataCount](P_Grasshopper_Kernel_GH_Param_1_VolatileDataCount.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_51?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_52?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public property | [WireDisplay](P_Grasshopper_Kernel_GH_Param_1_WireDisplay.htm) | Gets or sets the wire display style for this parameter. Wire display only affects the wires connected to the parameter input. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_53?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_54?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+
+[Top](#PageHeader)
+
+![](../icons/SectionExpanded.png)Methods
+
+|  | Name | Description |
+| --- | --- | --- |
+| Public method | [AddedToDocument](M_Grasshopper_Kernel_GH_DocumentObject_AddedToDocument.htm) | This method will be called when an object is added to a document. Override this method if you want to handle such events. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [AddRuntimeMessage](M_Grasshopper_Kernel_GH_ActiveObject_AddRuntimeMessage.htm) | Add a new message to this object. Valid message type flags are Warning and Error. If the Message string is empty or zero-length no message is added. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public method | [AddSource(IGH\_Param)](M_Grasshopper_Kernel_GH_Param_1_AddSource.htm) | Append a new Source parameter to the end of the Sources list. Sources provide this parameter with data at runtime. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_55?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_56?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [AddSource(IGH\_Param, Int32)](M_Grasshopper_Kernel_GH_Param_1_AddSource_1.htm) | Insert a new Source parameter into the Sources list. Sources provide this parameter with data at runtime. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_57?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_58?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [AddVolatileData(GH\_Path, Int32, T)](M_Grasshopper_Kernel_GH_Param_1_AddVolatileData_1.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_59?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_60?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [AddVolatileData(GH\_Path, Int32, Object)](M_Grasshopper_Kernel_GH_Param_1_AddVolatileData.htm) | Inserts an item of volatile data into the data structure. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_61?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_62?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [AddVolatileDataList(GH\_Path, ListAddLanguageSpecificTextSet("LST185E0FD7\_63?cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=(");TAddLanguageSpecificTextSet("LST185E0FD7\_64?cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)");)](M_Grasshopper_Kernel_GH_Param_1_AddVolatileDataList.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_65?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_66?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [AddVolatileDataList(GH\_Path, IEnumerable)](M_Grasshopper_Kernel_GH_Param_1_AddVolatileDataList_1.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_67?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_68?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [AddVolatileDataTree(GH\_StructureAddLanguageSpecificTextSet("LST185E0FD7\_69?cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=(");TAddLanguageSpecificTextSet("LST185E0FD7\_70?cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)");)](M_Grasshopper_Kernel_GH_Param_1_AddVolatileDataTree.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_71?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_72?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [AddVolatileDataTree(IGH\_Structure)](M_Grasshopper_Kernel_GH_Param_1_AddVolatileDataTree_1.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_73?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_74?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [AppendAdditionalMenuItems](M_Grasshopper_Kernel_Parameters_Param_Predicate_AppendAdditionalMenuItems.htm) | (Overrides [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_75?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_76?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");AddLanguageSpecificTextSet("LST185E0FD7\_77?cs=.|vb=.|cpp=::|nu=.|fs=.");AppendAdditionalMenuItems(ToolStripDropDown)](M_Grasshopper_Kernel_GH_Param_1_AppendAdditionalMenuItems.htm).) |
+| Public method | [AppendMenuItems](M_Grasshopper_Kernel_GH_ActiveObject_AppendMenuItems.htm) | This function is called when a context menu is about to be displayed. Override it to set custom items. GH\_ActiveObject will already populate the menu with default items, if you merely wish to insert object-specific menu item, consider overriding AppendAdditionalMenuItems instead. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public method | [ClearData](M_Grasshopper_Kernel_GH_Param_1_ClearData.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_78?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_79?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [ClearProxySources](M_Grasshopper_Kernel_GH_Param_1_ClearProxySources.htm) | Remove all proxy sources without attempting to relink them. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_80?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_81?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [ClearRuntimeMessages](M_Grasshopper_Kernel_GH_ActiveObject_ClearRuntimeMessages.htm) | Destroy all warning and error lists (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public method | [CollectData](M_Grasshopper_Kernel_GH_Param_1_CollectData.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_82?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_83?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [ComputeData](M_Grasshopper_Kernel_GH_Param_1_ComputeData.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_84?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_85?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [CopyFrom](M_Grasshopper_Kernel_GH_InstanceDescription_CopyFrom.htm) | Copy all fields (except the instance ID) from another instance description. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public method | [CreateAttributes](M_Grasshopper_Kernel_GH_Param_1_CreateAttributes.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_86?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_87?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [CreateProxySources](M_Grasshopper_Kernel_GH_Param_1_CreateProxySources.htm) | Convert all proper source parameters into proxy sources. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_88?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_89?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [DependsOn](M_Grasshopper_Kernel_GH_Param_1_DependsOn.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_90?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_91?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [DocumentContextChanged](M_Grasshopper_Kernel_GH_DocumentObject_DocumentContextChanged.htm) | This method will be called when the document that owns this object moves into a different context. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [ExpirePreview](M_Grasshopper_Kernel_GH_DocumentObject_ExpirePreview.htm) | Call this function when you suspect that the preview has expired for this object. This will cause the display cache to be eradicated. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [ExpireSolution](M_Grasshopper_Kernel_GH_ActiveObject_ExpireSolution.htm) | Informs the document that owns this object that the solution has expired. The current object will be set to BLANK as a result. This method is recursive, it will also expire any and all objects which depend on this object. If you want a less destructive expiration, consider using ClearData(). If this object is already Blank, you should consider not expiring it. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public method | [ExpireSolutionTopLevel](M_Grasshopper_Kernel_GH_Param_1_ExpireSolutionTopLevel.htm) | Invoke the Expiresolution(bool) method on the toplevel object. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_92?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_93?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [IsolateObject](M_Grasshopper_Kernel_GH_Param_1_IsolateObject.htm) | (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_94?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_95?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [MovedBetweenDocuments](M_Grasshopper_Kernel_GH_DocumentObject_MovedBetweenDocuments.htm) | This method will be called when an object is moved from one document to another. Override this method if you want to handle such events. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [NewInstanceGuidAddLanguageSpecificTextSet("LST185E0FD7\_96?cs=()|vb=|cpp=()|nu=()|fs=()");](M_Grasshopper_Kernel_GH_InstanceDescription_NewInstanceGuid.htm) | Generate a new random instance GUID (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public method | [NewInstanceGuid(Guid)](M_Grasshopper_Kernel_GH_InstanceDescription_NewInstanceGuid_1.htm) | Set the instance ID to be a specific GUID. This is very dangerous, only use this function if you're 6"4' and your first name is David. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public method | [OnAttributesChanged](M_Grasshopper_Kernel_GH_DocumentObject_OnAttributesChanged.htm) | Raises the AttributesChanged event on the toplevel object. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [OnDisplayExpired](M_Grasshopper_Kernel_GH_DocumentObject_OnDisplayExpired.htm) | Raises the DisplayExpired event on the toplevel object. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [OnObjectChanged(GH\_ObjectChangedEventArgs)](M_Grasshopper_Kernel_GH_DocumentObject_OnObjectChanged.htm) | (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [OnObjectChanged(GH\_ObjectEventType)](M_Grasshopper_Kernel_GH_DocumentObject_OnObjectChanged_1.htm) | (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [OnObjectChanged(String)](M_Grasshopper_Kernel_GH_DocumentObject_OnObjectChanged_3.htm) | (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [OnObjectChanged(GH\_ObjectEventType, Object)](M_Grasshopper_Kernel_GH_DocumentObject_OnObjectChanged_2.htm) | (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [OnObjectChanged(String, Object)](M_Grasshopper_Kernel_GH_DocumentObject_OnObjectChanged_4.htm) | (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [OnPingDocument](M_Grasshopper_Kernel_GH_DocumentObject_OnPingDocument.htm) | Raise the PingDocument Event on the toplevel object and try to find the document which owns this object. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [OnPreviewExpired](M_Grasshopper_Kernel_GH_DocumentObject_OnPreviewExpired.htm) | Raises the PreviewExpired event on the toplevel object. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [OnSolutionExpired](M_Grasshopper_Kernel_GH_DocumentObject_OnSolutionExpired.htm) | Raises the SolutionExpired event on the toplevel object. You probably want to call ExpireSolution() instead of this method directly. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [Read](M_Grasshopper_Kernel_Parameters_Param_Predicate_Read.htm) | (Overrides [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_97?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_98?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");AddLanguageSpecificTextSet("LST185E0FD7\_99?cs=.|vb=.|cpp=::|nu=.|fs=.");Read(GH\_IReader)](M_Grasshopper_Kernel_GH_Param_1_Read.htm).) |
+| Public method | [ReadFull](M_Grasshopper_Kernel_GH_InstanceDescription_ReadFull.htm) | GH\_InstanceDescription does not by default serialize all fields. Use this function to read *all* fields from the archive. This method is compatible with the default Write()/Read() operations. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+| Public method | [RecordUndoEvent(GH\_UndoRecord)](M_Grasshopper_Kernel_GH_DocumentObject_RecordUndoEvent.htm) | Record an entire undo record. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [RecordUndoEvent(String)](M_Grasshopper_Kernel_GH_DocumentObject_RecordUndoEvent_1.htm) | Record a generic object change undo event. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [RecordUndoEvent(String, IGH\_UndoAction)](M_Grasshopper_Kernel_GH_DocumentObject_RecordUndoEvent_2.htm) | Record a specific object change undo event. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [RegisterRemoteIDs](M_Grasshopper_Kernel_GH_ActiveObject_RegisterRemoteIDs.htm) | Override this function if you want object changes in the Rhino document to trigger a new solution. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public method | [RelinkProxySources](M_Grasshopper_Kernel_GH_Param_1_RelinkProxySources.htm) | Attempt to replace all proxy sources with real sources. Proxy sources are used during file IO, when actual sources might not be available yet. Once an IO operation has been completed there should be no more proxy sources. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_100?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_101?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [RemoveAllSources](M_Grasshopper_Kernel_GH_Param_1_RemoveAllSources.htm) | Remove all sources from this parameter. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_102?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_103?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [RemovedFromDocument](M_Grasshopper_Kernel_GH_DocumentObject_RemovedFromDocument.htm) | This method will be called when an object is removed from a document. Override this method if you want to handle such events. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [RemoveEffects](M_Grasshopper_Kernel_Parameters_Param_Predicate_RemoveEffects.htm) | (Overrides [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_104?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_105?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");AddLanguageSpecificTextSet("LST185E0FD7\_106?cs=.|vb=.|cpp=::|nu=.|fs=.");RemoveEffectsAddLanguageSpecificTextSet("LST185E0FD7\_107?cs=()|vb=|cpp=()|nu=()|fs=()");](M_Grasshopper_Kernel_GH_Param_1_RemoveEffects.htm).) |
+| Public method | [RemoveSource(Guid)](M_Grasshopper_Kernel_GH_Param_1_RemoveSource_1.htm) | Remove the specified source from this parameter. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_108?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_109?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [RemoveSource(IGH\_Param)](M_Grasshopper_Kernel_GH_Param_1_RemoveSource.htm) | Remove the specified source from this parameter. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_110?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_111?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [ReplaceSource(Guid, IGH\_Param)](M_Grasshopper_Kernel_GH_Param_1_ReplaceSource_1.htm) | Replace an existing source with a new one. If the old\_source does not exist in this parameter, nothing happens. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_112?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_113?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [ReplaceSource(IGH\_Param, IGH\_Param)](M_Grasshopper_Kernel_GH_Param_1_ReplaceSource.htm) | Replace an existing source with a new one. If the old\_source does not exist in this parameter, nothing happens. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_114?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_115?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [RuntimeMessages](M_Grasshopper_Kernel_GH_ActiveObject_RuntimeMessages.htm) | Gets the list of cached runtime messages that were recorded during solver-time processes. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public method | [SDKCompliancy](M_Grasshopper_Kernel_GH_ActiveObject_SDKCompliancy.htm) | Test whether this object is compliant with a given Rhino version. (Inherited from [GH\_ActiveObject](T_Grasshopper_Kernel_GH_ActiveObject.htm).) |
+| Public method | [SetIconOverride](M_Grasshopper_Kernel_GH_DocumentObject_SetIconOverride.htm) | Set a new custom icon override for this object. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [SetPrincipal](M_Grasshopper_Kernel_GH_Param_1_SetPrincipal.htm) | Set the principal parameter state. (Inherited from [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_116?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_117?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_Param_1.htm).) |
+| Public method | [TriggerAutoSaveAddLanguageSpecificTextSet("LST185E0FD7\_118?cs=()|vb=|cpp=()|nu=()|fs=()");](M_Grasshopper_Kernel_GH_DocumentObject_TriggerAutoSave.htm) | Triggers the AutoSave function on the owner document with the object\_changed flag. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [TriggerAutoSave(GH\_AutoSaveTrigger)](M_Grasshopper_Kernel_GH_DocumentObject_TriggerAutoSave_1.htm) | Triggers the AutoSave function on the owner document with a custom flag. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [TriggerAutoSave(Guid)](M_Grasshopper_Kernel_GH_DocumentObject_TriggerAutoSave_3.htm) | Triggers the AutoSave function on the owner document with the object\_changed flag. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [TriggerAutoSave(GH\_AutoSaveTrigger, Guid)](M_Grasshopper_Kernel_GH_DocumentObject_TriggerAutoSave_2.htm) | Triggers the AutoSave function on the owner document with a custom flag. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public method | [Write](M_Grasshopper_Kernel_Parameters_Param_Predicate_Write.htm) | (Overrides [GH\_ParamAddLanguageSpecificTextSet("LST185E0FD7\_119?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST185E0FD7\_120?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");AddLanguageSpecificTextSet("LST185E0FD7\_121?cs=.|vb=.|cpp=::|nu=.|fs=.");Write(GH\_IWriter)](M_Grasshopper_Kernel_GH_Param_1_Write.htm).) |
+| Public method | [WriteFull](M_Grasshopper_Kernel_GH_InstanceDescription_WriteFull.htm) | GH\_InstanceDescription does not by default serialize all fields. Use this function to write *all* fields to the archive. This method is compatible with the default Write()/Read() operations. (Inherited from [GH\_InstanceDescription](T_Grasshopper_Kernel_GH_InstanceDescription.htm).) |
+
+[Top](#PageHeader)
+
+![](../icons/SectionExpanded.png)Events
+
+|  | Name | Description |
+| --- | --- | --- |
+| Public event | [AttributesChanged](E_Grasshopper_Kernel_GH_DocumentObject_AttributesChanged.htm) | Raised whenever the number or kind of attributes changes. This event is handled by GH\_Documents who subsequently wipe their attribute caches. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public event | [DisplayExpired](E_Grasshopper_Kernel_GH_DocumentObject_DisplayExpired.htm) | Raised whenever the display (on the Canvas) of a certain object becomes invalid. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public event | [ObjectChanged](E_Grasshopper_Kernel_GH_DocumentObject_ObjectChanged.htm) | (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public event | [PingDocument](E_Grasshopper_Kernel_GH_DocumentObject_PingDocument.htm) | Raised whenever an object needs to know which GH\_Document it belongs to. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public event | [PreviewExpired](E_Grasshopper_Kernel_GH_DocumentObject_PreviewExpired.htm) | Raised whenever the display (in the Rhino viewports) of a certain object becomes invalid. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+| Public event | [SolutionExpired](E_Grasshopper_Kernel_GH_DocumentObject_SolutionExpired.htm) | Raised whenever the solution of a certain object becomes invalid. (Inherited from [GH\_DocumentObject](T_Grasshopper_Kernel_GH_DocumentObject.htm).) |
+
+[Top](#PageHeader)
+
+![](../icons/SectionExpanded.png)See Also
+
+#### Reference
+
+[Grasshopper.Kernel.Parameters Namespace](N_Grasshopper_Kernel_Parameters.htm)
+
+Grasshopper for Rhino 8.33.26188.13000 (2026-07-07)  
+Copyright © 2009-2026 Robert McNeel & Associates
+
+[Report wishes and bugs at discourse.mcneel.com](https://discourse.mcneel.com/c/grasshopper)
