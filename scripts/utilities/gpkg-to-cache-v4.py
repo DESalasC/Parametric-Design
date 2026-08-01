@@ -44,6 +44,9 @@ DEFAULT_POT_GDB = r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Dat
 DEFAULT_WHITELIST = PROJECT_ROOT / "config" / "field-whitelist.json"
 DEFAULT_OUTPUT = PROJECT_ROOT / "data" / "pot-cache"
 HASH_CACHE_FILE = PROJECT_ROOT / "data" / ".gpkg_hash_cache"
+DEFAULT_RETIROS_JSON = PROJECT_ROOT / "data" / "pot-bogota" / "retiros-estructurados.json"
+DEFAULT_EDIFICABILIDAD_JSON = PROJECT_ROOT / "data" / "pot-bogota" / "edificabilidad-estructurada.json"
+DEFAULT_TRATAMIENTOS_JSON = PROJECT_ROOT / "data" / "pot-bogota" / "tratamientos-estructurados.json"
 
 # Capas del POT que vamos a consultar (JOIN espacial con el lote)
 POT_LAYERS_TO_QUERY = {
@@ -54,37 +57,37 @@ POT_LAYERS_TO_QUERY = {
     },
     "tratamiento_urbanistico": {
         "layer": "TratamientoUrbanistico",
-        "fields": ["NOMBRE", "TRATAMIENTO", "NORMATIVA", "ACTO_ADMINISTRATIVO", "NUMERO_ACTO_ADMINISTRATIVO"],
+        "fields": ["CODIGO_TRATAMIENTO", "NOMBRE_TRATAMIENTO", "TIPOLOGIA", "ALTURA_MAXIMA", "CÓDIGO_SUBTRATAMIENTO", "NORMATIVA", "ACTO_ADMINISTRATIVO", "NUMERO_ACTO_ADMINISTRATIVO"],
         "description": "Tratamiento: Conservación, Desarrollo, Renovación, Mejoramiento"
     },
     "area_actividad": {
         "layer": "AreaActividad",
-        "fields": ["NOMBRE", "TIPO", "NORMATIVA", "ACTO_ADMINISTRATIVO"],
+        "fields": ["CODIGO_AREA_ACTIVIDAD", "NOMBRE_AREA_ACTIVIDAD", "OBSERVACION", "NORMATIVA", "ACTO_ADMINISTRATIVO"],
         "description": "Zona residencial, comercial, industrial, mixto"
     },
     "edificabilidad": {
         "layer": "Rango_edificabilidad_desarro",
-        "fields": ["EDIFICABILIDAD", "RANGO", "NORMATIVA", "ACTO_ADMINISTRATIVO"],
-        "description": "Índice de edificabilidad permitido"
+        "fields": ["CODIGO_AREA", "NOMBRE_AREA", "RANGO", "NORMATIVA", "ACTO_ADMINISTRATIVO"],
+        "description": "Índice de edificabilidad permitido (rango)"
     },
     "clasificacion_suelo": {
         "layer": "ClasificacionSuelo",
-        "fields": ["CLASIFICACION", "TIPO", "NORMATIVA"],
+        "fields": ["CODIGO_ID", "CLASE_SUELO", "OBSERVACION", "NORMATIVA", "ACTO_ADMINISTRATIVO", "NUMERO_ACTO_ADMINISTRATIVO"],
         "description": "Suelo urbano, rural, expansión"
     },
     "unidad_planeamiento_local": {
         "layer": "Unidad_planeamiento_local",
-        "fields": ["CODIGO", "NOMBRE", "UPZ", "NORMATIVA"],
+        "fields": ["NOMBRE", "NORMATIVA"],
         "description": "UPL - subdivisión de UPZ"
     },
     "sector_uso_residencial": {
         "layer": "Sector_uso_residencial",
-        "fields": ["NOMBRE", "TIPO", "NORMATIVA"],
+        "fields": ["NORMATIVA"],
         "description": "Sectores residenciales específicos"
     },
     "suelo_proteccion_riesgo": {
         "layer": "SueloProteccionRiesgo",
-        "fields": ["TIPO", "NIVEL_RIESGO", "NORMATIVA"],
+        "fields": ["NORMATIVA"],
         "description": "Suelo por riesgo (afecta edificabilidad)"
     },
 }
@@ -207,6 +210,181 @@ def extract_fields(row: dict, fields: list[str]) -> dict[str, Any]:
                 result[field_name] = v
                 break
     return result
+
+
+def load_retiros_estructurados(retiros_path: Path) -> dict[str, Any] | None:
+    """Carga el JSON de retiros estructurados del Decreto 555/2021."""
+    if not retiros_path.exists():
+        click.echo(f"[WARN] retiros-estructurados.json no encontrado: {retiros_path}", err=True)
+        return None
+    with open(retiros_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_edificabilidad_estructurada(edif_path: Path) -> dict[str, Any] | None:
+    """Carga el JSON de edificabilidad estructurada del Decreto 555/2021."""
+    if not edif_path.exists():
+        click.echo(f"[WARN] edificabilidad-estructurada.json no encontrado: {edif_path}", err=True)
+        return None
+    with open(edif_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def determinar_retiros_por_tratamiento(
+    nombre_tratamiento: str | None,
+    retiros_data: dict | None,
+    frente_predio_m: float | None = None,
+    fondo_predio_m: float | None = None,
+) -> dict[str, Any]:
+    """Determina los retiros aplicables según el tratamiento urbanístico."""
+
+    if not retiros_data or not nombre_tratamiento:
+        # Valores por defecto conservadores
+        return {
+            "_status": "default",
+            "frontal_m": 3.0,
+            "lateral_izq_m": 3.0,
+            "lateral_der_m": 3.0,
+            "posterior_m": 3.0,
+            "nota": "Valores por defecto - no se pudo determinar tratamiento",
+        }
+
+    # Normalizar nombre del tratamiento
+    nombre_lower = nombre_tratamiento.lower().strip()
+    tratamiento_key = None
+    if "desarrollo" in nombre_lower:
+        tratamiento_key = "desarrollo"
+    elif "consolidacion" in nombre_lower:
+        tratamiento_key = "consolidacion"
+    elif "renovacion" in nombre_lower or "renovación" in nombre_lower:
+        tratamiento_key = "renovacion_urbana"
+    elif "conservacion" in nombre_lower or "conservación" in nombre_lower:
+        tratamiento_key = "conservacion"
+    elif "mejoramiento" in nombre_lower:
+        tratamiento_key = "mejoramiento_integral"
+
+    if not tratamiento_key:
+        return {
+            "_status": "no_reconocido",
+            "tratamiento_original": nombre_tratamiento,
+            "frontal_m": 3.0,
+            "lateral_izq_m": 3.0,
+            "lateral_der_m": 3.0,
+            "posterior_m": 3.0,
+            "nota": f"Tratamiento no reconocido: {nombre_tratamiento}",
+        }
+
+    trat_data = retiros_data.get("tratamientos", {}).get(tratamiento_key, {})
+
+    # Para desarrollo: usar tipología y dimensiones del predio
+    if tratamiento_key == "desarrollo":
+        tipologia_data = trat_data.get("tipologia_aislada", {})  # default a aislada
+
+        # Determinar categoría según frente y fondo
+        if frente_predio_m is not None and fondo_predio_m is not None:
+            if frente_predio_m >= 16 and fondo_predio_m >= 13.5:
+                cat = tipologia_data.get("frente_mayor_16m_fondo_mayor_13_5m", {})
+            elif frente_predio_m >= 10.5 and fondo_predio_m >= 8:
+                cat = tipologia_data.get("frente_10_5_a_16m_fondo_mayor_8m", {})
+            else:
+                cat = tipologia_data.get("frente_menor_10_5m", {})
+        else:
+            cat = tipologia_data.get("frente_10_5_a_16m_fondo_mayor_8m", {})
+
+        return {
+            "_status": "OK",
+            "tratamiento": nombre_tratamiento,
+            "tratamiento_key": tratamiento_key,
+            "tipologia": "aislada (default)",
+            "altura_max_pisos": cat.get("altura_max_pisos"),
+            "frontal_m": 3.0,  # default para desarrollo
+            "lateral_izq_m": "variable según relación 2:1 con perfil vial",
+            "lateral_der_m": "variable según relación 2:1 con perfil vial",
+            "posterior_m": cat.get("aislamiento_posterior_m", 3.0),
+            "nota": cat.get("nota", ""),
+            "fuente": "Decreto 555/2021 Artículo 281-283",
+        }
+
+    # Para consolidación
+    elif tratamiento_key == "consolidacion":
+        tipologia_continua = trat_data.get("tipologia_continua", {})
+        tipologia_aislada = trat_data.get("tipologia_aislada", {})
+
+        return {
+            "_status": "OK",
+            "tratamiento": nombre_tratamiento,
+            "tratamiento_key": tratamiento_key,
+            "tipologia_continua": {
+                "lateral_m": tipologia_continua.get("aislamiento_lateral_m", "no exigido"),
+            },
+            "tipologia_aislada": {
+                "frente_minimo_m": tipologia_aislada.get("frente_minimo_m"),
+                "area_minima_m2": tipologia_aislada.get("area_minima_m2"),
+            },
+            "frontal_m": 3.0,  # default
+            "lateral_izq_m": 0.0 if True else 3.0,  # tipología continua: 0
+            "lateral_der_m": 0.0,
+            "posterior_m": 3.0,
+            "nota": "Tipología continua: sin aislamientos laterales. Aislada: frente>=24m, área>=1200m²",
+            "fuente": "Decreto 555/2021 Artículo 310",
+        }
+
+    # Para renovación urbana
+    elif tratamiento_key == "renovacion_urbana":
+        return {
+            "_status": "OK",
+            "tratamiento": nombre_tratamiento,
+            "tratamiento_key": tratamiento_key,
+            "modalidad": trat_data.get("descripcion", "Revitalización"),
+            "IC_efectivo_max_directo": trat_data.get("indice_construccion_efectivo_max_directo"),
+            "IC_efectivo_max_con_cesion_esquina": trat_data.get("indice_construccion_efectivo_max_con_cesion_esquina"),
+            "IC_efectivo_max_manzana_completa": trat_data.get("indice_construccion_efectivo_max_manzana_completa"),
+            "frontal_m": 3.0,
+            "lateral_izq_m": 0.0,
+            "lateral_der_m": 0.0,
+            "posterior_m": 3.0,
+            "nota": "Renovación urbana - retiros según plan parcial y proyecto específico",
+            "fuente": "Decreto 555/2021 Artículo 301-304",
+        }
+
+    # Para conservación
+    elif tratamiento_key == "conservacion":
+        return {
+            "_status": "OK",
+            "tratamiento": nombre_tratamiento,
+            "tratamiento_key": tratamiento_key,
+            "norma": trat_data.get("norma", "Según ficha de valoración"),
+            "requiere": trat_data.get("nota", "Concepto del Consejo Distrital de Patrimonio Cultural"),
+            "frontal_m": 0.0,  # generalmente sin retiro en conservación
+            "lateral_izq_m": 0.0,
+            "lateral_der_m": 0.0,
+            "posterior_m": 0.0,
+            "nota": "Conservación - retiros según nivel de intervención (1-4)",
+            "fuente": "Decreto 555/2021 Artículo 343+",
+        }
+
+    # Para mejoramiento integral
+    elif tratamiento_key == "mejoramiento_integral":
+        return {
+            "_status": "OK",
+            "tratamiento": nombre_tratamiento,
+            "tratamiento_key": tratamiento_key,
+            "norma": trat_data.get("norma", "Según Plan Vecinos"),
+            "frontal_m": 0.0,
+            "lateral_izq_m": 0.0,
+            "lateral_der_m": 0.0,
+            "posterior_m": 0.0,
+            "nota": "Mejoramiento integral - regularización según Plan Vecinos",
+            "fuente": "Decreto 555/2021 + Decreto 563/2023",
+        }
+
+    return {
+        "_status": "default",
+        "frontal_m": 3.0,
+        "lateral_izq_m": 3.0,
+        "lateral_der_m": 3.0,
+        "posterior_m": 3.0,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -423,9 +601,11 @@ def cli() -> None:
 @click.option("--catastro-gpkg", default=DEFAULT_CATASTRO_GPKG)
 @click.option("--pot-gdb", default=DEFAULT_POT_GDB)
 @click.option("--whitelist", default=str(DEFAULT_WHITELIST))
+@click.option("--retiros-json", default=str(DEFAULT_RETIROS_JSON))
+@click.option("--edificabilidad-json", default=str(DEFAULT_EDIFICABILIDAD_JSON))
 @click.option("--output", default=str(DEFAULT_OUTPUT))
-def query(lot: str, catastro_gpkg: str, pot_gdb: str, whitelist: str, output: str) -> None:
-    """Consulta catastro + POT y genera caché JSON con datos REALES."""
+def query(lot: str, catastro_gpkg: str, pot_gdb: str, whitelist: str, retiros_json: str, edificabilidad_json: str, output: str) -> None:
+    """Consulta catastro + POT + decreto estructurado y genera caché JSON completo."""
 
     catastro_path = Path(catastro_gpkg)
     pot_path = Path(pot_gdb)
@@ -436,6 +616,10 @@ def query(lot: str, catastro_gpkg: str, pot_gdb: str, whitelist: str, output: st
     wl = load_whitelist(Path(whitelist))
     total_wl = sum(len(v) for v in wl.get("_categorized", {}).values())
     click.echo(f"[INFO] Whitelist cargada: {total_wl} campos")
+
+    # 1b. Cargar JSON estructurados del Decreto 555/2021
+    retiros_data = load_retiros_estructurados(Path(retiros_json))
+    edificabilidad_data = load_edificabilidad_estructurada(Path(edificabilidad_json))
 
     # 2. Lote
     lot_data = load_lot(Path(lot))
@@ -545,39 +729,98 @@ def query(lot: str, catastro_gpkg: str, pot_gdb: str, whitelist: str, output: st
         "elevacion_maxima_amsl_m": pot_elevacion_maxima,
         "upz": pot_upz,
         "tratamiento_urbanistico": {
-            "nombre": pot_trat.get("NOMBRE"),
-            "tratamiento": pot_trat.get("TRATAMIENTO"),
+            "codigo": pot_trat.get("CODIGO_TRATAMIENTO"),
+            "nombre": pot_trat.get("NOMBRE_TRATAMIENTO"),
+            "tipologia": pot_trat.get("TIPOLOGIA"),
+            "altura_maxima_rango": pot_trat.get("ALTURA_MAXIMA"),
+            "subtratamiento": pot_trat.get("CÓDIGO_SUBTRATAMIENTO"),
             "normativa": pot_trat.get("NORMATIVA"),
         } if pot_trat.get("_status") == "OK" else None,
         "area_actividad": {
-            "nombre": pot_act.get("NOMBRE"),
-            "tipo": pot_act.get("TIPO"),
+            "codigo": pot_act.get("CODIGO_AREA_ACTIVIDAD"),
+            "nombre": pot_act.get("NOMBRE_AREA_ACTIVIDAD"),
+            "observacion": pot_act.get("OBSERVACION"),
             "normativa": pot_act.get("NORMATIVA"),
         } if pot_act.get("_status") == "OK" else None,
         "edificabilidad": {
-            "valor": pot_edif.get("EDIFICABILIDAD"),
+            "codigo_area": pot_edif.get("CODIGO_AREA"),
+            "nombre_area": pot_edif.get("NOMBRE_AREA"),
             "rango": pot_edif.get("RANGO"),
             "normativa": pot_edif.get("NORMATIVA"),
         } if pot_edif.get("_status") == "OK" else None,
         "clasificacion_suelo": {
-            "clasificacion": pot_suelo.get("CLASIFICACION"),
-            "tipo": pot_suelo.get("TIPO"),
+            "codigo_id": pot_suelo.get("CODIGO_ID"),
+            "clase_suelo": pot_suelo.get("CLASE_SUELO"),
+            "observacion": pot_suelo.get("OBSERVACION"),
+            "acto_administrativo": pot_suelo.get("ACTO_ADMINISTRATIVO"),
+            "numero_acto": pot_suelo.get("NUMERO_ACTO_ADMINISTRATIVO"),
         } if pot_suelo.get("_status") == "OK" else None,
         "unidad_planeamiento_local": {
-            "codigo": pot_upl.get("CODIGO"),
             "nombre": pot_upl.get("NOMBRE"),
-            "upz": pot_upl.get("UPZ"),
+            "normativa": pot_upl.get("NORMATIVA"),
         } if pot_upl.get("_status") == "OK" else None,
         "sector_uso_residencial": {
-            "nombre": pot_resid.get("NOMBRE"),
-            "tipo": pot_resid.get("TIPO"),
+            "normativa": pot_resid.get("NORMATIVA"),
         } if pot_resid.get("_status") == "OK" else None,
         "suelo_proteccion_riesgo": {
-            "tipo": pot_riesgo.get("TIPO"),
-            "nivel_riesgo": pot_riesgo.get("NIVEL_RIESGO"),
+            "normativa": pot_riesgo.get("NORMATIVA"),
         } if pot_riesgo.get("_status") == "OK" else None,
         "normativa_legal": pot_normativa,
     }
+
+    # ============================================
+    # DECRETO 555/2021 ESTRUCTURADO
+    # ============================================
+    # Determinar retiros según el tratamiento encontrado
+    click.echo("")
+    click.echo("[DECRETO 555] Calculando retiros según tratamiento...")
+
+    tratamiento_nombre = None
+    if pot_trat.get("_status") == "OK":
+        tratamiento_nombre = pot_trat.get("NOMBRE_TRATAMIENTO")
+
+    # Intentar calcular frente y fondo del predio desde el polígono
+    frente_predio = None
+    fondo_predio = None
+    try:
+        bounds = lot_geom.bounds  # (minx, miny, maxx, maxy)
+        ancho = bounds[2] - bounds[0]
+        alto = bounds[3] - bounds[1]
+        # Asumir que el frente es el lado más corto (convención usual)
+        frente_predio = min(ancho, alto)
+        fondo_predio = max(ancho, alto)
+        click.echo(f"  [INFO] Frente estimado: {frente_predio:.2f} m, Fondo: {fondo_predio:.2f} m")
+    except Exception:
+        pass
+
+    retiros_calculados = determinar_retiros_por_tratamiento(
+        tratamiento_nombre,
+        retiros_data,
+        frente_predio,
+        fondo_predio,
+    )
+
+    if retiros_calculados.get("_status") == "OK":
+        click.echo(f"  [OK] Tratamiento: {tratamiento_nombre}")
+        click.echo(f"  [OK] Retiro frontal: {retiros_calculados.get('frontal_m')} m")
+        click.echo(f"  [OK] Retiro lateral izq: {retiros_calculados.get('lateral_izq_m')} m")
+        click.echo(f"  [OK] Retiro lateral der: {retiros_calculados.get('lateral_der_m')} m")
+        click.echo(f"  [OK] Retiro posterior: {retiros_calculados.get('posterior_m')} m")
+    else:
+        click.echo(f"  [WARN] {retiros_calculados.get('nota', 'No se pudieron calcular retiros')}", err=True)
+
+    # Buscar edificabilidad según tratamiento
+    edif_calculada = None
+    if edificabilidad_data and tratamiento_nombre:
+        nombre_lower = tratamiento_nombre.lower()
+        if "desarrollo" in nombre_lower:
+            edif_calculada = edificabilidad_data.get("tratamiento_desarrollo", {})
+        elif "consolidacion" in nombre_lower:
+            edif_calculada = edificabilidad_data.get("tratamiento_consolidacion", {})
+        elif "renovacion" in nombre_lower or "renovación" in nombre_lower:
+            edif_calculada = edificabilidad_data.get("tratamiento_renovacion_urbana", {})
+        elif "conservacion" in nombre_lower or "conservación" in nombre_lower:
+            edif_calculada = edificabilidad_data.get("tratamiento_conservacion", {})
 
     # ============================================
     # JSON FINAL
@@ -603,6 +846,8 @@ def query(lot: str, catastro_gpkg: str, pot_gdb: str, whitelist: str, output: st
             "crs": "ESRI:102233",
             "poligono": lot_data["raw"].get("coordenadas", {}).get("poligono", []),
             "bbox": list(lot_geom.bounds),
+            "frente_estimado_m": frente_predio,
+            "fondo_estimado_m": fondo_predio,
         },
         "catastro": {
             "lote_geometria": lot_data_extracted,
@@ -617,21 +862,35 @@ def query(lot: str, catastro_gpkg: str, pot_gdb: str, whitelist: str, output: st
         },
         "pot": pot_resumen,
         "pot_detalle_completo": pot_data,
+        "decreto_555_2021": {
+            "_status": "OK" if retiros_calculados.get("_status") == "OK" else "default",
+            "_fuente": "Decreto 555 del 29 de diciembre de 2021 - extractos estructurados",
+            "retiros": retiros_calculados,
+            "edificabilidad_por_tratamiento": edif_calculada,
+            "subdivisiones": retiros_data.get("subdivisiones_prediales") if retiros_data else None,
+            "antejardines": retiros_data.get("antejardines") if retiros_data else None,
+        },
         "metadatos": {
             "catastro_gpkg": str(catastro_path),
             "catastro_hash_md5": catastro_md5,
             "pot_gdb": str(pot_path),
+            "decreto_555_md": "docs/normativa/pot-bogota/decreto-555-extractos.md",
+            "retiros_json": str(retiros_json),
+            "edificabilidad_json": str(edificabilidad_json),
             "lot_codigo": lot_codigo,
             "pre_chip": pre_chip,
             "campos_catastro_extraidos": total_catastro,
             "pot_capas_consultadas": pot_capas_totales,
             "pot_capas_encontradas": pot_capas_ok,
             "pot_altura_encontrada": pot_altura_maxima is not None,
+            "retiros_calculados": retiros_calculados.get("_status") == "OK",
             "joins_realizados": {
                 "lote_espacial": True,
                 "predio_atributo": predio_dict is not None,
                 "calificacion_atributo": calif_dict is not None,
                 "pot_elevacion_espacial": pot_altura_maxima is not None,
+                "pot_tratamiento_espacial": pot_trat.get("_status") == "OK",
+                "decreto_555_retiros": retiros_calculados.get("_status") == "OK",
             }
         },
     }
@@ -649,9 +908,17 @@ def query(lot: str, catastro_gpkg: str, pot_gdb: str, whitelist: str, output: st
     click.echo(f"[OK] POT altura máxima: {pot_altura_maxima} m" + (" (REAL)" if pot_altura_maxima else " (no encontrada)"))
     click.echo(f"[OK] POT UPZ: {pot_upz['nombre'] if pot_upz else 'N/A'}")
     if pot_trat.get("_status") == "OK":
-        click.echo(f"[OK] POT tratamiento: {pot_trat.get('TRATAMIENTO') or pot_trat.get('NOMBRE')}")
+        click.echo(f"[OK] POT tratamiento: {pot_trat.get('NOMBRE_TRATAMIENTO')} (cod={pot_trat.get('CODIGO_TRATAMIENTO')})")
+    if pot_act.get("_status") == "OK":
+        click.echo(f"[OK] POT area actividad: {pot_act.get('NOMBRE_AREA_ACTIVIDAD')}")
     if pot_edif.get("_status") == "OK":
-        click.echo(f"[OK] POT edificabilidad: {pot_edif.get('EDIFICABILIDAD')}")
+        click.echo(f"[OK] POT edificabilidad rango: {pot_edif.get('RANGO')}")
+    if pot_suelo.get("_status") == "OK":
+        click.echo(f"[OK] POT clase suelo: {pot_suelo.get('CLASE_SUELO')} ({pot_suelo.get('CODIGO_ID')})")
+    if pot_upl.get("_status") == "OK":
+        click.echo(f"[OK] POT UPL: {pot_upl.get('NOMBRE')}")
+    if retiros_calculados.get("_status") == "OK":
+        click.echo(f"[OK] Retiros calculados: frontal={retiros_calculados.get('frontal_m')}m, posterior={retiros_calculados.get('posterior_m')}m")
     click.echo("=" * 60)
 
 

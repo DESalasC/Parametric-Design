@@ -1,0 +1,125 @@
+{
+  "_metadata": {
+    "fuente": "Decreto 555 del 29 de diciembre de 2021",
+    "fecha_extraccion": "2026-08-01",
+    "descripcion": "Rangos de edificabilidad por tratamiento"
+  },
+  "tratamiento_desarrollo": {
+    "descripcion": "Rangos de edificabilidad para tratamiento de desarrollo",
+    "fuente_cartografica": "Mapas CU-5.4.2 a CU-5.4.33 'Edificabilidad máxima'",
+    "rangos": {
+      "RANGO_1": {
+        "IC_max_con_VIS_VIP": 2.82,
+        "IC_max_sin_VIS_VIP": 2.25,
+        "IO_max_ANU": 0.28,
+        "altura_max_pisos": 3
+      },
+      "RANGO_2": {
+        "IC_max_con_VIS_VIP": 2.57,
+        "IC_max_sin_VIS_VIP": 2.0,
+        "IO_max_ANU": 0.28,
+        "altura_max_pisos": 8
+      },
+      "RANGO_3": {
+        "IC_max_con_VIS_VIP": 2.32,
+        "IC_max_sin_VIS_VIP": 1.75,
+        "IO_max_ANU": 0.15,
+        "nota_altura": "Según normas volumétricas del tratamiento"
+      },
+      "RANGO_4A": {
+        "IC_max_con_VIS_VIP": 1.75,
+        "IC_max_sin_VIS_VIP": 1.2,
+        "IO_max_ANU": 0.15,
+        "nota_altura": "Según normas comunes a los tratamientos"
+      },
+      "RANGO_4B": {
+        "IC_max_con_VIS_VIP": 1.75,
+        "IC_max_sin_VIS_VIP": 1.2,
+        "IO_max_ANU": 0.15
+      },
+      "RANGO_4C": {
+        "IC_max_con_VIS_VIP": 1.2,
+        "IC_max_sin_VIS_VIP": 0.9,
+        "IO_max_ANU": 0.1,
+        "nota": "Lineamientos especiales según Artículo 282"
+      },
+      "RANGO_4D": {
+        "IC_max_con_VIS_VIP": 0.9,
+        "IC_max_sin_VIS_VIP": 0.9,
+        "IO_max_ANU": 0.1,
+        "nota": "Lineamientos especiales según Artículo 282"
+      }
+    },
+    "definiciones": {
+      "IC": "Índice de Construcción = Área Construida / Área Neta Urbanizable",
+      "IO": "Índice de Ocupación = Área Ocupada / Área Neta Urbanizable",
+      "ANU": "Área Neta Urbanizable",
+      "VIS": "Vivienda de Interés Social",
+      "VIP": "Vivienda de Interés Prioritario"
+    }
+  },
+  "tratamiento_consolidacion": {
+    "descripcion": "Edificabilidad según normas volumétricas",
+    "IO_IC": "resultantes de la aplicación de las normas volumétricas",
+    "altura_pisos": "Definida en mapas CU-5.4.2 a CU-5.4.33 por UPL",
+    "excepcion_proximidad": {
+      "condicion": "Predios en área de actividad de proximidad con ámbito >= 1 manzana",
+      "altura_max_pisos": "2 veces el permitido en mapas, sin superar 12 pisos"
+    },
+    "excepcion_VIS_VIP": {
+      "condicion": "Áreas receptoras de VIS/VIP con >= 70% VIS o >= 50% VIP",
+      "altura_max_pisos": "Según mapas, indistintamente del área",
+      "aislamiento_lateral": "Desde altura base del sector en tipología continua"
+    },
+    "urbanizacion_san_jose_bavaria": {
+      "densidad_max_viv_por_lote": 4,
+      "IC_max_predial": 0.3,
+      "IO_max_predial": "según licencia original"
+    }
+  },
+  "tratamiento_renovacion_urbana": {
+    "descripcion": "Modalidad de revitalización",
+    "IC_efectivo_max_licencia_directa": 5.0,
+    "IC_efectivo_max_con_cesion_esquina": 6.0,
+    "IC_efectivo_max_manzana_completa": 7.0,
+    "IC_efectivo_max_con_plan_parcial": "superior a 7.0 (requiere plan parcial)",
+    "area_minima_plan_parcial_ha": 3.0,
+    "mezcla_usos_residencial_min": "8% del área de construcción base"
+  },
+  "tratamiento_conservacion": {
+    "descripcion": "Bienes de Interés Cultural - regulación especial",
+    "norma": "Según ficha de valoración, nivel 1-4",
+    "requiere_concepto": "Consejo Distrital de Patrimonio Cultural"
+  },
+  "equipamientos": {
+    "existentes": "Mantienen condiciones de edificabilidad y volumetría existentes",
+    "nuevos": "Según sector donde se localicen",
+    "en_parques": "Optimización del suelo, sin IO/IC específico",
+    "dotacionales_estudio": "Definidos en estudios urbanísticos para dotacionales"
+  },
+  "rurales": {
+    "vivienda_campestre_guaymaral": {
+      "IO_max_vivienda": 0.1,
+      "IO_max_otros_usos": 0.2,
+      "IC_max_vivienda": 0.2,
+      "IC_max_otros": 0.4,
+      "altura_max_pisos": 2,
+      "frente_min_m": 10
+    },
+    "nodos_equipamiento_rural": {
+      "IO_max": 0.29,
+      "IC_max": 1.3,
+      "altura_max_pisos": 2,
+      "excepcion_los_nariño_pisos": 4,
+      "frente_min_m": 10,
+      "area_min_ha": 1
+    }
+  },
+  "notas_importantes": [
+    "IC = Índice de Construcción, IO = Índice de Ocupación",
+    "Los rangos 4C y 4D tienen lineamientos especiales (Artículo 282)",
+    "La edificabilidad adicional por VIS/VIP está sujeta a cumplimiento de obligaciones",
+    "Alturas máximas por UPZ en mapas CU-5.4.2 a CU-5.4.33",
+    "La edificabilidad efectiva puede diferir de la máxima según obligaciones urbanísticas"
+  ]
+}
