@@ -1,0 +1,50 @@
+[project]
+name = "disenoparametrico"
+version = "0.1.0"
+description = "Ecosistema BIM-GIS-AI para diseño arquitectónico paramétrico en Bogotá"
+requires-python = ">=3.12"
+authors = [{ name = "Dario Salas" }]
+
+dependencies = [
+    "pyogrio>=0.8",
+    "fiona>=1.9",
+    "shapely>=2.0",
+    "click>=8.1",
+    "pyproj>=3.6",
+    "rtree>=1.2",
+    "rich>=13.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+bim = [
+    "ifcopenshell>=0.7",
+    "rhino3dm>=8.6",
+    "compute_rhino3d>=0.7",
+]
+
+[project.scripts]
+gpkg-to-cache = "scripts.utilities.gpkg_to_cache:main"
+validate-neighbors = "scripts.utilities.validate_neighbors:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "src"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = false
+ignore_missing_imports = true
