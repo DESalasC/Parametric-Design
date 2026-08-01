@@ -2,14 +2,10 @@
 
 Generación de masa contextual y volumetría.
 
-## Scripts migrados (base de referencia)
+## Scripts migrados
 
-- F3_VOLUM_GENERADOR_v03.py - generador principal
-- F3_ACCESOS_INTEGRADOR_v01.py - integración de accesos
-- F3_PREP_LADYBUG_v01.py - preparación para Ladybug
+- F3_VOLUM_GENERADOR_v01.py (162 líneas)
+- F3_ACCESOS_INTEGRADOR_v01.py (**1202 líneas** - grande)
+- F3_PREP_LADYBUG_v01.py (805 líneas)
 
-## Próximos pasos
-
-1. Conectar con salida de Fase 2 (áreas JSON)
-2. Generar placas, muros, núcleos
-3. Preparar geometría para Ladybug (Fase 4)
+Total: 2169 líneas de código.

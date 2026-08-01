@@ -1,44 +1,29 @@
 # Fase 1 - Contexto
 
-Scripts para establecer el contexto normativo del lote.
+Establece el contexto normativo del lote.
 
-## Scripts migrados (base de referencia)
+## Scripts oficiales (v01)
 
-### CONTEXTO_POT (dos versiones - revisar y consolidar)
-- F1_CONTEXTO_POT_v04_sistema.py - del sistema (layer0_territorial_base)
-- F1_CONTEXTO_POT_v09_desparam.py - de DesParametrico (más reciente)
+- **F1_CONTEXTO_POT_v01.py** (530 líneas) - base del sistema layer0
+- **F1_LADOS_CONFIGURAR_v01.py** (303 líneas) - base del sistema layer1
+- **F1_VALIDADOR_CRUZADO_v01.py** (329 líneas) - único, del sistema
 
-**Acción pendiente:** comparar ambas versiones y consolidar en F1_CONTEXTO_POT_v01.py
-que use los JSONs estructurados (data/pot-bogota/, data/nsr-10/).
+## Scripts para comparar (referencia)
 
-### LADOS_CONFIGURAR (dos versiones - revisar y consolidar)
-- F1_LADOS_CONFIGURAR_v03_sistema.py - del sistema
-- F1_LADOS_CONFIGURAR_v04_desparam.py - de DesParametrico (más reciente)
+- _reference_CONTEXTO_POT_v09_desparam.py (251 líneas)
+- _reference_LADOS_CONFIGURAR_v04_desparam.py (95 líneas)
 
-**Acción pendiente:** comparar y consolidar en F1_LADOS_CONFIGURAR_v01.py
-que use data/pot-bogota/retiros-estructurados.json.
+## VECINOS_ANALISIS - REVISAR
 
-### VECINOS_ANALISIS (dos versiones - revisar y consolidar)
-- F1_VECINOS_ANALISIS_v01_desparam.py - de DesParametrico
-- F1_VECINOS_ANALISIS_v02_sistema.py - del sistema (más reciente)
+⚠️ **Atención:** Hay dos versiones con tamaños muy diferentes:
+- F1_VECINOS_ANALISIS_v01_sistema.py (**58 líneas** - verificar si está completo)
+- F1_VECINOS_ANALISIS_v01_desparam.py (130 líneas - más completo)
 
-**Acción pendiente:** comparar y consolidar en F1_VECINOS_ANALISIS_v01.py
-que use data/nsr-10/separaciones-sismicas.json.
+**Acción:** abrir ambos y decidir cuál es la base oficial.
 
-### VALIDADOR_CRUZADO
-- F1_VALIDADOR_CRUZADO_v01.py - solo existe en sistema
+## Adaptación pendiente
 
-## Próximos pasos
-
-1. Comparar versiones duplicadas (CONTEXTO, LADOS, VECINOS)
-2. Consolidar cada par en una versión oficial F1_*_v01.py
-3. Adaptar para leer de los JSONs estructurados en data/
-4. Crear tests en 	ests/fase-1-contexto/
-
-## JSONs disponibles para alimentar estos scripts
-
-- data/pot-cache/<predio-id>.json - caché precalculado por gpkg-to-cache-v4.py
-- data/pot-bogota/retiros-estructurados.json - retiros por tratamiento
-- data/pot-bogota/edificabilidad-estructurada.json - edificabilidad por rango
-- data/nsr-10/separaciones-sismicas.json - separaciones NSR-10 A.6.5
-- data/nsr-10/amenaza-sismica-bogota.json - valores Aa/Av Bogotá
+Después de consolidar, los scripts oficiales deben actualizarse para leer:
+- `data/pot-cache/<predio-id>.json` (caché precalculado)
+- `data/pot-bogota/retiros-estructurados.json`
+- `data/nsr-10/separaciones-sismicas.json`
