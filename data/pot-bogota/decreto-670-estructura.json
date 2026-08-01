@@ -1,0 +1,666 @@
+{
+  "_metadata": {
+    "fuente": "Decreto 670 de 2025 - Decreto Único Distrital de Ordenamiento Territorial de Bogotá D.C.",
+    "fecha_expedicion": "27/12/2025",
+    "fecha_entrada_vigencia": "28/12/2025",
+    "registro_distrital": "8485 del 27 de diciembre del 2025",
+    "tipo": "Decreto Único Distrital - Compilación",
+    "descripcion": "Compila y racionaliza la reglamentación del POT (Decreto 555/2021) y decretos reglamentarios relacionados. Mantiene vigencia ultraactiva de las normas compiladas."
+  },
+  "decretos_compilados": [
+    {
+      "decreto": "555/2021",
+      "descripcion": "POT Bogotá - revisión general",
+      "es_principal": true
+    },
+    {
+      "decreto": "088/2017",
+      "descripcion": "Unidad de Planeamiento Zonal Lagos de Torca"
+    },
+    {
+      "decreto": "122/2023",
+      "descripcion": "Vivienda colectiva y soluciones habitacionales con servicios"
+    },
+    {
+      "decreto": "203/2022",
+      "descripcion": "Servicios especiales en espacio público"
+    },
+    {
+      "decreto": "523/2010",
+      "descripcion": "Microzonificación sísmica de Bogotá"
+    },
+    {
+      "decreto": "550/2025",
+      "descripcion": "Actuación Estratégica Zona Industrial de Bogotá (ZIBo)"
+    },
+    {
+      "decreto": "563/2023",
+      "descripcion": "Reglamentación de planes parciales de renovación urbana"
+    },
+    {
+      "decreto": "582/2023",
+      "descripcion": "Incentivos urbanísticos por ecourbanismo"
+    },
+    {
+      "decreto": "603/2022",
+      "descripcion": "Primera actualización del Manual de Normas Comunes"
+    },
+    {
+      "decreto": "466/2024",
+      "descripcion": "Actualización Manual de Normas Comunes (Anexo 5)"
+    },
+    {
+      "decreto": "099/2024",
+      "descripcion": "Normas de construcción y habitabilidad vivienda"
+    }
+  ],
+  "libros": [
+    {
+      "libro": 1,
+      "titulo": "Microzonificación sísmica de Bogotá D.C.",
+      "linea_inicio": 200
+    },
+    {
+      "libro": 2,
+      "titulo": "Gestión del riesgo de desastres y cambio climático",
+      "linea_inicio": 844
+    },
+    {
+      "libro": 3,
+      "titulo": "Actuaciones urbanísticas en suelo rural y centros poblados",
+      "linea_inicio": 2055
+    },
+    {
+      "libro": 4,
+      "titulo": "Acciones urbanísticas en suelo urbano",
+      "linea_inicio": 8278
+    },
+    {
+      "libro": 5,
+      "titulo": "Planes, programas, proyectos y estrategias territoriales",
+      "linea_inicio": 10526
+    },
+    {
+      "libro": 6,
+      "titulo": "Disposiciones finales",
+      "linea_inicio": 44986
+    }
+  ],
+  "relacion_con_555": {
+    "descripcion": "El Decreto 670/2025 NO deroga ni reemplaza el Decreto 555/2021. Lo compila y mantiene vigente.",
+    "efectos_juridicos": "Las normas compiladas mantienen efectos jurídicos ultraactivos",
+    "regimen_transicion": "Licencias radicadas antes del 25/12/2024 se rigen por normas anteriores",
+    "referencias_555_en_670": "El 670 cita constantemente artículos del 555 (ej: 'Artículo 286 del Decreto 555 de 2021')"
+  },
+  "articulos_por_tema": {
+    "retiros_aislamientos": [
+      {
+        "numero": "195",
+        "titulo": "Obras de adecuación y mantenimiento de los espacios privados afectos al uso público. Corresponderá a",
+        "linea": 7539,
+        "palabra_clave": "antejardín"
+      },
+      {
+        "numero": "2",
+        "titulo": "*, Decreto 589 de 2023)",
+        "linea": 7559,
+        "palabra_clave": "antejardín"
+      },
+      {
+        "numero": "196",
+        "titulo": "Determinación del valor a pagar. El valor que deberá asumir cada uno de los propietarios de inmuebles,",
+        "linea": 7560,
+        "palabra_clave": "antejardín"
+      },
+      {
+        "numero": "3",
+        "titulo": ", Decreto 178 de 2025)",
+        "linea": 8777,
+        "palabra_clave": "antejardín"
+      },
+      {
+        "numero": "242",
+        "titulo": "Cargas urbanísticas aplicables a los predios Urbanizados No Edificados sujetos al tratamiento de",
+        "linea": 8788,
+        "palabra_clave": "antejardín"
+      },
+      {
+        "numero": "4",
+        "titulo": ", Decreto 178 de 2025)",
+        "linea": 8794,
+        "palabra_clave": "antejardín"
+      },
+      {
+        "numero": "243",
+        "titulo": "Antejardines. De conformidad con lo previsto en el artículo 258 del Decreto Distrital 555 de 2021, la dimensión",
+        "linea": 8796,
+        "palabra_clave": "antejardín"
+      },
+      {
+        "numero": "46",
+        "titulo": ", Decreto 550 de 2025)",
+        "linea": 23206,
+        "palabra_clave": "aislamiento"
+      },
+      {
+        "numero": "768",
+        "titulo": "Condiciones e incentivos para proyectos que incluyan reúso de edificaciones. Los proyectos que",
+        "linea": 23208,
+        "palabra_clave": "aislamiento"
+      },
+      {
+        "numero": "48",
+        "titulo": ", Decreto 550 de 2025)",
+        "linea": 23307,
+        "palabra_clave": "retroceso"
+      }
+    ],
+    "edificabilidad": [
+      {
+        "numero": "29",
+        "titulo": ", Decreto 072 de 2023)",
+        "linea": 3089,
+        "palabra_clave": "edificabilidad"
+      },
+      {
+        "numero": "85",
+        "titulo": "Recibo de zonas de cesión adicionales por aumento de edificabilidad. Cuando en aplicación de lo",
+        "linea": 3091,
+        "palabra_clave": "edificabilidad"
+      },
+      {
+        "numero": "122",
+        "titulo": "Trámite para la delimitación de equipamientos públicos en cesiones señaladas como zonas verdes y/o",
+        "linea": 4187,
+        "palabra_clave": "edificabilidad"
+      },
+      {
+        "numero": "67",
+        "titulo": ", Decreto 072 de 2023)",
+        "linea": 4211,
+        "palabra_clave": "edificabilidad"
+      },
+      {
+        "numero": "123",
+        "titulo": "Licencia de construcción para equipamientos públicos y proyecto específico de intervención en",
+        "linea": 4213,
+        "palabra_clave": "edificabilidad"
+      },
+      {
+        "numero": "69",
+        "titulo": ", Decreto 072 de 2023)",
+        "linea": 4256,
+        "palabra_clave": "edificabilidad"
+      },
+      {
+        "numero": "125",
+        "titulo": "Manejo de salones comunales públicos existentes. Los salones comunales públicos que, a la entrada en",
+        "linea": 4265,
+        "palabra_clave": "edificabilidad"
+      },
+      {
+        "numero": "226",
+        "titulo": "Exigencia mínima del equipamiento comunal privado para la vivienda colectiva y las soluciones",
+        "linea": 8418,
+        "palabra_clave": "edificabilidad"
+      },
+      {
+        "numero": "7",
+        "titulo": ", Decreto 122 de 2023)",
+        "linea": 8521,
+        "palabra_clave": "índice de construcción"
+      },
+      {
+        "numero": "228",
+        "titulo": "Requisitos urbanísticos para el uso de Soluciones Habitacionales con Servicios medicalizadas y para el",
+        "linea": 8523,
+        "palabra_clave": "índice de construcción"
+      }
+    ],
+    "tratamientos": [
+      {
+        "numero": "2",
+        "titulo": ", Decreto 072 de 2023)",
+        "linea": 2178,
+        "palabra_clave": "tratamiento de desarrollo"
+      },
+      {
+        "numero": "58",
+        "titulo": "Generación de espacio público en el Distrito Capital. En el Distrito Capital el espacio público se genera por",
+        "linea": 2182,
+        "palabra_clave": "tratamiento de desarrollo"
+      },
+      {
+        "numero": "3",
+        "titulo": ", Decreto 072 de 2023)",
+        "linea": 2194,
+        "palabra_clave": "tratamiento de desarrollo"
+      },
+      {
+        "numero": "59",
+        "titulo": "Verificación del espacio público generado en áreas o predios urbanizados o con desarrollos parciales de",
+        "linea": 2196,
+        "palabra_clave": "tratamiento de desarrollo"
+      },
+      {
+        "numero": "11",
+        "titulo": ", Decreto 122 de 2023)",
+        "linea": 8650,
+        "palabra_clave": "tratamiento urbanístico"
+      },
+      {
+        "numero": "232",
+        "titulo": "Remisión a otras normas. En los aspectos y elementos no reglamentados en el presente decreto se aplicará lo",
+        "linea": 8653,
+        "palabra_clave": "tratamiento urbanístico"
+      },
+      {
+        "numero": "236",
+        "titulo": "Ámbito de aplicación. En virtud de lo establecido en el artículo 604 del Decreto Distrital 555 de 2021, se",
+        "linea": 8709,
+        "palabra_clave": "tratamiento de desarrollo"
+      },
+      {
+        "numero": "2",
+        "titulo": ", Decreto 099 de 2024)",
+        "linea": 8722,
+        "palabra_clave": "tratamiento urbanístico"
+      },
+      {
+        "numero": "237",
+        "titulo": "Régimen de transición. Tanto los procesos sancionatorios iniciados, como las solicitudes de licencia de",
+        "linea": 8724,
+        "palabra_clave": "tratamiento urbanístico"
+      },
+      {
+        "numero": "3",
+        "titulo": ", Decreto 099 de 2024)",
+        "linea": 8728,
+        "palabra_clave": "tratamiento urbanístico"
+      }
+    ],
+    "incentivos": [
+      {
+        "numero": "7",
+        "titulo": ", Decreto 523 de 2010)",
+        "linea": 832,
+        "palabra_clave": "ecourbanismo"
+      },
+      {
+        "numero": "9",
+        "titulo": "Remisión al Reglamento NSR-10. Los aspectos no contemplados en el presente Decreto se regirán por lo",
+        "linea": 834,
+        "palabra_clave": "ecourbanismo"
+      },
+      {
+        "numero": "8",
+        "titulo": ", Decreto 523 de 2010)",
+        "linea": 837,
+        "palabra_clave": "ecourbanismo"
+      },
+      {
+        "numero": "10",
+        "titulo": "Actualización de la Microzonificación Sísmica. El Instituto Distrital de Gestión del Riesgo y Cambio Climático -",
+        "linea": 839,
+        "palabra_clave": "ecourbanismo"
+      },
+      {
+        "numero": "9",
+        "titulo": ", Decreto 523 de 2010)",
+        "linea": 843,
+        "palabra_clave": "ecourbanismo"
+      },
+      {
+        "numero": "11",
+        "titulo": "Objeto y ámbito de aplicación. Reglamentar las disposiciones de Ecourbanismo y Construcción Sostenible,",
+        "linea": 860,
+        "palabra_clave": "incentivo"
+      },
+      {
+        "numero": "1",
+        "titulo": ", Decreto 582 de 2023)",
+        "linea": 868,
+        "palabra_clave": "incentivo"
+      },
+      {
+        "numero": "12",
+        "titulo": "Documentos que hacen parte del decreto. Hacen parte integral del presente decreto los siguientes",
+        "linea": 870,
+        "palabra_clave": "incentivo"
+      },
+      {
+        "numero": "2",
+        "titulo": ", Decreto 582 de 2023)",
+        "linea": 882,
+        "palabra_clave": "incentivo"
+      },
+      {
+        "numero": "13",
+        "titulo": "Definiciones. Para efectos de la aplicación del presente decreto se atenderán las siguientes definiciones:",
+        "linea": 883,
+        "palabra_clave": "incentivo"
+      }
+    ],
+    "actuaciones_estrategicas": [
+      {
+        "numero": "328",
+        "titulo": "Operadora Distrital de Transporte. Con el fin de mejorar las condiciones de movilidad de Bogotá D.C. y",
+        "linea": 11160,
+        "palabra_clave": "Actuación Estratégica"
+      },
+      {
+        "numero": "33",
+        "titulo": ", Decreto 497 de 2023)",
+        "linea": 11166,
+        "palabra_clave": "Actuación Estratégica"
+      },
+      {
+        "numero": "329",
+        "titulo": "Articulación con la Agencia Regional de Movilidad. Con el fin de promover la integración y el desarrollo",
+        "linea": 11168,
+        "palabra_clave": "Actuación Estratégica"
+      },
+      {
+        "numero": "34",
+        "titulo": ", Decreto 497 de 2023)",
+        "linea": 11177,
+        "palabra_clave": "Actuación Estratégica"
+      },
+      {
+        "numero": "330",
+        "titulo": "Articulación de las Actuaciones Estratégicas con el PMSS. En el proceso de formulación y adopción de las",
+        "linea": 11179,
+        "palabra_clave": "Actuación Estratégica"
+      },
+      {
+        "numero": "380",
+        "titulo": "Sistema Distrital del Cuidado. Los entes gestores del SITP deberán incorporar en la planeación del sistema,",
+        "linea": 11756,
+        "palabra_clave": "Actuación Estratégica"
+      },
+      {
+        "numero": "85",
+        "titulo": ", Decreto 497 de 2023)",
+        "linea": 11759,
+        "palabra_clave": "Actuación Estratégica"
+      },
+      {
+        "numero": "381",
+        "titulo": "Violencias basadas en género en el SITP. Dentro de los dieciocho (18) meses siguientes al 28 de octubre de",
+        "linea": 11760,
+        "palabra_clave": "Actuación Estratégica"
+      },
+      {
+        "numero": "86",
+        "titulo": ", Decreto 497 de 2023)",
+        "linea": 11764,
+        "palabra_clave": "Actuación Estratégica"
+      },
+      {
+        "numero": "382",
+        "titulo": "Plan Maestro de Estacionamientos. El Plan Maestro de Estacionamientos hace parte integral del PMSS. Este",
+        "linea": 11768,
+        "palabra_clave": "Actuación Estratégica"
+      }
+    ],
+    "alturas": [
+      {
+        "numero": "3",
+        "titulo": ", Decreto 178 de 2025)",
+        "linea": 8777,
+        "palabra_clave": "altura máxima"
+      },
+      {
+        "numero": "242",
+        "titulo": "Cargas urbanísticas aplicables a los predios Urbanizados No Edificados sujetos al tratamiento de",
+        "linea": 8788,
+        "palabra_clave": "altura máxima"
+      },
+      {
+        "numero": "4",
+        "titulo": ", Decreto 178 de 2025)",
+        "linea": 8794,
+        "palabra_clave": "altura máxima"
+      },
+      {
+        "numero": "243",
+        "titulo": "Antejardines. De conformidad con lo previsto en el artículo 258 del Decreto Distrital 555 de 2021, la dimensión",
+        "linea": 8796,
+        "palabra_clave": "altura máxima"
+      },
+      {
+        "numero": "29",
+        "titulo": ", Decreto 290 de 2024)",
+        "linea": 20659,
+        "palabra_clave": "altura máxima"
+      },
+      {
+        "numero": "689",
+        "titulo": "Condiciones normativas particulares y alternativas de cumplimiento de obligaciones urbanísticas en el",
+        "linea": 20668,
+        "palabra_clave": "altura máxima"
+      },
+      {
+        "numero": "35",
+        "titulo": ", Decreto 290 de 2024)",
+        "linea": 20800,
+        "palabra_clave": "altura máxima"
+      },
+      {
+        "numero": "695",
+        "titulo": "Condiciones normativas particulares y alternativas de cumplimiento de obligaciones urbanísticas en la",
+        "linea": 20802,
+        "palabra_clave": "altura máxima"
+      },
+      {
+        "numero": "38",
+        "titulo": ", Decreto 550 de 2025)",
+        "linea": 22725,
+        "palabra_clave": "altura máxima"
+      },
+      {
+        "numero": "760",
+        "titulo": "Forma de cumplimiento de la obligación urbanística para equipamientos públicos. Los proyectos que",
+        "linea": 22727,
+        "palabra_clave": "altura máxima"
+      }
+    ],
+    "usos": [
+      {
+        "numero": "2",
+        "titulo": ", Decreto 582 de 2023)",
+        "linea": 882,
+        "palabra_clave": "uso residencial"
+      },
+      {
+        "numero": "13",
+        "titulo": "Definiciones. Para efectos de la aplicación del presente decreto se atenderán las siguientes definiciones:",
+        "linea": 883,
+        "palabra_clave": "uso residencial"
+      },
+      {
+        "numero": "14",
+        "titulo": "Tipos de incentivos para edificaciones con licencia de construcción en la modalidad de obra nueva. En el",
+        "linea": 914,
+        "palabra_clave": "área de actividad"
+      },
+      {
+        "numero": "4",
+        "titulo": ", Decreto 582 de 2023)",
+        "linea": 969,
+        "palabra_clave": "área de actividad"
+      },
+      {
+        "numero": "15",
+        "titulo": "Aplicación por tipo del incentivo. La aplicación del incentivo se establece según el tratamiento y el área de",
+        "linea": 971,
+        "palabra_clave": "área de actividad"
+      },
+      {
+        "numero": "5",
+        "titulo": ", Decreto 263 de 2023)",
+        "linea": 4537,
+        "palabra_clave": "área de actividad"
+      },
+      {
+        "numero": "137",
+        "titulo": "Proyectos específicos que se excluyen del concepto de proyectos especiales. Se excluyen del concepto",
+        "linea": 4539,
+        "palabra_clave": "área de actividad"
+      },
+      {
+        "numero": "6",
+        "titulo": ", Decreto 263 de 2023)",
+        "linea": 4551,
+        "palabra_clave": "área de actividad"
+      },
+      {
+        "numero": "138",
+        "titulo": "Proyectos especiales de espacio público para el diseño de franjas funcionales. Son proyectos asociados",
+        "linea": 4553,
+        "palabra_clave": "área de actividad"
+      },
+      {
+        "numero": "4",
+        "titulo": ", Decreto 203 de 2022)",
+        "linea": 8254,
+        "palabra_clave": "área de actividad"
+      }
+    ],
+    "cesiones": [
+      {
+        "numero": "14",
+        "titulo": ", Decreto 582 de 2023)",
+        "linea": 1318,
+        "palabra_clave": "espacio público"
+      },
+      {
+        "numero": "25",
+        "titulo": "Control de las disposiciones mínimas obligatorias. El control de las disposiciones mínimas obligatorias lo",
+        "linea": 1320,
+        "palabra_clave": "espacio público"
+      },
+      {
+        "numero": "15",
+        "titulo": ", Decreto 582 de 2023)",
+        "linea": 1327,
+        "palabra_clave": "espacio público"
+      },
+      {
+        "numero": "26",
+        "titulo": "Programa de Ecobarrios. De conformidad con el artículo 118 del Decreto Distrital 555 de 2021, se adopta el",
+        "linea": 1331,
+        "palabra_clave": "espacio público"
+      },
+      {
+        "numero": "16",
+        "titulo": ", Decreto 582 de 2023)",
+        "linea": 1346,
+        "palabra_clave": "espacio público"
+      },
+      {
+        "numero": "27",
+        "titulo": "Gestión y Administración. Los Ecobarrios que se ejecuten en el marco del Programa Distrital de Ecobarrios",
+        "linea": 1348,
+        "palabra_clave": "espacio público"
+      },
+      {
+        "numero": "17",
+        "titulo": ", Decreto 582 de 2023)",
+        "linea": 1361,
+        "palabra_clave": "espacio público"
+      },
+      {
+        "numero": "28",
+        "titulo": "Reconocimiento. Los Ecobarrios o barrios sostenibles que tengan intervenciones financiadas con recursos",
+        "linea": 1363,
+        "palabra_clave": "espacio público"
+      },
+      {
+        "numero": "18",
+        "titulo": ", Decreto 582 de 2023)",
+        "linea": 1368,
+        "palabra_clave": "espacio público"
+      },
+      {
+        "numero": "29",
+        "titulo": "Otros programas. De conformidad con el artículo 118 del Decreto Distrital 555 de 2021, las entidades distritales",
+        "linea": 1370,
+        "palabra_clave": "espacio público"
+      }
+    ],
+    "fichas_CUNE": [
+      {
+        "numero": "2",
+        "titulo": ", Decreto 099 de 2024)",
+        "linea": 8722,
+        "palabra_clave": "C/UNE"
+      },
+      {
+        "numero": "237",
+        "titulo": "Régimen de transición. Tanto los procesos sancionatorios iniciados, como las solicitudes de licencia de",
+        "linea": 8724,
+        "palabra_clave": "C/UNE"
+      },
+      {
+        "numero": "3",
+        "titulo": ", Decreto 099 de 2024)",
+        "linea": 8728,
+        "palabra_clave": "C/UNE"
+      },
+      {
+        "numero": "238",
+        "titulo": "Contenido. Esta Parte estará divida por títulos, relativos a cada uno de los tratamientos urbanísticos: 1)",
+        "linea": 8734,
+        "palabra_clave": "C/UNE"
+      },
+      {
+        "numero": "239",
+        "titulo": "Objeto. Adoptar las fichas de edificabilidad aplicables a los predios sujetos al Tratamiento Urbanístico de",
+        "linea": 8750,
+        "palabra_clave": "C/UNE"
+      },
+      {
+        "numero": "1",
+        "titulo": ", Decreto 178 de 2025)",
+        "linea": 8755,
+        "palabra_clave": "Fichas de edificabilidad"
+      },
+      {
+        "numero": "240",
+        "titulo": "Condiciones de aplicación de las fichas de edificabilidad. Las fichas de edificabilidad adoptadas en el",
+        "linea": 8757,
+        "palabra_clave": "Fichas de edificabilidad"
+      },
+      {
+        "numero": "2",
+        "titulo": ", Decreto 178 de 2025)",
+        "linea": 8767,
+        "palabra_clave": "C/UNE"
+      },
+      {
+        "numero": "241",
+        "titulo": "Normas volumétricas. Las normas volumétricas aplicables a los predios de que trata el presente Decreto son",
+        "linea": 8769,
+        "palabra_clave": "C/UNE"
+      },
+      {
+        "numero": "3",
+        "titulo": ", Decreto 178 de 2025)",
+        "linea": 8777,
+        "palabra_clave": "C/UNE"
+      }
+    ]
+  },
+  "secciones_extraidas": {
+    "objeto_y_ambito": "Artículo 1. Objeto y ámbito de aplicación",
+    "incentivos_urbanisticos": "Incentivos Urbanísticos (general)",
+    "incentivo_tipo_1": "Incentivo Tipo 1: Disminución mezcla de usos",
+    "incentivo_tipo_3": "Incentivo Tipo 3: Disminución aislamiento lateral",
+    "fichas_cune": "Fichas de Edificabilidad para C/UNE",
+    "actuacion_zibo": "Actuación Estratégica Zona Industrial de Bogotá (ZIBo)",
+    "manzanas_cuidado": "Manzanas del Cuidado",
+    "regimen_transicion": "Régimen de Transición",
+    "vivienda_colectiva": "Vivienda Colectiva y Soluciones Habitacionales"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "_metadata": {
+    "fuente": "Decreto 670 de 2025 - Libro 4, Parte 4 (Incentivos Urbanísticos)",
+    "fecha_extraccion": "2026-08-01",
+    "descripcion": "Incentivos urbanísticos por ecourbanismo y construcción sostenible",
+    "decreto_origen": "582 de 2023 (compilado en 670)"
+  },
+  "tipos_incentivo": {
+    "tipo_1_mezcla_usos": {
+      "descripcion": "Disminución del Porcentaje de Condiciones de Mezcla de Usos",
+      "reduccion": "de 8% a 3% del área construida a otros usos",
+      "tratamientos_aplicables": [
+        "Desarrollo",
+        "Renovación Urbana"
+      ],
+      "articulo_555_referencia": "Artículos 300 y 305 del Decreto 555/2021",
+      "condiciones": [
+        "Predios en tratamiento de desarrollo con plan parcial que exija 8% a comercio y servicios",
+        "Predios en licencia con área > 2 hectáreas netas urbanizables",
+        "Predios en renovación urbana con englobe de manzana o plan parcial"
+      ]
+    },
+    "tipo_2_estacionamientos": {
+      "descripcion": "Aumento de área para Estacionamientos",
+      "incremento": "+3% adicional al porcentaje opcional (Factor ECOS)",
+      "base_legal": "Artículos 389 y 390 del Decreto 555/2021",
+      "calculo": "sobre el área construida",
+      "segun_area_actividad": true
+    },
+    "tipo_3_aislamiento_lateral": {
+      "descripcion": "Disminución exigencia de aislamiento lateral",
+      "cambio_altura_inicio": "de 11.40m a 15.70m (en Renovación Urbana)",
+      "no_incrementa_IC": true,
+      "tratamientos_aplicables": [
+        "Renovación Urbana",
+        "Mejoramiento Integral"
+      ],
+      "excepcion_mejoramiento": "Edificaciones ≥ 3 pisos sin edificación colindante mayor a 3 pisos pueden iniciar aislamiento desde el 4to piso"
+    }
+  },
+  "aplicacion_por_tratamiento_area": {
+    "desarrollo": {
+      "estructurante_receptora_VIS": [
+        "Tipo 1"
+      ],
+      "estructurante_receptora_actividades_economicas": [
+        "Tipo 2"
+      ],
+      "proximidad_generadora_soportes_urbanos": [
+        "Tipo 2"
+      ],
+      "proximidad_receptora_soportes_urbanos": [
+        "Tipo 2"
+      ],
+      "grandes_servicios_metropolitanos": [
+        "Tipo 2"
+      ]
+    },
+    "renovacion_urbana": {
+      "todas_las_areas_actividad": [
+        "Tipo 1",
+        "Tipo 3"
+      ]
+    },
+    "mejoramiento_integral": {
+      "aplica_tipo_3": true
+    }
+  },
+  "acceso_al_incentivo": {
+    "regla_general": "El promotor puede acceder a SÓLO UNO de los tipos de incentivos",
+    "segun_uso_y_tipo": "VIS/VIP y No VIS/VIP tienen acceso diferenciado",
+    "manual_referencia": "Manual de Ecourbanismo y Construcción Sostenible"
+  },
+  "notas_importantes": [
+    "Los incentivos requieren implementar medidas de ecourbanismo del Título II del Libro 4",
+    "Aplicar siempre cumplimiento de fachadas activas (Artículo 243 del 555/2021)",
+    "Para C/UNE en consolidación, aplicar fichas de edificabilidad adoptadas (Art. 239 del 670)"
+  ]
+}

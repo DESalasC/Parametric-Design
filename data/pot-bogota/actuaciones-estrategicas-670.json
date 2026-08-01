@@ -1,0 +1,41 @@
+{
+  "_metadata": {
+    "fuente": "Decreto 670 de 2025 - Libro 5",
+    "fecha_extraccion": "2026-08-01"
+  },
+  "actuaciones_estrategicas": {
+    "ZIBo": {
+      "nombre": "Actuación Estratégica Zona Industrial de Bogotá",
+      "decreto_origen": "550 de 2025",
+      "articulo_670": "Artículo 724+",
+      "objetivo": "Consolidar Anillo de Innovación y Conocimiento (AICB) + CTIB",
+      "linea_documento": 21549,
+      "componentes": [
+        "Planos",
+        "Documento Técnico de Soporte",
+        "Anexos ambientales"
+      ]
+    },
+    "Lagos_Torca": {
+      "nombre": "Ciudad Lagos de Torca",
+      "decreto_origen": "088 de 2017",
+      "articulo_670": "Artículo 1093+",
+      "tratamientos": [
+        "Desarrollo",
+        "Consolidación (3 modalidades)",
+        "Conservación",
+        "Renovación Urbana"
+      ],
+      "linea_documento": 34690
+    },
+    "Distrito_Aeroportuario_Engativa": {
+      "nombre": "Actuación Estratégica Distrito Aeroportuario Engativá",
+      "articulo_670": "Referenciado en Libro 5"
+    },
+    "Manzanas_Cuidado": {
+      "nombre": "Manzanas del Cuidado",
+      "descripcion": "Sistema Distrital del Cuidado",
+      "indice_construccion_min": 0.8
+    }
+  }
+}
