@@ -48,3 +48,8 @@ desktop.ini
 .obsidian/workspace-mobile.json
 .obsidian/cache
 .trash/
+
+# Architect Skills (external plugin, no commitear)
+.claude/skills/
+.claude/settings.json
+scripts/architect-calculators/
