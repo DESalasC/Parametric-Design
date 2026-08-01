@@ -53,3 +53,9 @@ desktop.ini
 .claude/skills/
 .claude/settings.json
 scripts/architect-calculators/
+
+# Plugins de Grasshopper (clones sparse, no commitear)
+docs/knowledge-base/ghx-samples/plugins/
+docs/knowledge-base/ghx-samples/logs/
+docs/knowledge-base/ghx-samples/exports/*.json
+!docs/knowledge-base/ghx-samples/exports/.gitkeep
