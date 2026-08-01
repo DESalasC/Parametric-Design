@@ -1,0 +1,98 @@
+{
+  "_metadata": {
+    "fuente": "NSR-10 - Tabla A.2.3-2 (ciudades capitales) + A.2.3 (zonas)",
+    "fecha_extraccion": "2026-08-01",
+    "descripcion": "Valores de amenaza sísmica para Bogotá D.C."
+  },
+  "bogota_dc": {
+    "Aa_aceleracion_pico_efectiva": 0.15,
+    "Av_velocidad_pico_efectiva": 0.2,
+    "zona_amenaza": "INTERMEDIA (Av > 0.10 y <= 0.20)",
+    "fuente_tabla": "Tabla A.2.3-2 del NSR-10"
+  },
+  "zonas_amenaza_sismica": {
+    "Baja": {
+      "criterio": "Aa y Av menores o iguales a 0.10",
+      "implicaciones": [
+        "No se requieren consideraciones de separación sísmica entre edificaciones vecinas (A.6.5.2.1.a)",
+        "Diseño sísmico menos exigente",
+        "Casas de 1-2 pisos pueden usar método simplificado (Título E)"
+      ]
+    },
+    "Intermedia": {
+      "criterio": "Aa o Av mayores de 0.10 y ninguno excede 0.20",
+      "implicaciones": [
+        "SÍ aplican requisitos de separación sísmica (A.6.5)",
+        "Diseño sísmico estándar",
+        "Bogotá está en esta zona"
+      ]
+    },
+    "Alta": {
+      "criterio": "Aa o Av mayores que 0.20",
+      "implicaciones": [
+        "SÍ aplican requisitos de separación sísmica (A.6.5)",
+        "Diseño sísmico más exigente",
+        "Estudios geotécnicos más detallados"
+      ]
+    }
+  },
+  "regiones_sismicas": {
+    "descripcion": "Tabla A.2.2-1 - Valores por región (1-10)",
+    "tabla": {
+      "region_1": {
+        "Aa": 0.05,
+        "Av": 0.05
+      },
+      "region_2": {
+        "Aa": 0.1,
+        "Av": 0.1
+      },
+      "region_3": {
+        "Aa": 0.15,
+        "Av": 0.15
+      },
+      "region_4": {
+        "Aa": 0.2,
+        "Av": 0.2
+      },
+      "region_5": {
+        "Aa": 0.25,
+        "Av": 0.25
+      },
+      "region_6": {
+        "Aa": 0.3,
+        "Av": 0.3
+      },
+      "region_7": {
+        "Aa": 0.35,
+        "Av": 0.35
+      },
+      "region_8": {
+        "Aa": 0.4,
+        "Av": 0.4
+      },
+      "region_9": {
+        "Aa": 0.45,
+        "Av": 0.45
+      },
+      "region_10": {
+        "Aa": 0.5,
+        "Av": 0.5
+      }
+    }
+  },
+  "microzonificacion_bogota": {
+    "descripcion": "Bogotá tiene microzonificación sísmica propia (Decreto 523/2010, compilado en 670/2025)",
+    "fuente": "Decreto 670 de 2025 - Libro 1, Título 1",
+    "importancia": "Estudio detallado que reemplaza valores genéricos del NSR-10 para Bogotá",
+    "aplicacion": "Para proyectos en Bogotá se debe usar la microzonificación oficial, no solo los valores Aa/Av del NSR-10"
+  },
+  "implicaciones_para_pipeline": {
+    "bogota_aplica_separacion_sismica": true,
+    "bogota_zona_amenaza": "Intermedia",
+    "edificaciones_3_pisos_requieren_separacion": true,
+    "edificaciones_mas_3_pisos_requieren_separacion": true,
+    "casas_1_2_pisos_no_requieren": true,
+    "parametro_para_analisis_vecinos": "Si lote en Bogotá y proyecto > 2 pisos: aplicar A.6.5"
+  }
+}

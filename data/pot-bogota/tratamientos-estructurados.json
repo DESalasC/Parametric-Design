@@ -1,0 +1,91 @@
+{
+  "_metadata": {
+    "fuente": "Decreto 555 del 29 de diciembre de 2021",
+    "fecha_extraccion": "2026-08-01"
+  },
+  "tratamientos": {
+    "conservacion": {
+      "nombre": "Conservación",
+      "objetivo": "Preservar Bienes de Interés Cultural",
+      "ambito": "BIC grupo urbano y arquitectónico en suelo urbano o expansión",
+      "modalidades": [
+        "Conservación integral",
+        "Conservación tipológica"
+      ],
+      "niveles_intervencion": {
+        "1": "Conservación integral (máxima restricción)",
+        "2": "Conservación tipológica",
+        "3": "Adoptado en PEMP",
+        "4": "Inmuebles sin valores / lotes sin edificar"
+      },
+      "requiere": "Concepto del Consejo Distrital de Patrimonio Cultural"
+    },
+    "consolidacion": {
+      "nombre": "Consolidación",
+      "objetivo": "Afianzar patrones de uso y edificabilidad",
+      "ambito": "Sectores urbanos consolidados",
+      "incluye": [
+        "Áreas urbanizadas con licencia vigente",
+        "Planes parciales ejecutados",
+        "Predios ex-Mejoramiento Integral con déficit superado",
+        "Predios dotacionales/industriales/comerciales en consolidación"
+      ],
+      "tipologias": [
+        "Continua",
+        "Aislada"
+      ],
+      "normas_volumetricas": "Según mapas CU-5.4.2 a CU-5.4.33"
+    },
+    "renovacion_urbana": {
+      "nombre": "Renovación Urbana",
+      "objetivo": "Transformar o recuperar sectores deteriorados",
+      "modalidad": "Revitalización",
+      "ambito": "Mapa CU-5.1 'Tratamientos urbanísticos'",
+      "incluye": [
+        "Bienes fiscales",
+        "Predios en consolidación que cumplan condiciones especiales",
+        "Clubes y centros recreo-deportivos en reordenamiento",
+        "Proyectos de renovación para movilidad sostenible"
+      ],
+      "exige_plan_parcial_si_IC_mayor_a": 7.0,
+      "area_minima_plan_parcial_ha": 3.0
+    },
+    "desarrollo": {
+      "nombre": "Desarrollo",
+      "objetivo": "Urbanizar suelo de expansión",
+      "ambito": "Suelo urbano de expansión",
+      "rangos_edificabilidad": [
+        "1",
+        "2",
+        "3",
+        "4A",
+        "4B",
+        "4C",
+        "4D"
+      ],
+      "exige_plan_parcial": true,
+      "obligaciones_urbanisticas": [
+        "cesión suelo",
+        "construcción redes",
+        "VIS/VIP"
+      ]
+    },
+    "mejoramiento_integral": {
+      "nombre": "Mejoramiento Integral",
+      "objetivo": "Regularizar asentamientos informales",
+      "ambito": "Barrios de origen informal en proceso de legalización",
+      "instrumento": "Plan Vecinos (Decreto 563 de 2023)",
+      "excepcion_bordes_urbanos": "Áreas de Ocupación Pública Prioritaria"
+    }
+  },
+  "mapas_referencia": {
+    "tratamientos": "CU-5.1 'Tratamientos urbanísticos'",
+    "edificabilidad": "CU-5.4.2 a CU-5.4.33 (por UPL)",
+    "antejardines": "CU-5.5 'Dimensionamiento de Antejardines'",
+    "areas_actividad": "CU-5.3 'Áreas de Actividad'"
+  },
+  "manuales_referencia": [
+    "Manual de Normas Comunes a los Tratamientos Urbanísticos (Decreto 603 de 2022)",
+    "Manual de Normas Urbanísticas para el Tratamiento de Conservación"
+  ]
+}

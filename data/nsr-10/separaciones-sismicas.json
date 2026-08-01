@@ -1,0 +1,88 @@
+{
+  "_metadata": {
+    "fuente": "NSR-10 - Título A, Sección A.6.5",
+    "fecha_extraccion": "2026-08-01",
+    "descripcion": "Separación sísmica mínima entre edificaciones colindantes",
+    "aplica_para": "ANALISIS_VECINOS.py - cálculo de separaciones NSR-10"
+  },
+  "alcance": {
+    "aplica": [
+      "Edificaciones nuevas con licencia posterior a NSR-10 (2010)",
+      "Solo en Zonas de Amenaza Sísmica Intermedia y Alta",
+      "Edificaciones > 2 pisos aéreos en colindancia"
+    ],
+    "no_aplica": [
+      "Zona de Amenaza Sísmica Baja (Aa y Av <= 0.10)",
+      "Edificaciones de Reconocimiento (legalización)",
+      "Edificaciones <= 2 pisos aéreos en colindancia",
+      "Rehabilitación sísmica (ver A.10.7)"
+    ],
+    "excepcion_zona_via_publica": "Cuando el paramento colinda con vía pública o zona verde pública NO se requiere separación sísmica (sí se requieren retrocesos urbanísticos)"
+  },
+  "tabla_separacion_minima": {
+    "descripcion": "Tabla A.6.5-1 - Separación sísmica mínima en cubierta",
+    "casos": {
+      "1_y_2_pisos_aereos": {
+        "existe_vecina_no_separo": "no requiere",
+        "coinciden_losas_vecina": "no requiere",
+        "no_coinciden_losas_vecina": "no requiere",
+        "no_existe_vecina": "no requiere"
+      },
+      "3_pisos_aereos": {
+        "existe_vecina_no_separo": "no requiere",
+        "coinciden_losas_vecina": "no requiere",
+        "no_coinciden_losas_vecina": "1% de hn (altura nueva en colindancia)",
+        "no_existe_vecina": "no requiere"
+      },
+      "mas_de_3_pisos_aereos": {
+        "existe_vecina_no_separo": "n/a",
+        "coinciden_losas_vecina": "2% de hn",
+        "no_coinciden_losas_vecina": "3% de hn",
+        "no_existe_vecina": "1% de hn"
+      }
+    },
+    "nota_1": "Para pisos diferentes a cubierta, multiplicar coeficiente por la altura del piso en particular",
+    "nota_2": "Cuando terreno inclinado o alturas de piso diferentes, usar el que conduzca a MAYOR separación"
+  },
+  "formulas_calculo": {
+    "separacion_piso_i": "s_i = coeficiente_tabla × h_i",
+    "donde": {
+      "s_i": "separación sísmica en el piso i (metros)",
+      "coeficiente_tabla": "1%, 2% o 3% según caso (0.01, 0.02, 0.03)",
+      "h_i": "altura sobre el nivel del terreno del piso i (metros)",
+      "h_n": "altura total de la edificación nueva en la colindancia (metros)"
+    },
+    "ejemplo": {
+      "caso": "Edificación nueva de 5 pisos (h_n=15m), sin edificación vecina, junto a paramento privado",
+      "coeficiente": 0.01,
+      "separacion_cubierta": "0.01 × 15 = 0.15 m",
+      "separacion_piso_3": "0.01 × 9 = 0.09 m (si h_3=9m)"
+    }
+  },
+  "definiciones_clave": {
+    "altura_piso": "Distancia vertical entre dos losas consecutivas",
+    "altura_edificacion_colindancia": "h_n - altura de la edificación nueva medida en la colindancia",
+    "cerramiento": "Muro divisorio entre dos predios, sin edificación",
+    "coincidencia_losas_entrepiso": "Cuando las losas de la edificación nueva y vecina están al mismo nivel en la colindancia",
+    "numero_pisos_aereos": "Número de pisos sobre el nivel del terreno",
+    "separacion_sismica_colindancia": "Distancia horizontal entre la edificación nueva y el paramento del lote"
+  },
+  "recomendaciones_adicionales": {
+    "precauciones": [
+      "Evitar depósito de materiales extraños en la separación sísmica",
+      "Colocar protección de humedad para agua lluvia",
+      "Indicar paramento y separación en planos arquitectónicos"
+    ],
+    "casos_especiales": [
+      "Edificaciones de refuerzo/rehabilitación: ingeniero debe estudiar interacción con vecinas (A.10.1.7)",
+      "Terrenos inclinados: usar altura que conduzca a mayor separación",
+      "Diferentes alturas de piso o número de pisos: tomar el peor caso"
+    ]
+  },
+  "relacion_con_pot_bogota": {
+    "pot_retiro_urbano": "El POT exige retiros urbanísticos (3.0m por defecto en consolidación)",
+    "nsr_separacion_sismica": "El NSR exige separación sísmica adicional si la edificación vecina no se ha separado",
+    "aplicacion_conjunta": "Tomar el MAYOR valor entre retiro urbanístico y separación sísmica",
+    "ejemplo": "Si POT exige retiro frontal 3.0m y NSR exige separación sísmica 0.45m → usar 3.0m (mayor)"
+  }
+}

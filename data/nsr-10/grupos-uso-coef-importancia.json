@@ -1,0 +1,73 @@
+{
+  "_metadata": {
+    "fuente": "NSR-10 - Sección A.2.5",
+    "fecha_extraccion": "2026-08-01",
+    "descripcion": "Grupos de uso y coeficientes de importancia para diseño sísmico"
+  },
+  "grupos": {
+    "IV": {
+      "nombre": "Edificaciones indispensables",
+      "coeficiente_importancia_I": 1.5,
+      "descripcion": "Atención a la comunidad que debe funcionar durante y después de un sismo",
+      "incluye": [
+        "Hospitales, clínicas y centros de salud con cirugía, UCI, neonatos, urgencias",
+        "Aeropuertos, estaciones ferroviarias y de transporte masivo",
+        "Centrales telefónicas, telecomunicación, radiodifusión",
+        "Refugios para emergencias, centrales de aeronavegación",
+        "Centrales de operación de líneas vitales (energía, agua, combustibles)",
+        "Edificaciones con agentes explosivos, tóxicos, dañinos",
+        "Plantas de generación eléctrica de emergencia",
+        "Tanques y sistemas contra incendio"
+      ]
+    },
+    "III": {
+      "nombre": "Edificaciones de atención a la comunidad",
+      "coeficiente_importancia_I": 1.25,
+      "descripcion": "Indispensables después de un temblor para atender emergencia y preservar salud",
+      "incluye": [
+        "Estaciones de bomberos, defensa civil, policía, cuarteles",
+        "Garajes de vehículos de emergencia",
+        "Estructuras y equipos de centros de atención de emergencias",
+        "Guarderías, escuelas, colegios, universidades",
+        "Edificaciones del Grupo II con seguridad adicional",
+        "Designadas por administración municipal/distrital/nacional"
+      ]
+    },
+    "II": {
+      "nombre": "Estructuras de ocupación especial",
+      "coeficiente_importancia_I": 1.1,
+      "descripcion": "Ocupación especial o concentración de personas",
+      "incluye": [
+        "Edificaciones con > 200 personas en un mismo salón",
+        "Graderías al aire libre con > 2000 personas",
+        "Almacenes y centros comerciales con > 500 m² por piso",
+        "Hospitales, clínicas y centros de salud no cubiertos en Grupo IV",
+        "Edificaciones donde trabajan o residan > 3000 personas",
+        "Edificios gubernamentales"
+      ]
+    },
+    "I": {
+      "nombre": "Estructuras de ocupación normal",
+      "coeficiente_importancia_I": 1.0,
+      "descripcion": "Todas las edificaciones no incluidas en Grupos II, III y IV",
+      "incluye": [
+        "Vivienda unifamiliar y multifamiliar normal",
+        "Oficinas sin concentración masiva de personas",
+        "Comercio pequeño (< 500 m² por piso)",
+        "Bodegas sin alto riesgo"
+      ]
+    }
+  },
+  "tabla_valores_I": {
+    "IV": 1.5,
+    "III": 1.25,
+    "II": 1.1,
+    "I": 1.0
+  },
+  "notas": [
+    "El coeficiente I modifica el espectro de diseño - mayor I = mayores fuerzas sísmicas",
+    "Grupos II, III, IV consideran valores con probabilidad menor de excedencia (no 10% en 50 años)",
+    "Grupo I: probabilidad 10% en 50 años (referencia base)",
+    "Casas de 1-2 pisos del Grupo I pueden usar método simplificado (Título E)"
+  ]
+}
