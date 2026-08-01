@@ -104,6 +104,26 @@ def load_whitelist(whitelist_path: Path) -> dict[str, list[str]]:
     return {"_flat": flat, "_categorized": campos}
 
 
+def _truncate_coords_2d(coords: list) -> list:
+    """Trunca coordenadas a 2D (X, Y) para evitar errores de shapely con 3D/4D."""
+    if not coords:
+        return coords
+    # Si el primer elemento es una lista, es polígono anidado
+    if isinstance(coords[0], (list, tuple)):
+        return [_truncate_coords_2d(c) for c in coords]
+    # Es un punto: [X, Y, Z, M] → [X, Y]
+    return list(coords[:2])
+
+
+def _normalize_geometry_coords(geometry: dict) -> dict:
+    """Normaliza las coordenadas de una geometría GeoJSON a 2D."""
+    if not isinstance(geometry, dict) or "coordinates" not in geometry:
+        return geometry
+    geom = dict(geometry)
+    geom["coordinates"] = _truncate_coords_2d(geom["coordinates"])
+    return geom
+
+
 def load_lot(lot_path: Path) -> dict[str, Any]:
     """Carga el lote desde un GeoJSON o JSON interno."""
     with open(lot_path, encoding="utf-8") as f:
@@ -128,6 +148,8 @@ def load_lot(lot_path: Path) -> dict[str, Any]:
     else:
         raise ValueError(f"Formato de lote no reconocido: {lot_path}")
 
+    # Truncar coordenadas a 2D (X, Y) — shapely no soporta 4D (X, Y, Z, M)
+    geometry = _normalize_geometry_coords(geometry)
     polygon = shape(geometry)
     return {"polygon": polygon, "properties": properties, "raw": data}
 
@@ -302,28 +324,80 @@ def query(lot: str, gpkg: str, whitelist: str, output: str, layer: str | None) -
 
     # 6. Encontrar el predio que contiene o intersecta el lote
     from shapely.geometry import Polygon
+    from shapely.validation import make_valid
+
+    # Asegurar que el lote de búsqueda sea válido
+    lot_polygon = lot_data["polygon"]
+    if not lot_polygon.is_valid:
+        click.echo("[WARN] Lote de entrada inválido. Reparando con buffer(0)...", err=True)
+        lot_polygon = lot_polygon.buffer(0)
 
     matched = None
+    checked = 0
+    invalid_count = 0
+
     for idx, row in df.iterrows():
         geom = row.geometry
         if geom is None:
             continue
-        # Intersección
-        if geom.intersects(lot_data["polygon"]):
-            matched = (idx, row)
-            overlap_area = geom.intersection(lot_data["polygon"]).area
-            click.echo(
-                f"[INFO] Predio encontrado: idx={idx}, "
-                f"overlap={overlap_area:.2f} m²"
-            )
-            break
+        checked += 1
+
+        # Reparar geometría inválida (común en catastro de Bogotá)
+        if not geom.is_valid:
+            invalid_count += 1
+            try:
+                geom = make_valid(geom)
+                # make_valid puede devolver MultiPolygon; tomar la parte más grande
+                if geom.geom_type == "MultiPolygon":
+                    geom = max(geom.geoms, key=lambda g: g.area)
+                elif geom.geom_type == "GeometryCollection":
+                    polys = [g for g in geom.geoms if g.geom_type == "Polygon"]
+                    if polys:
+                        geom = max(polys, key=lambda g: g.area)
+                    else:
+                        continue
+            except Exception:
+                # Fallback: buffer(0) que también repara
+                try:
+                    geom = geom.buffer(0)
+                except Exception:
+                    continue
+
+        # Verificar intersección (geopandas usa predicate que maneja mejor esto)
+        try:
+            if not geom.intersects(lot_polygon):
+                continue
+        except Exception:
+            continue
+
+        # Calcular overlap de forma segura
+        try:
+            overlap = geom.intersection(lot_polygon)
+            overlap_area = overlap.area
+        except Exception as e:
+            # Último recurso: solo usar bounding box
+            try:
+                overlap_area = geom.bounds_intersection(lot_polygon.bounds).area
+            except Exception:
+                overlap_area = 0.0
+
+        matched = (idx, row, geom)
+        click.echo(
+            f"[INFO] Predio encontrado: idx={idx}, "
+            f"overlap={overlap_area:.2f} m²"
+        )
+        break
+
+    if invalid_count > 0:
+        click.echo(f"[INFO] Geometrías reparadas: {invalid_count} de {checked}")
 
     if matched is None:
         click.echo("[ERROR] No se encontró predio que intersecte el lote.", err=True)
         click.echo("[ERROR] Verifica el CRS del lote (debe ser MAGNA-SIRGAS Origen Bogotá).", err=True)
+        click.echo(f"[INFO] Total features verificados: {checked}")
         sys.exit(2)
 
-    idx, row = matched
+    idx, row, geom = matched
 
     # 7. Extraer campos según whitelist
     row_dict = {k: v for k, v in row.items() if k != "geometry"}

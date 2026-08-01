@@ -1,0 +1,77 @@
+{
+  "_comment": "Whitelist de campos relevantes del bd_uaecd.gpkg (CATASTRO - UAecd Bogotá).",
+  "_fecha_actualizacion": "2026-08-01",
+  "_fuente": "bd_uaecd.gpkg (Unidad de Avalúo y Catastro, Bogotá)",
+  "_crs": {
+    "nombre": "MAGNA Ciudad Bogota",
+    "codigo_esri": "ESRI:102233",
+    "codigo_epsg_alternativo": null,
+    "rango_coords_x": [93000, 103000],
+    "rango_coords_y": [98000, 118000],
+    "unidad": "metro",
+    "transformacion_a_9377": "pyproj Transformer.from_crs('ESRI:102233', 'EPSG:9377', always_xy=True)",
+    "transformacion_a_wgs84": "pyproj Transformer.from_crs('ESRI:102233', 'EPSG:4326', always_xy=True)"
+  },
+  "_advertencia_pot": "ESTE ARCHIVO NO CONTIENE POT - solo catastro. Para normativa POT (alturas max, retiros, tratamiento, edificabilidad): fuente separada requerida (ver ADR-002). Workaround actual: valores por defecto (retiro 3.0m, altura 12m) hasta integrar POT real.",
+  "_campos_totales_en_gpkg": 191,
+  "_campos_seleccionados": 32,
+  "campos": {
+    "lote_geometria": [
+      "LotCodigo",
+      "LotCodMzn",
+      "LotTipo",
+      "SHAPE_Leng",
+      "SHAPE_Area",
+      "d_LotTipo",
+      "d_LotDispe",
+      "d_LotDistr",
+      "d_LotCLind",
+      "d_LotMTopo",
+      "d_LotMejor"
+    ],
+    "predio_identificacion": [
+      "PreChip",
+      "PreCedCata",
+      "PreNupre",
+      "PreDirecc",
+      "PreZPostal",
+      "Barmanpre"
+    ],
+    "predio_ubicacion": [
+      "PreNSector",
+      "PreCSector",
+      "PreCManz",
+      "PreCLote",
+      "PreCodLoc"
+    ],
+    "predio_areas": [
+      "PreATerre",
+      "PreAConst"
+    ],
+    "predio_uso_actual": [
+      "PreTProp",
+      "PreClase",
+      "PreDestino",
+      "PreEstrato",
+      "PreConsHis",
+      "PreVForma"
+    ],
+    "calificacion_uso": [
+      "PreUso",
+      "PreUsoPH",
+      "PreUsoNPH",
+      "PreUVivien",
+      "PreUCalif",
+      "PreAreaUso"
+    ],
+    "vecinos_altura_estimada": [
+      "PrePiso",
+      "PreVetustz"
+    ]
+  },
+  "_heuristica_vecinos": {
+    "formula_altura_m": "PrePiso * 3.0",
+    "formula_altura_refinada": "PrePiso * (2.8 if PreVetustz > 2010 else 3.0 if PreVetustz > 1990 else 3.2)",
+    "notas": "PrePiso es el numero de pisos del vecino. PreVetustz es el ano de construccion. Heuristica inicial pendiente de validacion con datos reales."
+  }
+}

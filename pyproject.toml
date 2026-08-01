@@ -13,6 +13,7 @@ dependencies = [
     "pyproj>=3.6",
     "rtree>=1.2",
     "rich>=13.7",
+    "geopandas>=1.0",
 ]
 
 [project.optional-dependencies]

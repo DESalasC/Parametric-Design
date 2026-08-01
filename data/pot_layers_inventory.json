@@ -1,0 +1,832 @@
+[
+  {
+    "index": 1,
+    "name": "Red_infraestructura_Corredor_transporte",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 2,
+    "name": "Red_ferrea",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 3,
+    "name": "Eje_vial",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 4,
+    "name": "Complejo_integracion_modal",
+    "geom_type": "Point"
+  },
+  {
+    "index": 5,
+    "name": "Complejo_aeroportuario_Dorado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 6,
+    "name": "Priorizacion_IN_Rompi_jarillon",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 7,
+    "name": "Priorizacion_IN_Desbordamiento",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 8,
+    "name": "Priorizacion_Estudios_MM",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 9,
+    "name": "Priorizacion_Estudios_AT",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 10,
+    "name": "Area_CR_MM_Urbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 11,
+    "name": "Area_CR_MM_Rural_punto",
+    "geom_type": "Point"
+  },
+  {
+    "index": 12,
+    "name": "Area_CR_MM_Rural_poligono",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 13,
+    "name": "Area_CR_MM_Rural_linea",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 14,
+    "name": "Area_CR_MM_Rural_Cpob_Nodo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 15,
+    "name": "Area_CR_Inundacion",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 16,
+    "name": "Area_CR_IF_Urbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 17,
+    "name": "Area_CR_IF_Rural_punto",
+    "geom_type": "Point"
+  },
+  {
+    "index": 18,
+    "name": "Area_CR_IF_Rural_poligono",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 19,
+    "name": "Area_CR_IF_Rural_linea",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 20,
+    "name": "Area_CR_IF_Rural_Cpob_Nodo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 21,
+    "name": "Area_CR_AT_Urbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 22,
+    "name": "Area_CR_AT_Rural_punto",
+    "geom_type": "Point"
+  },
+  {
+    "index": 23,
+    "name": "Area_CR_AT_Rural_poligono",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 24,
+    "name": "Area_CR_AT_Rural_linea",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 25,
+    "name": "Area_CR_AT_Rural_Cpob_Nodo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 26,
+    "name": "Area_CA_MM_Urbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 27,
+    "name": "Area_CA_MM_Rural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 28,
+    "name": "Area_CA_MM_Rural_Cpob_Nodo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 29,
+    "name": "Area_CA_IN_desbordamiento",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 30,
+    "name": "Area_CA_IF_Urbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 31,
+    "name": "Area_CA_IF_Rural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 32,
+    "name": "Area_CA_IF_Rural_Cpob_Nodo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 33,
+    "name": "Area_CA_AT_Urbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 34,
+    "name": "Area_CA_AT_Rural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 35,
+    "name": "Area_CA_AT_Rural_Cpob_Nodo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 36,
+    "name": "Amenaza_MM_Viv_rural_campestre",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 37,
+    "name": "Amenaza_MM_Urbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 38,
+    "name": "Amenaza_MM_Rural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 39,
+    "name": "Amenaza_MM_Nodo_equipamiento",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 40,
+    "name": "Amenaza_MM_Centro_poblado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 41,
+    "name": "Amenaza_IN_rompimiento_jarillo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 42,
+    "name": "Amenaza_IN_encharcamiento",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 43,
+    "name": "Amenaza_IN_desbordamiento",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 44,
+    "name": "Amenaza_IF_Viv_rur_camp",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 45,
+    "name": "Amenaza_IF_Urbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 46,
+    "name": "Amenaza_IF_Rural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 47,
+    "name": "Amenaza_IF_Nodo_equipamiento",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 48,
+    "name": "Amenaza_IF_Centro_poblado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 49,
+    "name": "Amenaza_AT_Viv_rural_campestre",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 50,
+    "name": "Amenaza_AT_Urbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 51,
+    "name": "Amenaza_AT_Rural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 52,
+    "name": "Amenaza_AT_Nodo_equipamiento",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 53,
+    "name": "Amenaza_AT_Centro_poblado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 54,
+    "name": "Sistema_Distr_Areas_Protegidas",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 55,
+    "name": "Subz_imp_Ambi_POMCA_Rio_Bogota",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 56,
+    "name": "Parque_urbano_rural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 57,
+    "name": "Paramo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 58,
+    "name": "Conector_ecosistemico",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 59,
+    "name": "Area_arqueologica_distrital",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 60,
+    "name": "Proyecto_integrador_patrimonio",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 61,
+    "name": "Conj_arquitectonico_industrial",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 62,
+    "name": "Plaza_mercado_patrimonio",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 63,
+    "name": "Camino_historico",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 64,
+    "name": "Plan_espec_manejo_proteccion",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 65,
+    "name": "Territorio_rural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 66,
+    "name": "Centro_financiero",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 67,
+    "name": "Zona_interes_turistica",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 68,
+    "name": "Zona_industrial",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 69,
+    "name": "Sector_EE_Produccion_artesanal",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 70,
+    "name": "Plaza_mercado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 71,
+    "name": "Parque_empresarial_san_benito",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 72,
+    "name": "Gran_centro_comercial",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 73,
+    "name": "Gran_ecosistema_econom_produc",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 74,
+    "name": "Eje_Servicio_Empresa_Av_Dorado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 75,
+    "name": "Ecosistema_educacion_superior",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 76,
+    "name": "Distrito_cen_tecn_e_innovacion",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 77,
+    "name": "Corredor_inteligente_turismo",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 78,
+    "name": "Cluster",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 79,
+    "name": "Cen_eco_viv_torca_reverdecer",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 80,
+    "name": "Anillo_logistico_occidente",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 81,
+    "name": "Centro_abastecimiento",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 82,
+    "name": "Area_potencial_legalizacion",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 83,
+    "name": "Unidad_planeamiento_rural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 84,
+    "name": "Sector_uso_residencial",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 85,
+    "name": "Sector_incompatible_uso_resid",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 86,
+    "name": "Poligono_sujeto_parrafo_2",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 87,
+    "name": "Rango_edificabilidad_desarro",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 88,
+    "name": "Area_POT_PTAR",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 89,
+    "name": "Influencia_indirecta_el_Dorado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 90,
+    "name": "Espacio_publico_centro_poblado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 91,
+    "name": "Suelo_priorizado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 92,
+    "name": "Ambito_integral",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 93,
+    "name": "Estacion_clas_residuos_solidos",
+    "geom_type": "Point"
+  },
+  {
+    "index": 94,
+    "name": "Sitio_disposicion_residuo_cons",
+    "geom_type": "Point"
+  },
+  {
+    "index": 95,
+    "name": "APAS_Conexos_PIDJ",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 96,
+    "name": "Sitio_aprovechamiento_residuos",
+    "geom_type": "Point"
+  },
+  {
+    "index": 97,
+    "name": "Nodo_patio_SITP",
+    "geom_type": "Point"
+  },
+  {
+    "index": 98,
+    "name": "Canal_camellon",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 99,
+    "name": "Acueducto_comunitario",
+    "geom_type": "Point"
+  },
+  {
+    "index": 100,
+    "name": "Capacidad_remanente_acueducto",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 101,
+    "name": "Capacidad_remanente_alcantaril",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 102,
+    "name": "Area_analisis_instal_subestaci",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 103,
+    "name": "Capacidad_electrica",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 104,
+    "name": "Inmueble_interes_cultural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 105,
+    "name": "Centro_poblado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 106,
+    "name": "Reconocimiento_entorno_barrial",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 107,
+    "name": "Zona_influencia_aeropuerto",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 108,
+    "name": "Area_influencia_cota_65_AID",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 109,
+    "name": "Area_elevacion_maxima",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 110,
+    "name": "Capacidad_malla_gas_natural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 111,
+    "name": "Helipuerto",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 112,
+    "name": "Corredor_carga",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 113,
+    "name": "Nodo_transporte_superficie",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 114,
+    "name": "Area_oportunidad_equipamiento",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 115,
+    "name": "Nodo_equipamiento_urbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 116,
+    "name": "Centro_equipamiento_serv_rural",
+    "geom_type": "Point"
+  },
+  {
+    "index": 117,
+    "name": "Nodo_equipamiento_rural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 118,
+    "name": "Unidad_planeamiento_local",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 119,
+    "name": "UNID_PLANEAMIENTO_LOC_DEFICIT",
+    "geom_type": null
+  },
+  {
+    "index": 120,
+    "name": "Sector_interes_urbanistico",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 121,
+    "name": "Proyectos_ruralidad",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 122,
+    "name": "Proyectos_tecnologia_ruralidad",
+    "geom_type": "Point"
+  },
+  {
+    "index": 123,
+    "name": "Proyecto_Estruc_Ecolog_Prinpal",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 124,
+    "name": "Antejardin",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 125,
+    "name": "CategoriaSueloRural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 126,
+    "name": "Zona_pendiente_superior_45",
+    "geom_type": "MultiPolygon Z"
+  },
+  {
+    "index": 127,
+    "name": "Uso_complementario_aerodromo",
+    "geom_type": "MultiPolygon Z"
+  },
+  {
+    "index": 128,
+    "name": "Aerodromo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 129,
+    "name": "Parque_Innovacion_Dona_Juana",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 130,
+    "name": "Plaza",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 131,
+    "name": "BosqueUrbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 132,
+    "name": "DistritoCreativo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 133,
+    "name": "PMA_Area_ocupacion_publica_prioritaria",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 134,
+    "name": "PatioTaller",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 135,
+    "name": "CableAereo",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 136,
+    "name": "Cuerpo_agua",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 137,
+    "name": "Corriente_agua",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 138,
+    "name": "NodoTransporte",
+    "geom_type": "Point"
+  },
+  {
+    "index": 139,
+    "name": "SectorConsolidado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 140,
+    "name": "PerimetroUrbano",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 141,
+    "name": "ClasificacionSuelo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 142,
+    "name": "AreaConservacionInsitu",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 143,
+    "name": "AreasProtegidaSINAP",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 144,
+    "name": "Red_Metro",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 145,
+    "name": "Cicloalameda",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 146,
+    "name": "Red_cicloinfraestructura",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 147,
+    "name": "CorazonProductivo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 148,
+    "name": "MallaVialIntermedia",
+    "geom_type": "MultiLineString"
+  },
+  {
+    "index": 149,
+    "name": "SueloProteccionRiesgo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 150,
+    "name": "Manzana_cuidado",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 151,
+    "name": "Plataforma_SCSS",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 152,
+    "name": "Equipamiento_SCSS",
+    "geom_type": null
+  },
+  {
+    "index": 153,
+    "name": "EntidadAnclaManzanaCuidado",
+    "geom_type": "Point"
+  },
+  {
+    "index": 154,
+    "name": "SueloReserva",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 155,
+    "name": "RedInfraestructuraVialArterial",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 156,
+    "name": "PlanParcial",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 157,
+    "name": "Zona_influencia_BIC_SIC_PEMP",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 158,
+    "name": "BienInteresCultural",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 159,
+    "name": "SistemaHidrico",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 160,
+    "name": "TratamientoUrbanistico",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 161,
+    "name": "AreaActividad",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 162,
+    "name": "AreaIntegracionMultimodal",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 163,
+    "name": "ActuacionEstrategica",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 164,
+    "name": "AreaResilenciaClim_P_Riesgo",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 165,
+    "name": "Parque",
+    "geom_type": "MultiPolygon"
+  },
+  {
+    "index": 166,
+    "name": "EstructuraEcologicaPrincipal",
+    "geom_type": "MultiPolygon"
+  }
+]
