@@ -720,14 +720,20 @@ def query(lot: str, catastro_gpkg: str, pot_gdb: str, whitelist: str, retiros_js
             "nombre": pot_elev.get("NOMBRE_UPI"),
         }
     pot_normativa = pot_elev.get("NORMATIVA") if pot_elev.get("_status") == "OK" else None
+    pot_restriccion = pot_elev.get("RESTRICCION") if pot_elev.get("_status") == "OK" else None
+    pot_altura_maxima_raw = pot_elev.get("ALTURA") if pot_elev.get("_status") == "OK" else None
+    # We do not attempt to convert to meters; leave as None for now.
+    pot_altura_maxima_m = None
 
     # Resumen del POT (campos principales)
     pot_resumen = {
-        "_status": "OK" if pot_altura_maxima is not None else "PENDIENTE",
+        "_status": "OK" if pot_altura_maxima_raw is not None else "PENDIENTE",
         "_fuente": "Decreto 555 del 29 de diciembre de 2021",
-        "altura_maxima_m": pot_altura_maxima,
+        "altura_maxima_m": pot_altura_maxima_m,
+        "altura_maxima_raw": pot_altura_maxima_raw,
         "elevacion_maxima_amsl_m": pot_elevacion_maxima,
         "upz": pot_upz,
+        "restriccion": pot_restriccion,
         "tratamiento_urbanistico": {
             "codigo": pot_trat.get("CODIGO_TRATAMIENTO"),
             "nombre": pot_trat.get("NOMBRE_TRATAMIENTO"),
@@ -905,7 +911,7 @@ def query(lot: str, catastro_gpkg: str, pot_gdb: str, whitelist: str, retiros_js
     click.echo(f"[OK] Caché generado: {output_file}")
     click.echo(f"[OK] Campos catastro: {total_catastro}")
     click.echo(f"[OK] POT capas encontradas: {pot_capas_ok}/{pot_capas_totales}")
-    click.echo(f"[OK] POT altura máxima: {pot_altura_maxima} m" + (" (REAL)" if pot_altura_maxima else " (no encontrada)"))
+    click.echo(f"[OK] POT altura máxima (raw): {pot_altura_maxima_raw}" + (" (sin interpretar)" if pot_altura_maxima_raw is not None else " (no encontrada)"))
     click.echo(f"[OK] POT UPZ: {pot_upz['nombre'] if pot_upz else 'N/A'}")
     if pot_trat.get("_status") == "OK":
         click.echo(f"[OK] POT tratamiento: {pot_trat.get('NOMBRE_TRATAMIENTO')} (cod={pot_trat.get('CODIGO_TRATAMIENTO')})")
@@ -917,6 +923,8 @@ def query(lot: str, catastro_gpkg: str, pot_gdb: str, whitelist: str, retiros_js
         click.echo(f"[OK] POT clase suelo: {pot_suelo.get('CLASE_SUELO')} ({pot_suelo.get('CODIGO_ID')})")
     if pot_upl.get("_status") == "OK":
         click.echo(f"[OK] POT UPL: {pot_upl.get('NOMBRE')}")
+    if pot_restriccion is not None:
+        click.echo(f"[OK] POT restriccion: {pot_restriccion}")
     if retiros_calculados.get("_status") == "OK":
         click.echo(f"[OK] Retiros calculados: frontal={retiros_calculados.get('frontal_m')}m, posterior={retiros_calculados.get('posterior_m')}m")
     click.echo("=" * 60)
