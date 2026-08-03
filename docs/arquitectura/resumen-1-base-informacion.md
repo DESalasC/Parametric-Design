@@ -135,6 +135,12 @@ MARCO TEÓRICO (vault Obsidian)
 - **Causa:** El lote en Bosa estaba en zona con polígonos complejos (>100 partes)
 - **Solución:** Tolerar `no_interseca` como respuesta válida (no todos los lotes están en todas las capas)
 
+### Error 9: Interpretación errónea del campo ALTURA en POT
+- **Síntoma:** El caché POT indicaba `altura_maxima_m = 150.0` para un lote de 193 m² (equivalente a 50 pisos).
+- **Causa:** El script `gpkg-to-cache-v4.py` asumía que el campo `ALTURA` de la capa `Area_elevacion_maxima` era la altura de edificación en metros. En realidad, representa una cota absoluta (AMSL) o código de rango.
+- **Solución:** Modificar el script para que `altura_maxima_m` sea `null` si el valor supera un umbral lógico (ej. 60m). Se agregó `altura_maxima_raw` para conservar el valor original. Documentado en ADR-005.
+- **Lección:** La geodatabase del POT contiene campos con nombres engañosos. Siempre validar los valores extraídos contra la lógica urbana y contrastar con el texto del Decreto (que define altura en pisos, no metros).
+
 ---
 
 ## 3. Lecciones Aprendidas
