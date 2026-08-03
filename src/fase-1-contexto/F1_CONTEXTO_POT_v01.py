@@ -77,6 +77,17 @@ TRATAMIENTO_PARAMS = {
     "PATRIMONIO": {"altura_max": 7, "ios_max": 0.4, "ibc_max": 2.0},
 }
 
+# Rango de edificabilidad -> número de pisos (aprox. 3 m por piso)
+RANGO_A_FLOORS = {
+    "1": 8,
+    "2": 5,
+    "3": 4,
+    "4A": 3,
+    "4B": 3,
+    "4C": 2,
+    "4D": 2,
+}
+
 # Clasificación vial → Retiros y ancho típico (Decreto 555/2021)
 # Ancho típico para validar clasificación detectada vs real
 CLASIFICACION_VIAL_PARAMS = {
@@ -393,27 +404,54 @@ for crv, props in trat_curves:
         treatment = props.get("CODIGO_SUBTRATAMIENTO") or props.get("TIPOLOGIA") or "DESCONOCIDO"
         urban_data["treatment"] = treatment
 
-        # Buscar altura en propiedades
-        altura = props.get("ALTURA_MAXIMA") or props.get("altura_maxima")
-        if altura:
+        # Obtener altura en propiedades (ALTURA_MAXIMA es el rango de edificabilidad)
+        rango = props.get("ALTURA_MAXIMA") or props.get("altura_maxima")
+        altura_por_rango = None
+        if rango is not None:
             try:
-                urban_data["altura_max"] = float(altura)
-                urban_data["trace"] += f" Altura desde GDB: {altura}m. "
+                rango_str = str(rango).strip()
+                if rango_str in RANGO_A_FLOORS:
+                    pisos = RANGO_A_FLOORS[rango_str]
+                    altura_por_rango = pisos * 3.0  # asumiendo 3 m por piso
+                    urban_data["trace"] += " Altura desde rango {}: {} pisos = {}m. ".format(rango_str, pisos, altura_por_rango)
+                else:
+                    # Rango no reconocido, intentar con tipología
+                    pass
             except:
                 pass
 
-        # Fallback por tipología si no hay altura en GDB
-        if urban_data["altura_max"] is None:
+        # Si obtuvimos altura del rango, usarla
+        if altura_por_rango is not None:
+            urban_data["altura_max"] = altura_por_rango
+            # Intentar obtener ios_max e ibc_max del tratamiento (por tipología) si están disponibles
             tipo = str(treatment).upper()
+            for k, v in TRATAMIENTO_PARAMS.items():
+                if k in tipo:
+                    urban_data["ios_max"] = v["ios_max"]
+                    urban_data["ibc_max"] = v["ibc_max"]
+                    urban_data["trace"] += " Índices por tipología {}: IOS={}, IBC={}. ".format(k, v["ios_max"], v["ibc_max"])
+                    break
+            # Si no se encontraron índices, dejarlos como None
+        else:
+            # Fallback por tipología si no hay altura válida del rango
+            tipo = str(treatment).upper()
+            found = False
             for k, v in TRATAMIENTO_PARAMS.items():
                 if k in tipo:
                     urban_data["altura_max"] = v["altura_max"]
                     urban_data["ios_max"] = v["ios_max"]
                     urban_data["ibc_max"] = v["ibc_max"]
-                    urban_data["trace"] += f" Altura/índices por tipología {k}: Hmax={v['altura_max']}m, IOS={v['ios_max']}, IBC={v['ibc_max']}. "
+                    urban_data["trace"] += " Altura/índices por tipología {}: Hmax={}m, IOS={}, IBC={}. ".format(k, v["altura_max"], v["ios_max"], v["ibc_max"])
+                    found = True
                     break
+            if not found:
+                # Valor por defecto si no se pudo determinar
+                urban_data["altura_max"] = 12.0  # 4 pisos * 3m
+                urban_data["ios_max"] = None
+                urban_data["ibc_max"] = None
+                urban_data["trace"] += " Altura por defecto (12m) - verificar manualmente. "
 
-        trace.append(f"URBAN: {treatment} | Hmax={urban_data['altura_max']}m | source={'GDB' if altura else 'TIPOLOGÍA_FALLBACK'}")
+        trace.append("URBAN: {} | Hmax={}m | source={}".format(treatment, urban_data["altura_max"], "RANGO" if altura_por_rango is not None else ("TIPOLOGÍA" if urban_data["altura_max"] is not None else "DEFECTO")))
         break
 
 # ------------------------------------------------------------------

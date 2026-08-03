@@ -39,6 +39,7 @@ street_curves = globals().get("street_curves", [])
 pot_conclusions = globals().get("pot_conclusions", None)
 floors_per_tower = globals().get("floors_per_tower", 4)
 bonus_input = globals().get("bonus_floor", False)
+pot_cache_path = globals().get("pot_cache_path", None)
 
 # Asegurarse de que sean listas
 if lot_segments is None: lot_segments = []
@@ -76,15 +77,15 @@ road_analysis = pot_dict.get("road_analysis", [])
 segment_data = []
 for i, seg in enumerate(lot_segments):
     if not seg: continue
-    
+
     if i < len(lot_midpoints):
         mid = lot_midpoints[i]
     else:
         mid = rg.AreaMassProperties.Compute(seg).Centroid
-        
+
     min_dist = float('inf')
     closest_street_idx = -1
-    
+
     for j, crv in enumerate(street_curves):
         if not crv: continue
         try:
@@ -97,10 +98,10 @@ for i, seg in enumerate(lot_segments):
                     closest_street_idx = j
         except:
             continue
-            
+
     segment_data.append({
-        "idx": i, 
-        "dist": min_dist, 
+        "idx": i,
+        "dist": min_dist,
         "street_idx": closest_street_idx
     })
 
@@ -110,8 +111,8 @@ non_front_indices = []
 
 if segment_data:
     min_dist_overall = min(d["dist"] for d in segment_data)
-    front_tolerance = 5.0 
-    
+    front_tolerance = 5.0
+
     for d in segment_data:
         if d["dist"] <= min_dist_overall + front_tolerance:
             front_indices.append(d["idx"])
@@ -124,32 +125,67 @@ if non_front_indices:
     furthest = max(non_front_data, key=lambda x: x["dist"])
     posterior_idx = furthest["idx"]
 
-# 5. Construir la tabla de lados
+# 5. Obtener retiros del JSON de caché POT (si se proporciona)
+frontal_m = 3.0
+lateral_izq_m = 3.0
+lateral_der_m = 3.0
+posterior_m = 3.0
+if pot_cache_path and isinstance(pot_cache_path, str) and pot_cache_path.strip():
+    try:
+        with open(pot_cache_path, 'r') as f:
+            cache_data = json.load(f)
+        retiros = cache_data.get("decreto_555_2021", {}).get("retiros", {})
+        frontal_m = to_float(retiros.get("frontal_m"), 3.0)
+        lateral_izq_m = to_float(retiros.get("lateral_izq_m"), 3.0)
+        lateral_der_m = to_float(retiros.get("lateral_der_m"), 3.0)
+        posterior_m = to_float(retiros.get("posterior_m"), 3.0)
+    except Exception as e:
+        print(f"Error leyendo JSON de caché POT: {e}")
+        # Se usan los valores por defecto (3.0)
+
+# Determinar tipo lateral basado en tratamiento urbanistico (Decreto 555/2021)
+# Según el tratament_urbanistico.nombre, aplicar lógica de retiros:
+# - Tratamientos de consolidación/continua: retiros laterales/posteriores = 0.0m
+# - Tratamientos aislados: usar valores del JSON o defecto 3.0m
+tratamiento_info = decreto_555.get("tratamiento_urbanistico", {})
+tratamiento_nombre = str(tratamiento_info.get("nombre", "")).strip().upper()
+if "CONSOLIDACION" in tratamiento_nombre or "CONTINUA" in tratamiento_nombre:
+    # Tipología continua: retiros laterales y posteriores = 0.0m
+    lateral_m = 0.0
+elif "AISLADA" in tratamiento_nombre:
+    # Tipología aislada: usar promedio de valores laterales del JSON
+    lateral_m = (lateral_izq_m + lateral_der_m) / 2.0
+else:
+    # Por defecto o tratamiento desconocido: promedio conservador de laterales
+    lateral_m = (lateral_izq_m + lateral_der_m) / 2.0
+
+# 6. Construir la tabla de lados
 sides_table = []
 for data in segment_data:
     i = data["idx"]
     is_front = i in front_indices
     is_posterior = (i == posterior_idx)
-    
+
     road_type = "N/A"
     road_width = 0.0
     balcony_allowed = False
     balcony_max_depth = 0.0
-    setback = 3.0 
-    
+    setback = 3.0  # valor por defecto (se sobrescribirá abajo si se usa JSON)
+
     if is_front:
         classification = "Frontal"
         street_idx = data["street_idx"]
-        
+
         if street_idx >= 0 and street_idx < len(road_analysis):
             street_data = road_analysis[street_idx]
             road_width = to_float(street_data.get("road_width_m", 0))
-        
+
         if road_width == 0:
-            road_width = 15.0 
-            
+            road_width = 15.0
+
         road_type = get_road_class_by_width(road_width)
-        
+
+        # Reglas de balcón y retiro según ancho de vía (se mantienen para compatibilidad)
         if "Arterial" in road_type or road_width >= 22:
             balcony_allowed = True
             balcony_max_depth = 1.2
@@ -162,22 +198,28 @@ for data in segment_data:
             balcony_allowed = True
             balcony_max_depth = 0.8
             setback = 3.0
-            
+
+        # Sobrescribir el retiro con el valor del JSON (si se proporciona)
+        setback = frontal_m
+
     elif is_posterior:
         classification = "Posterior"
         neighbor_height = 0.0
-        setback = max(3.0, neighbor_height * 0.5)
+        # Sobrescribir el retiro con el valor del JSON
+        setback = posterior_m
     else:
         classification = "Lateral"
         neighbor_height = 0.0
-        setback = max(3.0, neighbor_height * 0.5)
+        # Sobrescribir el retiro con el valor del JSON (lateral promedio)
+        setback = lateral_m
 
     sides_table.append({
         "side_index": i, "classification": classification, "road_type": road_type,
         "road_width_m": road_width, "setback_m": setback, "balcony_allowed": balcony_allowed,
-        "balcony_max_depth_m": balcony_max_depth, "neighbor_height_m": 0.0, 
+        "balcony_max_depth_m": balcony_max_depth, "neighbor_height_m": 0.0,
         "separation_required_m": setback, "is_access": is_front
     })
+
 # === CALCULAR SOLICITUD JSON: perímetro_edificable, altura_maxima_pisos, aislamientos_aplicados, área_neta_por_piso ===
 
 # 1. Altura máxima en pisos (desde POT)
@@ -260,49 +302,6 @@ result_json = {
 # Convertir a string JSON para salida de Grasshopper
 import json
 resultado_json_string = json.dumps(result_json, indent=2, ensure_ascii=False)
-
-Updated Outputs:
-
-Add resultado_json_string as a new output alongside the existing ones:
-- sides_table (existing)
-- pot_compliance (existing)
-- balcony_rules_summary (existing)
-- resultado_json (NEW - the requested JSON)
-
-Complementary Improvement to CONTEXTO_v04a.py
-
-To make the height information more directly accessible, consider adding this to the end of CONTEXTO_v04a.py:
-
-# Salida adicional para fácil acceso: altura maxima en pisos
-if urban_data["altura_max"]:
-    altura_maxima_pisos_pot = int(float(urban_data["altura_max"]) / 3.0)
-else:
-    altura_maxima_pisos_pot = int((urban_data.get("altura_max") or 12) / 3.0)
-
-This would make the piso calculation directly available as an output.
-
-Expected JSON Output Format:
-
-The proposed solution will generate a JSON like:
-{
-  "perimetro_edificable": 120.5,
-  "altura_maxima_pisos": 8,
-  "aislamientos_aplicados": [
-    {
-      "side_index": 0,
-      "classification": "Frontal",
-      "setback_m": 5.0,
-      "road_type": "Arterial_Principal"
-    },
-    {
-      "side_index": 1,
-      "classification": "Lateral",
-      "setback_m": 3.0,
-      "road_type": "Local"
-    }
-  ],
-  "area_neta_por_piso": 350.25
-}
 
 # 6. Salidas
 pot_compliance = {
