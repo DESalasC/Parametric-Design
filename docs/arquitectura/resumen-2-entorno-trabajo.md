@@ -336,8 +336,9 @@ D:\WORK\LIBRARIES\
 
 | Componente | Ubicación | Estado |
 |------------|-----------|--------|
-| Ollama + 7 modelos | D:\Work\AI\ollama\ + D:\Users\Work\.ollama\models\ | ✅ Operativo |
-| FCC Server 4.16.2 | D:\WORK\AI\fcc-server\ (instalado vía npm) | ✅ Operativo |
+| Ollama + 8 modelos | D:\Work\AI\ollama\ + D:\Users\Work\.ollama\models\ | ✅ Operativo |
+| FCC Server 4.16.2 | D:\WORK\AI\fcc-server\ (instalado vía npm) | ✅ Operativo (puerto 8082) |
+| Claude Code v2.1.220 | Instalado global | ✅ Operativo con Nemotron (tool use) |
 | Ruflo | D:\WORK\AI\ruflo\ (clonado, sin configurar) | ⏳ Pendiente |
 | Rhino 8 | Instalado | ✅ Operativo |
 | Archicad | Instalado | ✅ Operativo |
@@ -346,9 +347,46 @@ D:\WORK\LIBRARIES\
 
 ---
 
-## 5. Conclusión
+## 5. Validación del Entorno de Desarrollo IA
 
-El entorno de trabajo quedó configurado completamente:
+Una vez configurado el stack, se procedió a validar la capacidad de Claude Code + Nemotron (vía FCC) para realizar tareas de desarrollo reales (tool use).
+
+### 5.1 Descubrimiento de limitaciones en modelos locales
+
+- **DeepSeek R1 / Qwen:** Aunque soportan "thinking", rompen el "tool use" (capacidad de leer archivos y ejecutar comandos) cuando se usan a través de FCC. Generan texto pero no pueden interactuar con el sistema de archivos.
+- **Contexto limitado:** Ollama venía configurado con 4096 tokens de contexto por defecto, insuficiente para el system prompt de Claude Code (~7K tokens). Se solucionó configurando `OLLAMA_CONTEXT_LENGTH=32768`.
+- **Alucinaciones por contexto largo:** Los modelos locales tienden a alucinar cuando la conversación crece. La solución es usar el comando `/clear` frecuentemente y confiar en los archivos `.md` (CLAUDE.md) como memoria persistente, no en el historial del chat.
+
+### 5.2 Solución: Nvidia NIM (Nemotron)
+
+El modelo `nvidia_nim/nvidia/nemotron-3-super-120b-a12b` demostró ser la opción ideal:
+- Soporta "thinking" (razonamiento previo a la respuesta).
+- Mantiene el "tool use" funcional (puede leer, escribir y ejecutar archivos).
+- Es 100% gratuito (con límites de cuota en horas pico).
+
+### 5.3 Adaptación de Scripts GHPython (Fase 1)
+
+Utilizando Nemotron, se adaptaron exitosamente los 3 scripts principales de la Fase 1 para que lean de los JSONs estructurados en lugar de usar valores hardcodeados:
+
+1. **F1_CONTEXTO_POT_v01.py:**
+   - Adapta lectura de coordenadas, datos del POT y catastro desde el JSON.
+   - Implementa lógica de inferencia de altura máxima (en pisos) basada en el rango de edificibilidad cuando el dato crudo del POT es nulo o incoherente (ver ADR-005).
+   - Mantiene compatibilidad con IronPython 2.7.
+
+2. **F1_LADOS_CONFIGURAR_v01.py:**
+   - Lee los retiros del Decreto 555/2021 desde el JSON.
+   - Implementa lógica de tipología edificatoria: asigna 0.0m de retiro lateral en tipología "Continua" y 3.0m en "Aislada".
+
+3. **F1_VECINOS_ANALISIS_v01.py:**
+   - Implementa la tabla A.6.5-1 del NSR-10 (separaciones sísmicas).
+   - Calcula la separación sísmica requerida según el número de pisos y coincidencia de losas.
+   - Compara la separación sísmica con el retiro urbanístico del POT y se queda con el valor mayor (regla de oro).
+
+---
+
+## 6. Conclusión
+
+El entorno de trabajo quedó configurado completamente y **validado como herramienta de desarrollo activa**:
 
 - ✅ **Windows 11 Pro** con usuario `Work` administrador
 - ✅ **Python 3.12** en venv aislado con todas las dependencias
@@ -360,5 +398,7 @@ El entorno de trabajo quedó configurado completamente:
 - ✅ **Plugins GH** clonados (Tapir, Ladybug, LadybugTools)
 - ✅ **Marco Alexander** migrado al vault
 - ✅ **Rhino 8 + Archicad + Tapir** instalados y conectados
-- ✅ **4 ADRs** documentando decisiones arquitectónicas
+- ✅ **5 ADRs** documentando decisiones arquitectónicas (incl. corrección altura POT)
 - ✅ **Documentación normativa** completa (3 decretos + NSR-10)
+- ✅ **IA Operativa:** Claude Code + Nemotron (FCC) con tool use funcional
+- ✅ **Fase 1 Adaptada:** Scripts GHPython leyendo datos reales de JSONs estructurados (POT, NSR-10, Catastro)
