@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-ANALISIS_VECINOS.py - Analiza construcciones vecinas y aplica separación sísmica NSR-10
-Componente GHPython para Grasshopper (Rhino 7+)
+ANALISIS_VECINOS_v02 - Analiza construcciones vecinas y aplica separación sísmica NSR-10
+Usa JSON de caché POT para datos normativos y geometría local para cálculos.
 
 ENTRADAS:
   - lot_polygon: Curve cerrado en plano XY (polígono del lote)
   - neighbor_breps: Lista de Breps (cada uno representa una construcción vecina)
   - my_building_total_height: float, altura total estimada del proyecto en metros
   - pot_setbacks: Lista de floats, aislamientos urbanísticos mínimos del POT por lado del lote
-  - pot_cache_path: string, ruta al JSON del caché POT para este lote (contiene datos de vecinos)
+  - json_path: Ruta al JSON de caché POT para este lote (contiene datos de vecinos y normativa)
   - my_building_floors: int, número de pisos sobre nivel del terreno del edificio nuevo
   - losas_coincide: bool (opcional, default False), indicar si las losas del edificio nuevo y del vecino coinciden en el partido
 
 SALIDAS:
-  - updated_sides_table: JSON string con tabla de lados actualizada
+  - updated_sides_table: JSON string con tabla de lados actualizada (setbacks, separación sísmica, etc.)
   - neighbor_footprints: Lista de Curves (huellas proyectadas de los vecinos)
   - neighbor_heights: Lista de números (alturas de los vecinos)
 """
@@ -21,6 +21,7 @@ SALIDAS:
 import json
 import math
 import os
+from pathlib import Path
 
 # Intentar usar rhinoscriptsyntax (disponible en GHPython)
 try:
@@ -42,21 +43,29 @@ def safe_int(val, default=0):
         return default
 
 def load_pot_cache(json_path):
-    """Carga el caché POT y devuelve datos de vecinos si están disponibles."""
-    if not json_path or not os.path.exists(json_path):
+    """Cargar el caché POT y devolver datos de vecinos si están disponibles."""
+    if not json_path or not isinstance(json_path, str) or not json_path.strip():
+        return None
+    path = Path(json_path.strip())
+    if not path.exists():
         return None
     try:
-        with open(json_path, 'r', encoding='utf-8') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         # Extraer datos de vecinos según la estructura del caché
         catastro = data.get('catastro', {})
         vecinos_info = catastro.get('vecinos_altura_estimada', {})
         neighbor_floors = safe_int(vecinos_info.get('PrePiso', 0))
         neighbor_height_est = safe_float(vecinos_info.get('_altura_estimada_m', 0.0))
+        # También intentar obtener otros datos normativos del caché
+        zon_sismica = catastro.get('zonificacion_sismica', 'ZONA_MEDIA')
+        tipo_suelo = catastro.get('tipo_suelo_predominante', 'SUELO_TYPE_A')
         return {
             'floors': neighbor_floors,
             'height_est': neighbor_height_est,
-            'raw': vecinos_info
+            'raw': vecinos_info,
+            'zon_sismica': zon_sismica,
+            'tipo_suelo': tipo_suelo
         }
     except Exception as e:
         print('Warning: Could not load POT cache: {}'.format(e))
@@ -80,12 +89,12 @@ def get_separation_coefficient(new_floors, losas_coincide, has_adjacent_neighbor
         if new_floors <= 2:
             return 0.0   # no requiere
         elif new_floors == 3:
-            if losas_coincide:
+            if las_coincide:
                 return 0.0   # coinciden_losas_vecina -> no requiere
             else:
                 return 0.01  # no_coinciden_losas_vecina -> 1% de hn
         else:  # >3
-            if losas_coincide:
+            if las_coincide:
                 return 0.02  # coinciden_losas_vecina -> 2% de hn
             else:
                 return 0.03  # no_coinciden_losas_vecina -> 3% de hn
@@ -105,8 +114,8 @@ def main():
     pot_setbacks = [safe_float(x) for x in pot_setbacks]
 
     # Nuevas entradas
-    if pot_cache_path is None:
-        pot_cache_path = ''
+    if json_path is None:
+        json_path = ''
     if my_building_floors is None:
         my_building_floors = 0
     if losas_coincide is None:
@@ -115,13 +124,15 @@ def main():
     my_height = safe_float(my_building_total_height)
     my_floors = safe_int(my_building_floors)
 
-    # Cargar caché POT para obtener datos de vecinos (información de referencia)
-    pot_cache_data = load_pot_cache(pot_cache_path)
+    # Cargar caché POT para obtener datos de vecinos y normativa
+    pot_cache_data = load_pot_cache(json_path) if json_path else None
     if pot_cache_data:
         print('Datos de vecinos del caché POT: pisos={}, altura estimada={}m'.format(
             pot_cache_data['floors'], pot_cache_data['height_est']))
+        # Sobrescribir valores de vecino si están disponibles en el caché
+        # (Pero note: el script ya procesa los breps de los vecinos, así que esto es solo de referencia)
     else:
-        print('Advertencia: No se pudo cargar caché POT en {}'.format(pot_cache_path))
+        print('Advertencia: No se pudo cargar caché POT en {}'.format(json_path))
 
     # Preparar salidas
     updated_sides = []      # lista de diccionarios que se convertirán a JSON
@@ -190,7 +201,7 @@ def main():
                 # Vecino adyacente
                 has_adjacent_neighbor = True
                 vecino_height = neighbor_heights[n_idx] if n_idx < len(neighbor_heights) else 0.0
-                # Guardamos la altura del vecino Adyacente (solo para reporte, no usado en cálculo)
+                # Guardamos la altura del vecino adyacente (solo para reporte, no usado en cálculo)
                 if vecino_height > adj_neighbor_height:
                     adj_neighbor_height = vecino_height
                 # No break; queremos el máximo entre múltiples vecinos adyacentes (si los hubiera)
@@ -220,9 +231,34 @@ def main():
     # Convertir lista de lados a JSON string
     updated_sides_table = json.dumps(updated_sides, ensure_ascii=False, indent=2)
 
-    # Salidas del componente ya están en las variables:
-    # updated_sides_table, neighbor_footprints, neighbor_heights
-    # (así que no necesitamos hacer nada más)
+    # --- 4. Generar vecino_analisis_json a partir del caché si está disponible ---
+    if pot_cache_data:
+        # Usar datos del caché para el análisis vecinal simulado
+        vecino_analisis = {
+            "zon_sismica": pot_cache_data.get("zon_sismica", "ZONA_MEDIA"),
+            "tipo_suelo": pot_cache_data.get("tipo_suelo", "SUELO_TYPE_A"),
+            "altura_maxima_permitida": pot_cache_data.get("height_est", 0.0),  # Ya en metros
+            "setbacks": {
+                "norte": 3.0,
+                "sur": 3.0,
+                "este": 3.0,
+                "oeste": 3.0
+            }
+        }
+    else:
+        # Valores por defecto si no hay caché
+        vecino_analisis = {
+            "zon_sismica": "ZONA_MEDIA",
+            "tipo_suelo": "SUELO_TYPE_A",
+            "altura_maxima_permitida": my_floors * 3.0,  # Aproximación: 3m por piso
+            "setbacks": {
+                "norte": 3.0,
+                "sur": 3.0,
+                "este": 3.0,
+                "oeste": 3.0
+            }
+        }
+    vecino_analisis_json = json.dumps(vecino_analisis, ensure_ascii=False, indent=2)
 
 # --- Ejecución principal ---
 try:
@@ -232,3 +268,4 @@ except Exception as e:
     updated_sides_table = json.dumps({"error": str(e)}, ensure_ascii=False)
     neighbor_footprints = []
     neighbor_heights = []
+    vecino_analisis_json = json.dumps({"error": "Falló el cálculo", "detalles": str(e)}, ensure_ascii=False)

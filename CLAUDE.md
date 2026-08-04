@@ -148,3 +148,4 @@ DiseñoParametrico/
 - Ajustes de naming siguiendo convención.
 - Mejoras de documentación en el vault.
 - Actualización de dependencias menores (patch versions).
+
