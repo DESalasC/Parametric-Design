@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CONTEXTO_v04 - Análisis Normativo POT Bogotá Consolidado
+F1_CONTEXTO_POT_v01 - Análisis Normativo POT Bogotá Consolidado
 GH Python Script para Grasshopper (GH Player compatible)
 
 ENTRADAS (via Tapir Live Connection desde ArchiCAD):
@@ -8,7 +8,7 @@ ENTRADAS (via Tapir Live Connection desde ArchiCAD):
   - lot_area: Área del lote en m2 (componente Area nativo GH)
   - lot_centroid: Centroide del lote (Point3d, componente Area nativo GH)
   - street_curves: Curvas de ejes/bordes de calle(s) con User Text "CLASIFICACION_VIAL"
-  - north_vector: Vector norte geográfico (Point3d)
+  - north_angle_rad: Ángulo norte geográfico en radianes (float)
   - elevation_nmm: Cota NMM (float, msnm Bogotá)
   - json_path: Ruta al JSON de caché POT para este lote (contiene datos precalculados de POT y catastro)
 
@@ -29,13 +29,13 @@ SALIDAS CONSOLIDADAS (Property Palette ArchiCAD - UN SOLO OBJETO):
       "setbacks_by_road_type": {...},
       "balcony_rules": {...},
       "compliance_summary": {...},
-      "traceability": {...}
+      "traceability": {...},
+      "desfase_virtual": {...}  // Vector de desfase entre coordenadas locales y MAGNA-SIRGAS
     }
 
-v04: Consulta REAL de GeoJSONs, calcula ancho de vía, deriva reglas balcones,
-     consolida TODO en pot_conclusions con trazabilidad completa.
-v05: Refactorizado para usar JSON de caché POT como fuente principal de datos normativos,
+v01: Consulta JSON de caché POT como fuente principal de datos normativos,
      usando solo la geometría local (lote, calles) para cálculo de distancias.
+     Incluye cálculo de desfase virtual entre coordenadas locales y MAGNA-SIRGAS.
 """
 
 import rhinoscriptsyntax as rs
@@ -259,7 +259,7 @@ if lot_area is None:
 if lot_centroid is None:
     raise ValueError("Falta lot_centroid (componente Area nativo GH)")
 
-print(f"=== CONTEXTO_v05 ===")
+print(f"=== F1_CONTEXTO_POT_v01 ===")
 print(f"Lote: {float(lot_area):.1f} m2 | Centroide: {lot_centroid}")
 
 # Cargar caché POT si se proporciona
@@ -270,6 +270,12 @@ if 'json_path' in globals() and json_path:
         print(f"Cargado caché POT desde: {json_path}")
     else:
         print(f"Advertencia: No se pudo cargar caché POT desde {json_path}. Se usarán valores por defecto o se calcularán desde geometría.")
+
+# Conversión del ángulo norte (radianes) a vector (el componente norte proviene de Tapir como ángulo en radianes)
+north_angle_rad = globals().get("north_angle_rad", 0.0)
+# Convertir a vector unitario en el plano XY (asumiendo que 0 rad apunta al norte del eje Y positivo)
+north_vector = {"x": math.sin(north_angle_rad), "y": math.cos(north_angle_rad), "z": 0.0}
+# (Este vector no se usa directamente en cálculos posteriores, pero está disponible si se necesita)
 
 # Inicializar estructuras de datos
 soil_data = {"classification": None, "code": None, "trace": ""}
@@ -405,6 +411,36 @@ if not sector_data["sector"]:
 # 4. ANÁLISIS VIAL COMPLETO (usar street_curves de entrada y datos del caché o cálculo)
 # ------------------------------------------------------------------
 # Si no tenemos road_analysis del caché, calcularlo desde las street_curves de entrada
+# Asegurar que street_curves sea una lista
+if not street_curves:
+    street_curves = []
+elif not isinstance(street_curves, list):
+    street_curves = [street_curves]
+
+# Convertir Guids a Curvas si es necesario
+clean_street_curves = []
+for crv in street_curves:
+    if isinstance(crv, System.Guid):
+        # Si es Guid, convertir a Curve
+        converted_crv = rs.coercecurve(crv)
+        if converted_crv:
+            clean_street_curves.append(converted_crv)
+    elif isinstance(crv, str):
+        # A veces Grasshopper pasa el Guid como string
+        try:
+            guid_obj = System.Guid(crv)
+            converted_crv = rs.coercecurve(guid_obj)
+            if converted_crv:
+                clean_street_curves.append(converted_crv)
+        except:
+            pass
+    else:
+        # Ya es una curva u otro objeto
+        clean_street_curves.append(crv)
+
+# Usar clean_street_curves en lugar de street_curves de aquí en adelante
+# Ejemplo: for crv in clean_street_curves:
+
 if not road_analysis and 'street_curves' in globals() and street_curves:
     vial_curves = []
     for crv in street_curves:
@@ -513,6 +549,32 @@ if not restrictions:
 # Altura efectiva (mínimo entre tratamiento y restricciones)
 altura_efectiva = urban_data["altura_max"] or 12.0
 
+# Desfase virtual entre coordenadas locales (0,0,0 de ArchiCAD/Rhino) y MAGNA-SIRGAS (del caché POT)
+desfase_virtual = {"x": 0.0, "y": 0.0, "z": 0.0}
+if pot_data and 'coordenadas' in pot_data and 'poligono' in pot_data['coordenadas']:
+    magna_coords = pot_data['coordenadas']['poligono']
+    if isinstance(magna_coords, list) and len(magna_coords) >= 3:
+        # Calcular centróide del polígono MAGNA (asumiendo coordenadas proyectadas, Z=0)
+        sum_x = sum(float(p[0]) for p in magna_coords if isinstance(p, (list, tuple)) and len(p) >= 2)
+        sum_y = sum(float(p[1]) for p in magna_coords if isinstance(p, (list, tuple)) and len(p) >= 2)
+        cnt = len([p for p in magna_coords if isinstance(p, (list, tuple)) and len(p) >= 2])
+        if cnt > 0:
+            maga_centroid_x = sum_x / cnt
+            maga_centroid_y = sum_y / cnt
+            local_x = lot_centroid.X
+            local_y = lot_centroid.Y
+            local_z = lot_centroid.Z
+            desfase_virtual["x"] = maga_centroid_x - local_x
+            desfase_virtual["y"] = maga_centroid_y - local_y
+            desfase_virtual["z"] = 0.0  # Asumimos plano XY; Z se puede derivar de altura si fuera necesario
+            trace.append(f"DESFASE VIRTUAL: Magna centroid ({maga_centroid_x:.2f},{maga_centroid_y:.2f}) - Local centroid ({local_x:.2f},{local_y:.2f}) = ({desfase_virtual['x']:.2f},{desfase_virtual['y']:.2f})")
+        else:
+            trace.append("DESFASE VIRTUAL: Formato de coordenadas Magna no válido; usando cero.")
+    else:
+        trace.append("DESFASE VIRTUAL: Coordenadas Magna insuficientes; usando cero.")
+else:
+    trace.append("DESFASE VIRTUAL: No se encontraron coordenadas Magna en caché; usando cero.")
+
 # Resumen cumplimiento
 warnings = []
 if soil_data["code"] in [5, 6, 7]:  # Protección, Riesgo, Reserva
@@ -561,10 +623,11 @@ pot_conclusions = {
     "setbacks_by_road_type": {v["classification"]: v["setbacks"] for v in road_analysis},
     "balcony_rules": {v["classification"]: v["balcony_rules"] for v in road_analysis},
     "compliance_summary": compliance,
+    "desfase_virtual": desfase_virtual,  # Vector de desfase entre coordenadas locales y MAGNA-SIRGAS
     "traceability": {
         "steps": trace,
-        "geojson_layers_used": {"note": "En v05, se usa caché POT; no se usan GeoJSON directamente"},
-        "timestamp": "CONTEXTO_v05"
+        "geojson_layers_used": {"note": "En v01, se usa caché POT; no se usan GeoJSON directamente"},
+        "timestamp": "CONTEXTO_v01"
     }
 }
 

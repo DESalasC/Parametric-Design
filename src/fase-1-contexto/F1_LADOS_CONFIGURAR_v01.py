@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 """
-CONFIGURAR_LADOS_v04 - Clasificacion automatica de lados del lote
+F1_LADOS_CONFIGURAR_v01 - Clasificacion automatica de lados del lote
 Usa JSON de caché POT para datos normativos y geometría local para cálculos.
 
 ENTRADAS:
@@ -171,7 +171,7 @@ if not road_analysis and street_curves:
                                 props[k.strip()] = v.strip()
             except:
                 pass
-        vial_curves.append((crves.append((crv, props))
+        vial_curves.append((crv, props))
 
     if vial_curves:
         # Calcular anchos de vía (función de F1_CONTEXTO_POT, adaptada)
