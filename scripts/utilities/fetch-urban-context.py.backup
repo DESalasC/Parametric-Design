@@ -1,0 +1,732 @@
+#!/usr/bin/env python3
+# ==============================================================================
+# fetch-urban-context.py
+# ------------------------------------------------------------------------------
+# Script para extraer el contexto urbano y topográfico de un lote dado su CHIP.
+# Genera un JSON estructurado que sirve como puente entre los datos GIS y Grasshopper.
+#
+# Uso:
+#   python fetch-urban-context.py --chip <CHIP> [--dem <path_to_dem>]
+#
+# Requisitos:
+#   pip install pyogrio shapely click rasterio numpy
+#
+# Salida:
+#   data/pot-cache/<CHIP>-contexto.json
+#
+# Estructura del JSON de salida (según ADR-007):
+#   {
+#     "metadata": {
+#       "chip": "...",
+#       "origen_sirgas": {
+#         "crs": "EPSG:9377",
+#         "x": <float>,
+#         "y": <float>,
+#         "z": <float>
+#       },
+#       "azimuth_norte_grados": <float>,
+#       "buffer_metros": <float>
+#     },
+#     "topografia": {
+#       "estado": "ESTIMADA" | "PENDIENTE",
+#       "fuente": "IDECA_MDE" | null,
+//       "malla_terreno": [
+//         {"id": "P001", "x_local": <float>, "y_local": <float>, "z_local": <float>},
+//         ...
+//       ]
+//     },
+//     "lote_objetivo": {
+//       "vertices_3d_local": [[<float>, <float>, <float>], ...],
+//       "area_m2": <float>
+//     },
+//     "vecinos": [
+//       {
+//         "chip": "<CHIP>",
+//         "vertices_3d_local": [[<float>, <float>, <float>], ...],
+//         "altura_estimada_m": <float> | null,
+//         "num_pisos": <int> | null
+//       }
+//     ],
+//     "vias": [
+//       {
+//         "tipo": <string>,
+//         "eje_linea_local": [[<float>, <float>, <float>], [<float>, <float>, <float>]]
+//       }
+//     ]
+//   }
+// ==============================================================================
+
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+import os
+import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Any, List, Tuple, Dict, Optional
+
+import click
+
+try:
+    import pyogrio
+    from shapely.geometry import shape, mapping, box, Polygon, LineString, MultiLineString
+    from shapely.ops import transform
+    from shapely.validation import make_valid
+    import numpy as np
+except ImportError as e:
+    click.echo(f"[ERROR] Dependencias faltantes: {e}", err=True)
+    click.echo("Instala con: pip install pyogrio shapely click", err=True)
+    sys.exit(1)
+
+try:
+    import rasterio
+    from rasterio.sample import sample_gen
+    from rasterio.enums import Resampling
+except ImportError:
+    rasterio = None  # We'll check later if DEM is provided
+
+try:
+    import numpy as np
+except ImportError:
+    np = None  # We'll check later if we need to generate grid
+
+
+# ---------------------------------------------------------------------------
+# Configuración por defecto
+# ---------------------------------------------------------------------------
+DEFAULT_GPKG = os.environ.get(
+    "POT_GPKG_PATH",
+    r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg"
+)
+DEFAULT_WHITELIST = Path(__file__).parent.parent.parent / "config"config" / "field-whitelist.json"  # Adjust if needed
+DEFAULT_OUTPUT = Path(__file__).parent.parent.parent" / "data" / "pot-cache"
+
+# CRS
+CRS_MAGNA_BOGTBOGOTA = "EPSG:9377"  # MAGNA-SIRGAS Origen Bogotá
+
+
+# ---------------------------------------------------------------------------
+# Utilidades (adaptadas de gpkg-to-cache.py)
+// ---------------------------------------------------------------------------
+def file_hash(path: Path) -> str:
+    """Calcula hash MD5 del archivo .gpkg para detectar cambios."""
+    h = hashlib.md5()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def load_whitelist(whitelist_path: Path) -> Dict[str, List[str]]:
+    """Carga la whitelist de campos relevantes."""
+    if not whitelist_path.exists():
+        click.echo(f"[WARN] Whitelist no encontrada: {whitelist_path}", err=True)
+        click.echo("[WARN] Se extraerán TODOS los campos (puede ser lento).", err=True)
+        return {}
+
+    with open(whitelist_path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    campos = data.get("campos", {})
+    # Aplanar a una lista de campos relevantes
+    flat = []
+    for categoria, fields in campos.items():
+        if isinstance(fields, list):
+            flat.extend(fields)
+    return {"_flat": flat, "_categorized": campos}
+
+
+def _truncate_coords_2d(coords: List) -> List:
+    """Trunca coordenadas a 2D (X, Y) para evitar errores de shapely con 3D/4D."""
+    if not coords:
+        return coords
+    # Si el primer elemento es una lista, es polígono anidado
+    if isinstance(coords[0], (list, tuple)):
+        return [_truncate_coords_2d(c) for c in coords]
+    # Es un punto: [X, Y, Z, M] → [X, Y]
+    return list(coords[:2])
+
+
+def _normalize_geometry_coords(geometry: Dict) -> Dict:
+    """Normaliza las coordenadas de una geometría GeoJSON a 2D."""
+    if not isinstance(geometry, dict) or "coordinates" not in geometry:
+        return geometry
+    geom = dict(geometry)
+    geom["coordinates"] = _truncate_coords_2d(geom["coordinates"])
+    return geom
+
+
+def load_lot(lot_path: Path) -> Dict[str, Any]:
+    """Carga el lote desde un GeoJSON o JSON interno (no utilizado en este script, pero mantenido por compatibilidad)."""
+    with open(lot_path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Si es GeoJSON Feature
+    if data.get("type") == "Feature":
+        geometry = data["geometry"]
+        properties = data.get("properties", {})
+    elif data.get("type") == "FeatureCollection":
+        if not data.get("features"):
+            raise ValueError("FeatureCollection vacío")
+        feature = data["features"][0]
+        geometry = feature["geometry"]
+        properties = feature.get("properties", {})
+    elif "coordenadas" in data:
+        # Formato interno del proyecto
+        coords = data["coordenadas"]["poligono"]
+        geometry = {"type": "Polygon", "coordinates": [coords]}
+        properties = {"predio_id": data.get("predio_id", "unknown")}
+        properties.update(data.get("metadata", {}))
+    else:
+        raise ValueError(f"Formato de lote no reconocido: {lot_path}")
+
+    # Truncar coordenadas a 2D (X, Y) — shapely no soporta 4D (X, Y, Z, M)
+    geometry = _normalize_geometry_coords(geometry)
+    polygon = shape(geometry)
+    return {"polygon": polygon, "properties": properties, "raw": data}
+
+
+def find_layer(gpkg_path: Path, keywords: List[str]) -> Optional[str]:
+    """Encuentra una capa en el .gpkg por palabras clave en el nombre."""
+    layers = pyogrio.list_layers(str(gpkg_path))
+    for layer_name, _ in layers:
+        name_lower = layer_name.lower()
+        if any(kw in name_lower for kw in keywords):
+            return layer_name
+    return None
+
+
+def load_lot_by_chip(gpkg_path: Path, chip: str, whitelist: Dict) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """Carga el lote y seus atributos del .gpkg filtrando por PreChip == chip."""
+    # Intentamos encontrar la capa de lotes
+    lot_layer = find_layer(gpkg_path, ["lote", "predio", "parcela"])
+    if lot_layer is None:
+        # Si no se encuentra por nombre, usamos la primera capa
+        layers = pyogrio.list_layers(str(gpkg_path))
+        if not layers:
+            raise ValueError("No hay capas en el .gpkg")
+        lot_layer = layers[0][0]
+        click.echo(f"[WARN] No se encontró capa de lotes por nombre. Usando: {lot_layer}", err=True)
+
+    # Leemos la capa con un filtro attribute (si es posible) o bounding box todo y luego filtramos
+    # Primero, obtenemos el extent completo para leer toda la capa (más sencillo pero menos eficiente)
+    # Para conjuntos de datos grandes, sería mejor filtrar por attribute, pero pyogrio no soporta filtros attribute directamente.
+    # Entonces leemos toda la capa y filtramos en memoria. Asumimos que la capa de lotes no es enorme.
+    gdf = pyogrio.read_dataframe(str(gpkg_path), layer=lot_layer)
+
+    # Buscamos la columna que podría contener el CHIP (PreChip, CHIP, etc.)
+    chip_columns = [col for col in gdf.columns if "chip" in col.lower() or "prec" in col.lower()]
+    if not chip_columns:
+        # Si no encontramos, usamos la primera columna de texto
+        text_cols = gdf.select_dtypes(include=["object"]).columns
+        if len(text_cols) == 0:
+            raise ValueError("No se encontró columna de texto para el CHIP en la capa de lotes.")
+        chip_column = text_cols[0]
+    else:
+        chip_column = chip_columns[0]
+
+    # Filtramos por el CHIP
+    mask = gdf[chip_column].astype(str) == str(chip)
+    if not mask.any():
+        raise ValueError(f"No se encontró ningún lote con CHIP '{chip}' en la columna '{chip_column}'.")
+
+    # Tomamos el primero (asumimos que el CHIP es único)
+    row = gdf[mask].iloc[0]
+    geom = row.geometry
+    if geom is None:
+        raise ValueError(f"La geometría del lote con CHIP '{chip}' es nula.")
+
+    # Reparar geometría si es necesario
+    if not geom.is_valid:
+        geom = make_valid(geom)
+        if geom.geom_type == "MultiPolygon":
+            geom = max(geom.geoms, key=lambda g: g.area)
+        elif geom.geom_type == "GeometryCollection":
+            polys = [g for g in geom.geoms if g.geom_type == "Polygon"]
+            if polys:
+                geom = max(polys, key=lambda g: g.area)
+            else:
+                raise ValueError(f"No se pudo extraer un polígono válido de la geometría del lote {chip}.")
+
+    # Aseguramos que es un polígono
+    if not isinstance(geom, Polygon):
+        # Si es un MultiPolygon, tomamos el más grande
+        if geom.geom_type == "MultiPolygon":
+            geom = max(geom.geoms, key=lambda g: g.area)
+        else:
+            raise ValueError(f"La geometría del lote {chip} no es un polígono o multi-polígono.")
+
+    # Truncamos a 2D
+    geom = _truncate_coords_2d(list(geom.exterior.coords))
+    polygon = Polygon(geom)
+
+    # Extraemos atributos según whitelist
+    row_dict = {k: v for k, v in row.items() if k != "geometry"}
+    # Nota: No tenemos una función extract_fields exactamente como en gpkg-to-cache.py, pero podemos simplificar
+    # ya que solo necesitamos algunos atributos (como el CHIP nuevamente para el vecino, y posiblemente altura y pisos).
+    # Para ahora, guardamos todos los atributos y luego extraemos lo necesario.
+    attributes = row_dict
+
+    return {
+        "polygon": polygon,
+        "attributes": attributes,
+        "raw": row.to_dict()
+    }, {
+        "chip_column": chip_column,
+        "lot_layer": lot_layer
+    }
+
+
+@click
+# ctx, whitelist: default=DEFAULT_OUTPUT
+n, default="", default
+Default: DEFAULT_GPKG
+ = DEFAULT_OUTPUT
+def: click.Path(exists=True
+ fetch=click.Path(exists
+fet=click.Path(exists
+        {
+@cli.command()
+@CLICKCIDOPTION("--chip", required=True, help="CHIP o Barmanpre del predio.")
+@click.option("--dem", type=click.Path(exists=True), help="Ruta al archivo GeoTIFF del MDE de Bogotá.")
+@click.option("--gpkg", default=DEFAULT_GPKG, help="Ruta al archivo .gpkg")
+@click.option("--whitelist", default=str(DEFAULT_WHITELIST), help="Ruta al archivo field-whitelist.json")
+@click.option("--output", default=str(DEFAULT_OUTPUT), help="Carpeta de salida para el JSON")
+@click.option("--buffer", default=75.0, help="Buffer en metros alrededor del bounding box del lote (default: 75m)")
+@click.option("--grid-size", default=5.0, help="Tamaño de la malla de la topografía en metros (default: 5m)")
+def fetch_urban_context(chip: str, dem: Optional[str], gpkg: str, whitelist: str, output: str, buffer: float, grid_size: float) -> None:
+    """Extrae el contexto urbano y topográfico para un lote dado su CHIP."""
+    gpkg_path = Path(gpkg)
+    if not gpkg_path.exists():
+        click.echo(f"[ERROR] .gpkg no encontrado: {gpkg_path}", err=True)
+        sys.exit(1)
+
+    whitelist_path = Path(whitelist)
+    output_path = Path(output)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # 1. Cargar whitelist
+    wl = load_whitelist(whitelist_path)
+    click.echo(f"[INFO] Whitelist cargada: {len(wl.get('_flat', []))} campos")
+
+    # 2. Cargar el lote objetivo por CHIP
+    try:
+        lot_data, lot_info = load_lot_by_chip(gpkg_path, chip, wl)
+    except Exception as e:
+        click.echo(f"[ERROR] No se pudo cargar el lote: {e}", err=True)
+        sys.exit(1)
+
+    lot_polygon = lot_data["polygon"]
+    lot_attributes = lot_data["attributes"]
+    lot_chip = lot_attributes.get(lot_info["chip_column"], chip)  # Usamos el valor del atributo o el chip de entrada
+    click.echo(f"[INFO] Lote cargado: CHIP={lot_chip}")
+
+    # 3. Calcular bounding box del lote y expandirlo por el buffer
+    minx, miny, maxx, maxy = lot_polygon.bounds
+    buffer_box = box(minx - buffer, miny - buffer, maxx + buffer, maxy + buffer)
+    click.echo(f"[INFO] Bounding box del lote: ({minx}, {miny}, {maxx}, {maxy})")
+    click.echo(f"[INFO] Bounding box con buffer: {buffer_box.bounds}")
+
+    # 4. Obtener todos los lotes (vecinos incluido el objetivo) que intersecten el buffer
+    # Reusamos la capa de lotes
+    lot_layer_name = lot_info["lot_layer"]
+    gdf_lots = pyogrio.read_dataframe(
+        str(gpkg_path),
+        layer=lot_layer_name,
+        bbox=buffer_box.bounds  # Filtrar por bounding box para acelerar
+    )
+    click.echo(f"[INFO] Features de lotes en el buffer: {len(gdf_lots)}")
+
+    # Filtrar por intersección real (el bbox puede incluir algunos que no intersectan)
+    lot_features = []
+    for idx, row in gdf_lots.iterrows():
+        geom = row.geometry
+        if geom is None:
+            continue
+        if not geom.is_valid:
+            geom = make_valid(geom)
+            if geom.geom_type == "MultiPolygon":
+                geom = max(geom.geoms, key=lambda g: g.area)
+            elif geom.geom_type == "GeometryCollection":
+                polys = [g for g in geom.geoms if g.geom_type == "Polygon"]
+                if polys:
+                    geom = max(polys, key=lambda g: g.area)
+                else:
+                    continue
+        if not isinstance(geom, Polygon):
+            # Si es MultiPolygon, tomamos el polígono más grande
+            if geom.geom_type == "MultiPolygon":
+                geom = max(geom.geoms, key=lambda g: g.area)
+            else:
+                continue  # Saltar si no es un polígono
+        if not geom.intersects(lot_polygon):
+            # Solo queremos lotes que intersecten el lote objetivo?
+            # Pero el contexto incluye vecinos que están dentro del buffer, no necesariamente intersectando el lote.
+            # Según la tarea: "Extraer todos los lotes que intersecten este buffer (vecinos)."
+            # Entonces basta con que intersecten el buffer, no necesariamente el lote.
+            # Ya filtramos por bbox del buffer, así que asumimos que intersectan el buffer.
+            # Pero para ser precisos, verificamos intersección con el buffer.
+            if not geom.intersects(buffer_box):
+                continue
+        # Truncar a 2D
+        geom = _truncate_coords_2d(list(geom.exterior.coords))
+        polygon = Polygon(geom)
+        # Extraer atributos
+        attrs = {k: v for k, v in row.items() if k != "geometry"}
+        lot_features.append({
+            "polygon": polygon,
+            "attributes": attrs,
+            "index": idx
+        })
+
+    if not lot_features:
+        click.echo("[WARN] No se encontraron lotes en el buffer.", err=True)
+        # Pero al menos debería estar el objetivo
+        # Añadimos el objetivo forzadamente
+        lot_features.append({
+            "polygon": lot_polygon,
+            "attributes": lot_attributes,
+            "index": -1  # Índice especial para el objetivo
+        })
+
+    # Separamos el objetivo y los vecinos
+    target_feature = None
+    neighbor_features = []
+    for feat in lot_features:
+        # Comparamos por CHIP (o por índice si es el objetivo forzado)
+        feat_chip = feat["attributes"].get(lot_info["chip_column"])
+        if feat_chip == lot_chip or feat["index"] == -1:
+            target_feature = feat
+        else:
+            neighbor_features.append(feat)
+
+    if target_feature is None:
+        # Fallback: usar el primer feature como objetivo
+        target_feature = lot_features[0]
+        neighbor_features = lot_features[1:] if len(lot_features) > 1 else []
+
+    # 5. Procesar topografía: DEM o Z=0
+    dem_data = None
+    if dem:
+        if rasterio is None:
+            click.echo("[ERROR] rasterio no está instalado. No se puede procesar el DEM.", err=True)
+            click.echo("[ERROR] Instala con: pip install rasterio", err=True)
+            sys.exit(1)
+        try:
+            dem_data = rasterio.open(dem)
+            click.echo(f"[INFO] DEM abierto: {dem}")
+        except Exception as e:
+            click.echo(f"[ERROR] No se pudo abrir el DEM: {e}", err=True)
+            sys.exit(1)
+
+    # 6. Recopilar todos los vértices (para lotes y vecinos) y generar la malla de puntos
+    all_vertices = []  # Lista de (x, y) antes de obtener Z
+    all_polygons = []  # Para almacenar los polígonos originales (para después shifts)
+    all_attributes = []  # Atributos de cada polígono
+
+    # Procesar objetivo
+    target_poly = target_feature["polygon"]
+    target_attrs = target_feature["attributes"]
+    all_polygons.append(target_poly)
+    all_attributes.append(target_attrs)
+    # Añadir vértices del exterior
+    exterior = list(target_poly.exterior.coords)
+    all_vertices.extend(exterior[:-1])  # Último punto es igual al primero, lo ignoramos para evitar duplicados
+
+    # Procesar vecinos
+    for feat in neighbor_features:
+        poly = feat["polygon"]
+        attrs = feat["attributes"]
+        all_polygons.append(poly)
+        all_attributes.append(attrs)
+        exterior = list(poly.exterior.coords)
+        all_vertices.extend(exterior[:-1])
+
+    # 7. Obtener Z para vértices si hay DEM
+    z_values = []  # Para calcular el min_z global
+    vertex_points_with_z = []  # Lista de (x, y, z) para cada vértice de cada polígono
+
+    if dem_data:
+        # Muestrear Z para cada vértice
+        # sample_gen espera un iterador de coordenadas (x, y)
+        coords = [(x, y) for (x, y) in all_vertices]
+        try:
+            # sample_devuelve un generador de (valor, ) para cada coordenada
+            zs = [val for (val,) in sample_gen(dem_data, coords)]
+        except Exception as e:
+            click.echo(f"[ERROR] Error al muestrear el DEM: {e}", err=True)
+            sys.exit(1)
+
+        for (x, y), z in zip(all_vertices, zs):
+            # Si el valor es nodata, lo tratamos como 0? O lo ignoramos?
+            # Según rasterio, el nodata se devuelve como float('nan') o un valor específico.
+            # Vamos a reemplazar nan por 0 y advertir.
+            if np.isnan(z):
+                z = 0.0
+                click.echo("[WARN] Valor nodata en DEM reemplazado por 0", err=True)
+            vertex_points_with_z.append((x, y, z))
+            z_values.append(z)
+    else:
+        # Si no hay DEM, Z=0 para todos los vértices
+        for (x, y) in all_vertices:
+            vertex_points_with_z.append((x, y, 0.0))
+            z_values.append(0.0)
+
+    # 8. Generar malla de puntos dentro del buffer_box (excluyendo los polígonos? No, toda el área del buffer)
+    # Vamos a crear una malla de puntos cada `grid_size` metros dentro del envelope del buffer_box
+    minx, miny, maxx, maxy = buffer_box.bounds
+    # Generamos puntos desde minx a maxx con paso grid_size, y lo mismo para y
+    x_coords = np.arange(minx, maxx + grid_size, grid_size)
+    y_coords = np.arange(miny, maxy + grid_size, grid_size)
+    xx, yy = np.meshgrid(x_coords, y_coords)
+    grid_points = list(zip(xx.ravel(), yy.ravel()))
+    # Filtrar solo los que están dentro del buffer_box (para reducir puntos)
+    grid_points = [(x, y) for (x, y) in grid_points if buffer_box.contains(Point(x, y))]
+    # Si no hay puntos (poco probable), usamos al menos el centro
+    if not grid_points:
+        centroid = buffer_box.centroid
+        grid_points = [(centroid.x, centroid.y)]
+
+    # 9. Obtener Z para la malla de puntos si hay DEM
+    grid_points_with_z = []  # Lista de (x, y, z) para cada punto de la malla
+    if dem_data:
+        try:
+            zs = [val for (val,) in sample_gen(dem_data, grid_points)]
+        except Exception as e:
+            click.echo(f"[ERROR] Error al muestrear el DEM para la malla: {e}", err=True)
+            sys.exit(1)
+
+        for (x, y), z in zip(grid_points, zs):
+            if np.isnan(z):
+                z = 0.0
+                click.echo("[WARN] Valor nodata en DEM reemplazado por 0 (malla)", err=True)
+            grid_points_with_z.append((x, y, z))
+            z_values.append(z)
+            z_values_point, (x, y, 0.0
+    else:
+        for (x, y) in grid_points:
+            grid_points_with_z.append((x, y, 0.0))
+            z_values.append(0.0)
+
+    # 10. Calcular el desplazamiento (min_x, min_y, min_z)
+    min_x = minx  # Ya tenemos el minx del buffer_box
+    min_y = miny  # Ya tenemos el miny del buffer_box
+    min_z = min(z_values) if z_values else 0.0
+
+    click.echo(f"[INFO] Desplazamiento: dx={min_x}, dy={min_y}, dz={min_z}")
+
+    # 11. Aplicar desplazamiento a todas las coordenadas (vértices y malla)
+    def apply_offset(point: Tuple[float, float, float]) -> Tuple[float, float, float]:
+        x, y, z = point
+        return (x - min_x, y - min_y, z - min_z)
+
+    # Vértices del objetivo desplazados
+    target_vertices_offset = [apply_offset(p) for p in vertex_points_with_z[:len(exterior[:-1])]]  # Solo los vértices del objetivo
+    # Vértices de los vecinos desplazados
+    neighbor_vertices_offset = []
+    idx = len(exterior[:-1])
+    for feat in neighbor_features:
+        exterior = list(feat["polygon"].exterior.coords)
+        n_verts = len(exterior) - 1  # Excluir el último punto duplicado
+        neighbor_vertices_offset.append([apply_offset(p) for p in vertex_points_with_z[idx:idx + n_verts]])
+        idx += n_verts
+
+    # Puntos de la malla desplazados
+    grid_points_offset = [apply_offset(p) for p in grid_points_with_z[len(vertex_points_with_z):]]
+
+    # 12. Calcular azimut del norte del lote objetivo (en coordenadas originales)
+    # Tomamos el primer segmento del exterior (asumiendo que está en sentido horario o antihorario)
+    exterior_coords = list(target_poly.exterior.coords)
+    if len(exterior_coords) < 2:
+        azimuth = 0.0
+    else:
+        # Tomamos los primeros dos puntos distintos
+        p1 = exterior_coords[0]
+        p2 = None
+        for pt in exterior_coords[1:]:
+            if pt[0] != p1[0] or pt[1] != p1[1]:
+                p2 = pt
+                break
+        if p2 is None:
+            azimuth = 0.0
+        else:
+            dx = p2[0] - p1[0]
+            dy = p2[1] - p1[1]
+            # Ángulo en radianes desde el este (positivo x) hacia el norte (positivo y) sería atan2(dy, dx)
+            # Pero queremos desde el norte hacia el eje: en cartografía, el azimut es el ángulo en sentido horario desde el norte.
+            # En un sistema de coordenadas donde x aumenta al este y y al norte, el azimut desde el norte es: atan2(dx, dy) * (180/pi)
+            # Nota: en nuestro sistema EPSG:9377, x es este, y es norte.
+            angle_rad = math.atan2(dx, dy)
+            azimuth = math.degrees(angle_rad)
+            # Normalizar a [0, 360)
+            if azimuth < 0:
+                azimuth += 360.0
+
+    # 13. Construir el JSON de salida
+    # Metadatos
+    metadata = {
+        "chip": lot_chip,
+        "origen_sirgas": {
+            "crs": CRS_MAGNA_BOGTBOGOTA,
+            "x": min_x,
+            "y": min_y,
+            "z": min_z
+        },
+        "azimuth_norte_grados": azimuth,
+        "buffer_metros": buffer
+    }
+
+    # Topografía
+    topografia = {
+        "estado": "ESTIMADA" if dem_data else "PENDIENTE",
+        "fuente": "IDECA_MDE" if dem_data else None,
+        "malla_terreno": [
+            {
+                "id": f"P{i:03d}",
+                "x_local": round(p[0], 3),
+                "y_local": round(p[1], 3),
+                "z_local": round(p[2], 3)
+            }
+            for i, p in enumerate(grid_points_offset, start=1)
+        ]
+    }
+
+    # Lote objetivo
+    lote_objetivo = {
+        "vertices_3d_local": [
+            [round(p[0], 3), round(p[1], 3), round(p[2], 3)]
+            for p in target_vertices_offset
+        ],
+        "area_m2": round(target_poly.area, 2)
+    }
+
+    # Vecinos
+    vecinos = []
+    for i, feat in enumerate(neighbor_features):
+        attrs = feat["attributes"]
+        # Intentamos extraer el CHIP del vecino (puede ser el mismo campo que el objetivo)
+        neighbor_chip = attrs.get(lot_info["chip_column"])
+        # Si no lo encontramos, intentamos con otras variantes
+        if neighbor_chip is None:
+            for key in ["CHIP", "PRECHIP", "predio_id", "MANZPRE"]:
+                if key in attrs:
+                    neighbor_chip = attrs[key]
+                    break
+        vertices = neighbor_vertices_offset[i]
+        vecinos.append({
+            "chip": str(neighbor_chip) if neighbor_chip is not None else None,
+            "vertices_3d_local": [
+                [round(p[0], 3), round(p[1], 3), round(p[2], 3)]
+                for p in vertices
+            ],
+            "altura_estimada_m": None,  # No disponible en el POT para el edificio
+            "num_pisos": None           # No disponible en el POT para el edificio
+        })
+
+    # Vías (intentar obtener de una capa de vías)
+    vias = []
+    vein_layer_name = find_layer(gpkg_path, ["via", "vial", "street", "road", "camino"])
+    if vein_layer_name:
+        try:
+            gdf_veins = pyogrio.read_dataframe(
+                str(gpkg_path),
+                layer=vein_layer_name,
+                bbox=buffer_box.bounds
+            )
+            click.echo(f"[INFO] Features de vías en el buffer: {len(gdf_veins)}")
+            for idx, row in gdf_veins.iterrows():
+                geom = row.geometry
+                if geom is None:
+                    continue
+                if not geom.is_valid:
+                    geom = make_valid(geom)
+                    # Si es MultiLineString, tomar la más larga
+                    if geom.geom_type == "MultiLineString":
+                        geom = max(geom.geoms, key=lambda g: g.length)
+                    elif geom.geom_type == "GeometryCollection":
+                        lines = [g for g in geom.geoms if g.geom_type == "LineString"]
+                        if lines:
+                            geom = max(lines, key=lambda g: g.length)
+                        else:
+                            continue
+                if not isinstance(geom, LineString):
+                    # Si es MultiLineString, ya lo manejamos arriba. Si es otro tipo, saltamos.
+                    continue
+                # Obtener tipo de vía desde atributos
+                vein_type = None
+                for key in ["TIPO_VIA", "TIPO", "CLASS", "TYPE"]:
+                    if key in row:
+                        vein_type = str(row[key])
+                        break
+                if vein_type is None:
+                    vein_type = "Desconocido"
+
+                # Obtener coordenadas y elevación (Z) si hay DEM
+                coords = list(geom.coords)
+                if dem_data:
+                    try:
+                        zs = [val for (val,) in sample_gen(dem_data, coords)]
+                    except Exception as e:
+                        click.echo(f"[WARN] Error al muestrear el DEM para una vía: {e}", err=True)
+                        zs = [float('nan')] * len(coords)
+                    coords_with_z = []
+                    for (x, y), z in zip(coords, zs):
+                        if np.isnan(z):
+                            z = 0.0
+                        coords_with_z.append((x, y, z))
+                else:
+                    coords_with_z = [(x, y, 0.0) for (x, y) in coords]
+
+                # Aplicar desplazamiento
+                coords_offset = [apply_offset(p) for p in coords_with_z]
+                # Simplificar a solo dos puntos si la línea tiene más de dos?
+                # Según el ejemplo, parece que solo se toman dos puntos (inicio y fin).
+                # Pero podemos dejar todos los puntos y dejar que Gh lo maneje.
+                # Sin embargo, el ejemplo muestra dos puntos. Vamos a tomar los primeros y últimos puntos si hay más de 2.
+                if len(coords_offset) > 2:
+                    # Tomamos primero y última
+                    coords_output = [coords_offset[0], coords_offset[-1]]
+                else:
+                    coords_output = coords_offset
+
+                vias.append({
+                    "tipo": vein_type,
+                    "eje_linea_local": [
+                        [round(p[0], 3), round(p[1], 3), round(p[2], 3)]
+                        for p in coords_output
+                    ]
+                })
+        except Exception as e:
+            click.echo(f"[WARN] No se pudieron procesar las vías: {e}", err=True)
+    else:
+        click.echo("[INFO] No se encontró capa de vías.")
+
+    # 14. Ensamblar el JSON final
+    output_data = {
+        "metadata": metadata,
+        "topografia": topografia,
+        "lote_objetivo": lote_objetivo,
+        "vecinos": vecinos,
+        "vias": vias
+    }
+
+    # 15. Guardar el archivo
+    output_file = output_path / f"{lot_chip}-contexto.json"
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(output_data, f, indent=2, ensure_ascii=False)
+
+    click.echo(f"[OK] Contexto urbano guardado en: {output_file}")
+    click.echo(f"[INFO] Chip: {lot_chip}")
+    click.echo(f"[INFO] Puntos de malla topográfica: {len(grid_points_offset)}")
+    click.echo(f"[INFO] Vértices del lote objetivo: {len(target_vertices_offset)}")
+    click.echo(f"[INFO] Vecinos encontrados: {len(vecinos)}")
+    click.echo(f"[INFO] Vías encontradas: {len(vias)}")
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    fetch_urban_context()

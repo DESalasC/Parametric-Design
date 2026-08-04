@@ -157,10 +157,11 @@ try:
     # --- DESPLAZAMIENTO VIRTUAL MAGNA-SIRGAS ---
     # lot_polygon y lot_centroid están cerca de 0,0,0 (ArchiCAD)
     # magna_eastings y magna_northings son las coordenadas reales en el mundo (ej: 1'000.000)
-    
+
     check_point = None
     virtual_lot_polygon = lot_polygon # Por defecto es el mismo
-    
+    magna_coordinates_available = False
+
     try:
         e = float(magna_eastings)
         n = float(magna_northings)
@@ -168,23 +169,26 @@ try:
             # Crear punto MAGNA
             check_point = Rhino.Geometry.Point3d(e, n, 0)
             trace.append(f"Coordenada MAGNA recibida: E={e}, N={n}")
-            
+
             # Calcular vector de desfase (MAGNA - Local)
             offset_x = e - lot_centroid.X
             offset_y = n - lot_centroid.Y
             offset_vec = Rhino.Geometry.Vector3d(offset_x, offset_y, 0)
-            
+
             # Mover virtualmente el polígono del lote a coordenadas MAGNA
             virtual_lot_polygon = rs.CopyObject(lot_polygon, offset_vec)
             trace.append("Lote desplazado virtualmente para cálculos GIS.")
+            magna_coordinates_available = True
+        else:
+            trace.append("Coordenadas MAGNA no válidas (muy pequeñas), asumiendo coordenadas locales.")
     except:
-        pass
+        trace.append("No se pudieron leer coordenadas MAGNA, asumiendo coordenadas locales.")
 
-    # Si por algún motivo no llegaron coordenadas MAGNA, usar el centroide tal cual
-    if check_point is None:
+    # Si no hay coordenadas MAGNA válidas, usar coordenadas locales pero advertir que el análisis espacial podría fallar
+    if not magna_coordinates_available:
         check_point = lot_centroid
         virtual_lot_polygon = lot_polygon
-        trace.append("Usando coordenadas locales (0,0,0) para GIS. Puede fallar si el POT está en MAGNA.")
+        trace.append("USANDO COORDENADAS LOCALES (0,0,0) PARA GIS. El análisis espacial solo funcionará si el POT también está en coordenadas locales.")
 
     # 1. CLASIFICACIÓN DE SUELO (Usa el punto MAGNA)
     soil_data = {"classification": None, "code": None, "trace": ""}
