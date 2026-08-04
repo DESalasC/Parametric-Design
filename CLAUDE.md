@@ -32,33 +32,40 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
 4. Aplicar **desfase virtual** si se compara con origen local (0,0,0) de Archicad.
 
 ### Grasshopper / GHPython
-5b. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm) en Grasshopper o el área se calculará 1,000,000 de veces mayor.
-5c. PROHIBIDO usar hinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg) y Rhino.Geometry.Intersect para operaciones geométricas. s falla con geometría en memoria de GH (pide Guids).
-5. Entradas JSON a GHPython: `No Type Hint` + `Item Access`.
-6. Entradas geométricas a GHPython: `List Access` + `Flatten`.
-7. Lotes deben ser **polilíneas (LineSegments)**, no NURBS.
-8. No usar APIs online (epsg.io, IDECA) dentro de GHPython; usar `data/` local.
-9. Si una entrada falla, usar valor por defecto (retiro 3.0m) y loggear warning.
+5. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm) en Grasshopper o el área se calculará 1,000,000 de veces mayor.
+
+### PROHIBIDO usar 
+6. Rhinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg) y Rhino.Geometry.Intersect para operaciones geométricas falla con geometría en memoria de GH (pide Guids).
+7. Entradas JSON a GHPython: `No Type Hint` + `Item Access`.
+8. Entradas geométricas a GHPython: `List Access` + `Flatten`.
+9. Lotes deben ser **polilíneas (LineSegments)**, no NURBS.
+10. No usar APIs online (epsg.io, IDECA) dentro de GHPython; usar `data/` local.
+11. Si una entrada falla, usar valor por defecto (retiro 3.0m) y loggear warning.
+12. Prohibido usar coordenadas globales (SIRGAS) o Google Maps como input directo en Grasshopper/ArchiCAD. Esto rompe la precisión decimal.
 
 ### Código Python
-10. Todo script GHPython nuevo requiere test antes de merge.
-11. Todo script va en `src/fase-N-<nombre>/` con fixture en `tests/`.
-12. Convención de命名: `MAYUS_FASE_VERBO_vNN.py` (ej: `F1_CONTEXTO_v09.py`).
-13. Python externo: type hints obligatorios, ruff, mypy.
-14. GHPython: sin type hints (IronPython 2.7).
+13. Todo script GHPython nuevo requiere test antes de merge.
+14. Todo script va en `src/fase-N-<nombre>/` con fixture en `tests/`.
+15. Convención de 命名: `MAYUS_FASE_VERBO_vNN.py` (ej: `F1_CONTEXTO_v09.py`).
+16. Python externo: type hints obligatorios, ruff, mypy.
+17. GHPython: sin type hints (IronPython 2.7).
+18. La adquisición del lote se hace mediante el CHIP del predio usando el script scripts/utilities/fetch-urban-context.py.
+19. El script genera un JSON en 'data/pot-cache/<CHIP>-contexto.json' con coordenadas locales (0,0,0) + metadatos SIRGAS + topografía.
+20. Los scripts GHPython de la Fase 1 SOLO deben leer este JSON. Si el JSON no existe, el pipeline debe detenerse e indicar al usuario que ejecute el script de fetch primero.
+21. La topografía maneja dos estados: 'ESTIMADA' (raster público) y 'REAL' (levantamiento). El sistema debe actualizarse dinámicamente cuando el estado cambie a REAL.
 
 ### Datos
-15. Archivo POT fuente: `D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg`
-16. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `gpkg-to-cache.py`).
-17. Whitelist de campos: `config/field-whitelist.json` (~30 campos de 2455 totales).
-18. Vecinos: modelado manual en Archicad (Morph), validar con `validate-neighbors.py` antes de pasar a GH.
+22. Archivo POT fuente: `D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg`
+23. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `gpkg-to-cache.py`).
+24. Whitelist de campos: `config/field-whitelist.json` (~30 campos de 2455 totales).
+25. Vecinos: modelado manual en Archicad (Morph), validar con `validate-neighbors.py` antes de pasar a GH.
 
 ### Modelos IA
-19. Modelo primario: `qwen2.5-coder:14b` (9 GB VRAM).
-20. Si Rhino.Compute activo: cambiar a `qwen2.5:7b` (5 GB VRAM) para no saturar.
-21. Fallback emergencia: `llama3.2:3b`.
-22. Claude Code enruta vía fcc-server en `http://127.0.0.1:8787`.
-23. **Ubicación de modelos**: `D:\Users\Work\.ollama\models\` (por defecto de Ollama con perfil Work en D:). Variable `OLLAMA_MODELS` apunta ahí.
+26. Modelo primario: `qwen2.5-coder:14b` (9 GB VRAM).
+27. Si Rhino.Compute activo: cambiar a `qwen2.5:7b` (5 GB VRAM) para no saturar.
+28. Fallback emergencia: `llama3.2:3b`.
+29. Claude Code enruta vía fcc-server en `http://127.0.0.1:8787`.
+30. **Ubicación de modelos**: `D:\Users\Work\.ollama\models\` (por defecto de Ollama con perfil Work en D:). Variable `OLLAMA_MODELS` apunta ahí.
 
 ## Comandos útiles
 
