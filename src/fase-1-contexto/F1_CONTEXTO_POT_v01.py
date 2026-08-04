@@ -129,8 +129,20 @@ def curves_intersect(curve_a, curve_b):
     """Verificar intersección entre dos curvas"""
     if curve_a is None or curve_b is None:
         return False
-    events = Rhino.Geometry.Intersect.Intersection.CurveCurve(curve_a, curve_b, 0.01, 0.01)
-    return events is not None and len(events) > 0
+    # Asegurar que sean listas para iterar
+    list_a = curve_a if isinstance(curve_a, list) else [curve_a]
+    list_b = curve_b if isinstance(curve_b, list) else [curve_b]
+
+    for c_a in list_a:
+        if not isinstance(c_a, Rhino.Geometry.Curve):
+            continue
+        for c_b in list_b:
+            if not isinstance(c_b, Rhino.Geometry.Curve):
+                continue
+            events = Rhino.Geometry.Intersect.Intersection.CurveCurve(c_a, c_b, 0.01, 0.01)
+            if events is not None and len(events) > 0:
+                return True
+    return False
 
 def curve_width_at_point(curve, point):
     """Calcular ancho de vía en un punto (distancia a curva paralela/opuesta)"""
@@ -173,6 +185,145 @@ def calculate_road_width(street_curves, lot_polygon, lot_centroid):
             "props": props
         })
     return road_widths
+
+def get_setbacks_for_road_class(road_class, num_floors):
+    """Calculate setbacks based on road classification and number of floors.
+    Returns a dict with keys: 'front', 'side', 'rear' (in meters).
+    """
+    # Normalize the road class string for lookup
+    road_class_norm = str(road_class).strip().lower()
+
+    # Default setbacks (if road class not found)
+    default_setbacks = {"frontal": 3.0, "lateral": 0.0, "posterior": 0.0}
+
+    # Look up in CLASIFICACION_VIAL_PARAMS
+    params = None
+    for key, value in CLASIFICACION_VIAL_PARAMS.items():
+        if key == road_class_norm:
+            params = value
+            break
+
+    # If not found, try to match by substring (e.g., if the input is "Vía Arterial" we want to match "arterial_principal" etc.)
+    # But note: the keys in CLASIFICACION_VIAL_PARAMS are in English and underscore.
+    # The input might be in Spanish. We'll try a simple mapping.
+    if params is None:
+        # Try to map common Spanish terms to our keys
+        if "arterial" in road_class_norm and "principal" in road_class_norm:
+            params = CLASIFICACION_VIAL_PARAMS.get("arterial_principal")
+        elif "arterial" in road_class_norm:
+            params = CLASIFICACION_VIAL_PARAMS.get("arterial_complementaria")
+        elif "colector" in road_class_norm or "colectora" in road_class_norm:
+            params = CLASIFICACION_VIAL_PARAMS.get("colectora")
+        elif "local" in road_class_norm:
+            params = CLASIFICACION_VIAL_PARAMS.get("local")
+        elif "peatonal" in road_class_norm:
+            params = CLASIFICACION_VIAL_PARAMS.get("peatonal")
+
+    if params is None:
+        # Use default
+        setbacks = default_setbacks
+    else:
+        setbacks = {
+            "frontal": params["retiro_frontal"],
+            "lateral": params["retiro_lateral"],
+            "posterior": params["retiro_posterior"]
+        }
+
+    # Apply increment for floors above the base (2 floors)
+    if num_floors > ALTURA_BASE_RETIRO:
+        extra_floors = num_floors - ALTURA_BASE_RETIRO
+        increment = extra_floors * RETIRO_INCREMENTO_POR_PISO
+        setbacks["frontal"] += increment
+        setbacks["lateral"] += increment
+        setbacks["posterior"] += increment
+
+    # Return the setbacks in the format expected by the code (with keys 'front', 'side', 'rear')
+    return {
+        "front": setbacks["frontal"],
+        "side": setbacks["lateral"],
+        "rear": setbacks["posterior"]
+    }
+
+def get_balcony_rules(road_class, road_width_m, num_floors):
+    """
+    Get balcony rules based on road classification, actual road width, and number of floors.
+    Returns a dict with:
+      - balcon_max_m: maximum balcony depth allowed (meters)
+      - balcon_solo_pisos_superiores: boolean indicating if balcony is only allowed for floors > 2
+    """
+    # Normalize the road class string for lookup
+    road_class_norm = str(road_class).strip().lower()
+
+    # Default values (if road class not found or no balcony allowed)
+    default_rules = {
+        "balcon_max_m": 0.0,
+        "balcon_solo_pisos_superiores": False
+    }
+
+    # Look up in CLASIFICACION_VIAL_PARAMS
+    params = None
+    for key, value in CLASIFICACION_VIAL_PARAMS.items():
+        if key == road_class_norm:
+            params = value
+            break
+
+    # If not found, try to match by substring (same logic as in get_setbacks_for_road_class)
+    if params is None:
+        # Try to map common Spanish terms to our keys
+        if "arterial" in road_class_norm and "principal" in road_class_norm:
+            params = CLASIFICACION_VIAL_PARAMS.get("arterial_principal")
+        elif "arterial" in road_class_norm:
+            params = CLASIFICACION_VIAL_PARAMS.get("arterial_complementaria")
+        elif "colector" in road_class_norm or "colectora" in road_class_norm:
+            params = CLASIFICACION_VIAL_PARAMS.get("colectora")
+        elif "local" in road_class_norm:
+            params = CLASIFICACION_VIAL_PARAMS.get("local")
+        elif "peatonal" in road_class_norm:
+            params = CLASIFICACION_VIAL_PARAMS.get("peatonal")
+
+    # If still not found, use default (no balcony)
+    if params is None:
+        return default_rules.copy()
+
+    # Check if balconies are allowed at all for this classification
+    if not params.get("permite_balcon", False):
+        return {
+            "balcon_max_m": 0.0,
+            "balcon_solo_pisos_superiores": False
+        }
+
+    # Get the base balcony max from the classification
+    balcon_max = params.get("balcon_max", 0.0)
+
+    # Optionally adjust based on actual road width vs typical width range
+    # If the actual width is outside the typical range, we might adjust the balcony allowance
+    ancho_min = params.get("ancho_tipico_min")
+    ancho_max = params.get("ancho_tipico_max")
+
+    # If we have width data and it's outside typical range, reduce balcony allowance proportionally
+    if road_width_m is not None and ancho_min is not None and ancho_max is not None:
+        if road_width_m < ancho_min:
+            # Narrower than typical - reduce balcony proportionally
+            if ancho_min > 0:
+                ratio = road_width_m / ancho_min
+                balcon_max *= max(0.0, ratio)  # Don't go negative
+        elif road_width_m > ancho_max:
+            # Wider than typical - could allow same or slightly more, but we'll keep max for safety
+            pass  # Keep original balcon_max
+        # If within typical range, use the standard value
+
+    # Determine if balcony is only for floors above 2
+    balcon_solo_superior = params.get("balcon_solo_superior", False)
+
+    # If building has 2 floors or less, and rule says balconies only for superior floors,
+    # then effectively no balconies allowed (since there are no "superior" floors)
+    if num_floors <= ALTURA_BASE_RETIRO and balcon_solo_superior:
+        balcon_max = 0.0  # No balconies allowed if building is only 2 floors or less
+
+    return {
+        "balcon_max_m": balcon_max,
+        "balcon_solo_pisos_superiores": balcon_solo_superior
+    }
 
 # ============================================================
 # MAIN EXECUTION
@@ -217,33 +368,45 @@ trace = []
 # Si tenemos datos del caché, extraerlos
 if pot_data:
     # 1. CLASIFICACIÓN DE SUELO
-    soil_info = pot_data.get('soil', {})
+    soil_info = pot_data.get('pot', {}).get('clasificacion_suelo', {})
     if soil_info:
-        soil_data["classification"] = soil_info.get("classification")
-        soil_data["code"] = soil_info.get("code")
-        soil_data["trace"] = soil_info.get("trace", "")
-        if soil_data["trace"]:
+        suelo_code = soil_info.get("clase_suelo")
+        soil_data["classification"] = CLASE_SUELO_MAP.get(suelo_code, "Desconocido")
+        soil_data["code"] = suelo_code
+        soil_data["trace"] = ""  # JSON doesn't have trace field for this
+        if soil_data["code"]:
             trace.append(f"SOIL: {soil_data['classification']} (code {soil_data['code']}) desde caché")
 
     # 2. TRATAMIENTO URBANÍSTICO
-    urban_info = pot_data.get('urban_treatment', {})
+    urban_info = pot_data.get('pot', {}).get('tratamiento_urbanistico', {})
+    altura_maxima_m = pot_data.get('pot', {}).get('altura_maxima_m')
     if urban_info:
-        urban_data["treatment"] = urban_info.get("treatment")
-        urban_data["altura_max"] = urban_info.get("altura_max")
-        urban_data["ios_max"] = urban_info.get("ios_max")
-        urban_data["ibc_max"] = urban_info.get("ibc_max")
-        urban_data["trace"] = urban_info.get("trace", "")
-        if urban_data["trace"]:
+        urban_data["treatment"] = urban_info.get("nombre")  # 'nombre' field contains treatment type like "Desarrollo"
+        # Use altura_maxima_m from pot object, fallback to None if null
+        if altura_maxima_m is not None:
+            urban_data["altura_max"] = float(altura_maxima_m)
+        else:
+            urban_data["altura_max"] = None
+        # Calculate ios_max and ibc_max from treatment type if available
+        tratamiento_key = urban_data["treatment"]
+        if tratamiento_key and tratamiento_key in TRATAMIENTO_PARAMS:
+            urban_data["ios_max"] = TRATAMIENTO_PARAMS[tratamiento_key]["ios_max"]
+            urban_data["ibc_max"] = TRATAMIENTO_PARAMS[tratamiento_key]["ibc_max"]
+        else:
+            urban_data["ios_max"] = None
+            urban_data["ibc_max"] = None
+        urban_data["trace"] = ""  # JSON doesn't have trace field for this
+        if urban_data["treatment"]:
             trace.append(f"URBAN: {urban_data['treatment']} | Hmax={urban_data['altura_max']}m desde caché")
 
-    # 3. SECTOR USO RESIDENCIAL
-    sector_info = pot_data.get('sector', {})
-    if sector_info:
-        sector_data["sector"] = sector_info.get("sector")
-        sector_data["densidad"] = sector_info.get("densidad")
-        sector_data["trace"] = sector_info.get("trace", "")
-        if sector_data["trace"]:
-            trace.append(f"SECTOR: {sector_data['sector']} | Densidad: {sector_data['densidad']} desde caché")
+    # 3. SECTOR USO RESIDENCIAL (from UPZ)
+    upz_info = pot_data.get('pot', {}).get('upz', {})
+    if upz_info:
+        sector_data["sector"] = upz_info.get("nombre")
+        sector_data["densidad"] = None  # Not in JSON structure
+        sector_data["trace"] = ""  # JSON doesn't have trace field for this
+        if sector_data["sector"]:
+            trace.append(f"SECTOR: {sector_data['sector']} desde caché")
 
     # 4. ANÁLISIS VIAL
     road_analysis_raw = pot_data.get('road_analysis', [])
@@ -385,7 +548,6 @@ if not road_analysis and 'street_curves' in globals() and street_curves:
                     # rhinoscriptsyntax.GetUserText requires an object ID, which we don't have in this context.
                     # User text should be passed via the tuple (curve, props) from the data source.
                     # We'll leave props empty and rely on the tuple.
-                    print("Warning: Cannot access user text without object ID. Ensure curves are passed with properties.")
                     user_text = {}
                 except:
                     user_text = {}
@@ -511,7 +673,7 @@ pot_conclusions = {
     "lot_info": {
         "area_m2": float(lot_area),
         "centroid": {"x": lot_centroid.X, "y": lot_centroid.Y, "z": lot_centroid.Z},
-        "polygon": [{"x": pt.Point.X, "y": pt.Point.Y, "z": pt.Point.Z} for pt in lot_polygon.Explode()] if lot_polygon else []
+        "polygon": [{"x": pt.PointAtStart.X, "y": pt.PointAtStart.Y, "z": pt.PointAtStart.Z} for pt in lot_polygon.Explode()] if lot_polygon else []
     },
     "soil": soil_data,
     "urban_treatment": urban_data,
