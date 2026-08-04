@@ -33,6 +33,7 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
 
 ### Grasshopper / GHPython
 5b. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm) en Grasshopper o el área se calculará 1,000,000 de veces mayor.
+5c. PROHIBIDO usar hinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg) y Rhino.Geometry.Intersect para operaciones geométricas. s falla con geometría en memoria de GH (pide Guids).
 5. Entradas JSON a GHPython: `No Type Hint` + `Item Access`.
 6. Entradas geométricas a GHPython: `List Access` + `Flatten`.
 7. Lotes deben ser **polilíneas (LineSegments)**, no NURBS.
@@ -149,5 +150,6 @@ DiseñoParametrico/
 - Ajustes de naming siguiendo convención.
 - Mejoras de documentación en el vault.
 - Actualización de dependencias menores (patch versions).
+
 
 
