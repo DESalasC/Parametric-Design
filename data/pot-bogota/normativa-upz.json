@@ -1,0 +1,22 @@
+{
+  "UPZ_19_EL_PRADO": {
+    "decreto_base": "299/2002",
+    "io_general": 0.60,
+    "sectores_normativos": {
+      "5": {
+        "resolucion": "1673/2010",
+        "ic_maximo": 5.5,
+        "nota": "Altura libre, sujeto a retiros y demás normas del POT."
+      },
+      "default": {
+        "ic_maximo": 2.5,
+        "nota": "Regla general para sectores no especificificados en la UPZ."
+      }
+    }
+  },
+  "default": {
+    "io_general": 0.70,
+    "ic_maximo": 2.0,
+    "nota": "Valores conservadores del POT 555 si la UPZ no está en la base de datos."
+  }
+}
