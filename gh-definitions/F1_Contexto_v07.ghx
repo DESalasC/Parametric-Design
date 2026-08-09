@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Archive version="3.6.0.0">
+  <Object type="Grasshopper.Kernel.GH_Document" name="F1_Contexto_v07">
+    <Name>F1_Contexto_v07</Name>
+    <Description>Fase 1: Contexto POT con clasificación mejorada de lados v07</Description>
+    <Settings>
+      <Preview>True</Preview>
+      <PreviewMesh>True</PreviewMesh>
+      <PreviewGrid>False</PreviewGrid>
+      <RemotePanel>False</RemotePanel>
+    </Settings>
+    <Objects>
+      <!-- RECEPCIÓN DE GEOMETRÍA LOTE DESDE ARCHICAD VIA TAPIR -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G0_TapirInput">
+        <Name>GRUPO 0: TAPIR INPUT</Name>
+        <Nickname>GRUPO 0: TAPIR INPUT</Nickname>
+        <Color>#FF8C00</Color>
+        <Description>Recepcion geometria lote desde ArchiCAD via Tapir</Description>
+        <MemberIds>N1000,N1001,N1002,N1003</MemberIds>
+      </Object>
+
+      <Object type="Tapir.GH.ReceiveGeometry" name="N1000_TapirReceive">
+        <ID>N1000</ID>
+        <Name>Tapir Receive Geometry</Name>
+        <Nickname>ArchiCAD to GH</Nickname>
+        <Description>Recibir lote (Brep/Curve) desde ArchiCAD</Description>
+        <Inputs />
+        <Outputs>
+          <Output name="Geometry" type="GH_Brep, GH_Curve" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.DeconstructBrep" name="N1001_DeconstructBrep">
+        <ID>N1001</ID>
+        <Name>Deconstruct Brep</Name>
+        <Inputs>
+          <Input name="Brep" source="N1000.Geometry" />
+        </Inputs>
+        <Outputs>
+          <Output name="Faces" />
+          <Output name="Edges" />
+          <Output name="Vertices" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.JoinCurves" name="N1002_JoinCurves">
+        <ID>N1002</ID>
+        <Name>Join Curves</Name>
+        <Inputs>
+          <Input name="Curves" source="N1001.Edges" />
+        </Inputs>
+        <Outputs>
+          <Output name="Curves" nickname="lot_polygon" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Area" name="N1003_Area">
+        <ID>N1003</ID>
+        <Name>Area</Name>
+        <Inputs>
+          <Input name="Polyline" source="N1002.Curves" />
+        </Inputs>
+        <Outputs>
+          <Output name="Area" nickname="lot_area" />
+          <Output name="Centroid" nickname="lot_centroid" />
+        </Outputs>
+      </Object>
+
+      <!-- GRUPO 1: CONFIGURAR LADOS (ACTUALIZADO A V07) -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G1_ConfigurarLados">
+        <Name>GRUPO 1: CONFIGURAR_LADOS_POT</Name>
+        <Nickname>GRUPO 1: CONFIGURAR_LADOS_POT</Nickname>
+        <Color>#3881B8</Color>
+        <Description>Analisis normativo lados lote: retiros, balcones, clasificacion vial</Description>
+        <MemberIds>N1010,N1011,N1012,N1013,N1014,N1015,N1,N1016,N1017</MemberIds>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Deconstruct2DPolyline" name="N1010_Deconstruct2D">
+        <ID>N1010</ID>
+        <Name>Deconstruct 2D Polyline</Name>
+        <Inputs>
+          <Input name="Polyline" source="N1002.Curves" />
+        </Inputs>
+        <Outputs>
+          <Output name="Vertices" />
+          <Output name="Edges" nickname="lot_segments" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Area" name="N1011_Area">
+        <ID>N1011</ID>
+        <Name>Area</Name>
+        <Inputs>
+          <Input name="Polyline" source="N1002.Curves" />
+        </Inputs>
+        <Outputs>
+          <Output name="Area" nickname="lot_area" />
+          <Output name="Centroid" nickname="lot_centroid" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Explode" name="N1012_Explode">
+        <ID>N1012</ID>
+        <Name>Explode</Name>
+        <Inputs>
+          <Input name="Curve" source="N1010.Edges" />
+        </Inputs>
+        <Outputs>
+          <Output name="Segments" nickname="lot_segments" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.CurveMiddle" name="N1013_CurveMiddle">
+        <ID>N1013</ID>
+        <Name>Curve Middle</Name>
+        <Inputs>
+          <Input name="Curve" source="N1012.Segments" />
+          <Input name="Parameter" value="0.5" />
+        </Inputs>
+        <Outputs>
+          <Output name="Point" nickname="lot_midpoints" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.CurveFrame" name="N1014_CurveFrame">
+        <ID>N1014</ID>
+        <Name>Curve Frame</Name>
+        <Inputs>
+          <Input name="Curve" source="N1012.Segments" />
+          <Input name="Parameter" source="N1013.Parameter" />
+        </Inputs>
+        <Outputs>
+          <Output name="Frame" />
+          <Output name="Tangent" nickname="lot_tangents" />
+          <Output name="Normal" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Angle" name="N1015_AngleNorth">
+        <ID>N1015</ID>
+        <Name>Angle</Name>
+        <Inputs>
+          <Input name="Vector A" source="N1014.Tangent" />
+          <Input name="Vector B" value="0,1,0" />
+        </Inputs>
+        <Outputs>
+          <Output name="Angle" nickname="orientations_deg" />
+        </Outputs>
+      </Object>
+
+      <!-- ACTUALIZADO: USANDO F1_LADOS_CONFIGURAR_v07.py DEL PROYECTO -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N1_CONFIGURAR_LADOS">
+        <ID>N1</ID>
+        <Name>Python 3 Script</Name>
+        <Nickname>Python - Lados POT v07</Nickname>
+        <Description>F1_LADOS_CONFIGURAR_v07: Clasificación mejorada con distancia y alineación</Description>
+        <Inputs>
+          <Input name="lot_polygon" source="N1002.Curves" type="Curve" />
+          <Input name="lot_area" source="N1011.Area" type="Number" />
+          <Input name="lot_centroid" source="N1011.Centroid" type="Point" />
+          <Input name="lot_segments" source="N1012.Segments" type="Curve" list="True" />
+          <Input name="lot_midpoints" source="N1013.Point" type="Point" list="True" />
+          <Input name="lot_tangents" source="N1014.Tangent" type="Vector" list="True" />
+          <Input name="street_curves" type="Curve" list="True" />
+          <Input name="pot_conclusions" type="Generic" />
+          <Input name="floors_per_tower" type="Integer" list="True" />
+        </Inputs>
+        <Outputs>
+          <Output name="sides_table" type="Generic" />
+          <Output name="setbacks_matrix" type="Generic" />
+          <Output name="pot_compliance" type="Generic" />
+          <Output name="balcony_rules_summary" type="Generic" />
+        </Outputs>
+        <Code><![CDATA[
+# F1_LADOS_CONFIGURAR_v07.py - Clasificación mejorada con distancia y alineación
+import sys
+import os
+# Añadir la ruta del proyecto al sys.path
+project_root = os.environ.get("DISENO_PARAMETRICO_ROOT", r"D:\Work\PROJECTS\DiseñoParametrico")
+script_path = os.path.join(project_root, "src", "fase-1-contexto", "F1_LADOS_CONFIGURAR_v07.py")
+if os.path.exists(script_path):
+    sys.path.append(os.path.dirname(script_path))
+    exec(open(script_path).read())
+else:
+    # Fallback a ruta relativa si la variable de entorno no está definida
+    fallback_path = r"src\fase-1-contexto\F1_LADOS_CONFIGURAR_v07.py"
+    if os.path.exists(fallback_path):
+        exec(open(fallback_path).read())
+    else:
+        raise FileNotFoundError(f"No se encontró F1_LADOS_CONFIGURAR_v07.py en {script_path} ni {fallback_path}")
+]]></Code>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_NumberSlider" name="N1016_GP103">
+        <ID>N1016</ID>
+        <Name>Gene Pool</Name>
+        <Nickname>genome_heights (GP103)</Nickname>
+        <Description>Alturas torres en pisos</Description>
+        <Min>2</Min>
+        <Max>15</Max>
+        <DecimalCount>0</DecimalCount>
+        <ValueList>4,6,8,10</ValueList>
+        <Output name="Values" nickname="genome_heights" />
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_NumberSlider" name="N1017_GP104">
+        <ID>N1017</ID>
+        <Name>Gene Pool</Name>
+        <Nickname>genome_setbacks (GP104)</Nickname>
+        <Description>Override retiros [F,L,P,R] metros</Description>
+        <Min>0</Min>
+        <Max>10</Max>
+        <DecimalCount>1</DecimalCount>
+        <ValueList>3.0,2.5,3.0,2.5</ValueList>
+        <Output name="Values" nickname="genome_setbacks" />
+      </Object>
+
+      <!-- GRUPO 2: CONTEXTO POT -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G2_ContextoPOT">
+        <Name>GRUPO 2: CONTEXTO_POT</Name>
+        <Nickname>GRUPO 2: CONTEXTO_POT</Nickname>
+        <Color>#2E8B57</Color>
+        <Description>Analisis POT Bogota: suelo, tratamiento, altura, restricciones, vias</Description>
+        <MemberIds>N2000,N2001,N2002,N2003,N2004,N2005,N20,N2010</MemberIds>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N2000_GeoJSONFolder">
+        <ID>N2000</ID>
+        <Name>Panel</Name>
+        <Nickname>GeoJSON Folder</Nickname>
+        <Value>C:\Users\Dario Salas\proyectos\2-Entradas\Datos_Sitio_GDB\geojson_layers\</Value>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.GH_Import" name="N2001_ImportEjeVial">
+        <ID>N2001</ID>
+        <Name>Import GeoJSON</Name>
+        <Nickname>eje_vial.geojson</Nickname>
+        <Description>Cargar eje vial con CLASIFICACION_VIAL</Description>
+        <Inputs>
+          <Input name="FilePath" source="N2000.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="Curves" nickname="street_curves" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.GH_Import" name="N2002_ImportClaseSuelo">
+        <ID>N2002</ID>
+        <Name>Import GeoJSON</Name>
+        <Nickname>clase_suelo_pot.geojson</Nickname>
+        <Inputs>
+          <Input name="FilePath" source="N2000.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="Features" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.GH_Import" name="N2003_ImportTratamiento">
+        <ID>N2003</ID>
+        <Name>Import GeoJSON</Name>
+        <Nickname>tratamiento_urbanistico.geojson</Nickname>
+        <Inputs>
+          <Input name="FilePath" source="N2000.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="Features" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.GH_Import" name="N2004_ImportSector">
+        <ID>N2004</ID>
+        <Name>Import GeoJSON</Name>
+        <Nickname>sector_uso_residencial.geojson</Nickname>
+        <Inputs>
+          <Input name="FilePath" source="N2000.Value" />
+        </Inputs>
+        <Outputs>
+          <Output name="Features" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Vector2Pt" name="N2005_NorthVector">
+        <ID>N2005</ID>
+        <Name>Vector 2Pt</Name>
+        <Nickname>Vector Norte</Nickname>
+        <Description>Vector unitario norte (0,1,0)</Description>
+        <Inputs>
+          <Input name="A" source="N2000.Value" />
+          <Input name="B" value="0,1,0" />
+        </Inputs>
+        <Outputs>
+          <Output name="Vector" nickname="north_vector" />
+        </Outputs>
+      </Object>
+
+      <!-- GRUPO 3: PROCESO CONTEXTO POT -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G3_ContextoPOT">
+        <Name>GRUPO 3: CONTEXTO_POT_PROCESO</Name>
+        <Nickname>GRUPO 3: CONTEXTO_POT_PROCESO</Nickname>
+        <Color>#1E90FF</Color>
+        <Description>Procesamiento del contexto POT: desfase virtual, topografía, análisis de norma</Description>
+        <MemberIds>N20,N2010</MemberIds>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N20_DummyInput">
+        <ID>N20</ID>
+        <Name>Panel</Name>
+        <Nickname>Dummy Input</Nickname>
+        <Value>None</Value>
+        <Description>Input dummy para conectar flujo</Description>
+      </Object>
+
+      <!-- ACTUALIZADO: USANDO F1_CONTEXTO_POT_v09.py DEL PROYECTO -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N2010_CONTEXTO_POT">
+        <ID>N2010</ID>
+        <Name>Python 3 Script</Name>
+        <Nickname>Python - Contexto POT v09</Nickname>
+        <Description>F1_CONTEXTO_POT_v09: Lee JSON de contexto, aplica desfase virtual, genera curvas 3D</Description>
+        <Inputs>
+          <Input name="lot_polygon" source="N1002.Curves" type="Curve" />
+          <Input name="lot_centroid" source="N1003.Centroid" type="Point" />
+          <Input name="lot_area" source="N1003.Area" type="Number" />
+          <Input name="street_curves" source="N2001.Curves" type="Curve" list="True" />
+          <Input name="geo_json_features" source="N2002.Features" type="Generic" list="True" />
+          <Input name="tratamiento_features" source="N2003.Features" type="Generic" list="True" />
+          <Input name="sector_features" source="N2004.Features" type="Generic" list="True" />
+          <Input name="north_vector" source="N2005.Vector" type="Vector" />
+        </Inputs>
+        <Outputs>
+          <Output name="lot_curves_3d" type="GH_Curve" list="True" />
+          <Output name="vecinos_curves_3d" type="GH_Curve" list="True" />
+          <Output name="topografia_pointcloud" type="GH_PointCloud" />
+          <Output name="pot_conclusions" type="Generic" />
+          <Output name="json_path" type="String" />
+        </Outputs>
+        <Code><![CDATA[
+# F1_CONTEXTO_POT_v09.py - Procesamiento del contexto POT
+import sys
+import os
+import json
+import math
+
+# Añadir la ruta del proyecto al sys.path
+project_root = os.environ.get("DISENO_PARAMETRICO_ROOT", r"D:\Work\PROJECTS\DiseñoParametrico")
+script_path = os.path.join(project_root, "src", "fase-1-contexto", "F1_CONTEXTO_POT_v09.py")
+if os.path.exists(script_path):
+    sys.path.append(os.path.dirname(script_path))
+    # Variables de entrada esperadas:
+    # lot_polygon, lot_centroid, lot_area, street_curves, geo_json_features,
+    # tratamiento_features, sector_features, north_vector
+    exec(open(script_path).read())
+else:
+    # Fallback a ruta relativa
+    fallback_path = r"src\fase-1-contexto\F1_CONTEXTO_POT_v09.py"
+    if os.path.exists(fallback_path):
+        exec(open(fallback_path).read())
+    else:
+        raise FileNotFoundError(f"No se encontró F1_CONTEXTO_POT_v09.py en {script_path} ni {fallback_path}")
+]]></Code>
+      </Object>
+
+      <!-- GRUPO 4: GENERACIÓN DE PATIOS -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G4_PatiosVecino">
+        <Name>GRUPO 4: PATIOS VECINO</Name>
+        <Nickname>GRUPO 4: PATIOS VECINO</Nickname>
+        <Color>#32CD32</Color>
+        <Description>Generación de patios de aislamiento en vértices vecino-vecino</Description>
+        <MemberIds>N3000,N3001,N3002,N3003,N3004,N3005,N3006,N3007,N3008,N3009,N3010</MemberIds>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.DeconstructBrep" name="N3000_DeconstructVecinos">
+        <ID>N3000</ID>
+        <Name>Deconstruct Brep (Vecinos)</Name>
+        <Inputs>
+          <Input name="Brep" source="N2010.vecinos_curves_3d" />
+        </Inputs>
+        <Outputs>
+          <Output name="Faces" />
+          <Output name="Edges" />
+          <Output name="Vertices" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.JoinCurves" name="N3001_JoinVecinoCurves">
+        <ID>N3001</ID>
+        <Name>Join Curves (Vecinos)</Name>
+        <Inputs>
+          <Input name="Curves" source="N3000.Edges" />
+        </Inputs>
+        <Outputs>
+          <Output name="Curves" nickname="vecinos_polygons" />
+        </Outputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Components.Area" name="N3002_AreaVecinos">
+        <ID>N3002</ID>
+        <Name>Area (Vecinos)</Name>
+        <Inputs>
+          <Input name="Polyline" source="N3001.Curves" />
+        </Inputs>
+        <Outputs>
+          <Output name="Area" />
+          <Output name="Centroid" />
+        </Outputs>
+      </Object>
+
+      <!-- ACTUALIZADO: USANDO F1_PATIO_VECINO_v04.py DEL PROYECTO -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N3003_PATIO_VECINO">
+        <ID>N3003</ID>
+        <Name>Python 3 Script</Name>
+        <Nickname>Python - Patio Vecino v04</Nickname>
+        <Description>F1_PATIO_VECINO_v04: Genera patios en vértices donde convergen DOS lados vecinos</Description>
+        <Inputs>
+          <Input name="lot_polygon" source="N1002.Curves" type="Curve" />
+          <Input name="lot_segments" source="N1012.Segments" type="Curve" list="True" />
+          <Input name="lot_midpoints" source="N1013.Point" type="Point" list="True" />
+          <Input name="sides_table_json" source="N1.sides_table" type="String" />
+          <Input name="vecino_curves" source="N2010.vecinos_curves_3d" type="GH_Curve" list="True" />
+          <Input name="floors_per_tower" source="N1016.Values" type="Integer" list="True" />
+        </Inputs>
+        <Outputs>
+          <Output name="patios_curves" type="GH_Curve" list="True" />
+          <Output name="patios_srf" type="GH_Surface" list="True" />
+          <Output name="patios_info" type="Generic" />
+        </Outputs>
+        <Code><![CDATA[
+# F1_PATIO_VECINO_v04.py - Generación de patios de aislamiento
+import sys
+import os
+import json
+import math
+
+# Añadir la ruta del proyecto al sys.path
+project_root = os.environ.get("DISENO_PARAMETRICO_ROOT", r"D:\Work\PROJECTS\DiseñoParametrico")
+script_path = os.path.join(project_root, "src", "fase-1-contexto", "F1_PATIO_VECINO_v04.py")
+if os.path.exists(script_path):
+    sys.path.append(os.path.dirname(script_path))
+    # Variables de entrada esperadas:
+    # lot_polygon, lot_segments, lot_midpoints, sides_table_json, vecino_curves, floors_per_tower
+    exec(open(script_path).read())
+else:
+    # Fallback a ruta relativa
+    fallback_path = r"src\fase-1-contexto\F1_PATIO_VECINO_v04.py"
+    if os.path.exists(fallback_path):
+        exec(open(fallback_path).read())
+    else:
+        raise FileNotFoundError(f"No se encontró F1_PATIO_VECINO_v04.py en {script_path} ni {fallback_path}")
+]]></Code>
+      </Object>
+
+      <!-- GRUPO 5: APLICACIÓN NORMATIVA -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G5_NormativaAplicar">
+        <Name>GRUPO 5: NORMATIVA APLICAR</Name>
+        <Nickname>GRUPO 5: NORMATIVA APLICAR</Nickname>
+        <Color>#FF8C00</Color>
+        <Description>Aplicación de retiros normativos y sustracción de patios</Description>
+        <MemberIds>N4000,N4001,N4002,N4003,N4004,N4005,N4006,N4007</MemberIds>
+      </Object>
+
+      <!-- ACTUALIZADO: USANDO F1_NORMATIVA_APLICAR_v22.py DEL PROYECTO -->
+      <Object type="Grasshopper.Kernel.Components.PythonScript" name="N4000_NORMATIVA_APLICAR">
+        <ID>N4000</ID>
+        <Name>Python 3 Script</Name>
+        <Nickname>Python - Normativa Aplicar v22</Nickname>
+        <Description>F1_NORMATIVA_APLICAR_v22: Aplica retiros diferenciados y resta patios generados</Description>
+        <Inputs>
+          <Input name="lot_polygon" source="N1002.Curves" type="Curve" />
+          <Input name="lot_segments" source="N1012.Segments" type="Curve" list="True" />
+          <Input name="lot_midpoints" source="N1013.Point" type="Point" list="True" />
+          <Input name="sides_table_json" source="N1.sides_table" type="String" />
+          <Input name="setbacks_matrix_json" source="N1.setbacks_matrix" type="String" />
+          <Input name="patios_curves" source="N3003.patios_curves" type="GH_Curve" list="True" />
+          <Input name="floors_per_tower" source="N1016.Values" type="Integer" list="True" />
+          <Input name="genome_setbacks" source="N1017.Values" type="Generic" />
+        </Inputs>
+        <Outputs>
+          <Output name="lote_con_retiros" type="GH_Curve" />
+          <Output name="lote_final" type="GH_Brep" />
+          <Output name="analisis_cumplimiento" type="Generic" />
+          <Output name="instrucciones_ghpython" type="String" />
+        </Outputs>
+        <Code><![CDATA[
+# F1_NORMATIVA_APLICAR_v22.py - Aplicación de normativa POT y NSR-10
+import sys
+import os
+import json
+import math
+
+# Añadir la ruta del proyecto al sys.path
+project_root = os.environ.get("DISENO_PARAMETRICO_ROOT", r"D:\Work\PROJECTS\DiseñoParametrico")
+script_path = os.path.join(project_root, "src", "fase-1-contexto", "F1_NORMATIVA_APLICAR_v22.py")
+if os.path.exists(script_path):
+    sys.path.append(os.path.dirname(script_path))
+    # Variables de entrada esperadas:
+    # lot_polygon, lot_segments, lot_midpoints, sides_table_json, setbacks_matrix_json,
+    # patios_curves, floors_per_tower, genome_setbacks
+    exec(open(script_path).read())
+else:
+    # Fallback a ruta relativa
+    fallback_path = r"src\fase-1-contexto\F1_NORMATIVA_APLICAR_v22.py"
+    if os.path.exists(fallback_path):
+        exec(open(fallback_path).read())
+    else:
+        raise FileNotFoundError(f"No se encontró F1_NORMATIVA_APLICAR_v22.py en {script_path} ni {fallback_path}")
+]]></Code>
+      </Object>
+
+      <!-- GRUPO 6: SALIDAS Y VISUALIZACIÓN -->
+      <Object type="Grasshopper.Kernel.Special.GH_Group" name="G6_Salidas">
+        <Name>GRUPO 6: SALIDAS</Name>
+        <Nickname>GRUPO 6: SALIDAS</Nickname>
+        <Color>#9400D3</Color>
+        <Description>Salidas finales: lote procesado, análisis, datos para BIM</Description>
+        <MemberIds>N5000,N5001,N5002,N5003,N5004</MemberIds>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N5000_LoteFinal">
+        <ID>N5000</ID>
+        <Name>Panel</Name>
+        <Nickname>Lote Final</Nickname>
+        <Description>Lote con retiros aplicados y patos sustraídos</Description>
+        <Inputs>
+          <Input name="Input" source="N4000.lote_final" />
+        </Inputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N5001_Analisis">
+        <ID>N5001</ID>
+        <Name>Panel</Name>
+        <Nickname>Análisis Cumplimiento</Nickname>
+        <Description>Resultado del análisis de cumplimiento normativo</Description>
+        <Inputs>
+          <Input name="Input" source="N4000.analisis_cumplimiento" />
+        </Inputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N5002_Instrucciones">
+        <ID>N5002</ID>
+        <Name>Panel</Name>
+        <Nickname>Instrucciones GHPython</Nickname>
+        <Description>Instrucciones para scripts GHPython subsiguientes</Description>
+        <Inputs>
+          <Input name="Input" source="N4000.instrucciones_ghpython" />
+        </Inputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Panel" name="N5003_JSONPath">
+        <ID>N5003</ID>
+        <Name>Panel</Name>
+        <Nickname>Ruta JSON Contexto</Nickname>
+        <Description>Ruta al archivo JSON de contexto generado</Description>
+        <Inputs>
+          <Input name="Input" source="N2010.json_path" />
+        </Inputs>
+      </Object>
+
+      <Object type="Grasshopper.Kernel.Special.GH_Palette" name="N5004_PatioPreview">
+        <ID>N5004</ID>
+        <Name>Palette</Name>
+        <Nickname>Preview Patios</Nickname>
+        <Description>Visualización de patios generados</Description>
+        <Inputs>
+          <Input name="Geometry" source="N3003.patios_srf" />
+        </Inputs>
+      </Object>
+    </Objects>
+  </Object>
+</Archive>
