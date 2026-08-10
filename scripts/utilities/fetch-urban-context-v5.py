@@ -177,12 +177,81 @@ def main(chip, output_dir="data/pot-cache"):
     mesh_local = [{"id": p["id"], "x_local": p["x"] - minx, "y_local": p["y"] - miny, "z_local": (p["z"] or 0.0) - min_z} for p in mesh_points]
     azimuth = calculate_azimuth(lote_geom)
 
+    # ── CLASIFICACIÓN DE LADOS: Frontal vs Lateral por adyacencia real ──
+    # Un borde del lote es "Frontal" si NO colinda con ningún vecino (da a vía),
+    # "Lateral" si SÍ hay un vecino adyacente en ese lado.
+    print("Clasificando lados del lote por adyacencia con vecinos...")
+    from shapely.geometry import LineString, Polygon as ShapelyPolygon
+    
+    lote_coords = list(lote_geom.exterior.coords)
+    lados_clasificados = []
+    PROXIMIDAD_M = 2.0  # distancia máxima para considerar "colindante"
+    
+    for i in range(len(lote_coords) - 1):
+        p1 = lote_coords[i]
+        p2 = lote_coords[i + 1]
+        edge = LineString([p1, p2])
+        edge_length = edge.length
+        mid = edge.interpolate(0.5, normalized=True)
+        
+        # Crear zona de búsqueda: buffer estrecho hacia afuera del segmento
+        search_zone = edge.buffer(PROXIMIDAD_M, single_sided=True)
+        # El buffer single_sided apunta en una dirección; si no intersecta,
+        # probar la otra dirección (misma geometría pero invertida)
+        
+        tiene_vecino = False
+        vecino_colindante = None
+        
+        for idx2, row2 in vecinos_gdf.iterrows():
+            vg = make_geom_valid(row2.geometry)
+            # Verificar si el vecino está próximo al borde
+            if vg.distance(edge) < PROXIMIDAD_M:
+                # Verificar intersección real o cercanía
+                if search_zone.intersects(vg):
+                    tiene_vecino = True
+                    vecino_colindante = str(row2.get(chip_field, 'N/A'))
+                    break
+                # Probar zona invertida (single_sided puede apuntar al lado equivocado)
+                search_zone_inv = edge.buffer(PROXIMIDAD_M, single_sided=True)
+                # invertir dirección: usar negative buffer + original
+                # Simplificación: si distance < PROXIMIDAD_M, considerar colindante
+                tiene_vecino = True
+                vecino_colindante = str(row2.get(chip_field, 'N/A'))
+                break
+        
+        clasificacion = "Lateral" if tiene_vecino else "Frontal"
+        lados_clasificados.append({
+            "lado_idx": i,
+            "clasificacion": clasificacion,
+            "longitud_m": round(edge_length, 2),
+            "vecino_colindante": vecino_colindante
+        })
+        print(f"  Lado {i}: {clasificacion} ({edge_length:.1f}m)"
+              + (f" — vecino: {vecino_colindante}" if vecino_colindante else ""))
+    
+    n_frontal = sum(1 for l in lados_clasificados if l["clasificacion"] == "Frontal")
+    n_lateral = sum(1 for l in lados_clasificados if l["clasificacion"] == "Lateral")
+    print(f"  Resultado: {n_frontal} frentes, {n_lateral} laterales")
+    
+    print(f"  Vías de referencia generadas: {len(vias_data)} segmentos desde {len(lote_coords)-1} bordes")
+    
+    # Versión local para Grasshopper
+    vias_local = []
+    for via in vias_data:
+        verts_local = [(x - minx, y - miny, 0.0 - min_z) for x, y, z in via["vertices_3d"]]
+        vias_local.append({
+            "lado_lote_idx": via["lado_lote_idx"],
+            "tipo": via["tipo"],
+            "vertices_3d_local": verts_local
+        })
+
     output_data = {
         "metadata": {"chip": chip, "origen_sirgas": {"crs": CRS_TARGET, "x": minx, "y": miny, "z": min_z}, "azimuth_norte_grados": azimuth, "buffer_metros": BUFFER_M},
         "pot_data": pot_data, 
         "topografia": {"estado": "ESTIMADA", "fuente": "Catastro_REST_API", "malla_terreno": mesh_local},
         "lote_objetivo": {"vertices_3d_local": lote_local, "area_m2": round(lote_geom.area, 2)},
-        "vecinos": vecinos_local, "vias": []
+        "vecinos": vecinos_local,
+        "lados": lados_clasificados
     }
 
     os.makedirs(output_dir, exist_ok=True)
