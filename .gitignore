@@ -59,3 +59,15 @@ docs/knowledge-base/ghx-samples/plugins/
 docs/knowledge-base/ghx-samples/logs/
 docs/knowledge-base/ghx-samples/exports/*.json
 !docs/knowledge-base/ghx-samples/exports/.gitkeep
+
+# Librerías externas
+LIBRARIES/
+
+# Temporales
+temp/
+logs/
+*.json.backup
+gh-definitions/_test_replace.ghx
+gh-definitions/_test_replace.json
+gh-definitions/test_panel.ghx
+gh-definitions/test_panel.json
