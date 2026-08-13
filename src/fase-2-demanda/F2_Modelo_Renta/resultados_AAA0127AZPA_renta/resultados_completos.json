@@ -1,0 +1,1034 @@
+{
+  "meta": {
+    "modelo": "F2_RENTA_MOTOR_v01",
+    "version": "1.0",
+    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Build-to-Rent",
+    "ciudad": "Bogota D.C., Colombia",
+    "moneda": "COP",
+    "fecha_ejecucion": "2026-08-13",
+    "chip": "AAA0127AZPA",
+    "origen_datos": "Lote real AAA0127AZPA (UPZ 19 El Prado, Suba; GFA 632,7 m2 del pipeline; CL $1.200 M). Cánones de arriendo de la zona consultados 2026-08-13: FincaRaiz Prado Veraniego-Canodromo promedio $1.841.565/mes; Properati 80 m2 @ $3,0M ($37.500/m2/mes); MercadoLibre 47 m2 @ $2,7M; Ciencuadras Bogota Q1-2026 promedio $47.821/m2/mes.",
+    "nota_general": "Ampliacion del F2 validado (2026-08-13): con precios de venta validados las 3 tipologias eran NO VIABLES para venta (CL/IT 41-51%). Este modelo evalua la alternativa de construir para arrendar (CP y LP)."
+  },
+  "gfa_max_m2": 632.695061,
+  "costo_lote_cop": 1200000000.0,
+  "parametros_usados": {
+    "financiero": {
+      "costos_blandos_pct": 15.0,
+      "marketing_leasing_pct": 2.0,
+      "nota_costos_blandos": "15% (igual que el pipeline F2, para comparacion limpia).",
+      "nota_marketing": "2% del GPI a1 (corretaje + campana de leasing)."
+    },
+    "renta": {
+      "horizonte_anios": 10,
+      "incremento_canon_pct": 5.5,
+      "incremento_gastos_pct": 6.5,
+      "cap_rate_salida_pct": 6.2,
+      "nota": "IPC 2026 5,56% (DANE); incremento de canon LP atado al IPC (Ley 820); gastos con 6,5% (SMMLV +23%). Cap rate de salida 6,2% (vivienda Colombia 5,4-6,0%)."
+    },
+    "reglas_renta": {
+      "tasa_descuento_pct": 10.0,
+      "tir_minima_pct": 10.0,
+      "cap_rate_entrada_min_pct": 5.0,
+      "payback_max_anios": 8.0,
+      "cl_inversion_precaucion_pct": 25.0,
+      "cl_inversion_inviable_pct": 30.0,
+      "nota": "TIR >= 10%, cap rate entrada >= 5%, VPN > 0 @ 10%, payback <= 8 anos, CL/inversion <= 30%."
+    },
+    "sensibilidad": {
+      "variacion_pct": 10.0,
+      "nota": "Variacion +-10% sobre canon m2, ocupacion, costo duro, cap rate de salida, tasa de descuento, gastos operativos e incremento de canon."
+    },
+    "escenarios": {
+      "A_VIS": {
+        "nombre": "A — VIS / VIP",
+        "unidad_m2": 55.0,
+        "eficiencia_nga": 0.8,
+        "costo_construccion_m2": 2300000.0,
+        "canon_m2_mes": {
+          "CP": 54400.0,
+          "LP": 32000.0
+        },
+        "fuente_canon": "LP: FincaRaiz Prado Veraniego-Canodromo promedio $1.841.565/mes; MercadoLibre 47 m2 @ $2,7M. Para 55 m2 estrato 3 se toma $32.000/m2/mes. CP = LP x 1,7 amoblado.",
+        "fuente_canon_url": "https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota ; https://listado.mercadolibre.com.co/apartamentos-en-arriendo-prado-veraniego",
+        "fuente_costo": "Konstruing (07-ago-2026): acabados basicos $2,3 M/m2 (igual que F2 validado).",
+        "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+        "nota": "Producto identico al F2 validado (misma unidad, eficiencia y costo)."
+      },
+      "B_ESTANDAR": {
+        "nombre": "B — Estandar",
+        "unidad_m2": 85.0,
+        "eficiencia_nga": 0.75,
+        "costo_construccion_m2": 3000000.0,
+        "canon_m2_mes": {
+          "CP": 64600.0,
+          "LP": 38000.0
+        },
+        "fuente_canon": "LP: Properati 80 m2 @ $3,0M = $37.500/m2/mes; Mitula 2 hab @ $2,3M; obra nueva premium -> $38.000/m2/mes. CP = LP x 1,7.",
+        "fuente_canon_url": "https://www.properati.com.co/s/prado-veraniego/arriendo ; https://casas.mitula.com.co/casas/arriendo-apartamentos-bogota-prado-veraniego",
+        "fuente_costo": "Konstruing (07-ago-2026): acabados medios $3,0 M/m2 (igual que F2 validado).",
+        "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+        "nota": "Producto identico al F2 validado."
+      },
+      "C_LUJO": {
+        "nombre": "C — Lujo / Alto nivel",
+        "unidad_m2": 150.0,
+        "eficiencia_nga": 0.7,
+        "costo_construccion_m2": 4300000.0,
+        "canon_m2_mes": {
+          "CP": 76500.0,
+          "LP": 45000.0
+        },
+        "fuente_canon": "LP: supuesto tecnico producto premium norte -> $45.000/m2/mes. CP = LP x 1,7.",
+        "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
+        "fuente_costo": "Konstruing (07-ago-2026): acabados premium $4,3 M/m2 (igual que F2 validado).",
+        "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+        "nota": "Producto identico al F2 validado."
+      }
+    },
+    "estrategias": {
+      "CP": {
+        "nombre": "Corto plazo — temporal amoblado",
+        "ocupacion_pct": 75.0,
+        "administracion_m2_mes": 8000.0,
+        "gastos_operativos_pct_egi": 25.0,
+        "capex_pct_egi": 3.0,
+        "mobiliario_cop_m2": 500000.0,
+        "nota": "Arriendo temporal amoblado. Canon = LP x 1,7. Vacancia 25%, gestion 25% EGI, capex mobiliario 3% EGI, inversion inicial de mobiliario $500.000/m2."
+      },
+      "LP": {
+        "nombre": "Largo plazo — arriendo tradicional",
+        "ocupacion_pct": 95.0,
+        "administracion_m2_mes": 6000.0,
+        "gastos_operativos_pct_egi": 12.0,
+        "capex_pct_egi": 1.0,
+        "mobiliario_cop_m2": 0.0,
+        "nota": "Contratos 12+ meses. Vacancia 5%, gastos 12% EGI, capex 1% EGI, administracion $6.000/m2/mes."
+      }
+    }
+  },
+  "resultados": [
+    {
+      "estrategia": "CP",
+      "estrategia_nombre": "Corto plazo — temporal amoblado",
+      "escenario_id": "A_VIS",
+      "producto": "A — VIS / VIP",
+      "gfa_m2": 632.7,
+      "nga_m2": 506.16,
+      "unidad_m2": 55.0,
+      "num_unidades": 9,
+      "area_arrendable_m2": 495.0,
+      "canon_m2_mes": 54400.0,
+      "ocupacion_pct": 75.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 323136000.0,
+      "egi_1_cop": 242352000.0,
+      "noi_1_cop": 126973440.0,
+      "inversion_total_cop": 3127441156.35,
+      "costo_lote_cop": 1200000000.0,
+      "costo_duro_cop": 1455198640.3,
+      "costo_blando_cop": 218279796.04,
+      "marketing_leasing_cop": 6462720.0,
+      "mobiliario_cop": 247500000.0,
+      "salida_cop": 3382193607.33,
+      "sum_noi_cop": 1605409814.5,
+      "yield_bruto_pct": 10.33,
+      "cap_rate_entrada_pct": 4.06,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 5.65,
+      "VPN_cop": -874606879.53,
+      "payback_anios": 9.5,
+      "payback_descontado_anios": null,
+      "multiplico_x": 1.59,
+      "CL_inversion_pct": 38.37,
+      "suelo_soportable_cop": 325393120.47,
+      "ocupacion_breakeven_pct": 20.4,
+      "fuente_canon": "LP: FincaRaiz Prado Veraniego-Canodromo promedio $1.841.565/mes; MercadoLibre 47 m2 @ $2,7M. Para 55 m2 estrato 3 se toma $32.000/m2/mes. CP = LP x 1,7 amoblado.",
+      "fuente_canon_url": "https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota ; https://listado.mercadolibre.com.co/apartamentos-en-arriendo-prado-veraniego",
+      "nota": "Producto identico al F2 validado (misma unidad, eficiencia y costo)."
+    },
+    {
+      "estrategia": "CP",
+      "estrategia_nombre": "Corto plazo — temporal amoblado",
+      "escenario_id": "B_ESTANDAR",
+      "producto": "B — Estandar",
+      "gfa_m2": 632.7,
+      "nga_m2": 474.52,
+      "unidad_m2": 85.0,
+      "num_unidades": 5,
+      "area_arrendable_m2": 425.0,
+      "canon_m2_mes": 64600.0,
+      "ocupacion_pct": 75.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 329460000.0,
+      "egi_1_cop": 247095000.0,
+      "noi_1_cop": 137108400.0,
+      "inversion_total_cop": 3601887160.45,
+      "costo_lote_cop": 1200000000.0,
+      "costo_duro_cop": 1898085183.0,
+      "costo_blando_cop": 284712777.45,
+      "marketing_leasing_cop": 6589200.0,
+      "mobiliario_cop": 212500000.0,
+      "salida_cop": 3677825285.33,
+      "sum_noi_cop": 1740061152.16,
+      "yield_bruto_pct": 9.15,
+      "cap_rate_entrada_pct": 3.81,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 4.9,
+      "VPN_cop": -1156116959.63,
+      "payback_anios": 9.5,
+      "payback_descontado_anios": null,
+      "multiplico_x": 1.5,
+      "CL_inversion_pct": 33.32,
+      "suelo_soportable_cop": 43883040.37,
+      "ocupacion_breakeven_pct": 17.2,
+      "fuente_canon": "LP: Properati 80 m2 @ $3,0M = $37.500/m2/mes; Mitula 2 hab @ $2,3M; obra nueva premium -> $38.000/m2/mes. CP = LP x 1,7.",
+      "fuente_canon_url": "https://www.properati.com.co/s/prado-veraniego/arriendo ; https://casas.mitula.com.co/casas/arriendo-apartamentos-bogota-prado-veraniego",
+      "nota": "Producto identico al F2 validado."
+    },
+    {
+      "estrategia": "CP",
+      "estrategia_nombre": "Corto plazo — temporal amoblado",
+      "escenario_id": "C_LUJO",
+      "producto": "C — Lujo / Alto nivel",
+      "gfa_m2": 632.7,
+      "nga_m2": 442.89,
+      "unidad_m2": 150.0,
+      "num_unidades": 2,
+      "area_arrendable_m2": 300.0,
+      "canon_m2_mes": 76500.0,
+      "ocupacion_pct": 75.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 275400000.0,
+      "egi_1_cop": 206550000.0,
+      "noi_1_cop": 119916000.0,
+      "inversion_total_cop": 4484185076.65,
+      "costo_lote_cop": 1200000000.0,
+      "costo_duro_cop": 2720588762.3,
+      "costo_blando_cop": 408088314.35,
+      "marketing_leasing_cop": 5508000.0,
+      "mobiliario_cop": 150000000.0,
+      "salida_cop": 3233459234.53,
+      "sum_noi_cop": 1526131744.75,
+      "yield_bruto_pct": 6.14,
+      "cap_rate_entrada_pct": 2.67,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 0.69,
+      "VPN_cop": -2336508482.77,
+      "payback_anios": 9.9,
+      "payback_descontado_anios": null,
+      "multiplico_x": 1.06,
+      "CL_inversion_pct": 26.76,
+      "suelo_soportable_cop": 0.0,
+      "ocupacion_breakeven_pct": 14.5,
+      "fuente_canon": "LP: supuesto tecnico producto premium norte -> $45.000/m2/mes. CP = LP x 1,7.",
+      "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
+      "nota": "Producto identico al F2 validado."
+    },
+    {
+      "estrategia": "LP",
+      "estrategia_nombre": "Largo plazo — arriendo tradicional",
+      "escenario_id": "A_VIS",
+      "producto": "A — VIS / VIP",
+      "gfa_m2": 632.7,
+      "nga_m2": 506.16,
+      "unidad_m2": 55.0,
+      "num_unidades": 9,
+      "area_arrendable_m2": 495.0,
+      "canon_m2_mes": 32000.0,
+      "ocupacion_pct": 95.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 190080000.0,
+      "egi_1_cop": 180576000.0,
+      "noi_1_cop": 121461120.0,
+      "inversion_total_cop": 2877280036.35,
+      "costo_lote_cop": 1200000000.0,
+      "costo_duro_cop": 1455198640.3,
+      "costo_blando_cop": 218279796.04,
+      "marketing_leasing_cop": 3801600.0,
+      "mobiliario_cop": 0.0,
+      "salida_cop": 3259329167.0,
+      "sum_noi_cop": 1541791281.11,
+      "yield_bruto_pct": 6.61,
+      "cap_rate_entrada_pct": 4.22,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 6.22,
+      "VPN_cop": -710001021.61,
+      "payback_anios": 9.4,
+      "payback_descontado_anios": null,
+      "multiplico_x": 1.67,
+      "CL_inversion_pct": 41.71,
+      "suelo_soportable_cop": 489998978.39,
+      "ocupacion_breakeven_pct": 21.6,
+      "fuente_canon": "LP: FincaRaiz Prado Veraniego-Canodromo promedio $1.841.565/mes; MercadoLibre 47 m2 @ $2,7M. Para 55 m2 estrato 3 se toma $32.000/m2/mes. CP = LP x 1,7 amoblado.",
+      "fuente_canon_url": "https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota ; https://listado.mercadolibre.com.co/apartamentos-en-arriendo-prado-veraniego",
+      "nota": "Producto identico al F2 validado (misma unidad, eficiencia y costo)."
+    },
+    {
+      "estrategia": "LP",
+      "estrategia_nombre": "Largo plazo — arriendo tradicional",
+      "escenario_id": "B_ESTANDAR",
+      "producto": "B — Estandar",
+      "gfa_m2": 632.7,
+      "nga_m2": 474.52,
+      "unidad_m2": 85.0,
+      "num_unidades": 5,
+      "area_arrendable_m2": 425.0,
+      "canon_m2_mes": 38000.0,
+      "ocupacion_pct": 95.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 193800000.0,
+      "egi_1_cop": 184110000.0,
+      "noi_1_cop": 129575700.0,
+      "inversion_total_cop": 3386673960.45,
+      "costo_lote_cop": 1200000000.0,
+      "costo_duro_cop": 1898085183.0,
+      "costo_blando_cop": 284712777.45,
+      "marketing_leasing_cop": 3876000.0,
+      "mobiliario_cop": 0.0,
+      "salida_cop": 3495196361.61,
+      "sum_noi_cop": 1649389475.98,
+      "yield_bruto_pct": 5.72,
+      "cap_rate_entrada_pct": 3.83,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 5.03,
+      "VPN_cop": -1065344989.76,
+      "payback_anios": 9.5,
+      "payback_descontado_anios": null,
+      "multiplico_x": 1.52,
+      "CL_inversion_pct": 35.43,
+      "suelo_soportable_cop": 134655010.24,
+      "ocupacion_breakeven_pct": 18.1,
+      "fuente_canon": "LP: Properati 80 m2 @ $3,0M = $37.500/m2/mes; Mitula 2 hab @ $2,3M; obra nueva premium -> $38.000/m2/mes. CP = LP x 1,7.",
+      "fuente_canon_url": "https://www.properati.com.co/s/prado-veraniego/arriendo ; https://casas.mitula.com.co/casas/arriendo-apartamentos-bogota-prado-veraniego",
+      "nota": "Producto identico al F2 validado."
+    },
+    {
+      "estrategia": "LP",
+      "estrategia_nombre": "Largo plazo — arriendo tradicional",
+      "escenario_id": "C_LUJO",
+      "producto": "C — Lujo / Alto nivel",
+      "gfa_m2": 632.7,
+      "nga_m2": 442.89,
+      "unidad_m2": 150.0,
+      "num_unidades": 2,
+      "area_arrendable_m2": 300.0,
+      "canon_m2_mes": 45000.0,
+      "ocupacion_pct": 95.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 162000000.0,
+      "egi_1_cop": 153900000.0,
+      "noi_1_cop": 112293000.0,
+      "inversion_total_cop": 4331917076.65,
+      "costo_lote_cop": 1200000000.0,
+      "costo_duro_cop": 2720588762.3,
+      "costo_blando_cop": 408088314.35,
+      "marketing_leasing_cop": 3240000.0,
+      "mobiliario_cop": 0.0,
+      "salida_cop": 3041018256.72,
+      "sum_noi_cop": 1432440217.85,
+      "yield_bruto_pct": 3.74,
+      "cap_rate_entrada_pct": 2.59,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 0.37,
+      "VPN_cop": -2314068744.49,
+      "payback_anios": 10.0,
+      "payback_descontado_anios": null,
+      "multiplico_x": 1.03,
+      "CL_inversion_pct": 27.7,
+      "suelo_soportable_cop": 0.0,
+      "ocupacion_breakeven_pct": 15.3,
+      "fuente_canon": "LP: supuesto tecnico producto premium norte -> $45.000/m2/mes. CP = LP x 1,7.",
+      "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
+      "nota": "Producto identico al F2 validado."
+    }
+  ],
+  "alertas": {
+    "CP_A_VIS": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 5.7% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -874.6 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "Cap rate",
+        "texto": "Cap rate de entrada 4.1% < 5%: el NOI inicial no cubre el costo de capital."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "CL/Inv",
+        "texto": "CL/inversion 38.4% > 30%: el suelo absorbe mas del 30% de la inversion; el arriendo del lote o la renegociacion son palancas criticas."
+      }
+    ],
+    "CP_B_ESTANDAR": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 4.9% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -1.156.1 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "Cap rate",
+        "texto": "Cap rate de entrada 3.8% < 5%: el NOI inicial no cubre el costo de capital."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "CL/Inv",
+        "texto": "CL/inversion 33.3% > 30%: el suelo absorbe mas del 30% de la inversion; el arriendo del lote o la renegociacion son palancas criticas."
+      }
+    ],
+    "CP_C_LUJO": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 0.7% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -2.336.5 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "Cap rate",
+        "texto": "Cap rate de entrada 2.7% < 5%: el NOI inicial no cubre el costo de capital."
+      },
+      {
+        "nivel": "advertencia",
+        "kpi": "CL/Inv",
+        "texto": "CL/inversion 26.8% > 25%: el suelo pesa sobre la inversion."
+      }
+    ],
+    "LP_A_VIS": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 6.2% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -710.0 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "Cap rate",
+        "texto": "Cap rate de entrada 4.2% < 5%: el NOI inicial no cubre el costo de capital."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "CL/Inv",
+        "texto": "CL/inversion 41.7% > 30%: el suelo absorbe mas del 30% de la inversion; el arriendo del lote o la renegociacion son palancas criticas."
+      }
+    ],
+    "LP_B_ESTANDAR": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 5.0% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -1.065.3 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "Cap rate",
+        "texto": "Cap rate de entrada 3.8% < 5%: el NOI inicial no cubre el costo de capital."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "CL/Inv",
+        "texto": "CL/inversion 35.4% > 30%: el suelo absorbe mas del 30% de la inversion; el arriendo del lote o la renegociacion son palancas criticas."
+      }
+    ],
+    "LP_C_LUJO": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 0.4% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -2.314.1 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "Cap rate",
+        "texto": "Cap rate de entrada 2.6% < 5%: el NOI inicial no cubre el costo de capital."
+      },
+      {
+        "nivel": "advertencia",
+        "kpi": "CL/Inv",
+        "texto": "CL/inversion 27.7% > 25%: el suelo pesa sobre la inversion."
+      }
+    ]
+  },
+  "sensibilidad": {
+    "variacion_pct": 10.0,
+    "nota_metodologica": "Sensibilidad marginal: impacto medido como variacion del VPN (COP) ante +-10% de cada variable, promediado sobre todas las combinaciones estrategia x escenario. El ranking pondera el impacto por el rango plausible de variacion de cada variable.",
+    "ranking": [
+      {
+        "variable": "ocupacion_pct",
+        "etiqueta": "Ocupacion promedio",
+        "impacto_vpn_promedio_cop": 289010875.5,
+        "riesgo_esperado": 289010875.5,
+        "rango_plausible_x": 1.0,
+        "prioridad_fetch": "Critica: depende de la gestion (CP) o del mercado (LP); rango plausible amplio.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": -874606879.53,
+            "vpn_minus_cop": -1192350166.44,
+            "vpn_plus_cop": -556863592.62,
+            "tir_base_pct": 5.65,
+            "tir_minus_pct": 3.74,
+            "tir_plus_pct": 7.36,
+            "impacto_vpn_cop": 317743286.91
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -710001021.61,
+            "vpn_minus_cop": -996073817.51,
+            "vpn_plus_cop": -423928225.71,
+            "tir_base_pct": 6.22,
+            "tir_minus_pct": 4.43,
+            "tir_plus_pct": 7.84,
+            "impacto_vpn_cop": 286072795.9
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": -1156116959.63,
+            "vpn_minus_cop": -1480078707.34,
+            "vpn_plus_cop": -832155211.93,
+            "tir_base_pct": 4.9,
+            "tir_minus_pct": 3.15,
+            "tir_plus_pct": 6.49,
+            "impacto_vpn_cop": 323961747.71
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -1065344989.76,
+            "vpn_minus_cop": -1357016432.54,
+            "vpn_plus_cop": -773673546.97,
+            "tir_base_pct": 5.03,
+            "tir_minus_pct": 3.36,
+            "tir_plus_pct": 6.54,
+            "impacto_vpn_cop": 291671442.79
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -2336508482.77,
+            "vpn_minus_cop": -2607312420.48,
+            "vpn_plus_cop": -2065704545.06,
+            "tir_base_pct": 0.69,
+            "tir_minus_pct": -0.86,
+            "tir_plus_pct": 2.09,
+            "impacto_vpn_cop": 270803937.71
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2314068744.49,
+            "vpn_minus_cop": -2557880786.44,
+            "vpn_plus_cop": -2070256702.53,
+            "tir_base_pct": 0.37,
+            "tir_minus_pct": -1.1,
+            "tir_plus_pct": 1.71,
+            "impacto_vpn_cop": 243812041.96
+          }
+        },
+        "puesto": 1
+      },
+      {
+        "variable": "canon_m2_mes",
+        "etiqueta": "Canon de arriendo (m2/mes)",
+        "impacto_vpn_promedio_cop": 288519583.5,
+        "riesgo_esperado": 288519583.5,
+        "rango_plausible_x": 1.0,
+        "prioridad_fetch": "Critica: dato de mercado por zona y tipologia; no controlable.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": -874606879.53,
+            "vpn_minus_cop": -1191703894.44,
+            "vpn_plus_cop": -557509864.62,
+            "tir_base_pct": 5.65,
+            "tir_minus_pct": 3.74,
+            "tir_plus_pct": 7.35,
+            "impacto_vpn_cop": 317097014.91
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -710001021.61,
+            "vpn_minus_cop": -995693657.51,
+            "vpn_plus_cop": -424308385.71,
+            "tir_base_pct": 6.22,
+            "tir_minus_pct": 4.43,
+            "tir_plus_pct": 7.84,
+            "impacto_vpn_cop": 285692635.9
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": -1156116959.63,
+            "vpn_minus_cop": -1479419787.34,
+            "vpn_plus_cop": -832814131.93,
+            "tir_base_pct": 4.9,
+            "tir_minus_pct": 3.15,
+            "tir_plus_pct": 6.49,
+            "impacto_vpn_cop": 323302827.71
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -1065344989.76,
+            "vpn_minus_cop": -1356628832.54,
+            "vpn_plus_cop": -774061146.97,
+            "tir_base_pct": 5.03,
+            "tir_minus_pct": 3.36,
+            "tir_plus_pct": 6.53,
+            "impacto_vpn_cop": 291283842.79
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -2336508482.77,
+            "vpn_minus_cop": -2606761620.48,
+            "vpn_plus_cop": -2066255345.06,
+            "tir_base_pct": 0.69,
+            "tir_minus_pct": -0.86,
+            "tir_plus_pct": 2.09,
+            "impacto_vpn_cop": 270253137.71
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2314068744.49,
+            "vpn_minus_cop": -2557556786.44,
+            "vpn_plus_cop": -2070580702.53,
+            "tir_base_pct": 0.37,
+            "tir_minus_pct": -1.1,
+            "tir_plus_pct": 1.71,
+            "impacto_vpn_cop": 243488041.96
+          }
+        },
+        "puesto": 2
+      },
+      {
+        "variable": "costo_construccion_m2",
+        "etiqueta": "Costo duro construccion (m2)",
+        "impacto_vpn_promedio_cop": 232831782.45,
+        "riesgo_esperado": 232831782.45,
+        "rango_plausible_x": 1.0,
+        "prioridad_fetch": "Critica: definir producto; depende del mercado de insumos (+15% 2026 CAMACOL).",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": -874606879.53,
+            "vpn_minus_cop": -707259035.89,
+            "vpn_plus_cop": -1041954723.16,
+            "tir_base_pct": 5.65,
+            "tir_minus_pct": 6.35,
+            "tir_plus_pct": 4.99,
+            "impacto_vpn_cop": 167347843.64
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -710001021.61,
+            "vpn_minus_cop": -542653177.98,
+            "vpn_plus_cop": -877348865.24,
+            "tir_base_pct": 6.22,
+            "tir_minus_pct": 7.0,
+            "tir_plus_pct": 5.5,
+            "impacto_vpn_cop": 167347843.63
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": -1156116959.63,
+            "vpn_minus_cop": -937837163.59,
+            "vpn_plus_cop": -1374396755.68,
+            "tir_base_pct": 4.9,
+            "tir_minus_pct": 5.69,
+            "tir_plus_pct": 4.17,
+            "impacto_vpn_cop": 218279796.05
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -1065344989.76,
+            "vpn_minus_cop": -847065193.71,
+            "vpn_plus_cop": -1283624785.8,
+            "tir_base_pct": 5.03,
+            "tir_minus_pct": 5.87,
+            "tir_plus_pct": 4.25,
+            "impacto_vpn_cop": 218279796.05
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -2336508482.77,
+            "vpn_minus_cop": -2023640775.1,
+            "vpn_plus_cop": -2649376190.43,
+            "tir_base_pct": 0.69,
+            "tir_minus_pct": 1.54,
+            "tir_plus_pct": -0.09,
+            "impacto_vpn_cop": 312867707.67
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2314068744.49,
+            "vpn_minus_cop": -2001201036.82,
+            "vpn_plus_cop": -2626936452.15,
+            "tir_base_pct": 0.37,
+            "tir_minus_pct": 1.25,
+            "tir_plus_pct": -0.43,
+            "impacto_vpn_cop": 312867707.67
+          }
+        },
+        "puesto": 3
+      },
+      {
+        "variable": "cap_rate_salida_pct",
+        "etiqueta": "Cap rate de salida",
+        "impacto_vpn_promedio_cop": 143429399.81,
+        "riesgo_esperado": 71714699.9,
+        "rango_plausible_x": 0.5,
+        "prioridad_fetch": "Alta: variable de mercado; define el valor de reventa del activo.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": -874606879.53,
+            "vpn_minus_cop": -729719985.21,
+            "vpn_plus_cop": -993150702.15,
+            "tir_base_pct": 5.65,
+            "tir_minus_pct": 6.5,
+            "tir_plus_pct": 4.9,
+            "impacto_vpn_cop": 144886894.32
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -710001021.61,
+            "vpn_minus_cop": -570377411.79,
+            "vpn_plus_cop": -824238520.55,
+            "tir_base_pct": 6.22,
+            "tir_minus_pct": 7.07,
+            "tir_plus_pct": 5.47,
+            "impacto_vpn_cop": 139623609.82
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": -1156116959.63,
+            "vpn_minus_cop": -998565753.14,
+            "vpn_plus_cop": -1285022492.22,
+            "tir_base_pct": 4.9,
+            "tir_minus_pct": 5.75,
+            "tir_plus_pct": 4.16,
+            "impacto_vpn_cop": 157551206.49
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -1065344989.76,
+            "vpn_minus_cop": -915617267.26,
+            "vpn_plus_cop": -1187849489.98,
+            "tir_base_pct": 5.03,
+            "tir_minus_pct": 5.87,
+            "tir_plus_pct": 4.28,
+            "impacto_vpn_cop": 149727722.5
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -2336508482.77,
+            "vpn_minus_cop": -2197993092.82,
+            "vpn_plus_cop": -2449839256.36,
+            "tir_base_pct": 0.69,
+            "tir_minus_pct": 1.53,
+            "tir_plus_pct": -0.05,
+            "impacto_vpn_cop": 138515389.95
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2314068744.49,
+            "vpn_minus_cop": -2183797168.72,
+            "vpn_plus_cop": -2420654579.2,
+            "tir_base_pct": 0.37,
+            "tir_minus_pct": 1.21,
+            "tir_plus_pct": -0.37,
+            "impacto_vpn_cop": 130271575.77
+          }
+        },
+        "puesto": 4
+      },
+      {
+        "variable": "incremento_canon_pct",
+        "etiqueta": "Incremento anual del canon",
+        "impacto_vpn_promedio_cop": 114366025.88,
+        "riesgo_esperado": 57183012.94,
+        "rango_plausible_x": 0.5,
+        "prioridad_fetch": "Media: atado al IPC; piso de rentabilidad real.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": -874606879.53,
+            "vpn_minus_cop": -994441507.3,
+            "vpn_plus_cop": -749471648.93,
+            "tir_base_pct": 5.65,
+            "tir_minus_pct": 4.91,
+            "tir_plus_pct": 6.37,
+            "impacto_vpn_cop": 125135230.6
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -710001021.61,
+            "vpn_minus_cop": -818321977.43,
+            "vpn_plus_cop": -596907791.02,
+            "tir_base_pct": 6.22,
+            "tir_minus_pct": 5.53,
+            "tir_plus_pct": 6.91,
+            "impacto_vpn_cop": 113093230.59
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": -1156116959.63,
+            "vpn_minus_cop": -1278757996.25,
+            "vpn_plus_cop": -1028071583.64,
+            "tir_base_pct": 4.9,
+            "tir_minus_pct": 4.22,
+            "tir_plus_pct": 5.58,
+            "impacto_vpn_cop": 128045375.99
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -1065344989.76,
+            "vpn_minus_cop": -1176131733.61,
+            "vpn_plus_cop": -949692574.35,
+            "tir_base_pct": 5.03,
+            "tir_minus_pct": 4.37,
+            "tir_plus_pct": 5.67,
+            "impacto_vpn_cop": 115652415.41
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -2336508482.77,
+            "vpn_minus_cop": -2439345572.02,
+            "vpn_plus_cop": -2229153834.29,
+            "tir_base_pct": 0.69,
+            "tir_minus_pct": 0.06,
+            "tir_plus_pct": 1.32,
+            "impacto_vpn_cop": 107354648.48
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2314068744.49,
+            "vpn_minus_cop": -2406916719.08,
+            "vpn_plus_cop": -2217153490.26,
+            "tir_base_pct": 0.37,
+            "tir_minus_pct": -0.23,
+            "tir_plus_pct": 0.97,
+            "impacto_vpn_cop": 96915254.23
+          }
+        },
+        "puesto": 5
+      },
+      {
+        "variable": "tasa_descuento_pct",
+        "etiqueta": "Tasa de descuento",
+        "impacto_vpn_promedio_cop": 168636716.21,
+        "riesgo_esperado": 50591014.86,
+        "rango_plausible_x": 0.3,
+        "prioridad_fetch": "Alta: costo de oportunidad del inversionista; politica.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": -874606879.53,
+            "vpn_minus_cop": -704101304.71,
+            "vpn_plus_cop": -1030140614.92,
+            "tir_base_pct": 5.65,
+            "tir_minus_pct": 5.65,
+            "tir_plus_pct": 5.65,
+            "impacto_vpn_cop": 170505574.82
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -710001021.61,
+            "vpn_minus_cop": -545810488.0,
+            "vpn_plus_cop": -859769839.73,
+            "tir_base_pct": 6.22,
+            "tir_minus_pct": 6.22,
+            "tir_plus_pct": 6.22,
+            "impacto_vpn_cop": 164190533.61
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": -1156116959.63,
+            "vpn_minus_cop": -970837485.6,
+            "vpn_plus_cop": -1325122618.6,
+            "tir_base_pct": 4.9,
+            "tir_minus_pct": 4.9,
+            "tir_plus_pct": 4.9,
+            "impacto_vpn_cop": 185279474.03
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -1065344989.76,
+            "vpn_minus_cop": -889363392.89,
+            "vpn_plus_cop": -1225865903.35,
+            "tir_base_pct": 5.03,
+            "tir_minus_pct": 5.03,
+            "tir_plus_pct": 5.03,
+            "impacto_vpn_cop": 175981596.87
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -2336508482.77,
+            "vpn_minus_cop": -2173699372.77,
+            "vpn_plus_cop": -2485014377.63,
+            "tir_base_pct": 0.69,
+            "tir_minus_pct": 0.69,
+            "tir_plus_pct": 0.69,
+            "impacto_vpn_cop": 162809110.0
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2314068744.49,
+            "vpn_minus_cop": -2161014736.56,
+            "vpn_plus_cop": -2453674174.08,
+            "tir_base_pct": 0.37,
+            "tir_minus_pct": 0.37,
+            "tir_plus_pct": 0.37,
+            "impacto_vpn_cop": 153054007.93
+          }
+        },
+        "puesto": 6
+      },
+      {
+        "variable": "gastos_operativos_pct_egi",
+        "etiqueta": "Gastos operativos (% EGI)",
+        "impacto_vpn_promedio_cop": 71693583.47,
+        "riesgo_esperado": 35846791.74,
+        "rango_plausible_x": 0.5,
+        "prioridad_fetch": "Media: controlable parcialmente por gestion.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": -874606879.53,
+            "vpn_minus_cop": -764279349.35,
+            "vpn_plus_cop": -984934409.71,
+            "tir_base_pct": 5.65,
+            "tir_minus_pct": 6.26,
+            "tir_plus_pct": 5.01,
+            "impacto_vpn_cop": 110327530.18
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -710001021.61,
+            "vpn_minus_cop": -670542704.93,
+            "vpn_plus_cop": -749459338.29,
+            "tir_base_pct": 6.22,
+            "tir_minus_pct": 6.46,
+            "tir_plus_pct": 5.99,
+            "impacto_vpn_cop": 39458316.68
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": -1156116959.63,
+            "vpn_minus_cop": -1043630241.68,
+            "vpn_plus_cop": -1268603677.58,
+            "tir_base_pct": 4.9,
+            "tir_minus_pct": 5.47,
+            "tir_plus_pct": 4.32,
+            "impacto_vpn_cop": 112486717.95
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -1065344989.76,
+            "vpn_minus_cop": -1025114445.93,
+            "vpn_plus_cop": -1105575533.59,
+            "tir_base_pct": 5.03,
+            "tir_minus_pct": 5.24,
+            "tir_plus_pct": 4.81,
+            "impacto_vpn_cop": 40230543.83
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -2336508482.77,
+            "vpn_minus_cop": -2242479337.73,
+            "vpn_plus_cop": -2430537627.81,
+            "tir_base_pct": 0.69,
+            "tir_minus_pct": 1.19,
+            "tir_plus_pct": 0.17,
+            "impacto_vpn_cop": 94029145.04
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2314068744.49,
+            "vpn_minus_cop": -2280439497.32,
+            "vpn_plus_cop": -2347697991.65,
+            "tir_base_pct": 0.37,
+            "tir_minus_pct": 0.56,
+            "tir_plus_pct": 0.18,
+            "impacto_vpn_cop": 33629247.17
+          }
+        },
+        "puesto": 7
+      }
+    ]
+  },
+  "recomendacion": {
+    "estado": "NO VIABLE",
+    "ranking": [
+      {
+        "combo": "LP_A_VIS",
+        "estrategia": "Largo plazo — arriendo tradicional",
+        "producto": "A — VIS / VIP",
+        "TIR_pct": 6.22,
+        "VPN_cop": -710001021.61,
+        "cap_rate_entrada_pct": 4.22
+      },
+      {
+        "combo": "CP_A_VIS",
+        "estrategia": "Corto plazo — temporal amoblado",
+        "producto": "A — VIS / VIP",
+        "TIR_pct": 5.65,
+        "VPN_cop": -874606879.53,
+        "cap_rate_entrada_pct": 4.06
+      },
+      {
+        "combo": "LP_B_ESTANDAR",
+        "estrategia": "Largo plazo — arriendo tradicional",
+        "producto": "B — Estandar",
+        "TIR_pct": 5.03,
+        "VPN_cop": -1065344989.76,
+        "cap_rate_entrada_pct": 3.83
+      },
+      {
+        "combo": "CP_B_ESTANDAR",
+        "estrategia": "Corto plazo — temporal amoblado",
+        "producto": "B — Estandar",
+        "TIR_pct": 4.9,
+        "VPN_cop": -1156116959.63,
+        "cap_rate_entrada_pct": 3.81
+      },
+      {
+        "combo": "CP_C_LUJO",
+        "estrategia": "Corto plazo — temporal amoblado",
+        "producto": "C — Lujo / Alto nivel",
+        "TIR_pct": 0.69,
+        "VPN_cop": -2336508482.77,
+        "cap_rate_entrada_pct": 2.67
+      },
+      {
+        "combo": "LP_C_LUJO",
+        "estrategia": "Largo plazo — arriendo tradicional",
+        "producto": "C — Lujo / Alto nivel",
+        "TIR_pct": 0.37,
+        "VPN_cop": -2314068744.49,
+        "cap_rate_entrada_pct": 2.59
+      }
+    ],
+    "veredicto_textual": "Ninguna combinacion de producto y estrategia cumple las reglas de inversion en renta (TIR >= 10%, cap rate de entrada >= 5%, VPN > 0). La mejor alternativa es la que reporta mayor TIR; las palancas que el analisis de sensibilidad identifica como criticas son: (1) canon de arriendo y ocupacion (gestion comercial y producto), (2) costo duro de construccion, (3) cap rate de salida (mercado de inversion) y (4) precio del suelo: el CL soportable se reporta por combinacion y es la vara de negociacion con el dueno del lote.",
+    "recomendado": {
+      "estrategia": "LP",
+      "estrategia_nombre": "Largo plazo — arriendo tradicional",
+      "escenario_id": "A_VIS",
+      "producto": "A — VIS / VIP",
+      "gfa_m2": 632.7,
+      "nga_m2": 506.16,
+      "unidad_m2": 55.0,
+      "num_unidades": 9,
+      "area_arrendable_m2": 495.0,
+      "canon_m2_mes": 32000.0,
+      "ocupacion_pct": 95.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 190080000.0,
+      "egi_1_cop": 180576000.0,
+      "noi_1_cop": 121461120.0,
+      "inversion_total_cop": 2877280036.35,
+      "costo_lote_cop": 1200000000.0,
+      "costo_duro_cop": 1455198640.3,
+      "costo_blando_cop": 218279796.04,
+      "marketing_leasing_cop": 3801600.0,
+      "mobiliario_cop": 0.0,
+      "salida_cop": 3259329167.0,
+      "sum_noi_cop": 1541791281.11,
+      "yield_bruto_pct": 6.61,
+      "cap_rate_entrada_pct": 4.22,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 6.22,
+      "VPN_cop": -710001021.61,
+      "payback_anios": 9.4,
+      "payback_descontado_anios": null,
+      "multiplico_x": 1.67,
+      "CL_inversion_pct": 41.71,
+      "suelo_soportable_cop": 489998978.39,
+      "ocupacion_breakeven_pct": 21.6,
+      "fuente_canon": "LP: FincaRaiz Prado Veraniego-Canodromo promedio $1.841.565/mes; MercadoLibre 47 m2 @ $2,7M. Para 55 m2 estrato 3 se toma $32.000/m2/mes. CP = LP x 1,7 amoblado.",
+      "fuente_canon_url": "https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota ; https://listado.mercadolibre.com.co/apartamentos-en-arriendo-prado-veraniego",
+      "nota": "Producto identico al F2 validado (misma unidad, eficiencia y costo)."
+    }
+  }
+}

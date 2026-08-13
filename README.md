@@ -12,7 +12,7 @@ análisis ambiental y inyección BIM nativa en ArchiCAD vía Grasshopper.
 |---|---|---|---|
 | **F0** | Setup BIM | ✅ Hecha | Layers ArchiCAD (GuBIMclass), plantilla XML |
 | **F1** | Contexto normativo y lote | ✅ Hecha | Pipeline modular v26 (2 etapas): fetch contexto → clasificación de lados → patios → normativa/envolvente. Linaje legacy en `_legacy\` |
-| **F2** | Demanda + modelo financiero | ✅ Hecha | `src\fase-2-demanda\`: 4 scripts de pipeline + `F2_Modelo_Financiero\` (motor v2.1: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja) |
+| **F2** | Demanda + modelo financiero | ✅ Hecha | `src\fase-2-demanda\`: 4 scripts de pipeline + `F2_Modelo_Financiero\` (motor v2.1: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja) + `F2_Modelo_Renta\` (BTR v1.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable) |
 | **F3** | Generación de masa | 🔶 Iniciada | `src\fase-3-masa\`: VOLUM_GENERADOR v03, ACCESOS_INTEGRADOR, PREP_LADYBUG |
 | **F4** | Análisis ambiental | 🔶 Iniciada | `src\fase-4-ambiental\`: F4_LADYBUG_ANALISIS v02 |
 | **F5** | Inyección BIM nativa | ⏳ Pendiente | `src\fase-5-bim\` (solo README) |
@@ -58,6 +58,11 @@ pytest tests\
 cd src\fase-2-demanda\F2_Modelo_Financiero
 python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_mercado2026.json
 python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json  # alternativa curaduría
+
+# Fase 2 — modelo Build-to-Rent (ver src\fase-2-demanda\F2_Modelo_Renta\MANUAL_DE_USO.md)
+cd ..\F2_Modelo_Renta
+python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta.json
+python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json  # alternativa curaduría
 
 # Rhino.Compute
 powershell scripts\rhino-compute\start-compute.ps1

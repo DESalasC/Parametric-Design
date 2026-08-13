@@ -171,7 +171,7 @@ DiseñoParametrico/
 ├── scripts/                   # rhino-compute/ + utilities/
 ├── src/                       # Código por fase
 │   ├── fase-1-contexto/       # Modular ETAPA1/ETAPA2 vigente + _legacy\
-│   ├── fase-2-demanda/        # Pipeline + F2_Modelo_Financiero\ (motor v2.1)
+│   ├── fase-2-demanda/        # Pipeline + F2_Modelo_Financiero\ (motor v2.1) + F2_Modelo_Renta\ (BTR v1.0)
 │   ├── fase-3-masa/           # VOLUM_GENERADOR v03, ACCESOS, PREP_LADYBUG
 │   ├── fase-4-ambiental/      # F4_LADYBUG_ANALISIS v02
 │   ├── fase-5-bim/            # Pendiente
@@ -199,7 +199,7 @@ DiseñoParametrico/
 ## Fases del proyecto
 - [x] **Fase 0**: Setup BIM (capas ArchiCAD)
 - [x] **Fase 1**: Contexto POT + retiros + vecinos (clasificación híbrida ADR-008, pipeline modular v26)
-- [x] **Fase 2**: Motor de demanda + modelo financiero de prefactibilidad (`F2_Modelo_Financiero`, v2.1: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja)
+- [x] **Fase 2**: Motor de demanda + modelo financiero de prefactibilidad (`F2_Modelo_Financiero`, v2.1: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja) + **modelo Build-to-Rent** (`F2_Modelo_Renta`, v1.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable)
 - [~] **Fase 3**: Generación de masa (`VOLUM_GENERADOR`, `ACCESOS_INTEGRADOR`, `PREP_LADYBUG`)
 - [~] **Fase 4**: Análisis ambiental (Ladybug + EPW Bogotá)
 - [ ] **Fase 5**: Inyección BIM nativa (Tapir → ArchiCAD)
