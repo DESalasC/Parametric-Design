@@ -1,109 +1,55 @@
-# Fase 1 - Contexto Normativo y Lote
+# Fase 1 — Contexto Normativo y Lote
 
-Establece el contexto normativo completo del lote, aplica retiros,
-y gestiona condiciones especiales como lotes de esquina.
+Establece el contexto normativo completo del lote (POT Decreto 555/2021 + NSR-10), clasifica los
+lados, aplica retiros y patios, y genera la envolvente edificable máxima para Fase 2.
 
-## Pipeline de scripts (orden de ejecucion en Grasshopper)
+## Pipeline modular vigente (v26, dos etapas)
 
+### ETAPA 1 — Datos en bruto → ArchiCAD (clasificación manual)
 ```
-                    ┌─────────────────────┐
-                    │  Datos del cache    │
-                    │  (fetch-urban-      │
-                    │   context.py)       │
-                    └────────┬────────────┘
-                             │ JSON
-                             ▼
-┌────────────────┐  ┌───────────────────┐  ┌──────────────────┐
-│ F1_CONTEXTO_   │  │ F1_LADOS_         │  │ F1_VECINOS_      │
-│ POT_v04        │  │ CONFIGURAR_v03    │  │ ANALISIS_v01     │
-│ (normativa)    │  │ (clasificacion    │  │ (alturas         │
-│                │  │  de lados)        │  │  vecinos)        │
-└───────┬────────┘  └────────┬──────────┘  └────────┬─────────┘
-        │                    │                       │
-        │         sides_table_json                   │
-        │                    │                       │
-        ▼                    ▼                       ▼
-┌──────────────────────────────────────────────────────────┐
-│                   F1_PATIO_ESQUINA_v01                    │
-│  Si hay 2+ frentes adyacentes:                           │
-│  - Detecta esquina de calles (donde convergen los frentes)│
-│  - Localiza esquina interior opuesta (donde va el patio)  │
-│  - Calcula tamano del patio segun altura (3x3m default)   │
-│  - Genera geometria del patio orientada hacia adentro     │
-└──────────────────────────┬───────────────────────────────┘
-                           │ patio_curve
-                           ▼
-┌──────────────────────────────────────────────────────────┐
-│                 F1_NORMATIVA_APLICAR_v22                  │
-│  - Aplica retiros diferenciados por lado (no uniforme)    │
-│  - Reconstruye huella edificable por segmento             │
-│  - Sustrae patio de esquina de la huella                  │
-│  - Calcula IO, IC, altura, pisos                          │
-└──────────────────────────┬───────────────────────────────┘
-                           │ envelope_curve
-                           ▼
-                    ┌──────────────────┐
-                    │ F3_VOLUM_        │
-                    │ GENERADOR_v04    │
-                    │ (extrusion 3D)   │
-                    └──────────────────┘
+fetch-urban-context-v6 (scripts/utilities) → data/pot-cache/<CHIP>-contexto.json
+  → F1_ETAPA1_CONTEXTO_v01.py (GH: geometría + layers ArchiCAD vía Tapir)
+  → MANUAL en ArchiCAD: clasificar vías, ejes, andenes, zonas verdes, vecinos (Morph)
 ```
 
-## Scripts oficiales
+### ETAPA 2 — Geometría clasificada → ocupación y patios
+```
+ArchiCAD (layers) → Tapir GetElements → GH
+  → F1_ETAPA2_LADOS_v02.py      (clasificación de lados: regla 15m + paralelismo)
+  → F1_ETAPA2_PATIO_v01.py      (patios de aislamiento en vértices vecino-vecino)
+  → F1_ETAPA2_NORMATIVA_v02a.py (retiros diferenciados + resta booleana de patio + IO/IC/altura)
+  → envelope_curve → Fase 3 (VOLUM_GENERADOR)
+```
 
-### Principales
+**Vigentes:** `F1_ETAPA1_CONTEXTO_v01` · `F1_ETAPA2_LADOS_v02` · `F1_ETAPA2_PATIO_v01` ·
+`F1_ETAPA2_NORMATIVA_v02a`. Utilidades: `F1_DESPLAZAR_ORIGEN_v01`, `F1_VECINOS_ANALISIS_*`,
+`F1_VALIDADOR_CRUZADO_v01`, `F1_PATIO_DISCONTINUIDAD_v*` (variantes de patio).
 
-| Script | Lineas | Funcion |
-|--------|--------|---------|
-| [F1_CONTEXTO_POT_v04_sistema.py](F1_CONTEXTO_POT_v04_sistema.py) | 530 | Analisis normativo POT desde GeoJSONs |
-| [F1_LADOS_CONFIGURAR_v03_sistema.py](F1_LADOS_CONFIGURAR_v03_sistema.py) | 303 | Clasificacion automatica de lados del lote |
-| [F1_PATIO_ESQUINA_v01.py](F1_PATIO_ESQUINA_v01.py) | ~320 | **NUEVO** - Patio de aislamiento para lotes de esquina |
-| [F1_NORMATIVA_APLICAR_v22.py](F1_NORMATIVA_APLICAR_v22.py) | ~400 | **ACTUALIZADO** - Motor normativo con soporte esquina |
-| [F1_VECINOS_ANALISIS_v02_sistema.py](F1_VECINOS_ANALISIS_v02_sistema.py) | 58 | Analisis de alturas vecinas (pendiente de revision) |
-| [F1_VALIDADOR_CRUZADO_v01.py](F1_VALIDADOR_CRUZADO_v01.py) | 329 | Validacion cruzada de parametros normativos |
+## Archivo
 
-### De referencia (no usar directamente)
-
-| Script | Lineas | Nota |
-|--------|--------|------|
-| _reference_CONTEXTO_POT_v09_desparam.py | 251 | Version antigua, usa rhinoscriptsyntax (prohibido) |
-| _reference_LADOS_CONFIGURAR_v04_desparam.py | 95 | Version antigua |
+El linaje anterior (`F1_CONTEXTO_POT_*`, `F1_LADOS_CONFIGURAR_*`, `F1_LADOS_CLASIFICAR_*`,
+`F1_NORMATIVA_APLICAR_*`, `F1_NORMATIVA_DIRECTA_*`, `F1_NORMATIVA_LEER_*`, `F1_PATIO_ESQUINA_*`,
+`F1_PATIO_VECINO_*`, `F1_PATIO_DIRECTO_*`, `F1_NEW_LAYERS_*`) se archivó en **`_legacy/`**
+(2026-08-13) y **no debe usarse** en definiciones nuevas. No eliminar: contiene el historial.
 
 ## Tests
 
-| Archivo | Tipo | Estado |
-|---------|------|--------|
-| [tests/test_patio_esquina.py](../../tests/test_patio_esquina.py) | Unitario (logica pura) | ✅ 8/8 pasan |
-
-Ejecutar:
 ```powershell
-python tests\test_patio_esquina.py
+pytest tests\   # tests/test_fetch_contexto.py, test_normativa_calculos.py, test_patio_esquina.py
 ```
 
-## Resultados para lote AAA0127AZPA
+## Resultados lote AAA0127AZPA (Fase 1)
 
-| Parametro | Valor |
-|-----------|-------|
-| CHIP | AAA0127AZPA |
-| UPZ | El Prado |
-| Tratamiento | Consolidacion |
-| Area lote | 315.0 m² |
-| Altura maxima POT | 11.4 m |
-| Pisos permitidos | 4 (entrepiso 2.85 m) |
-| Frentes detectados | 4 (segmentos 5, 6, 7, 8) |
-| Esquina de calles | Vertice 6 |
-| Esquina interior (patio) | Vertice 1 |
-| Tamano patio | 3.0 × 3.0 m |
-| Retiro promedio | 2.4 m |
-| Area edificable est. | 130.7 m² |
-| IO estimado | 0.41 (max 0.70) ✅ |
+| Parámetro | Valor |
+|---|---|
+| CHIP / UPZ | AAA0127AZPA · El Prado |
+| Tratamiento | Consolidación |
+| Área lote | 315–450 m² (según fuente) |
+| Altura POT | 11,4 m · 4 pisos (entrepiso 2,85 m) |
+| GFA Fase 1 | 632,7 m² (verificado) — **alternativa curaduría: 1054,49 m²** (ver `data/fase-2-demanda/`) |
+| Patio de esquina | 3,0 × 3,0 m (lotes < 500 m², Continua, ≤ 5 pisos) |
 
-## Proximo lote: La Candelaria
+## Documentación
 
-- Direccion: KR 1 12 D 54
-- Codigo lote: 0031033519
-- Codigo catastral: AAA0030JKOE
-- Area: 900+ m²
-- Pendiente: significativa
-- Accesos: 2 carreras diferentes
-- Normativa: Centro Historico (restricciones especiales)
+Vault de Obsidian → `20-fases\fase-1-contexto\` (especificaciones del canvas, resúmenes de sesión)
+y `10-arquitectura\` (pipeline-modular-fase1-v25, guías GHX, ADR-008).

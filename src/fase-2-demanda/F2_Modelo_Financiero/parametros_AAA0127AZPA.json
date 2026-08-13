@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "modelo": "F2_DEMANDA_MOTOR_v01",
+    "version": "1.0",
+    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Inmobiliario",
+    "ciudad": "Bogota D.C., Colombia",
+    "moneda": "COP",
+    "fecha_ejecucion": "2026-08-12",
+    "chip": "AAA0127AZPA",
+    "ciclo_desarrollo_anios": 2,
+    "origen_datos": "Pipeline DiseñoParametrico: D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad.json (salida del v01 con --gfa 632.695061 --costo-lote 1200000000). GFA y costo de lote son los datos reales del predio; parametros de mercado (unidades, eficiencias, precios y costos por tipologia) son los del pipeline.",
+    "nota_general": "Este archivo reproduce exactamente los supuestos del pipeline original (costos blandos 15%, marketing 4%) para que los KPIs sean comparables con AAA0127AZPA-prefactibilidad.json, y agrega alertas de viabilidad, sensibilidad +-10% e informe."
+  },
+  "gfa_max_m2": 632.695061,
+  "lote": {
+    "area_m2": 450,
+    "precio_suelo_m2": 2600000,
+    "impuestos_escritura_pct": 4.0,
+    "costo_lote_total_cop": 1200000000,
+    "fuente": "Costo total de adquisicion del lote = $1.200.000.000 COP (dato del pipeline original, incluye impuestos). Se usa directo via costo_lote_total_cop; area y precio/m2 quedan como referencia.",
+    "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad.json"
+  },
+  "financiero": {
+    "costos_blandos_pct": 15.0,
+    "marketing_ventas_pct": 4.0,
+    "nota_costos_blandos": "15% segun pipeline original (dentro del rango tipico 12-15%).",
+    "nota_marketing": "4% segun pipeline original (dentro del rango tipico 3-4%)."
+  },
+  "reglas_decision": {
+    "mub_riesgo_pct": 18.0,
+    "mub_atractivo_pct": 25.0,
+    "roi_minimo_pct": 22.0,
+    "cl_it_precaucion_pct": 25.0,
+    "cl_it_inviable_pct": 30.0,
+    "nota": "Reglas de decision Bogota (objetivo Fase 2)."
+  },
+  "sensibilidad": {
+    "variacion_pct": 10.0,
+    "nota": "Variacion +-10% sobre precio de venta, costo duro, eficiencia NGA, costo del lote y absorcion; unidades continuas (efecto marginal)."
+  },
+  "escenarios": {
+    "A_VIS": {
+      "nombre": "A — VIS / VIP",
+      "nivel_acabados": "Basico",
+      "unidad_m2": 55.0,
+      "eficiencia_nga": 0.80,
+      "precio_venta_m2": 4500000,
+      "costo_construccion_m2": 2600000,
+      "absorcion_unid_mes": 5.0,
+      "fuente_precio": "Pipeline DiseñoParametrico (v01): venta_m2 = $4.500.000 (valor del pipeline; referencias 2026: tope VIS 135 SMMLV derivado = $4,73 M/m2 para 50-55 m2).",
+      "fuente_precio_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad.json",
+      "fuente_costo": "Pipeline DiseñoParametrico (v01): construccion_m2 = $2.600.000 (valor del pipeline; referencias 2026 Bogota: terminada acabados basicos $2,2-3,8 M/m2).",
+      "fuente_costo_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad.json",
+      "nota": "Parametros identicos al pipeline original para reproducibilidad."
+    },
+    "B_ESTANDAR": {
+      "nombre": "B — Estandar",
+      "nivel_acabados": "Medio",
+      "unidad_m2": 85.0,
+      "eficiencia_nga": 0.75,
+      "precio_venta_m2": 6500000,
+      "costo_construccion_m2": 3500000,
+      "absorcion_unid_mes": 2.5,
+      "fuente_precio": "Pipeline DiseñoParametrico (v01): venta_m2 = $6.500.000 (valor del pipeline; referencias 2026 Bogota: $6,0-7,4 M/m2 segun Terraes/Ciencuadras).",
+      "fuente_precio_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad.json",
+      "fuente_costo": "Pipeline DiseñoParametrico (v01): construccion_m2 = $3.500.000 (valor del pipeline; referencias 2026 Bogota: acabados medios $2,2-3,5 M/m2, tope 3,8 M/m2).",
+      "fuente_costo_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad.json",
+      "nota": "Parametros identicos al pipeline original para reproducibilidad."
+    },
+    "C_LUJO": {
+      "nombre": "C — Lujo / Alto nivel",
+      "nivel_acabados": "Premium",
+      "unidad_m2": 150.0,
+      "eficiencia_nga": 0.70,
+      "precio_venta_m2": 9500000,
+      "costo_construccion_m2": 5000000,
+      "absorcion_unid_mes": 1.0,
+      "fuente_precio": "Pipeline DiseñoParametrico (v01): venta_m2 = $9.500.000 (valor del pipeline; referencias 2026 Bogota: premium >$11 M/m2 en La Cabrera/El Retiro).",
+      "fuente_precio_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad.json",
+      "fuente_costo": "Pipeline DiseñoParametrico (v01): construccion_m2 = $5.000.000 (valor del pipeline; referencia 2026: acabados premium ~$4,3 M/m2 segun supuesto tecnico documentado).",
+      "fuente_costo_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad.json",
+      "nota": "Parametros identicos al pipeline original para reproducibilidad."
+    }
+  }
+}

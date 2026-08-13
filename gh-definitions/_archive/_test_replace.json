@@ -1,0 +1,657 @@
+{
+  "Path": "",
+  "Items": [
+    {
+      "Name": "ArchiveVersion",
+      "Value": "0.2.0002"
+    }
+  ],
+  "Children": [
+    {
+      "Path": "Definition",
+      "Items": [
+        {
+          "Name": "plugin_version",
+          "Value": "1.0.0008"
+        }
+      ],
+      "Children": [
+        {
+          "Path": "Definition/DocumentHeader",
+          "Items": [
+            {
+              "Name": "DocumentID",
+              "Value": "ceef5992-9084-428f-aa4c-15bc24ed828f"
+            },
+            {
+              "Name": "Preview",
+              "Value": "Shaded"
+            },
+            {
+              "Name": "PreviewMeshType",
+              "Value": "1"
+            },
+            {
+              "Name": "PreviewNormal",
+              "Value": "Color [A=100, R=150, G=0, B=0]"
+            },
+            {
+              "Name": "PreviewSelected",
+              "Value": "Color [A=100, R=0, G=150, B=0]"
+            }
+          ],
+          "Children": []
+        },
+        {
+          "Path": "Definition/DefinitionProperties",
+          "Items": [
+            {
+              "Name": "Date",
+              "Value": "4/08/2026 1:09:26\u202Fp.\u202Fm."
+            },
+            {
+              "Name": "Description",
+              "Value": ""
+            },
+            {
+              "Name": "KeepOpen",
+              "Value": "False"
+            },
+            {
+              "Name": "Name",
+              "Value": "F1_Contexto_v06.ghx"
+            }
+          ],
+          "Children": [
+            {
+              "Path": "Definition/DefinitionProperties/Revisions",
+              "Items": [
+                {
+                  "Name": "RevisionCount",
+                  "Value": "0"
+                }
+              ],
+              "Children": []
+            },
+            {
+              "Path": "Definition/DefinitionProperties/Projection",
+              "Items": [
+                {
+                  "Name": "Target",
+                  "Value": "{X=-568,Y=-918}"
+                },
+                {
+                  "Name": "Zoom",
+                  "Value": "0,7225001"
+                }
+              ],
+              "Children": []
+            },
+            {
+              "Path": "Definition/DefinitionProperties/Views",
+              "Items": [
+                {
+                  "Name": "ViewCount",
+                  "Value": "0"
+                }
+              ],
+              "Children": []
+            }
+          ]
+        },
+        {
+          "Path": "Definition/RcpLayout",
+          "Items": [
+            {
+              "Name": "GroupCount",
+              "Value": "0"
+            }
+          ],
+          "Children": []
+        },
+        {
+          "Path": "Definition/ValueTable",
+          "Items": [
+            {
+              "Name": "raven.group.ids",
+              "Value": "{\u002229c0ca2a-09a4-48cd-a76a-58e26e7ec124\u0022:\u0022g1\u0022,\u00220341d3d8-3f84-4239-a355-8b4f622cc750\u0022:\u0022g2\u0022,\u0022d7c4c675-eca2-49c2-ba02-a009c8f3dd7e\u0022:\u0022g3\u0022,\u0022da5ef1b2-775c-4f60-adb9-b58a7889199d\u0022:\u0022g4\u0022,\u00228ed5e5db-956c-451c-acd8-a5747875fdfa\u0022:\u0022g5\u0022,\u0022df57969f-a334-4ae9-90c7-396f047db2a2\u0022:\u0022g6\u0022,\u00222a07db01-6068-4722-a633-edbfe9bd8269\u0022:\u0022g7\u0022}"
+            },
+            {
+              "Name": "raven.ids",
+              "Value": "{\u0022985a7081-09a9-457e-96dc-da2dbfb1322f\u0022:24,\u00227a51907b-67c3-4d73-b136-96137af81f3b\u0022:2,\u00228a0b8644-d1bf-4e23-9c91-9f0376862b49\u0022:23,\u0022477dd833-6dfb-40b9-bb51-84d27c02ff15\u0022:4,\u00225f03f969-5db6-46b4-9c74-11daa7c187e9\u0022:22,\u0022eb52f9aa-26f0-4839-a5d8-26ec80a8fd8d\u0022:21,\u00229cd92674-9af2-41ad-ba52-8f41a37c4a6a\u0022:7,\u00220972d397-292f-4141-8784-8908a500907e\u0022:20,\u0022f45431fd-e9f7-4c0a-8d5c-a1055e084c6d\u0022:9,\u0022e5f4ac89-89c2-454a-a8ba-39aeb3922a02\u0022:10,\u00222abc56a7-ad8b-42ba-8ae9-12ab1754a67b\u0022:11,\u00223601687f-6a6a-4029-a4ee-275bb26c0210\u0022:12,\u0022ad00576b-7f95-47f3-bffe-0af600312993\u0022:19,\u00228bde31d2-26a3-4a35-ad2b-82866cdaf3ad\u0022:18,\u002247cb969e-d15b-4c85-9960-d9f4181f78b6\u0022:17,\u0022357a5bd6-f47b-4a3c-9fb4-43ebb948e7ed\u0022:59,\u0022d9cd1304-bfa5-4001-b8d3-040ae904b207\u0022:58,\u00229d30a82a-c6c4-4d27-bb60-c175739a4902\u0022:27,\u002251901a06-cc37-48d7-ae17-b4258c54b110\u0022:57,\u0022b94c547d-4ffb-49be-96e5-f11feb54f8e9\u0022:56,\u0022ab549798-8f44-47d7-a702-c45c8b65528e\u0022:55,\u00221751b44f-6dbc-416b-bd39-6cc6573b721c\u0022:54,\u002273108e9a-81d4-4e87-81fb-2dcf846894f3\u0022:53,\u002232c7cb48-bb44-4def-885c-5e56b2f079c6\u0022:52,\u0022062c25e7-f25d-4561-9300-5503811c5bd9\u0022:51,\u0022c0075d2d-3696-49bf-9020-d2476e4ab053\u0022:50,\u0022ea6069bf-8023-4f8a-97a4-17a9b7dd7903\u0022:49,\u0022753811c9-e014-4a4b-aa81-802cfe0235ab\u0022:48,\u002211d55f77-f65a-4ebc-8185-fe82dc4a8750\u0022:47,\u002224a6f3cd-9d56-4e3a-a5c2-886a133c6e08\u0022:46,\u002278479a7a-0cdc-43ba-a744-2e2e6ad9b796\u0022:45,\u0022e038a3d7-8f63-4e94-a6b8-d9c2c620e045\u0022:44,\u002279487183-fa0c-438a-82e6-67f9bbbe5903\u0022:43,\u00221b3080c6-4c04-4978-9460-60ecf10eeea7\u0022:60,\u0022e6a65cf9-7ea6-4b2d-a220-05ba86353da3\u0022:61,\u002257d712b9-9d2c-4093-967e-359008752296\u0022:62,\u00228eedcc8b-9741-4692-8fe4-005518c5f4b6\u0022:63,\u0022ebcb7c32-c82d-4ec1-b569-b352082e6519\u0022:64,\u0022027453be-a550-4fa4-ba80-da2d3581fd73\u0022:65,\u002204ce7818-73bc-4387-b86d-f744fc14b60b\u0022:66,\u0022e9bcf947-8f16-4d9a-8829-605e6ac102c7\u0022:67,\u0022f2d1c837-94ac-4bb5-867e-7b4819af01f4\u0022:68,\u0022edddde82-865c-4e36-bffa-d2c040741b01\u0022:69,\u00228f144d3f-d8b5-40ca-a5d6-ccd1cea28cff\u0022:70,\u0022868a0bf7-eb1c-4a6e-b922-52f133b480df\u0022:71,\u0022559b859e-b878-421e-955f-03fc6e4805c0\u0022:72,\u0022956d9083-99b7-4475-9d7d-37261140b536\u0022:73,\u00223cf58f16-e54c-4ca5-ba02-ae4e499e275c\u0022:74,\u002228d74abe-32ab-404b-a603-aa64e0ffac75\u0022:75,\u0022f2ce57b8-924f-47ad-9763-68c1fba7cf2d\u0022:76,\u0022d447e880-b4ed-4a8b-ad02-d892f807aab8\u0022:77,\u0022d3f39204-a0bd-4baf-a340-75c3aadcc302\u0022:78,\u00224b151d49-147f-40c8-8ce5-c8b81537af51\u0022:101,\u0022154ed9b9-8ad6-4202-acaf-2d4cdfeaa74d\u0022:212,\u0022279a0952-98bf-463f-b7a4-8d0b2fb4139d\u0022:103,\u00222f2b8be8-fd96-4355-93bc-d8b6a883011f\u0022:104,\u0022d0a982da-8972-4066-be3b-6b66d608d86b\u0022:105,\u0022c2f3d998-f77a-43c0-9312-de650a6e8f0e\u0022:106,\u0022323300de-4940-4573-b4a4-4204448ab0b5\u0022:107,\u002299b4158f-726d-48d1-9a6a-3188d6a4634f\u0022:108,\u00229bdb8812-b8e9-4150-bf3c-02a7b7984a99\u0022:157,\u002249210ebf-65e2-4259-8400-d7f176f6b559\u0022:110,\u0022d3f4ebd4-f604-45c7-8ee9-e9096bf5f88d\u0022:156,\u002259c93d9e-242d-4451-9b6c-b6e54cb648b2\u0022:112,\u0022afea4807-36d2-45a1-8501-495fd312f84a\u0022:113,\u002212b6599f-6d4d-42ac-b540-4d2a041844c0\u0022:114,\u00228b18c000-c0dd-4a01-9a17-1829f69863be\u0022:115,\u0022d8aa5ad9-2c93-4f5b-890f-560cc3e8126e\u0022:116,\u0022d194e402-7ff8-49b0-815f-3fc528821a31\u0022:117,\u00226bacffb0-89d1-49fe-ab72-a25a8b3df821\u0022:118,\u0022b33bcdaa-1083-4791-91a4-4dfe8a6763c3\u0022:119,\u002205e0e469-1b4b-4277-843a-b94826a26dbe\u0022:121,\u00223e6ddd80-f78f-4eb4-a08f-a9eaeca85725\u0022:122,\u00225da6cd5c-0647-40ba-962a-2008901f9e05\u0022:123,\u00221dfb9412-fd0d-46c3-af24-3c6d1de5376e\u0022:124,\u0022977ebc01-4103-45d1-8928-ae8238b89585\u0022:125,\u0022ef3eb2c9-6dd4-4a6d-a05c-a927e2cda136\u0022:126,\u00229d68ec08-439b-4ce7-bda8-c494d209b325\u0022:127,\u0022ec5aa4d4-7228-4ba6-a4c6-217666f05533\u0022:128,\u0022fcee2886-3ef0-49b9-83c8-d5228bcc8fb7\u0022:129,\u00229ea9bf3a-eea8-476c-9994-ff9fae7131ed\u0022:130,\u002213737639-1ce6-4cc2-8605-c64212e3eda5\u0022:131,\u00228b9a9cca-4dfe-452a-a352-32b549aa4b88\u0022:132,\u002293338c34-05fc-487f-ac38-bd8aea5b6f34\u0022:133,\u0022d8bf6dae-44dd-4c39-b88e-08a9e6db3ef4\u0022:134,\u0022b1e6eee5-3770-4798-a214-b9176f22ad89\u0022:135,\u002246409090-6ed5-490e-b5ad-7a053d8c546d\u0022:136,\u00223176bbd7-bf3e-431a-ba62-b825e6957119\u0022:137,\u0022ebd4f7e2-9f21-4b73-bd5b-1017c56ac03b\u0022:138,\u002206ee3208-6111-497a-a915-3777ce8830f2\u0022:139,\u00222c74eb20-ce51-42f8-b22c-59a0db210f70\u0022:155,\u0022f7758546-53d8-465c-a615-2c4feaec6afe\u0022:141,\u00225aa42218-1fd5-4bd5-8dd9-f3cdc67973e8\u0022:142,\u0022e1ca16a8-ee45-4dc7-9d27-fefe4885a53f\u0022:143,\u0022717b0ab8-2efc-40da-a694-e3600c815272\u0022:144,\u00222504fb81-6215-4aea-aa06-8bfc91331de8\u0022:216,\u00225a27579b-41b5-4c3b-94fe-fe735a44ce87\u0022:146,\u0022a6f5b5db-8e0d-44ed-8c25-cb8338a89754\u0022:152,\u0022a323e3db-8da4-4754-87a3-e07892180a2a\u0022:150,\u0022a03e0659-b628-4d51-9f71-591d9daec8a1\u0022:102,\u00224405e464-0321-4fb8-92e3-b8b91a9fb107\u0022:158,\u0022c3f7fca4-36c5-445d-bc8c-54297e5b6bee\u0022:159,\u0022349db9ac-a7b1-4818-a1c1-e76d14791143\u0022:160,\u002270dcfbe9-7bd4-4954-a5ee-b4f03aaba176\u0022:161,\u00229a5e6907-678e-4a3c-b9fa-c146fe56bdd0\u0022:162,\u0022b66e3d1d-01b8-483d-9ac3-72b2b6c14c1b\u0022:163,\u00225e774148-47e5-4d14-b0b3-9b5a175f8029\u0022:164,\u002283e3f674-bf10-4a05-954f-896a16f19398\u0022:165,\u0022f821883c-e4dd-46f2-abe8-987501842ddc\u0022:166,\u0022f0b083c8-6dd6-4cf4-b7b8-1002b55c1b4d\u0022:167,\u002213889857-e679-4d44-848e-fc0e1ba87d45\u0022:168,\u0022e5ea9639-195e-44f0-8774-8398148c8a7c\u0022:169,\u00224110d835-2dfb-4b87-a886-b7f7097ae887\u0022:170,\u00220d30b161-67be-4814-97ab-93d3649ebec9\u0022:171,\u0022ad941efb-ccbd-4d23-a09d-ee2e4dd63898\u0022:172,\u002283837dd6-7585-4caf-b9b4-22cef4fd7a8a\u0022:173,\u00220f383af2-f33d-4478-834b-12e45c6ebc43\u0022:174,\u002269db8481-c540-4b9b-a2ea-f17d4be6a799\u0022:175,\u0022ccdd973e-46e4-428b-9b9e-fb6a9938db66\u0022:176,\u002227396241-13cc-4019-9f6d-e7e2abcaf33e\u0022:177,\u0022e0316057-6419-43c5-854a-9e534a58ee3e\u0022:178,\u0022b71ddf16-ced7-489b-b653-20a70289aafb\u0022:179,\u002214692552-5c22-489d-889e-bede9be303b0\u0022:180,\u0022d2ca0128-1208-427a-8fdf-d07543b88bd5\u0022:209,\u002272ee164f-334e-4a31-926c-aeb42e2db0d1\u0022:210,\u00223d3fcf1b-2a0e-421c-92d8-867f9f625665\u0022:211,\u0022cdd36729-8a6e-4d56-990c-e334d51d35ae\u0022:215}"
+            },
+            {
+              "Name": "raven.lpos",
+              "Value": "{\u0022102\u0022:\u00221040,1315.9092\u0022}"
+            },
+            {
+              "Name": "raven.tags",
+              "Value": "{\u002216\u0022:\u0022Deconstruct Topo\u0022,\u002245\u0022:\u0022[45] Deconstruct Mesh\u0022,\u002260\u0022:\u0022[60] Archicad Mesh\u0022,\u0022101\u0022:\u0022[101] BB Lote\u0022,\u0022102\u0022:\u0022[102] Corners\u0022,\u0022103\u0022:\u0022[103] Vector a Origen\u0022,\u0022104\u0022:\u0022[104] Mover Vias\u0022,\u0022105\u0022:\u0022[105] Mover Espacio Publico\u0022,\u0022106\u0022:\u0022[106] Mover Malla Topo\u0022,\u0022107\u0022:\u0022[107] Mover Lote\u0022,\u0022108\u0022:\u0022[108] Origen (0,0,0)\u0022,\u0022146\u0022:\u0022[146] Extrude\u0022,\u00224\u0022:\u0022[4] Panel\u0022,\u0022119\u0022:\u0022[119] f1_normativa_aplicar\u0022,\u0022124\u0022:\u0022[124] f1_normativa_extraer\u0022,\u0022140\u0022:\u0022[140] Unit Z\u0022,\u0022147\u0022:\u0022[147] Move Top Curve\u0022,\u0022145\u0022:\u0022Descomponer Brep\u0022,\u0022150\u0022:\u0022[150] Panel\u0022,\u0022109\u0022:\u0022[109] Archicad Mesh\u0022,\u00222\u0022:\u0022[2] File Path\u0022,\u00227\u0022:\u0022[7] Panel\u0022,\u00229\u0022:\u0022[9] Panel\u0022,\u002210\u0022:\u0022[10] Panel\u0022,\u002211\u0022:\u0022[11] Panel\u0022,\u002212\u0022:\u0022[12] Panel\u0022,\u002217\u0022:\u0022[17] Python 3 Script\u0022,\u002218\u0022:\u0022[18] Curve\u0022,\u002219\u0022:\u0022[19] Curve\u0022,\u002220\u0022:\u0022[20] Mesh\u0022,\u002221\u0022:\u0022[21] Panel\u0022,\u002222\u0022:\u0022[22] Curve\u0022,\u002223\u0022:\u0022[23] 2D Polyline\u0022,\u002224\u0022:\u0022[24] Boolean Toggle\u0022,\u002227\u0022:\u0022[27] Layer\u0022,\u002243\u0022:\u0022[43] 2D Polyline\u0022,\u002244\u0022:\u0022[44] 2D Polyline\u0022,\u002246\u0022:\u0022[46] 2D Viewpoint\u0022,\u002247\u0022:\u0022[47] Polyline Settings\u0022,\u002251\u0022:\u0022[51] Line Type\u0022,\u002252\u0022:\u0022[52] Pen\u0022,\u002253\u0022:\u0022[53] Number Slider\u0022,\u002254\u0022:\u0022[54] Number Slider\u0022,\u002255\u0022:\u0022[55] Layer\u0022,\u002256\u0022:\u0022[56] Number Slider\u0022,\u002257\u0022:\u0022[57] Number Slider\u0022,\u002258\u0022:\u0022[58] Pen\u0022,\u002259\u0022:\u0022[59] Line Type\u0022,\u002261\u0022:\u0022[61] Boolean Toggle\u0022,\u002262\u0022:\u0022[62] Mesh Settings\u0022,\u002263\u0022:\u0022[63] Number Slider\u0022,\u002264\u0022:\u0022[64] Number Slider\u0022,\u002265\u0022:\u0022[65] Layer\u0022,\u002248\u0022:\u0022[48] Boolean Toggle\u0022,\u002249\u0022:\u0022[49] 2D Viewpoint\u0022,\u002250\u0022:\u0022[50] Polyline Settings\u0022,\u002266\u0022:\u0022[66] Story Plane\u0022,\u002267\u0022:\u0022[67] Number Slider\u0022,\u002268\u0022:\u0022[68] Number Slider\u0022,\u002269\u0022:\u0022[69] Number Slider\u0022,\u002270\u0022:\u0022[70] 2D Viewpoint\u0022,\u002271\u0022:\u0022[71] Boolean Toggle\u0022,\u002272\u0022:\u0022[72] 2D Viewpoint\u0022,\u002273\u0022:\u0022[73] Polyline Settings\u0022,\u002274\u0022:\u0022[74] Layer\u0022,\u002275\u0022:\u0022[75] Number Slider\u0022,\u002276\u0022:\u0022[76] Number Slider\u0022,\u002277\u0022:\u0022[77] Pen\u0022,\u002278\u0022:\u0022[78] Line Type\u0022,\u0022110\u0022:\u0022[110] Boolean Toggle\u0022,\u0022112\u0022:\u0022[112] Number Slider\u0022,\u0022113\u0022:\u0022[113] Number Slider\u0022,\u0022114\u0022:\u0022[114] Layer\u0022,\u0022115\u0022:\u0022[115] Number Slider\u0022,\u0022116\u0022:\u0022[116] Number Slider\u0022,\u0022117\u0022:\u0022[117] Number Slider\u0022,\u0022118\u0022:\u0022[118] Story Plane\u0022,\u0022121\u0022:\u0022[121] Area\u0022,\u0022122\u0022:\u0022[122] File Path\u0022,\u0022123\u0022:\u0022[123] File Path\u0022,\u0022125\u0022:\u0022[125] Number Slider\u0022,\u0022126\u0022:\u0022[126] Panel\u0022,\u0022127\u0022:\u0022[127] Panel\u0022,\u0022128\u0022:\u0022[128] Panel\u0022,\u0022129\u0022:\u0022[129] Panel\u0022,\u0022130\u0022:\u0022[130] Number Slider\u0022,\u0022131\u0022:\u0022[131] Number Slider\u0022,\u0022132\u0022:\u0022[132] Number Slider\u0022,\u0022133\u0022:\u0022[133] Panel\u0022,\u0022134\u0022:\u0022[134] File Path\u0022,\u0022135\u0022:\u0022[135] Value List\u0022,\u0022136\u0022:\u0022[136] Value List\u0022,\u0022137\u0022:\u0022[137] Panel\u0022,\u0022138\u0022:\u0022[138] Panel\u0022,\u0022139\u0022:\u0022[139] Panel\u0022,\u0022141\u0022:\u0022[141] Panel\u0022,\u0022142\u0022:\u0022[142] Panel\u0022,\u0022143\u0022:\u0022[143] Panel\u0022,\u0022144\u0022:\u0022[144] Panel\u0022,\u0022152\u0022:\u0022[152] Building Material\u0022,\u0022155\u0022:\u0022[155] Morph Settings\u0022,\u0022156\u0022:\u0022[156] Morph Solid\u0022,\u0022157\u0022:\u0022[157] Construct Domain\u0022,\u0022158\u0022:\u0022[158] Number Slider\u0022,\u0022159\u0022:\u0022[159] Unit Z\u0022,\u0022160\u0022:\u0022[160] f1_lados_configurar\u0022,\u0022161\u0022:\u0022[161] f1_patio_esquina\u0022,\u0022162\u0022:\u0022[162] Explode\u0022,\u0022163\u0022:\u0022[163] Area\u0022,\u0022164\u0022:\u0022[164] Panel\u0022,\u0022165\u0022:\u0022[165] Panel\u0022,\u0022166\u0022:\u0022[166] Panel\u0022,\u0022167\u0022:\u0022[167] Panel\u0022,\u0022168\u0022:\u0022[168] Panel\u0022,\u0022169\u0022:\u0022[169] Panel\u0022,\u0022170\u0022:\u0022[170] Panel\u0022,\u0022171\u0022:\u0022[171] Panel\u0022,\u0022172\u0022:\u0022[172] Curve Middle\u0022,\u0022173\u0022:\u0022[173] File Path\u0022,\u0022174\u0022:\u0022[174] Number Slider\u0022,\u0022175\u0022:\u0022[175] Panel\u0022,\u0022176\u0022:\u0022[176] Panel\u0022,\u0022177\u0022:\u0022[177] Panel\u0022,\u0022178\u0022:\u0022[178] Panel\u0022,\u0022179\u0022:\u0022[179] Panel\u0022,\u0022180\u0022:\u0022[180] Panel\u0022}"
+            }
+          ],
+          "Children": []
+        },
+        {
+          "Path": "Definition/GHALibraries",
+          "Items": [
+            {
+              "Name": "Count",
+              "Value": "8"
+            }
+          ],
+          "Children": [
+            {
+              "Path": "Definition/GHALibraries/Library",
+              "Items": [
+                {
+                  "Name": "Author",
+                  "Value": "Robert McNeel \u0026 Associates"
+                },
+                {
+                  "Name": "Id",
+                  "Value": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "Grasshopper"
+                },
+                {
+                  "Name": "Version",
+                  "Value": "8.33.26188.13001"
+                }
+              ],
+              "Children": []
+            },
+            {
+              "Path": "Definition/GHALibraries/Library",
+              "Items": [
+                {
+                  "Name": "Author",
+                  "Value": "Robert McNeel \u0026 Associates"
+                },
+                {
+                  "Name": "Id",
+                  "Value": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "Grasshopper"
+                },
+                {
+                  "Name": "Version",
+                  "Value": "8.33.26188.13001"
+                }
+              ],
+              "Children": []
+            },
+            {
+              "Path": "Definition/GHALibraries/Library",
+              "Items": [
+                {
+                  "Name": "Author",
+                  "Value": "Robert McNeel \u0026 Associates"
+                },
+                {
+                  "Name": "Id",
+                  "Value": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "Grasshopper"
+                },
+                {
+                  "Name": "Version",
+                  "Value": "8.33.26188.13001"
+                }
+              ],
+              "Children": []
+            },
+            {
+              "Path": "Definition/GHALibraries/Library",
+              "Items": [
+                {
+                  "Name": "Author",
+                  "Value": "Robert McNeel \u0026 Associates"
+                },
+                {
+                  "Name": "Id",
+                  "Value": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "Grasshopper"
+                },
+                {
+                  "Name": "Version",
+                  "Value": "8.33.26188.13001"
+                }
+              ],
+              "Children": []
+            },
+            {
+              "Path": "Definition/GHALibraries/Library",
+              "Items": [
+                {
+                  "Name": "Author",
+                  "Value": "Robert McNeel \u0026 Associates"
+                },
+                {
+                  "Name": "Id",
+                  "Value": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "Grasshopper"
+                },
+                {
+                  "Name": "Version",
+                  "Value": "8.33.26188.13001"
+                }
+              ],
+              "Children": []
+            },
+            {
+              "Path": "Definition/GHALibraries/Library",
+              "Items": [
+                {
+                  "Name": "Author",
+                  "Value": "Robert McNeel \u0026 Associates"
+                },
+                {
+                  "Name": "Id",
+                  "Value": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "Grasshopper"
+                },
+                {
+                  "Name": "Version",
+                  "Value": "8.33.26188.13001"
+                }
+              ],
+              "Children": []
+            },
+            {
+              "Path": "Definition/GHALibraries/Library",
+              "Items": [
+                {
+                  "Name": "Author",
+                  "Value": "Robert McNeel \u0026 Associates"
+                },
+                {
+                  "Name": "Id",
+                  "Value": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "Grasshopper"
+                },
+                {
+                  "Name": "Version",
+                  "Value": "8.33.26188.13001"
+                }
+              ],
+              "Children": []
+            },
+            {
+              "Path": "Definition/GHALibraries/Library",
+              "Items": [
+                {
+                  "Name": "AssemblyFullName",
+                  "Value": "ArchicadConnection, Version=29.0.0.3000, Culture=neutral, PublicKeyToken=null"
+                },
+                {
+                  "Name": "AssemblyVersion",
+                  "Value": "29.0.0.3000"
+                },
+                {
+                  "Name": "Author",
+                  "Value": "GRAPHISOFT SE"
+                },
+                {
+                  "Name": "Id",
+                  "Value": "b267c457-1b3b-42eb-94d4-a075bfc97888"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "Grasshopper-Archicad Live Connection built for Rhinoceros 8"
+                },
+                {
+                  "Name": "Version",
+                  "Value": "29.0.0.3000"
+                }
+              ],
+              "Children": []
+            }
+          ]
+        },
+        {
+          "Path": "Definition/DefinitionObjects",
+          "Items": [
+            {
+              "Name": "ObjectCount",
+              "Value": "3"
+            }
+          ],
+          "Children": [
+            {
+              "Path": "Definition/DefinitionObjects/Object",
+              "Items": [
+                {
+                  "Name": "GUID",
+                  "Value": "06953bda-1d37-4d58-9b38-4b3c74e54c8f"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "File Path"
+                }
+              ],
+              "Children": [
+                {
+                  "Path": "Definition/DefinitionObjects/Object/Container",
+                  "Items": [
+                    {
+                      "Name": "Description",
+                      "Value": "Contains a collection of file paths"
+                    },
+                    {
+                      "Name": "ExpireOnFileEvent",
+                      "Value": "False"
+                    },
+                    {
+                      "Name": "FileFilter",
+                      "Value": "All files|*.*"
+                    },
+                    {
+                      "Name": "InstanceGuid",
+                      "Value": "7a51907b-67c3-4d73-b136-96137af81f3b"
+                    },
+                    {
+                      "Name": "Name",
+                      "Value": "File Path"
+                    },
+                    {
+                      "Name": "NickName",
+                      "Value": "Path"
+                    },
+                    {
+                      "Name": "Optional",
+                      "Value": "False"
+                    },
+                    {
+                      "Name": "Source",
+                      "Value": "e5f4ac89-89c2-454a-a8ba-39aeb3922a02"
+                    },
+                    {
+                      "Name": "SourceCount",
+                      "Value": "1"
+                    }
+                  ],
+                  "Children": [
+                    {
+                      "Path": "Definition/DefinitionObjects/Object/Container/Attributes",
+                      "Items": [
+                        {
+                          "Name": "Bounds",
+                          "Value": "{X=300,Y=1252,Width=50,Height=20}"
+                        },
+                        {
+                          "Name": "Pivot",
+                          "Value": "{X=325,4484, Y=1262,4348}"
+                        }
+                      ],
+                      "Children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Path": "Definition/DefinitionObjects/Object",
+              "Items": [
+                {
+                  "Name": "GUID",
+                  "Value": "59e0b89a-e487-49f8-bab8-b5bab16be14c"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "Panel"
+                }
+              ],
+              "Children": [
+                {
+                  "Path": "Definition/DefinitionObjects/Object/Container",
+                  "Items": [
+                    {
+                      "Name": "Description",
+                      "Value": "A panel for custom notes and text values"
+                    },
+                    {
+                      "Name": "InstanceGuid",
+                      "Value": "e5f4ac89-89c2-454a-a8ba-39aeb3922a02"
+                    },
+                    {
+                      "Name": "Name",
+                      "Value": "Panel"
+                    },
+                    {
+                      "Name": "NickName",
+                      "Value": ""
+                    },
+                    {
+                      "Name": "Optional",
+                      "Value": "False"
+                    },
+                    {
+                      "Name": "ScrollRatio",
+                      "Value": "0"
+                    },
+                    {
+                      "Name": "SourceCount",
+                      "Value": "0"
+                    },
+                    {
+                      "Name": "UserText",
+                      "Value": "D:\\WORK\\PROJECTS\\Dise\u00F1oParametrico\\data\\pot-cache\\AAA0127AZPA-contexto.json"
+                    }
+                  ],
+                  "Children": [
+                    {
+                      "Path": "Definition/DefinitionObjects/Object/Container/Attributes",
+                      "Items": [
+                        {
+                          "Name": "Bounds",
+                          "Value": "{X=238,Y=914,Width=160,Height=61}"
+                        },
+                        {
+                          "Name": "MarginLeft",
+                          "Value": "0"
+                        },
+                        {
+                          "Name": "MarginRight",
+                          "Value": "0"
+                        },
+                        {
+                          "Name": "MarginTop",
+                          "Value": "0"
+                        },
+                        {
+                          "Name": "Pivot",
+                          "Value": "{X=238,51956, Y=914,9518}"
+                        }
+                      ],
+                      "Children": []
+                    },
+                    {
+                      "Path": "Definition/DefinitionObjects/Object/Container/PanelProperties",
+                      "Items": [
+                        {
+                          "Name": "Colour",
+                          "Value": "Color [A=255, R=255, G=250, B=90]"
+                        },
+                        {
+                          "Name": "DrawIndices",
+                          "Value": "True"
+                        },
+                        {
+                          "Name": "DrawPaths",
+                          "Value": "True"
+                        },
+                        {
+                          "Name": "Multiline",
+                          "Value": "True"
+                        },
+                        {
+                          "Name": "SpecialCodes",
+                          "Value": "False"
+                        },
+                        {
+                          "Name": "Stream",
+                          "Value": "False"
+                        },
+                        {
+                          "Name": "Wrap",
+                          "Value": "True"
+                        }
+                      ],
+                      "Children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Path": "Definition/DefinitionObjects/Object",
+              "Items": [
+                {
+                  "Name": "GUID",
+                  "Value": "59e0b89a-e487-49f8-bab8-b5bab16be14c"
+                },
+                {
+                  "Name": "Name",
+                  "Value": "Panel"
+                }
+              ],
+              "Children": [
+                {
+                  "Path": "Definition/DefinitionObjects/Object/Container",
+                  "Items": [
+                    {
+                      "Name": "Description",
+                      "Value": "A panel for custom notes and text values"
+                    },
+                    {
+                      "Name": "InstanceGuid",
+                      "Value": "f45431fd-e9f7-4c0a-8d5c-a1055e084c6d"
+                    },
+                    {
+                      "Name": "Name",
+                      "Value": "Panel"
+                    },
+                    {
+                      "Name": "NickName",
+                      "Value": ""
+                    },
+                    {
+                      "Name": "Optional",
+                      "Value": "False"
+                    },
+                    {
+                      "Name": "ScrollRatio",
+                      "Value": "0"
+                    },
+                    {
+                      "Name": "Source",
+                      "Value": "a7cdf795-082c-42c8-84d5-a9425b68ba04"
+                    },
+                    {
+                      "Name": "SourceCount",
+                      "Value": "1"
+                    },
+                    {
+                      "Name": "UserText",
+                      "Value": "Double click to edit panel content\u2026"
+                    }
+                  ],
+                  "Children": [
+                    {
+                      "Path": "Definition/DefinitionObjects/Object/Container/Attributes",
+                      "Items": [
+                        {
+                          "Name": "Bounds",
+                          "Value": "{X=795,Y=835,Width=160,Height=46}"
+                        },
+                        {
+                          "Name": "MarginLeft",
+                          "Value": "0"
+                        },
+                        {
+                          "Name": "MarginRight",
+                          "Value": "0"
+                        },
+                        {
+                          "Name": "MarginTop",
+                          "Value": "0"
+                        },
+                        {
+                          "Name": "Pivot",
+                          "Value": "{X=795,11176, Y=835,7466}"
+                        }
+                      ],
+                      "Children": []
+                    },
+                    {
+                      "Path": "Definition/DefinitionObjects/Object/Container/PanelProperties",
+                      "Items": [
+                        {
+                          "Name": "Colour",
+                          "Value": "Color [A=255, R=255, G=250, B=90]"
+                        },
+                        {
+                          "Name": "DrawIndices",
+                          "Value": "True"
+                        },
+                        {
+                          "Name": "DrawPaths",
+                          "Value": "True"
+                        },
+                        {
+                          "Name": "Multiline",
+                          "Value": "True"
+                        },
+                        {
+                          "Name": "SpecialCodes",
+                          "Value": "False"
+                        },
+                        {
+                          "Name": "Stream",
+                          "Value": "False"
+                        },
+                        {
+                          "Name": "Wrap",
+                          "Value": "True"
+                        }
+                      ],
+                      "Children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Path": "Thumbnail",
+      "Items": [
+        {
+          "Name": "Thumbnail",
+          "Value": "System.Drawing.Bitmap"
+        }
+      ],
+      "Children": []
+    }
+  ]
+}

@@ -91,7 +91,11 @@ ArchiCAD (layers clasificados) → Tapir GetElements → GH
 
 ### Grasshopper / GHPython
 9. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm).
-10. Script normativo vigente: `F1_NORMATIVA_APLICAR_v24.py` (regla híbrida 15m).
+10. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v02a.py` (pipeline modular v26, regla híbrida 15m).
+    El linaje legacy (`F1_NORMATIVA_APLICAR_*`, `F1_CONTEXTO_POT_*`, `F1_LADOS_CONFIGURAR_*`,
+    `F1_LADOS_CLASIFICAR_*`, patios viejos) está archivado en `src/fase-1-contexto/_legacy/`.
+    Pipeline Fase 1: `F1_ETAPA1_CONTEXTO_v01` → `F1_ETAPA2_LADOS_v02` → `F1_ETAPA2_PATIO_v01`
+    → `F1_ETAPA2_NORMATIVA_v02a`.
 
 ### PROHIBIDO usar 
 11. Rhinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg).
@@ -155,31 +159,33 @@ git push
 ## Estructura del proyecto
 ```
 DiseñoParametrico/
-├── docs/                  # Documentación técnica y normativa
-│   ├── arquitectura/      # ADRs, pipeline general
-│   ├── normativa/         # POT, NSR-10
-│   └── api-referencia/    # Tapir, GH_IO, rhino3dm
-├── scripts/               # Scripts standalone
-│   ├── rhino-compute/     # start/stop/health-check
-│   ├── ollama/            # pull-models, list-models
-│   └── utilities/         # gpkg-to-cache, validate-neighbors
-├── src/                   # Código fuente por fase
-│   ├── fase-1-contexto/   # CONTEXTO, CONFIGURAR_LADOS, ANALISIS_VECINOS
-│   ├── fase-2-demanda/    # MOTOR_DEMANDA (pendiente)
-│   ├── fase-3-masa/       # VOLUMEN (pendiente)
-│   └── fase-4-bim/        # mapeo-tapir (pendiente)
-├── gh-definitions/        # Definiciones .gh
-├── data/                  # Datos POT, vecinos, lotes
-│   ├── pot-geojson/       # .gpkg original (no commitear)
-│   ├── pot-cache/         # JSON por predio (generado)
-│   ├── nsr-10/            # Tablas NSR-10
-│   ├── neighbors/         # Vecinos .3dm o .json
-│   └── lotes-ejemplo/     # Lotes de prueba
-├── tests/                 # Tests con fixtures
-├── exports/               # Salidas (no commitear)
-├── config/                # Config (field-whitelist.json)
-└── .vscode/               # Config VS Code
+├── README.md / CLAUDE.md      # Overview vivo + reglas (documentación detallada en el vault)
+├── config/                    # field-whitelist.json
+├── data/                      # Única raíz de datos
+│   ├── pot-cache/             # JSON por predio + ortofotos (gitignored parcial)
+│   ├── fase-2-demanda/        # JSON de entrada del pipeline (actual + gfa1054)
+│   ├── pot-bogota/ nsr-10/    # Normativa estructurada
+│   ├── ghx-samples/           # Corpus GHX (regenerable, gitignored)
+│   └── lotes-ejemplo/ clima/ ideca-cache/ neighbors/ pot-geojson/
+├── gh-definitions/            # F1_Contexto_Base-Editado_v00 (maestro) + referencias; _archive\
+├── scripts/                   # rhino-compute/ + utilities/
+├── src/                       # Código por fase
+│   ├── fase-1-contexto/       # Modular ETAPA1/ETAPA2 vigente + _legacy\
+│   ├── fase-2-demanda/        # Pipeline + F2_Modelo_Financiero\ (motor v2.1)
+│   ├── fase-3-masa/           # VOLUM_GENERADOR v03, ACCESOS, PREP_LADYBUG
+│   ├── fase-4-ambiental/      # F4_LADYBUG_ANALISIS v02
+│   ├── fase-5-bim/            # Pendiente
+│   ├── interfases-archicad/   # F1_Layers_Proyecto_v01.xml (único)
+│   └── research/              # Exploración C# (GhDefinitionExplorer) — módulo independiente
+├── tests/                     # Pytest (Fase 1)
+├── exports/ logs/ LIBRARIES/ inventario_migracion/
+└── .venv/ pyproject.toml requirements.txt
 ```
+
+> **Documentación:** la única fuente de documentación es el vault de Obsidian
+> `D:\Work\NOTES\obsidian-vault\` (índice: `00-index\mapa-conocimiento.md`). Ya no existe `docs/`
+> en el proyecto; todo se migró al vault el 2026-08-13. El nombre oficial del proyecto es
+> `DiseñoParametrico` (con ñ); usarlo consistentemente en toda la documentación.
 
 ## Limitaciones conocidas
 - **Vecinos**: modelado manual (no hay modelo 3D público de Bogotá).
@@ -191,10 +197,11 @@ DiseñoParametrico/
 - **IA Local (Nemotron/DeepSeek)**: Tienen memoria corta. Si el contexto de la conversación crece demasiado, alucinan. Usar `/clear` frecuentemente al cambiar de tarea. No confiar en la memoria del chat; toda instrucción crítica debe estar en este archivo (`CLAUDE.md`) o en archivos `.md` que el modelo pueda leer.
 
 ## Fases del proyecto
-- [x] **Fase 1**: Contexto POT + retiros + vecinos (clasificación híbrida ADR-008, v24)
-- [ ] **Fase 2**: Motor de demanda (`MOTOR_DEMANDA.py`)
-- [ ] **Fase 3**: Generación de masa (`VOLUM_GENERADOR`)
-- [ ] **Fase 4**: Análisis ambiental (Ladybug + EPW Bogotá)
+- [x] **Fase 0**: Setup BIM (capas ArchiCAD)
+- [x] **Fase 1**: Contexto POT + retiros + vecinos (clasificación híbrida ADR-008, pipeline modular v26)
+- [x] **Fase 2**: Motor de demanda + modelo financiero de prefactibilidad (`F2_Modelo_Financiero`, v2.1: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja)
+- [~] **Fase 3**: Generación de masa (`VOLUM_GENERADOR`, `ACCESOS_INTEGRADOR`, `PREP_LADYBUG`)
+- [~] **Fase 4**: Análisis ambiental (Ladybug + EPW Bogotá)
 - [ ] **Fase 5**: Inyección BIM nativa (Tapir → ArchiCAD)
 
 ## Referencias clave
