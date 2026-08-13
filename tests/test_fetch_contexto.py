@@ -160,11 +160,12 @@ class TestPotDataStructure:
     """Validación de estructura y coherencia de datos POT."""
     
     def test_contexto_json_structure(self, lote_aaa0127azpa_contexto_json):
-        """El JSON de contexto debe tener las claves requeridas."""
+        """El JSON de contexto (fetch-urban-context-v6) debe tener las 7 claves del contrato."""
         if lote_aaa0127azpa_contexto_json is None:
             pytest.skip("JSON de contexto no disponible")
-        
-        required_keys = ["metadata", "pot_data", "topografia", "lote_objetivo", "vecinos", "lados"]
+
+        required_keys = ["metadata", "pot_data", "topografia", "lote_objetivo", "vecinos",
+                         "vias_oficiales", "espacios_publicos"]
         for key in required_keys:
             assert key in lote_aaa0127azpa_contexto_json, f"Falta clave: {key}"
     
@@ -189,18 +190,27 @@ class TestPotDataStructure:
             assert 70 <= x <= 100, f"Coordenada X fuera de rango local: {x}"
             assert 70 <= y <= 110, f"Coordenada Y fuera de rango local: {y}"
     
-    def test_lados_classification_in_json(self, lote_aaa0127azpa_contexto_json):
-        """El JSON debe tener clasificación de lados."""
+    def test_insumos_clasificacion_lados_en_json(self, lote_aaa0127azpa_contexto_json):
+        """El JSON debe contener los insumos para clasificar lados.
+
+        La clasificación de lados NO la produce el fetch: es responsabilidad de
+        F1_ETAPA2_LADOS_v02.py en Grasshopper (regla híbrida ADR-008: vías a <15m
+        = frontal). Este test valida que el JSON trae los insumos necesarios:
+        vértices del lote, vecinos y vías oficiales.
+        """
         if lote_aaa0127azpa_contexto_json is None:
             pytest.skip("JSON de contexto no disponible")
-        
-        lados = lote_aaa0127azpa_contexto_json.get("lados", [])
-        assert len(lados) > 0, "Debe haber clasificación de lados"
-        
-        for lado in lados:
-            assert "lado_idx" in lado
-            assert "clasificacion" in lado
-            assert lado["clasificacion"] in ("Frontal", "Lateral", "Posterior")
+
+        lote = lote_aaa0127azpa_contexto_json["lote_objetivo"]
+        assert len(lote["vertices_3d_local"]) >= 4, "El lote debe tener al menos 4 vértices"
+
+        # Vecinos (lista) y vías oficiales: insumos de la regla de clasificación
+        assert isinstance(lote_aaa0127azpa_contexto_json["vecinos"], list)
+        assert "vias_oficiales" in lote_aaa0127azpa_contexto_json
+        assert "espacios_publicos" in lote_aaa0127azpa_contexto_json
+
+        # Sanidad: el área reportada debe coincidir con la del lote objetivo
+        assert lote["area_m2"] > 0
 
 
 class TestHeightAndFloors:

@@ -14,6 +14,8 @@ Fase 1), evaluando 3 escenarios para el mismo GFA: **A (VIS/VIP)**, **B (Estánd
 | `parametros_AAA0127AZPA.json` | Lote real AAA0127AZPA con datos del pipeline (reproduce sus KPIs exactamente) |
 | `parametros_AAA0127AZPA_mercado2026.json` | Mismo lote con precios/costos de mercado 2026 (GFA 633) |
 | `parametros_AAA0127AZPA_gfa1054_mercado2026.json` | **Alternativa curaduría**: mismo lote con GFA 1054,49 m² (la zona está autorizando mayor edificabilidad) |
+| `parametros_AAA0127AZPA_mercado2026_validado.json` | Precios **validados con comparables** de Prado Veraniego/UPZ 19 El Prado (2026-08-13): B $6,8M, C $9,5M |
+| `parametros_AAA0127AZPA_gfa1054_mercado2026_validado.json` | Alternativa curaduría con precios validados |
 | `verificacion_independiente.py` | Recalcula todo con fórmulas escritas a mano y contrasta contra la salida del motor (equivalente a la hoja de cálculo independiente) |
 | `MANUAL_DE_USO.md` | Manual detallado para persona no técnica: requisitos, ejecución, edición, glosario, lectura de resultados |
 | `parametros_provocacion.json` | Caso de prueba: precios −10% y lote ×1,7 → dispara todas las alertas de inviabilidad |
@@ -33,6 +35,8 @@ python F2_DEMANDA_MOTOR_v01.py --parametros parametros_provocacion.json --outdir
 python F2_DEMANDA_MOTOR_v01.py --chip AAA0127AZPA --sin-informe
 python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_mercado2026.json --outdir resultados_AAA0127AZPA_aporte
 python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json --outdir resultados_AAA0127AZPA_gfa1054
+python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_mercado2026_validado.json --outdir resultados_AAA0127AZPA_validado
+python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026_validado.json --outdir resultados_AAA0127AZPA_gfa1054_validado
 python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_mercado2026.json --pct-socio 30
 ```
 
@@ -118,6 +122,14 @@ refleja que la zona está autorizando mayor edificabilidad). Resultado (mercado 
 Con el GFA ampliado, el proyecto deja de perder dinero y **con arriendo del lote las 3
  tipologías son viables** incluso con canon sobre el precio pedido. Es la alternativa a
 presentar si la gestión de curaduría prospera.
+
+## Precios validados con comparables (2026-08-13)
+
+Comparables reales de Prado Veraniego/UPZ 19 El Prado (Suba): B se ajusta a **$6,8 M/m²**
+y C a **$9,5 M/m²** ($12 M no es sostenible en estrato 3–4). Con precios validados la
+conclusión se refuerza: compra del lote inviable en las 3 tipologías, **C descartado** (ni con
+suelo gratis), vías viables = aporte del dueño (B) o arriendo (A y B). Detalle y fuentes en
+`parametros_AAA0127AZPA_mercado2026_validado.json` y el vault.
 
 ## Escenario E — Arriendo del lote
 
