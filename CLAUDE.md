@@ -1,4 +1,4 @@
-# CLAUDE.md — Proyecto DiseñoParametrico
+﻿# CLAUDE.md — Proyecto DiseñoParametrico
 
 > **Nota:** Este archivo debe ir en `D:\WORK\PROJECTS\DiseñoParametrico\CLAUDE.md`
 > Es generado automáticamente por `init-project.ps1`. Esta es la plantilla maestra.
@@ -14,7 +14,7 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
 - **IA local**: Ollama (qwen2.5-coder:14b primario, qwen2.5:7b si compute activo)
 - **Orquestador**: Claude Code vía fcc-server (puerto 8787)
 - **Conocimiento**: Obsidian + Graphify
-- **Python**: 3.12 externo, IronPython 2.7 en GHPython
+- **Python**: 3.12 externo, IronPython 2.7 en GHPython (componente "Script" clásico, NO "Python 3 Script")
 
 ## Hardware del sistema
 - CPU: Intel i5-12600K (10 cores)
@@ -25,23 +25,82 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
 
 ## Reglas obligatorias
 
+### GHPython
+5. **⚠️ NO usar el componente "Python 3 Script" de Grasshopper (Rhino 8).**
+   El componente "Python 3 Script" tiene un bug documentado en Rhino 8: pierde
+   el reconocimiento del tipo de lenguaje, sellando el componente sin posibilidad
+   de edición. Han ocurrido 3 fallas en 2 días que obligan a reconstruir todos
+   los componentes desde cero.
+   ✅ **Usar SIEMPRE el componente "Script"** (el clásico) y seleccionar
+   **IronPython 2.7** como lenguaje. Es mucho más estable en este contexto.
+6. Los scripts GHPython DEBEN ser compatibles con IronPython 2.7:
+   - NO usar f-strings → usar `.format()` o `%`
+   - NO usar `pathlib` → usar `os.path`
+   - NO usar type hints → quitarlos
+   - NO usar `:=` (walrus operator)
+   - Usar `globals().get()` para acceder a variables del canvas
+   - **NO incluir shebang (`#! /usr/bin/env python3`)** al inicio —
+     confunde al detector de lenguaje del componente "Script" y produce
+     "Can not determine language", sellando el componente
+
+### ArchiCAD Layers
+7. **Capas para clasificación de entorno** (creadas desde Grasshopper vía Tapir):
+   - `00-00-10_Lote_proyecto` — Predio objetivo
+   - `00-20-20_Elementos_entorno_urbano` — Polígonos de vías
+   - `00-20-30_Ejes_vias` — Ejes de vías (líneas centrales)
+   - `70-50-10_Zonas_verdes_publicas` — Parques, plazas y zonas verdes
+   - `70-30-20_Andenes_preexistentes` — Andenes y espacio público peatonal
+   - `10-20-10_Topografia` — Curvas de nivel y puntos topográficos
+   - `70-20-20_Perimetros_vecinos` — Perímetros de predios vecinos
+   - `70-20-30_Volumetrias_vecinas` — Morphs de construcciones existentes en predios vecinos (manual)
+   - `00-10-20_Elementos_referencia` — Líneas de referencia y ejes auxiliares
+
+### Pipeline Fase 1 — Dos Etapas (v26)
+
+#### ETAPA 1: Datos en bruto → ArchiCAD (clasificación manual)
+```
+fetch-urban-context-v6 → JSON → F1_ETAPA1_CONTEXTO (GH Python)
+  → lot_curve, vecinos_curves, vias_oficiales, espacios_publicos
+  → Tapir: crear layers + enviar geometría a ArchiCAD
+  → MANUAL en ArchiCAD: clasificar lotes de vías, ejes, andenes,
+    zonas verdes, predios vecinos en layers especiales
+  → MANUAL: construir volumetrías existentes de vecinos (Morph)
+```
+
+#### ETAPA 2: Geometría clasificada → ocupación y patios
+```
+ArchiCAD (layers clasificados) → Tapir GetElements → GH
+  → F1_ETAPA2_LADOS: clasificar lados según capas
+  → F1_ETAPA2_PATIO: patios según colindancias reales
+  → F1_ETAPA2_NORMATIVA: ocupación + envolvente
+```
+
 ### Normativa
 1. Toda referencia POT debe citar el **Decreto 555 de 2021** y consultar el `.gpkg` de la geobase Bogotá.
 2. Toda referencia NSR-10 debe citar el **Título y sección** (ej: NSR-10 A.2.5).
 3. Coordenadas: **MAGNA-SIRGAS Origen Bogotá** (EPSG:9377).
 4. Aplicar **desfase virtual** si se compara con origen local (0,0,0) de Archicad.
 
+### Clasificación Espacial Híbrida (ADR-008)
+5. **NO confiar ciegamente en datos oficiales.** La geodatabase del POT tiene huecos (calles no digitalizadas, alturas de vecinos faltantes).
+6. **Regla de clasificación de frentes**: Un borde del lote es "Frontal" si la distancia a CUALQUIER curva de vía es < 15 metros. Si no hay vía cerca, es "Lateral" o "Posterior".
+7. **Feedback Loop ArchiCAD ↔ Grasshopper**: Las vías se obtienen de DOS fuentes combinadas con Merge en GH:
+   - `vias_oficiales`: del JSON (capa Eje_vial del POT)
+   - `vias_manuales`: dibujadas en ArchiCAD en capas `00-20-20_Elementos_entorno_urbano_preexistente`, `70-30-20_Andenes_preexistentes`, `70-50-10_Zonas_verdes_publicas`
+8. **Ortofoto de referencia**: Usar `fetch-aerial-photo-v6.py` para obtener imagen satelital. Colocar en capa `00-20-20_Foto_Aerea_Referencia` (50% transparencia) para verificar alineación.
+
 ### Grasshopper / GHPython
-5. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm) en Grasshopper o el área se calculará 1,000,000 de veces mayor.
+9. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm).
+10. Script normativo vigente: `F1_NORMATIVA_APLICAR_v24.py` (regla híbrida 15m).
 
 ### PROHIBIDO usar 
-6. Rhinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg) y Rhino.Geometry.Intersect para operaciones geométricas falla con geometría en memoria de GH (pide Guids).
-7. Entradas JSON a GHPython: `No Type Hint` + `Item Access`.
-8. Entradas geométricas a GHPython: `List Access` + `Flatten`.
-9. Lotes deben ser **polilíneas (LineSegments)**, no NURBS.
-10. No usar APIs online (epsg.io, IDECA) dentro de GHPython; usar `data/` local.
-11. Si una entrada falla, usar valor por defecto (retiro 3.0m) y loggear warning.
-12. Prohibido usar coordenadas globales (SIRGAS) o Google Maps como input directo en Grasshopper/ArchiCAD. Esto rompe la precisión decimal.
+11. Rhinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg).
+12. Entradas JSON a GHPython: `No Type Hint` + `Item Access`.
+13. Entradas geométricas a GHPython: `List Access` + `Flatten`.
+14. Lotes deben ser **polilíneas (LineSegments)**, no NURBS.
+15. No usar APIs online dentro de GHPython; usar `data/` local.
+16. Si una entrada falla, usar valor por defecto y loggear warning.
+17. Prohibido usar coordenadas globales (SIRGAS) como input directo en GH/ArchiCAD.
 
 ### Código Python
 13. Todo script GHPython nuevo requiere test antes de merge.
@@ -49,7 +108,7 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
 15. Convención de 命名: `MAYUS_FASE_VERBO_vNN.py` (ej: `F1_CONTEXTO_v09.py`).
 16. Python externo: type hints obligatorios, ruff, mypy.
 17. GHPython: sin type hints (IronPython 2.7).
-18. La adquisición del lote se hace mediante el CHIP del predio usando el script scripts/utilities/fetch-urban-context.py.
+18. La adquisición del lote se hace mediante el CHIP del predio usando el script scripts/utilities/fetch-urban-context-v6.py.
 19. El script genera un JSON en 'data/pot-cache/<CHIP>-contexto.json' con coordenadas locales (0,0,0) + metadatos SIRGAS + topografía.
 20. Los scripts GHPython de la Fase 1 SOLO deben leer este JSON. Si el JSON no existe, el pipeline debe detenerse e indicar al usuario que ejecute el script de fetch primero.
 21. La topografía maneja dos estados: 'ESTIMADA' (raster público) y 'REAL' (levantamiento). El sistema debe actualizarse dinámicamente cuando el estado cambie a REAL.
@@ -132,18 +191,60 @@ DiseñoParametrico/
 - **IA Local (Nemotron/DeepSeek)**: Tienen memoria corta. Si el contexto de la conversación crece demasiado, alucinan. Usar `/clear` frecuentemente al cambiar de tarea. No confiar en la memoria del chat; toda instrucción crítica debe estar en este archivo (`CLAUDE.md`) o en archivos `.md` que el modelo pueda leer.
 
 ## Fases del proyecto
-- [x] **Fase 1**: Contexto POT + retiros + vecinos (en revisión, reforzar tests)
+- [x] **Fase 1**: Contexto POT + retiros + vecinos (clasificación híbrida ADR-008, v24)
 - [ ] **Fase 2**: Motor de demanda (`MOTOR_DEMANDA.py`)
-- [ ] **Fase 3**: Generación de masa (`VOLUMEN_v04.py`)
-- [ ] **Fase 4**: Inyección BIM nativa (`mapeo-tapir.py`)
+- [ ] **Fase 3**: Generación de masa (`VOLUM_GENERADOR`)
+- [ ] **Fase 4**: Análisis ambiental (Ladybug + EPW Bogotá)
+- [ ] **Fase 5**: Inyección BIM nativa (Tapir → ArchiCAD)
 
 ## Referencias clave
 - **POT Bogotá**: Decreto 555 de 2021
 - **NSR-10**: Reglamento Colombiano de Construcción Sismo Resistente
-- **Tapir**: https://github.com/ogix/Tapir (verificar URL oficial)
-- **Grasshopper-Archicad Live Connection**: Graphisoft
+- **Tapir**: Grasshopper-Archicad Live Connection (Graphisoft)
 - **Geobase Bogotá**: https://geobogota.maps.arcgis.com/
 - **MAGNA-SIRGAS Origen Bogotá**: EPSG:9377
+- **ADR-008**: Clasificación Espacial Híbrida (feedback loop ArchiCAD↔GH, regla 15m)
+
+## Estándar de documentación para scripts GHPython
+
+Todo script Python para Grasshopper debe incluir en su encabezado:
+
+1. **Propósito**: Qué hace el script y por qué existe (2-3 líneas).
+2. **Normativa aplicable**: Referencia a decretos, artículos o fichas reglamentarias.
+3. **Historial de versiones**: `vXX — qué cambió` en orden cronológico inverso.
+4. **Tabla de entradas**: Nombre, Tipo (Curve/String/Number/int), Acceso (Item/List), Descripción y procedencia (de qué componente viene).
+5. **Tabla de salidas**: Nombre, Tipo, Descripción.
+6. **Tabla de funciones internas**: Nombre, Descripción (qué hace, no cómo).
+
+Formato de versión: `v<major>.<minor>` donde major = cambio de lógica, minor = solo documentación/formato.
+Los números de versión en el nombre de archivo reflejan la versión actual (ej: `_v03.py`).
+
+Ejemplo de referencia: `F1_NORMATIVA_APLICAR_v22.py` (v22.6) y `F1_PATIO_VECINO_v04.py` (v04).
+
+## Regla de retiros y patios: lógica vecino vs calle
+
+**Principio fundamental:** Los aislamientos y patios aplican solo a linderos con predios
+vecinos, NO a frentes de calle o espacio público. La calle ya provee ventilación.
+
+1. **Clasificación de lados:**
+   - Lado "Frontal" = colinda con vía → retiro frontal normativo (3-5m según tipo de vía)
+   - Lado "Publico" = colinda con espacio público → sin aislamiento.
+   - Lado "Lateral" = colinda con vecino → aislamiento según tipología (0m para Continua, 3m para Aislada)
+
+2. **Patios de aislamiento:**
+   - Se generan en vértices donde convergen DOS lados vecinos (no calles)
+   - Vértice Calle+Calle → sin patio
+   - Vértice Calle+Vecino → sin patio
+   - Vértice Vecino+Vecino → PATIO REQUERIDO
+
+3. **Tamaño del patio:**
+   - Lotes < 500 m² + Continua + ≤ 5 pisos: 3.0m × 3.0m fijo
+   - Regla general: max(3.0, altura_total × 0.25) m por lado
+
+4. **Implementación:**
+   - `F1_LADOS_CONFIGURAR` clasifica lados por proximidad a street_curves
+   - `F1_PATIO_VECINO_v04` detecta vértices vecino-vecino y genera rectángulos
+   - `F1_NORMATIVA_APLICAR_v22` aplica retiros diferenciados y resta todos los patios
 
 ## Cuándo preguntar al usuario
 - Cambios arquitectónicos mayores (nuevo stack, cambiar de plugin).

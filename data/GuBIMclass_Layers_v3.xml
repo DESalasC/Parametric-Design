@@ -7663,6 +7663,57 @@
 				<ReadOnly>false</ReadOnly>
 				<ConnectionClassId>1</ConnectionClassId>
 			</Layer>
+		<Layer Idx="454" Name="70-30-20_Andenes_preexistentes">
+			<OdbObj Mv="2" Sv="0">
+				<OdbRef>
+					<guid>B1A2C3D4-E5F6-7890-ABCD-EF1234567890</guid>
+				</OdbRef>
+				<CreaTime>23970</CreaTime>
+				<ModiTime>23972</ModiTime>
+			</OdbObj>
+			<Name>70-30-20_Andenes_preexistentes</Name>
+			<Extension>0</Extension>
+			<Index>454</Index>
+			<Flags/>
+			<ModiTime>1164398284</ModiTime>
+			<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+			<ReadOnly>false</ReadOnly>
+			<ConnectionClassId>1</ConnectionClassId>
+		</Layer>
+		<Layer Idx="455" Name="70-50-10_Zonas_verdes_publicas">
+			<OdbObj Mv="2" Sv="0">
+				<OdbRef>
+					<guid>C2B3D4E5-F6A7-8901-BCDE-F12345678901</guid>
+				</OdbRef>
+				<CreaTime>23970</CreaTime>
+				<ModiTime>23972</ModiTime>
+			</OdbObj>
+			<Name>70-50-10_Zonas_verdes_publicas</Name>
+			<Extension>0</Extension>
+			<Index>455</Index>
+			<Flags/>
+			<ModiTime>1164398284</ModiTime>
+			<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+			<ReadOnly>false</ReadOnly>
+			<ConnectionClassId>1</ConnectionClassId>
+		</Layer>
+		<Layer Idx="456" Name="00-20-20_Foto_Aerea_Referencia">
+			<OdbObj Mv="2" Sv="0">
+				<OdbRef>
+					<guid>D3C4E5F6-A7B8-9012-CDEF-234567890123</guid>
+				</OdbRef>
+				<CreaTime>23970</CreaTime>
+				<ModiTime>23972</ModiTime>
+			</OdbObj>
+			<Name>00-20-20_Foto_Aerea_Referencia</Name>
+			<Extension>0</Extension>
+			<Index>456</Index>
+			<Flags/>
+			<ModiTime>1164398284</ModiTime>
+			<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+			<ReadOnly>false</ReadOnly>
+			<ConnectionClassId>1</ConnectionClassId>
+		</Layer>
 		</Attributes>
 		<Attributes Type="Composites">
 			<RefID>1129791794</RefID>

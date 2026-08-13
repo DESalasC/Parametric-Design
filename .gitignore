@@ -23,8 +23,14 @@ $Recycle.Bin/
 data/pot-geojson/*.gpkg
 data/pot-geojson/*.geojson
 data/pot-cache/*.json
+data/pot-cache/*.png
 data/ideca-cache/*
 data/neighbors/*.3dm
+data/ghx-samples/
+
+# Cobertura
+.coverage
+
 
 # Exports
 exports/json/*.json

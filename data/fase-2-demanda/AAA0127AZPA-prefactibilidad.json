@@ -1,0 +1,70 @@
+{
+    "chip": "AAA0127AZPA",
+    "gfa_maximo_evaluado": 1054.491768,
+    "costo_lote_input": 1200000000.0,
+    "escenarios": [
+        {
+            "producto": "Estandar",
+            "gfa_m2": 1054.49,
+            "nga_m2": 790.87,
+            "num_unidades": 9,
+            "tamano_unidad_m2": 85.0,
+            "ingresos_totales_cop": 4972500000.0,
+            "costo_lote_cop": 1200000000.0,
+            "costo_duro_cop": 3690721188.0,
+            "costo_blando_cop": 553608178.2,
+            "costo_mkt_cop": 198900000.0,
+            "costo_total_cop": 5643229366.2,
+            "utilidad_bruta_cop": -670729366.2,
+            "KPIs": {
+                "MUB_pct": -13.49,
+                "ROI_pct": -11.89,
+                "Lote_sobre_Ventas_pct": 24.13
+            }
+        },
+        {
+            "producto": "VIS",
+            "gfa_m2": 1054.49,
+            "nga_m2": 843.59,
+            "num_unidades": 15,
+            "tamano_unidad_m2": 55.0,
+            "ingresos_totales_cop": 3712500000.0,
+            "costo_lote_cop": 1200000000.0,
+            "costo_duro_cop": 2741678596.8,
+            "costo_blando_cop": 411251789.52,
+            "costo_mkt_cop": 148500000.0,
+            "costo_total_cop": 4501430386.32,
+            "utilidad_bruta_cop": -788930386.32,
+            "KPIs": {
+                "MUB_pct": -21.25,
+                "ROI_pct": -17.53,
+                "Lote_sobre_Ventas_pct": 32.32
+            }
+        },
+        {
+            "producto": "Lujo",
+            "gfa_m2": 1054.49,
+            "nga_m2": 738.14,
+            "num_unidades": 4,
+            "tamano_unidad_m2": 150.0,
+            "ingresos_totales_cop": 5700000000.0,
+            "costo_lote_cop": 1200000000.0,
+            "costo_duro_cop": 5272458840.0,
+            "costo_blando_cop": 790868826.0,
+            "costo_mkt_cop": 228000000.0,
+            "costo_total_cop": 7491327666.0,
+            "utilidad_bruta_cop": -1791327666.0,
+            "KPIs": {
+                "MUB_pct": -31.43,
+                "ROI_pct": -23.91,
+                "Lote_sobre_Ventas_pct": 21.05
+            }
+        }
+    ],
+    "recomendacion": {
+        "producto": "Estandar",
+        "roi_esperado": -11.89,
+        "num_unidades_sugeridas": 9,
+        "tamano_unidad_sugerida": 85.0
+    }
+}
