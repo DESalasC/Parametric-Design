@@ -1,50 +1,64 @@
 ﻿puesto_riesgo;variable;etiqueta;combinacion;impacto_vpn_cop;vpn_base_cop;vpn_minus10_cop;vpn_plus10_cop;tir_base_pct
-1;ocupacion_pct;Ocupacion promedio;CP_A_VIS;600181764.17;-615153726.01;-1215335490.18;-14971961.85;8.16
-1;ocupacion_pct;Ocupacion promedio;LP_A_VIS;540359725.59;-304231549.95;-844591275.53;236128175.64;9.02
-1;ocupacion_pct;Ocupacion promedio;CP_B_ESTANDAR;647923495.41;-903437998.36;-1551361493.77;-255514502.96;7.71
-1;ocupacion_pct;Ocupacion promedio;LP_B_ESTANDAR;583342885.57;-721894058.62;-1305236944.19;-138551173.05;8.04
-1;ocupacion_pct;Ocupacion promedio;CP_C_LUJO;677009844.27;-2170378515.31;-2847388359.58;-1493368671.04;5.51
-1;ocupacion_pct;Ocupacion promedio;LP_C_LUJO;609530104.89;-2114279169.6;-2723809274.49;-1504749064.71;5.38
-1;ocupacion_pct;Ocupacion promedio;PROMEDIO;;;;;
-2;canon_m2_mes;Canon de arriendo (m2/mes);CP_A_VIS;598961028.17;-615153726.01;-1214114754.18;-16192697.85;8.16
-2;canon_m2_mes;Canon de arriendo (m2/mes);LP_A_VIS;539641645.59;-304231549.95;-843873195.53;235410095.64;9.02
-2;canon_m2_mes;Canon de arriendo (m2/mes);CP_B_ESTANDAR;646605655.41;-903437998.36;-1550043653.77;-256832342.96;7.71
-2;canon_m2_mes;Canon de arriendo (m2/mes);LP_B_ESTANDAR;582567685.57;-721894058.62;-1304461744.19;-139326373.05;8.04
-2;canon_m2_mes;Canon de arriendo (m2/mes);CP_C_LUJO;675632844.27;-2170378515.31;-2846011359.58;-1494745671.04;5.51
-2;canon_m2_mes;Canon de arriendo (m2/mes);LP_C_LUJO;608720104.89;-2114279169.6;-2722999274.49;-1505559064.71;5.38
-2;canon_m2_mes;Canon de arriendo (m2/mes);PROMEDIO;;;;;
-3;costo_construccion_m2;Costo duro construccion (m2);CP_A_VIS;317400000.0;-615153726.01;-297753726.01;-932553726.01;8.16
-3;costo_construccion_m2;Costo duro construccion (m2);LP_A_VIS;317400000.0;-304231549.95;13168450.05;-621631549.95;9.02
-3;costo_construccion_m2;Costo duro construccion (m2);CP_B_ESTANDAR;414000000.0;-903437998.36;-489437998.36;-1317437998.36;7.71
-3;costo_construccion_m2;Costo duro construccion (m2);LP_B_ESTANDAR;414000000.0;-721894058.62;-307894058.62;-1135894058.62;8.04
-3;costo_construccion_m2;Costo duro construccion (m2);CP_C_LUJO;593400000.0;-2170378515.31;-1576978515.31;-2763778515.31;5.51
-3;costo_construccion_m2;Costo duro construccion (m2);LP_C_LUJO;593400000.0;-2114279169.6;-1520879169.6;-2707679169.6;5.38
-3;costo_construccion_m2;Costo duro construccion (m2);PROMEDIO;;;;;
-4;cap_rate_salida_pct;Cap rate de salida;CP_A_VIS;273675244.82;-615153726.01;-341478481.19;-839069835.41;8.16
-4;cap_rate_salida_pct;Cap rate de salida;LP_A_VIS;263733485.22;-304231549.95;-40498064.73;-520013492.39;9.02
-4;cap_rate_salida_pct;Cap rate de salida;CP_B_ESTANDAR;315102412.99;-903437998.36;-588335585.37;-1161249063.54;7.71
-4;cap_rate_salida_pct;Cap rate de salida;LP_B_ESTANDAR;299455444.99;-721894058.62;-422438613.63;-966903059.06;8.04
-4;cap_rate_salida_pct;Cap rate de salida;CP_C_LUJO;346288474.87;-2170378515.31;-1824090040.44;-2453705449.29;5.51
-4;cap_rate_salida_pct;Cap rate de salida;LP_C_LUJO;325678939.42;-2114279169.6;-1788600230.18;-2380743756.4;5.38
+1;costo_construccion_m2;Costo duro construccion (m2);CP_A_VIS;328900000.0;-2901760681.64;-2572860681.64;-3230660681.64;-3.06
+1;costo_construccion_m2;Costo duro construccion (m2);LP_A_VIS;328900000.0;-2364871764.11;-2035971764.11;-2693771764.11;-1.2
+1;costo_construccion_m2;Costo duro construccion (m2);CP_B_ESTANDAR;379500000.0;-2927088067.44;-2547588067.44;-3306588067.44;-1.38
+1;costo_construccion_m2;Costo duro construccion (m2);LP_B_ESTANDAR;379500000.0;-2518374334.91;-2138874334.91;-2897874334.91;-0.31
+1;costo_construccion_m2;Costo duro construccion (m2);CP_C_LUJO;480700000.0;-2599550462.81;-2118850462.81;-3080250462.81;2.48
+1;costo_construccion_m2;Costo duro construccion (m2);LP_C_LUJO;480700000.0;-2360123760.39;-1879423760.39;-2840823760.39;2.79
+1;costo_construccion_m2;Costo duro construccion (m2);CP_D_MIXTO;355465000.0;-2519127832.06;-2163662832.06;-2874592832.06;0.25
+1;costo_construccion_m2;Costo duro construccion (m2);LP_D_MIXTO;355465000.0;-2036588326.93;-1681123326.93;-2392053326.93;1.68
+1;costo_construccion_m2;Costo duro construccion (m2);PROMEDIO;;;;;
+2;ocupacion_pct;Ocupacion promedio;CP_A_VIS;317743286.92;-2901760681.64;-3219503968.56;-2584017394.73;-3.06
+2;ocupacion_pct;Ocupacion promedio;LP_A_VIS;286072795.9;-2364871764.11;-2650944560.01;-2078798968.21;-1.2
+2;ocupacion_pct;Ocupacion promedio;CP_B_ESTANDAR;339808792.95;-2927088067.44;-3266896860.39;-2587279274.49;-1.38
+2;ocupacion_pct;Ocupacion promedio;LP_B_ESTANDAR;305938962.28;-2518374334.91;-2824313297.19;-2212435372.63;-0.31
+2;ocupacion_pct;Ocupacion promedio;CP_C_LUJO;462172053.69;-2599550462.81;-3061722516.5;-2137378409.12;2.48
+2;ocupacion_pct;Ocupacion promedio;LP_C_LUJO;416105884.94;-2360123760.39;-2776229645.33;-1944017875.45;2.79
+2;ocupacion_pct;Ocupacion promedio;CP_D_MIXTO;375585592.04;-2519127832.06;-2894713424.1;-2143542240.02;0.25
+2;ocupacion_pct;Ocupacion promedio;LP_D_MIXTO;341336858.74;-2036588326.93;-2377925185.67;-1695251468.19;1.68
+2;ocupacion_pct;Ocupacion promedio;PROMEDIO;;;;;
+3;canon_m2_mes;Canon de arriendo (m2/mes);CP_A_VIS;317097014.92;-2901760681.64;-3218857696.56;-2584663666.73;-3.06
+3;canon_m2_mes;Canon de arriendo (m2/mes);LP_A_VIS;285692635.9;-2364871764.11;-2650564400.01;-2079179128.21;-1.2
+3;canon_m2_mes;Canon de arriendo (m2/mes);CP_B_ESTANDAR;339117640.95;-2927088067.44;-3266205708.39;-2587970426.49;-1.38
+3;canon_m2_mes;Canon de arriendo (m2/mes);LP_B_ESTANDAR;305532402.28;-2518374334.91;-2823906737.19;-2212841932.63;-0.31
+3;canon_m2_mes;Canon de arriendo (m2/mes);CP_C_LUJO;461232021.69;-2599550462.81;-3060782484.5;-2138318441.12;2.48
+3;canon_m2_mes;Canon de arriendo (m2/mes);LP_C_LUJO;415552924.94;-2360123760.39;-2775676685.33;-1944570835.45;2.79
+3;canon_m2_mes;Canon de arriendo (m2/mes);CP_D_MIXTO;374821672.04;-2519127832.06;-2893949504.1;-2144306160.02;0.25
+3;canon_m2_mes;Canon de arriendo (m2/mes);LP_D_MIXTO;340883258.74;-2036588326.93;-2377471585.67;-1695705068.19;1.68
+3;canon_m2_mes;Canon de arriendo (m2/mes);PROMEDIO;;;;;
+4;cap_rate_salida_pct;Cap rate de salida;CP_A_VIS;97400429.24;-2901760681.64;-2804360252.4;-2981451941.93;-3.06
+4;cap_rate_salida_pct;Cap rate de salida;LP_A_VIS;104008761.01;-2364871764.11;-2260863003.1;-2449969841.3;-1.2
+4;cap_rate_salida_pct;Cap rate de salida;CP_B_ESTANDAR;125269443.52;-2927088067.44;-2801818623.92;-3029581248.51;-1.38
+4;cap_rate_salida_pct;Cap rate de salida;LP_B_ESTANDAR;127060413.33;-2518374334.91;-2391313921.58;-2622332854.91;-0.31
+4;cap_rate_salida_pct;Cap rate de salida;CP_C_LUJO;210744573.55;-2599550462.81;-2388805889.26;-2771977841.17;2.48
+4;cap_rate_salida_pct;Cap rate de salida;LP_C_LUJO;203088887.02;-2360123760.39;-2157034873.37;-2526287395.21;2.79
+4;cap_rate_salida_pct;Cap rate de salida;CP_D_MIXTO;138590364.08;-2519127832.06;-2380537467.98;-2632519948.12;0.25
+4;cap_rate_salida_pct;Cap rate de salida;LP_D_MIXTO;142602582.73;-2036588326.93;-1893985744.2;-2153263167.35;1.68
 4;cap_rate_salida_pct;Cap rate de salida;PROMEDIO;;;;;
-5;incremento_canon_pct;Incremento anual del canon;CP_A_VIS;236366546.68;-615153726.01;-841508022.91;-378787179.33;8.16
-5;incremento_canon_pct;Incremento anual del canon;LP_A_VIS;213620546.67;-304231549.95;-508837799.82;-90611003.28;9.02
-5;incremento_canon_pct;Incremento anual del canon;CP_B_ESTANDAR;256090751.98;-903437998.36;-1148720071.6;-647347246.38;7.71
-5;incremento_canon_pct;Incremento anual del canon;LP_B_ESTANDAR;231304830.82;-721894058.62;-943467546.32;-490589227.8;8.04
-5;incremento_canon_pct;Incremento anual del canon;CP_C_LUJO;268386621.19;-2170378515.31;-2427471238.43;-1901991894.12;5.51
-5;incremento_canon_pct;Incremento anual del canon;LP_C_LUJO;242288135.57;-2114279169.6;-2346399106.09;-1871991034.03;5.38
+5;incremento_canon_pct;Incremento anual del canon;CP_A_VIS;122907192.66;-2901760681.64;-3019367271.48;-2778853488.98;-3.06
+5;incremento_canon_pct;Incremento anual del canon;LP_A_VIS;111422202.13;-2364871764.11;-2471521691.48;-2253449561.98;-1.2
+5;incremento_canon_pct;Incremento anual del canon;CP_B_ESTANDAR;132432653.46;-2927088067.44;-3053852020.65;-2794655413.98;-1.38
+5;incremento_canon_pct;Incremento anual del canon;LP_B_ESTANDAR;119902534.37;-2518374334.91;-2633173186.54;-2398471800.54;-0.31
+5;incremento_canon_pct;Incremento anual del canon;CP_C_LUJO;182014880.87;-2599550462.81;-2773855375.93;-2417535581.94;2.48
+5;incremento_canon_pct;Incremento anual del canon;LP_C_LUJO;164499244.49;-2360123760.39;-2517681514.3;-2195624515.9;2.79
+5;incremento_canon_pct;Incremento anual del canon;CP_D_MIXTO;146382026.62;-2519127832.06;-2659244328.82;-2372745805.44;0.25
+5;incremento_canon_pct;Incremento anual del canon;LP_D_MIXTO;133815012.45;-2036588326.93;-2164709147.9;-1902773314.48;1.68
 5;incremento_canon_pct;Incremento anual del canon;PROMEDIO;;;;;
-6;tasa_descuento_pct;Tasa de descuento;CP_A_VIS;322066085.77;-615153726.01;-293087640.24;-908939670.64;8.16
-6;tasa_descuento_pct;Tasa de descuento;LP_A_VIS;310137674.61;-304231549.95;5906124.66;-587128206.4;9.02
-6;tasa_descuento_pct;Tasa de descuento;CP_B_ESTANDAR;370558948.07;-903437998.36;-532879050.29;-1241449316.29;7.71
-6;tasa_descuento_pct;Tasa de descuento;LP_B_ESTANDAR;351963193.74;-721894058.62;-369930864.88;-1042935885.8;8.04
-6;tasa_descuento_pct;Tasa de descuento;CP_C_LUJO;407022775.01;-2170378515.31;-1763355740.3;-2541643252.47;5.51
-6;tasa_descuento_pct;Tasa de descuento;LP_C_LUJO;382635019.81;-2114279169.6;-1731644149.79;-2463292743.59;5.38
+6;tasa_descuento_pct;Tasa de descuento;CP_A_VIS;115249241.59;-2901760681.64;-2786511440.05;-3006912775.21;-3.06
+6;tasa_descuento_pct;Tasa de descuento;LP_A_VIS;122748283.69;-2364871764.11;-2242123480.42;-2476854350.86;-1.2
+6;tasa_descuento_pct;Tasa de descuento;CP_B_ESTANDAR;147811031.47;-2927088067.44;-2779277035.97;-3061934230.54;-1.38
+6;tasa_descuento_pct;Tasa de descuento;LP_B_ESTANDAR;149691247.8;-2518374334.91;-2368683087.11;-2654927370.8;-0.31
+6;tasa_descuento_pct;Tasa de descuento;CP_C_LUJO;248008108.83;-2599550462.81;-2351542353.98;-2825781350.66;2.48
+6;tasa_descuento_pct;Tasa de descuento;LP_C_LUJO;238822594.35;-2360123760.39;-2121301166.04;-2577969314.02;2.79
+6;tasa_descuento_pct;Tasa de descuento;CP_D_MIXTO;163526829.58;-2519127832.06;-2355601002.48;-2668311244.2;0.25
+6;tasa_descuento_pct;Tasa de descuento;LP_D_MIXTO;167989461.83;-2036588326.93;-1868598865.1;-2189833124.5;1.68
 6;tasa_descuento_pct;Tasa de descuento;PROMEDIO;;;;;
-7;gastos_operativos_pct_egi;Gastos operativos (% EGI);CP_A_VIS;208396445.9;-615153726.01;-406757280.12;-823550171.91;8.16
-7;gastos_operativos_pct_egi;Gastos operativos (% EGI);LP_A_VIS;74532375.95;-304231549.95;-229699174.0;-378763925.89;9.02
-7;gastos_operativos_pct_egi;Gastos operativos (% EGI);CP_B_ESTANDAR;224973435.91;-903437998.36;-678464562.46;-1128411434.27;7.71
-7;gastos_operativos_pct_egi;Gastos operativos (% EGI);LP_B_ESTANDAR;80461087.67;-721894058.62;-641432970.95;-802355146.28;8.04
-7;gastos_operativos_pct_egi;Gastos operativos (% EGI);CP_C_LUJO;235072862.6;-2170378515.31;-1935305652.71;-2405451377.9;5.51
-7;gastos_operativos_pct_egi;Gastos operativos (% EGI);LP_C_LUJO;84073117.92;-2114279169.6;-2030206051.68;-2198352287.52;5.38
+7;gastos_operativos_pct_egi;Gastos operativos (% EGI);CP_A_VIS;110327530.18;-2901760681.64;-2791433151.47;-3012088211.82;-3.06
+7;gastos_operativos_pct_egi;Gastos operativos (% EGI);LP_A_VIS;39458316.68;-2364871764.11;-2325413447.43;-2404330080.79;-1.2
+7;gastos_operativos_pct_egi;Gastos operativos (% EGI);CP_B_ESTANDAR;117989164.22;-2927088067.44;-2809098903.22;-3045077231.66;-1.38
+7;gastos_operativos_pct_egi;Gastos operativos (% EGI);LP_B_ESTANDAR;42198477.56;-2518374334.91;-2476175857.35;-2560572812.46;-0.31
+7;gastos_operativos_pct_egi;Gastos operativos (% EGI);CP_C_LUJO;160476407.53;-2599550462.81;-2439074055.28;-2760026870.34;2.48
+7;gastos_operativos_pct_egi;Gastos operativos (% EGI);LP_C_LUJO;57393915.17;-2360123760.39;-2302729845.22;-2417517675.55;2.79
+7;gastos_operativos_pct_egi;Gastos operativos (% EGI);CP_D_MIXTO;130411663.9;-2519127832.06;-2388716168.16;-2649539495.96;0.25
+7;gastos_operativos_pct_egi;Gastos operativos (% EGI);LP_D_MIXTO;47080946.04;-2036588326.93;-1989507380.9;-2083669272.97;1.68
 7;gastos_operativos_pct_egi;Gastos operativos (% EGI);PROMEDIO;;;;;

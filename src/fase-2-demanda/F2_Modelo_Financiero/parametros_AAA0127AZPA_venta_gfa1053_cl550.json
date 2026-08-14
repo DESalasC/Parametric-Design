@@ -1,85 +1,115 @@
 {
-  "meta": {
-    "modelo": "F2_DEMANDA_MOTOR_v01",
-    "version": "1.1",
-    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Inmobiliario",
-    "ciudad": "Bogota D.C., Colombia",
-    "moneda": "COP",
-    "fecha_ejecucion": "2026-08-14",
-    "chip": "AAA0127AZPA-GFA1053-CL550",
-    "ciclo_desarrollo_anios": 2,
-    "origen_datos": "Caso de estudio 2026-08-14 (ejercicio de resolucion del proceso): GFA 1053 m2 (edificabilidad de curaduria redondeada) y CL $550.000.000 (suelo renegociado). Precios validados con comparables Prado Veraniego 2026-08-13 (A $4,73M, B $6,8M, C $9,5M/m2).",
-    "nota_general": "Ejercicio: bajar el CL de $1.200 M a $550 M para que el proyecto supere las reglas de viabilidad y poder continuar el proceso hasta la presentacion final."
-  },
-  "gfa_max_m2": 1053.0,
-  "lote": {
-    "area_m2": 450.0,
-    "precio_suelo_m2": 1222222.22,
-    "impuestos_escritura_pct": 0.0,
-    "costo_lote_total_cop": 550000000.0,
-    "fuente": "CL $550.000.000 COP = valor de ejercicio (el precio soportable por el mercado ronda $151-204 M con GFA 633; con GFA 1053 sube). Se toma CL directo.",
-    "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad-gfa1053-cl550.json"
-  },
-  "financiero": {
-    "costos_blandos_pct": 15.0,
-    "marketing_ventas_pct": 4.0,
-    "nota_costos_blandos": "15% (igual que pipeline, comparacion limpia).",
-    "nota_marketing": "4% (igual que pipeline)."
-  },
-  "reglas_decision": {
-    "mub_riesgo_pct": 18.0,
-    "mub_atractivo_pct": 25.0,
-    "roi_minimo_pct": 22.0,
-    "cl_it_precaucion_pct": 25.0,
-    "cl_it_inviable_pct": 30.0,
-    "nota": "Reglas de decision Bogota (objetivo Fase 2)."
-  },
-  "sensibilidad": {
-    "variacion_pct": 10.0,
-    "nota": "Variacion +-10% sobre precio de venta, costo duro, eficiencia NGA, costo del lote y absorcion."
-  },
-  "escenarios": {
-    "A_VIS": {
-      "nombre": "A — VIS / VIP",
-      "nivel_acabados": "Basico",
-      "unidad_m2": 55.0,
-      "eficiencia_nga": 0.8,
-      "precio_venta_m2": 4727444,
-      "costo_construccion_m2": 2300000,
-      "absorcion_unid_mes": 5.0,
-      "fuente_precio": "Tope VIS 2026: 135 SMMLV x $1.750.905 = $236,37 M (Argos; Decreto 1469/2025).",
-      "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados basicos $2,3 M/m2.",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Valores validados 2026-08-13 (F2)."
+    "meta": {
+        "modelo": "F2_DEMANDA_MOTOR_v01",
+        "version": "1.1",
+        "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Inmobiliario",
+        "ciudad": "Bogota D.C., Colombia",
+        "moneda": "COP",
+        "fecha_ejecucion": "2026-08-14",
+        "chip": "AAA0127AZPA-GFA1053-CL550",
+        "ciclo_desarrollo_anios": 2,
+        "origen_datos": "Caso de estudio 2026-08-14 (ejercicio de resolucion del proceso): GFA 1053 m2 (edificabilidad de curaduria redondeada) y CL $550.000.000 (suelo renegociado). Precios validados con comparables Prado Veraniego 2026-08-13 (A $4,73M, B $6,8M, C $9,5M/m2).",
+        "nota_general": "Ejercicio: bajar el CL de $1.200 M a $550 M para que el proyecto supere las reglas de viabilidad y poder continuar el proceso hasta la presentacion final. | Incluye D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion) para validacion de hipotesis."
     },
-    "B_ESTANDAR": {
-      "nombre": "B — Estandar",
-      "nivel_acabados": "Medio",
-      "unidad_m2": 85.0,
-      "eficiencia_nga": 0.75,
-      "precio_venta_m2": 6800000,
-      "costo_construccion_m2": 3000000,
-      "absorcion_unid_mes": 2.5,
-      "fuente_precio": "VALIDADO 2026-08-13: comparables Prado Veraniego $5,0-7,1 M/m2; obra nueva $6,8 M/m2.",
-      "fuente_precio_url": "https://www.metrocuadrado.com/apartamentos/venta/prado-veraniego/",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados medios $3,0 M/m2.",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Valores validados 2026-08-13 (F2)."
+    "gfa_max_m2": 1053.0,
+    "lote": {
+        "area_m2": 450.0,
+        "precio_suelo_m2": 1222222.22,
+        "impuestos_escritura_pct": 0.0,
+        "costo_lote_total_cop": 550000000.0,
+        "fuente": "CL $550.000.000 COP = valor de ejercicio (el precio soportable por el mercado ronda $151-204 M con GFA 633; con GFA 1053 sube). Se toma CL directo.",
+        "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad-gfa1053-cl550.json"
     },
-    "C_LUJO": {
-      "nombre": "C — Lujo / Alto nivel",
-      "nivel_acabados": "Premium",
-      "unidad_m2": 150.0,
-      "eficiencia_nga": 0.7,
-      "precio_venta_m2": 9500000,
-      "costo_construccion_m2": 4300000,
-      "absorcion_unid_mes": 1.0,
-      "fuente_precio": "VALIDADO 2026-08-13: premium norte $9-11 M/m2; se toma $9,5 M/m2.",
-      "fuente_precio_url": "https://www.metrocuadrado.com/noticias/actualidad/valor-del-metro-cuadrado-por-barrio-en-bogota-6020",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados premium $4,3 M/m2.",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Valores validados 2026-08-13 (F2)."
+    "financiero": {
+        "costos_blandos_pct": 15.0,
+        "marketing_ventas_pct": 4.0,
+        "nota_costos_blandos": "15% (igual que pipeline, comparacion limpia).",
+        "nota_marketing": "4% (igual que pipeline)."
+    },
+    "reglas_decision": {
+        "mub_riesgo_pct": 18.0,
+        "mub_atractivo_pct": 25.0,
+        "roi_minimo_pct": 22.0,
+        "cl_it_precaucion_pct": 25.0,
+        "cl_it_inviable_pct": 30.0,
+        "nota": "Reglas de decision Bogota (objetivo Fase 2)."
+    },
+    "sensibilidad": {
+        "variacion_pct": 10.0,
+        "nota": "Variacion +-10% sobre precio de venta, costo duro, eficiencia NGA, costo del lote y absorcion."
+    },
+    "escenarios": {
+        "A_VIS": {
+            "nombre": "A — VIS / VIP",
+            "nivel_acabados": "Basico",
+            "unidad_m2": 55.0,
+            "eficiencia_nga": 0.8,
+            "precio_venta_m2": 4727444,
+            "costo_construccion_m2": 2300000,
+            "absorcion_unid_mes": 5.0,
+            "fuente_precio": "Tope VIS 2026: 135 SMMLV x $1.750.905 = $236,37 M (Argos; Decreto 1469/2025).",
+            "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",
+            "fuente_costo": "Konstruing (07-ago-2026): acabados basicos $2,3 M/m2.",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Valores validados 2026-08-13 (F2)."
+        },
+        "B_ESTANDAR": {
+            "nombre": "B — Estandar",
+            "nivel_acabados": "Medio",
+            "unidad_m2": 85.0,
+            "eficiencia_nga": 0.75,
+            "precio_venta_m2": 6800000,
+            "costo_construccion_m2": 3000000,
+            "absorcion_unid_mes": 2.5,
+            "fuente_precio": "VALIDADO 2026-08-13: comparables Prado Veraniego $5,0-7,1 M/m2; obra nueva $6,8 M/m2.",
+            "fuente_precio_url": "https://www.metrocuadrado.com/apartamentos/venta/prado-veraniego/",
+            "fuente_costo": "Konstruing (07-ago-2026): acabados medios $3,0 M/m2.",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Valores validados 2026-08-13 (F2)."
+        },
+        "C_LUJO": {
+            "nombre": "C — Lujo / Alto nivel",
+            "nivel_acabados": "Premium",
+            "unidad_m2": 150.0,
+            "eficiencia_nga": 0.7,
+            "precio_venta_m2": 9500000,
+            "costo_construccion_m2": 4300000,
+            "absorcion_unid_mes": 1.0,
+            "fuente_precio": "VALIDADO 2026-08-13: premium norte $9-11 M/m2; se toma $9,5 M/m2.",
+            "fuente_precio_url": "https://www.metrocuadrado.com/noticias/actualidad/valor-del-metro-cuadrado-por-barrio-en-bogota-6020",
+            "fuente_costo": "Konstruing (07-ago-2026): acabados premium $4,3 M/m2.",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Valores validados 2026-08-13 (F2)."
+        },
+        "D_MIXTO": {
+            "nombre": "D - Mixto (override usuario)",
+            "nivel_acabados": "Mixto",
+            "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion (hipotesis de validacion/prefactibilidad). Mix 20% local comercial + 80% vivienda estandar (Prado Veraniego). Vivienda con precios validados 2026-08-13; local supuesto de ejercicio.",
+            "override_uso": true,
+            "mix_usos": [
+                {
+                    "uso": "Local comercial",
+                    "pct_gfa": 0.2,
+                    "unidad_m2": 50.0,
+                    "eficiencia_nga": 0.85,
+                    "precio_venta_m2": 9000000,
+                    "costo_construccion_m2": 3600000,
+                    "absorcion_unid_mes": 0.5,
+                    "fuente": "Locales Prado Veraniego: ,0 M/m2 (supuesto de ejercicio; rango -12 M)."
+                },
+                {
+                    "uso": "Vivienda estandar",
+                    "pct_gfa": 0.8,
+                    "unidad_m2": 65.0,
+                    "eficiencia_nga": 0.78,
+                    "precio_venta_m2": 6800000,
+                    "costo_construccion_m2": 3000000,
+                    "absorcion_unid_mes": 2.0,
+                    "fuente": "Precio validado Prado Veraniego 2026-08-13: ,8 M/m2."
+                }
+            ],
+            "fuente_precio": "Supuestos de ejercicio 2026-08-14 (mix uso multiple: local ,0 M/m2 + vivienda validada ,8 M/m2).",
+            "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local ,6 M/m2, vivienda ,0 M/m2)."
+        }
     }
-  }
 }

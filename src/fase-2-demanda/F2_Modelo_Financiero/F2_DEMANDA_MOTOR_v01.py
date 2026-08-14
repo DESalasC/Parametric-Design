@@ -165,13 +165,59 @@ def run_scenario(gfa: float, cl: float, esc: dict, fin: dict) -> dict:
     """
     Calcula KPIs de un escenario con unidades enteras (floor).
     Mantiene la logica del v01 original (area vendible real = unidades * tamano).
+    Si el escenario trae 'mix_usos' (override de uso multiple), el GFA se reparte
+    por componente (pct_gfa) con precio/costo/eficiencia propios de cada uso y los
+    KPIs se agregan (IT, CD, unidades, area vendible).
     """
-    nga = gfa * esc["eficiencia_nga"]
-    unidades = int(nga // esc["unidad_m2"])
-    area_vendible = unidades * esc["unidad_m2"]
+    mix_detalle = None
+    if esc.get("mix_usos"):
+        nga = 0.0
+        unidades = 0
+        area_vendible = 0.0
+        ingresos = 0.0
+        costo_duro = 0.0
+        absorcion_pond = 0.0
+        comps = []
+        for m in esc["mix_usos"]:
+            gfa_i = gfa * m["pct_gfa"]
+            nga_i = gfa_i * m["eficiencia_nga"]
+            unid = int(nga_i // m["unidad_m2"])
+            area_i = unid * m["unidad_m2"]
+            it_i = area_i * m["precio_venta_m2"]
+            cd_i = gfa_i * m["costo_construccion_m2"]
+            nga += nga_i
+            unidades += unid
+            area_vendible += area_i
+            ingresos += it_i
+            costo_duro += cd_i
+            absorcion_pond += unid / max(m.get("absorcion_unid_mes", 2.0), 0.1)
+            comps.append({
+                "uso": m.get("uso", "?"),
+                "pct_gfa": m["pct_gfa"],
+                "gfa_i": round(gfa_i, 2),
+                "nga_i": round(nga_i, 2),
+                "num_unidades": unid,
+                "area_vendible_m2": round(area_i, 2),
+                "precio_venta_m2": m["precio_venta_m2"],
+                "costo_construccion_m2": m["costo_construccion_m2"],
+                "ingresos_cop": round(it_i, 2),
+            })
+        mix_detalle = comps
+        absorcion = unidades / absorcion_pond if absorcion_pond > 0 else 0.0
+        tamano_prom = area_vendible / unidades if unidades > 0 else 0.0
+        precio_prom = ingresos / area_vendible if area_vendible > 0 else 0.0
+        costo_prom = costo_duro / gfa if gfa > 0 else 0.0
+    else:
+        nga = gfa * esc["eficiencia_nga"]
+        unidades = int(nga // esc["unidad_m2"])
+        area_vendible = unidades * esc["unidad_m2"]
+        ingresos = area_vendible * esc["precio_venta_m2"]
+        costo_duro = gfa * esc["costo_construccion_m2"]
+        absorcion = esc.get("absorcion_unid_mes", 2.0)
+        tamano_prom = esc["unidad_m2"]
+        precio_prom = esc["precio_venta_m2"]
+        costo_prom = esc["costo_construccion_m2"]
 
-    ingresos = area_vendible * esc["precio_venta_m2"]
-    costo_duro = gfa * esc["costo_construccion_m2"]
     costo_blando = costo_duro * fin["costos_blandos_pct"] / 100.0
     costo_mkt = ingresos * fin["marketing_ventas_pct"] / 100.0
     costo_total = cl + costo_duro + costo_blando + costo_mkt
@@ -181,7 +227,6 @@ def run_scenario(gfa: float, cl: float, esc: dict, fin: dict) -> dict:
     roi = (utilidad / costo_total * 100.0) if costo_total > 0 else 0.0
     cl_it = (cl / ingresos * 100.0) if ingresos > 0 else 0.0
 
-    absorcion = esc.get("absorcion_unid_mes", 2.0)
     meses_venta = (unidades / absorcion) if absorcion > 0 else float("inf")
 
     return {
@@ -190,14 +235,15 @@ def run_scenario(gfa: float, cl: float, esc: dict, fin: dict) -> dict:
         "nivel_acabados": esc.get("nivel_acabados", ""),
         "gfa_m2": round(gfa, 2),
         "nga_m2": round(nga, 2),
-        "eficiencia_nga": esc["eficiencia_nga"],
-        "tamano_unidad_m2": esc["unidad_m2"],
+        "eficiencia_nga": esc.get("eficiencia_nga", 0.0),
+        "tamano_unidad_m2": round(tamano_prom, 2),
         "num_unidades": unidades,
         "area_vendible_m2": round(area_vendible, 2),
-        "precio_venta_m2": esc["precio_venta_m2"],
-        "costo_construccion_m2": esc["costo_construccion_m2"],
-        "absorcion_unid_mes": absorcion,
+        "precio_venta_m2": round(precio_prom, 2),
+        "costo_construccion_m2": round(costo_prom, 2),
+        "absorcion_unid_mes": round(absorcion, 2),
         "meses_venta_estimados": round(meses_venta, 1),
+        "mix_usos_detalle": mix_detalle,
         "ingresos_totales_cop": round(ingresos, 2),
         "costo_lote_cop": round(cl, 2),
         "costo_duro_cop": round(costo_duro, 2),
@@ -1178,6 +1224,39 @@ revision especializada antes de decisiones de inversion.</footer>
         f.write(html)
 
 
+def _normalizar_mix(escenarios: dict, gfa: float) -> None:
+    """Para escenarios con mix_usos (override de uso multiple), agrega campos
+    agregados (eficiencia, precio, costo, absorcion, unidad promedio) que usan la
+    sensibilidad marginal y el informe. El calculo principal (run_scenario) usa la
+    rama mix_usos con los componentes reales."""
+    for esc in escenarios.values():
+        if not esc.get("mix_usos"):
+            continue
+        area_v = 0.0
+        it = 0.0
+        cd = 0.0
+        unid_t = 0
+        abs_pond = 0.0
+        ef_pond = 0.0
+        for m in esc["mix_usos"]:
+            gfa_i = gfa * m["pct_gfa"]
+            nga_i = gfa_i * m["eficiencia_nga"]
+            unid = int(nga_i // m["unidad_m2"])
+            area_i = unid * m["unidad_m2"]
+            area_v += area_i
+            it += area_i * m["precio_venta_m2"]
+            cd += gfa_i * m["costo_construccion_m2"]
+            unid_t += unid
+            abs_pond += unid / max(m.get("absorcion_unid_mes", 2.0), 0.1)
+            ef_pond += m["pct_gfa"] * m["eficiencia_nga"]
+        esc["eficiencia_nga"] = ef_pond
+        esc["precio_venta_m2"] = it / area_v if area_v else 0.0
+        esc["costo_construccion_m2"] = cd / gfa if gfa else 0.0
+        esc["unidad_m2"] = area_v / unid_t if unid_t else 0.0
+        esc["absorcion_unid_mes"] = unid_t / abs_pond if abs_pond else 0.0
+        esc["_es_mixto"] = True
+
+
 # ----------------------------------------------------------------------------
 # Flujo principal
 # ----------------------------------------------------------------------------
@@ -1230,6 +1309,9 @@ def main() -> int:
     reglas = params["reglas_decision"]
     sens_cfg = params["sensibilidad"]
     cl = costo_lote_total(lote_cfg)
+
+    # 0) Normalizar escenarios mixtos (override de uso multiple) para sensibilidad e informe
+    _normalizar_mix(params["escenarios"], gfa)
 
     # 1) Escenarios (unidades enteras)
     resultados = []

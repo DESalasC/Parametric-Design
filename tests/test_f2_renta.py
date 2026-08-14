@@ -30,6 +30,12 @@ def params_gfa1054():
         return json.load(f)
 
 
+@pytest.fixture(scope="module")
+def params_gfa1053_cl550():
+    with open(RENTA_DIR / "parametros_AAA0127AZPA_renta_gfa1053_cl550.json", "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 # ---------------------------------------------------------------
 # Área arrendable (unidades enteras, misma lógica que F2)
 # ---------------------------------------------------------------
@@ -175,3 +181,79 @@ def test_lote_real_suelo_soportable_lp_vis(params_lote_real):
                                 p["reglas_renta"])
     assert res["suelo_soportable_cop"] == pytest.approx(490.0e6, rel=0.05)
     assert res["suelo_soportable_cop"] < 1200.0e6
+
+
+# ---------------------------------------------------------------
+# USO-MULTIPLE (override usuario): escenario mixto con mix_usos
+# ---------------------------------------------------------------
+
+def test_area_arrendable_mix():
+    """Mix: 20% local (50 m2, ef 0,85) + 80% vivienda (65 m2, ef 0,78) sobre GFA 1053.
+    Local: 1053*0,2*0,85 = 179,01 -> 3 locales de 50 = 150 m2.
+    Vivienda: 1053*0,8*0,78 = 657,07 -> 10 unid de 65 = 650 m2.
+    Total 13 unidades, 800 m2."""
+    esc = {"mix_usos": [
+        {"pct_gfa": 0.20, "unidad_m2": 50.0, "eficiencia_nga": 0.85},
+        {"pct_gfa": 0.80, "unidad_m2": 65.0, "eficiencia_nga": 0.78},
+    ]}
+    unidades, area = motor.area_arrendable(1053.0, esc)
+    assert unidades == 13
+    assert area == pytest.approx(800.0)
+
+
+def test_run_combinacion_mix_detalle_y_canon(params_gfa1053_cl550):
+    """El escenario D_MIXTO del caso A (GFA 1053, CL 550M) debe:
+    - desglosar componentes (mix_usos_detalle) con canon ponderado por area
+    - producir una inversion = CL + CD(mix) + CB + MKT + mobiliario
+    - cumplir la identidad de suelo soportable (VPN ~ 0 con CL = suelo)"""
+    p = params_gfa1053_cl550
+    esc = p["escenarios"]["D_MIXTO"]
+    esc["id"] = "D_MIXTO"
+    estr = dict(p["estrategias"]["LP"])
+    estr["_id"] = "LP"
+    cl = motor.costo_lote_total(p["lote"])
+    res = motor.run_combinacion(p["gfa_max_m2"], cl, esc, "LP", estr,
+                                p["financiero"], p["renta"], p["reglas_renta"])
+    assert res["mix_usos_detalle"] is not None
+    assert len(res["mix_usos_detalle"]) == 2
+    # canon efectivo = ponderado por area de los componentes
+    det = res["mix_usos_detalle"]
+    area_t = sum(c["area"] for c in det)
+    canon_ef = sum(c["area"] * c["canon"] for c in det) / area_t
+    assert res["canon_m2_mes"] == pytest.approx(canon_ef, rel=1e-6)
+    # CD del mix = suma de gfa_i x costo_i
+    cd_esp = sum(c["gfa_i"] * c["costo"] for c in det)
+    assert res["costo_duro_cop"] == pytest.approx(cd_esp, rel=1e-6)
+    # identidad de suelo soportable (solo si el suelo es positivo; si es $0,
+    # el proyecto pierde valor incluso con suelo gratis y eso es lo que se verifica)
+    suelo = res["suelo_soportable_cop"]
+    res2 = motor.run_combinacion(p["gfa_max_m2"], suelo, esc, "LP", estr,
+                                 p["financiero"], p["renta"], p["reglas_renta"])
+    if suelo > 0:
+        assert abs(res2["VPN_cop"]) < 1.0e6
+    else:
+        assert res2["VPN_cop"] <= 1.0e6
+
+
+def test_mix_sensibilidad_canon_escala_componentes(params_gfa1053_cl550):
+    """En sensibilidad, la variable canon de un escenario mixto escala TODOS los
+    componentes (el canon efectivo varia en el mismo factor)."""
+    p = params_gfa1053_cl550
+    esc = p["escenarios"]["D_MIXTO"]
+    esc["id"] = "D_MIXTO"
+    estr = dict(p["estrategias"]["LP"])
+    estr["_id"] = "LP"
+    base = motor.run_combinacion(p["gfa_max_m2"], motor.costo_lote_total(p["lote"]),
+                                 esc, "LP", estr, p["financiero"], p["renta"],
+                                 p["reglas_renta"])
+    esc_m = dict(esc)
+    mix = []
+    for c in esc["mix_usos"]:
+        c2 = dict(c)
+        c2["canon_m2_mes"] = {k: v * 0.9 for k, v in c["canon_m2_mes"].items()}
+        mix.append(c2)
+    esc_m["mix_usos"] = mix
+    res90 = motor.run_combinacion(p["gfa_max_m2"], motor.costo_lote_total(p["lote"]),
+                                  esc_m, "LP", estr, p["financiero"], p["renta"],
+                                  p["reglas_renta"])
+    assert res90["gpi_1_cop"] == pytest.approx(base["gpi_1_cop"] * 0.9, rel=1e-6)

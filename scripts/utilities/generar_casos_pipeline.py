@@ -2,7 +2,8 @@
 """
 generar_casos_pipeline.py — Genera los JSON de entrada del pipeline (data/fase-2-demanda)
 para los casos de estudio del ejercicio 2026-08-14 (AAA0127AZPA GFA 1053, AAA0030JKOE
-La Candelaria, 002407033006 Venecia-sur).
+La Candelaria, AAA0039KRMR Muzu). El lote 002407033006 (Venecia-sur) fue EXCLUIDO del
+ejercicio por decision del usuario (2026-08-14).
 
 Formato identico al consumido por F2_DEMANDA_MOTOR_v01.py (pipeline) y por el motor
 financiero mejorado. Formulas del pipeline: NGA = GFA x eficiencia; unidades enteras;
@@ -49,21 +50,21 @@ CASOS = [
         ],
     },
     {
-        "chip": "002407033006",
-        "archivo": "002407033006-prefactibilidad.json",
-        "gfa": 650.0,  # 192 m2 x IC ~3,4 (rango 4 = 5-8 pisos, supuesto de ejercicio)
-        "costo_lote": 192_000_000.0,
-        "nota": "Caso de estudio 2026-08-14: lote real pequeno del sur (UPZ 42 Venecia, "
-                "Tunjuelito; 192 m2; estrato 2). GFA 650 m2 (supuesto de ejercicio, rango 4 "
-                "= 5-8 pisos). CL $192 M (~$1,0 M/m2, supuesto de ejercicio). Precios/costos "
-                "de zona sur (supuestos de ejercicio documentados).",
+        "chip": "AAA0039KRMR",
+        "archivo": "AAA0039KRMR-prefactibilidad.json",
+        "gfa": 1100.0,  # 356,96 m2 x IC 3,08 (altura max GDB 26,6 m; rango '1' inconsistente -> supuesto ejercicio)
+        "costo_lote": 700_000_000.0,
+        "nota": "Caso de estudio 2026-08-14: lote real AAA0039KRMR (UPZ Muzu, Puente Aranda; "
+                "356,96 m2; Consolidacion). GFA 1.100 m2 (supuesto de ejercicio). CL $700 M "
+                "(~$1,96 M/m2, supuesto de ejercicio). Zona de actividad multiple; precios/"
+                "canones de zona (supuestos de ejercicio documentados).",
         "escenarios": [
             {"producto": "VIS", "unidad": 55.0, "eficiencia": 0.8,
-             "precio": 4_727_444, "costo": 2_300_000},
-            {"producto": "Estandar", "unidad": 85.0, "eficiencia": 0.75,
-             "precio": 4_600_000, "costo": 2_800_000},
-            {"producto": "Lujo", "unidad": 150.0, "eficiencia": 0.7,
-             "precio": 6_500_000, "costo": 3_500_000},
+             "precio": 4_300_000, "costo": 2_600_000},
+            {"producto": "Estandar", "unidad": 70.0, "eficiencia": 0.75,
+             "precio": 5_800_000, "costo": 3_000_000},
+            {"producto": "Lujo", "unidad": 120.0, "eficiencia": 0.7,
+             "precio": 7_200_000, "costo": 3_800_000},
         ],
     },
 ]

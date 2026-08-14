@@ -1,0 +1,68 @@
+{
+    "meta": {
+        "modelo": "ALCANCE_INVESTIGACION_v01",
+        "fase": "Alcance de la investigacion de demanda (Fase 2)",
+        "ciudad": "Bogota D.C., Colombia",
+        "crs": "ESRI:102233",
+        "fecha": "2026-08-14",
+        "nota": "Areas de influencia multi-nivel del estudio de demanda. Los radios se miden desde el origen SIRGAS del lote (misma referencia que el contexto F1). El nivel lejano usa criterios de accesibilidad (distancia a red de transporte y tiempo de viaje) en lugar de radio fijo."
+    },
+    "niveles": {
+        "cercano": {
+            "id": "N1-CERCANO",
+            "radio_m": 2000,
+            "etiqueta": "Cercano (2 km)",
+            "enfoque": "Vecindario directo: oferta/demanda inmediata, equipamientos de barrio, precios y canones del sector inmediato, competencia a escala local.",
+            "indicadores": ["precio_venta_m2", "canon_m2_mes", "vacancia", "absorcion", "estrato", "equipamientos_barrio"]
+        },
+        "intermedio": {
+            "id": "N2-INTERMEDIO",
+            "radio_m": 5000,
+            "etiqueta": "Intermedio (hasta 5 km)",
+            "enfoque": "Area de mercado actual del proyecto: comparables de la UPZ y UPZ vecinas, dinamica de oferta nueva, servicios metropolitanos de la zona.",
+            "indicadores": ["precio_venta_m2_upz", "canon_m2_mes_upz", "oferta_nueva", "capacidad_compra", "tendencia_poblacional"]
+        },
+        "lejano_accesibilidad": {
+            "id": "N3-LEJANO-ACCESIBILIDAD",
+            "radio_m": null,
+            "etiqueta": "Lejano - accesibilidad (transporte publico y privado)",
+            "enfoque": "Preferencias de localizacion por acceso a red principal de transporte: estaciones TransMilenio y paraderos SITP a menos de 500 m del lote, e isocrona de 20 minutos en transporte publico (captura de demanda metropolitana).",
+            "criterios": {
+                "distancia_max_estacion_tm_m": 500,
+                "distancia_max_paradero_sitp_m": 500,
+                "isocrona_transporte_publico_min": 20,
+                "red_principal_privado": "Malla vial arterial e intermedia (vias principales del POT)"
+            },
+            "indicadores": ["distancia_estacion_tm_m", "distancia_paradero_sitp_m", "cobertura_isocrona_20min", "tiempo_viaje_centro"]
+        }
+    },
+    "fuentes_datos_geoespaciales": {
+        "estaciones_transmilenio": {
+            "descripcion": "Capa oficial de estaciones del sistema TransMilenio (puntos).",
+            "fuente": "Datos abiertos TransMilenio / IDECA",
+            "url": "https://www.transmilenio.gov.co / https://datosabiertos.bogota.gov.co"
+        },
+        "paraderos_sitp": {
+            "descripcion": "Paraderos del SITP (puntos).",
+            "fuente": "IDECA - Datos Abiertos Bogota",
+            "url": "https://datosabiertos.bogota.gov.co"
+        },
+        "gtfs_transmilenio_sitp": {
+            "descripcion": "GTFS del SITP + TransMilenio para isocronas de 20 min en transporte publico.",
+            "fuente": "TransMilenio S.A. (GTFS oficial)",
+            "url": "https://www.transmilenio.gov.co/gtfs"
+        },
+        "malla_vial": {
+            "descripcion": "Malla vial arterial e intermedia (ya disponible en el contexto F1: vias_oficiales).",
+            "fuente": "Contexto F1 (pot-cache) - capas viales del POT",
+            "url": "local"
+        }
+    },
+    "estado_datos": {
+        "malla_vial_disponible": true,
+        "estaciones_tm_disponible": false,
+        "paraderos_sitp_disponible": false,
+        "gtfs_disponible": false,
+        "nota": "La malla vial del POT ya viene en el contexto F1 de cada lote. Las capas de estaciones/paraderos/GTFS se incorporan como paso siguiente (descarga de datos abiertos de Bogota). Hasta entonces, el nivel N3 reporta distancias/cobertura como PENDIENTE."
+    }
+}

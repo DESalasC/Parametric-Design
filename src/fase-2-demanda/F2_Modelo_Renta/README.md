@@ -153,3 +153,16 @@ Cada parámetro del JSON lleva su fuente y URL para auditoría.
 - ✘ No redefine el GFA de Fase 1 (es restricción de entrada)
 - ✘ No emite concepto legal, urbanístico, tributario ni de uso de suelo
 - ✘ Los cánones del modelo son de mercado abierto 2026; **valídelos con comparables de radio 5 km** antes de decisiones de inversión
+
+## Uso multiple (USO-MULTIPLE / override de usuario)
+
+Los escenarios pueden declarar mix_usos` (lista de componentes: uso, pct_gfa, unidad_m2,
+eficiencia_nga`, costo_construccion_m2` y canon_m2_mes` por estrategia). Cuando un escenario
+trae mix_usos`, el GFA se reparte por componente, el canon efectivo es el ponderado por area
+y el costo duro se calcula por componente. Es la materializacion del OVERRIDE de uso que se
+activa en Grasshopper (src/fase-1-contexto/F1_OVERRIDE_USO_v01.py, boolean + lista de usos):
+un escenario D_MIXTO` (USO-MULTIPLE, fuera de reglamentacion) valida hipotesis de
+construccion/prefactibilidad y el motor decide si la recomendacion recae en el o no.
+
+Ejemplo (casos de estudio 2026-08-14): parametros_AAA0127AZPA_renta_gfa1053_cl550.json -> escenario D_MIXTO.
+

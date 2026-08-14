@@ -2,9 +2,13 @@
 """
 generar_presentacion.py — Genera la presentacion final del proyecto (deck HTML autocontenido,
 estilo Fathom) consolidando los resultados de los casos de estudio del ejercicio 2026-08-14:
-  - AAA0127AZPA (El Prado, Suba) — GFA 1053 m2, CL $550 M  [caso resuelto]
+  - AAA0127AZPA (El Prado, Suba) — GFA 1053 m2, CL $550 M   [caso resuelto]
   - AAA0030JKOE (La Candelaria)  — GFA 3312,6 m2, CL $1.420 M [centro historico]
-  - 002407033006 (Venecia, sur)  — GFA 650 m2, CL $192 M      [caso de estres]
+  - AAA0039KRMR (Muzu, Puente Aranda) — GFA 1.100 m2, CL $700 M [caso de estres]
+El lote 002407033006 (Venecia-sur) fue EXCLUIDO del ejercicio (decision del usuario 2026-08-14).
+Todos los casos incluyen el escenario D_MIXTO (USO-MULTIPLE, override de usuario fuera de
+reglamentacion) para validacion de hipotesis; tambien se documentan las areas de influencia
+multi-nivel (N1 2 km / N2 5 km / N3 accesibilidad <500 m estaciones y 20 min TP).
 
 Lee los resultados_completos.json de los motores F2 (venta) y F2 Renta y los JSON de
 entrada del pipeline; genera exports/presentaciones/presentacion_casos_2026-08-14.html.
@@ -27,13 +31,15 @@ CASOS = [
         "chip": "AAA0127AZPA · UPZ 19 El Prado",
         "gfa": 1053.0,
         "cl": 550_000_000,
-        "venta": os.path.join(FIN, "resultados_AAA0127AZPA_venta_gfa1053_cl550", "resultados_completos.json"),
-        "renta": os.path.join(REN, "resultados_AAA0127AZPA_renta_gfa1053_cl550", "resultados_completos.json"),
+        "venta": os.path.join(FIN, "resultados", "resultados_AAA0127AZPA_gfa1053_cl550.json"),
+        "renta": os.path.join(REN, "resultados", "resultados_AAA0127AZPA_gfa1053_cl550.json"),
         "pipeline": os.path.join(DATA, "AAA0127AZPA-prefactibilidad-gfa1053-cl550.json"),
         "color": "#1F3A5F",
-        "lectura": ("Suelo renegociado ($550 M): la venta mejora (B ROI 18,5%) pero no alcanza el 22%; "
-                    "la renta LP x VIS es VIABLE (TIR 11,1%, VPN +$271 M). Veredicto del caso: "
-                    "construir para arrendar con producto VIS en largo plazo."),
+        "lectura": ("Suelo renegociado ($550 M): con usos puros la venta no alcanza (B ROI 18,5%); "
+                    "el USO-MULTIPLE (D_MIXTO 20% local + 80% vivienda) SÍ resuelve la venta "
+                    "(ROI 26,6% VIABLE). En renta la recomendacion sigue siendo LP x VIS "
+                    "(TIR 11,1%, VPN +$271 M). Veredicto del caso: el mix permite vender; si se "
+                    "arrienda, producto VIS en largo plazo."),
     },
     {
         "id": "AAA0030JKOE",
@@ -41,8 +47,8 @@ CASOS = [
         "chip": "AAA0030JKOE · UPZ 94 La Candelaria",
         "gfa": 3312.575,
         "cl": 1_420_000_000,
-        "venta": os.path.join(FIN, "resultados_AAA0030JKOE_venta", "resultados_completos.json"),
-        "renta": os.path.join(REN, "resultados_AAA0030JKOE_renta", "resultados_completos.json"),
+        "venta": os.path.join(FIN, "resultados", "resultados_AAA0030JKOE.json"),
+        "renta": os.path.join(REN, "resultados", "resultados_AAA0030JKOE.json"),
         "pipeline": os.path.join(DATA, "AAA0030JKOE-prefactibilidad.json"),
         "color": "#7A4E2D",
         "lectura": ("Escala grande + zona turistica: la venta B Estándar ya es VIABLE (ROI 22,3%) y la "
@@ -50,18 +56,19 @@ CASOS = [
                     "El suelo soportable ($4.374 M max.) supera con holgura el CL del ejercicio."),
     },
     {
-        "id": "002407033006",
-        "titulo": "Caso C — Venecia, Tunjuelito (sur)",
-        "chip": "002407033006 · UPZ 42 Venecia",
-        "gfa": 650.0,
-        "cl": 192_000_000,
-        "venta": os.path.join(FIN, "resultados_002407033006_venta", "resultados_completos.json"),
-        "renta": os.path.join(REN, "resultados_002407033006_renta", "resultados_completos.json"),
-        "pipeline": os.path.join(DATA, "002407033006-prefactibilidad.json"),
+        "id": "AAA0039KRMR",
+        "titulo": "Caso C — Muzu, Puente Aranda (occidente)",
+        "chip": "AAA0039KRMR · UPZ Muzu · Consolidacion",
+        "gfa": 1100.0,
+        "cl": 700_000_000,
+        "venta": os.path.join(FIN, "resultados", "resultados_AAA0039KRMR.json"),
+        "renta": os.path.join(REN, "resultados", "resultados_AAA0039KRMR.json"),
+        "pipeline": os.path.join(DATA, "AAA0039KRMR-prefactibilidad.json"),
         "color": "#3E6B4F",
-        "lectura": ("Caso de estres (lote pequeno, valores bajos): ni la venta (A ROI 16,7%) ni la "
-                    "renta (suelo soportable $0) alcanzan los umbrales. Leccion: en esta zona el "
-                    "producto VIS apenas se acerca; se requiere revalidar canones/costos o no invertir."),
+        "lectura": ("Caso de estres (lote pequeno 357 m2, suelo caro ~$1,96 M/m2): ni la venta "
+                    "(mejor D_MIXTO ROI -2,5%) ni la renta (mejor CP x C TIR 2,5%, suelo soportable "
+                    "$0) alcanzan los umbrales. Leccion: en esta zona el precio del suelo y la escala "
+                    "del lote descartan el desarrollo; renegociar suelo o buscar lotes mayores."),
     },
 ]
 
@@ -218,18 +225,102 @@ def _resumen_cards(caso) -> str:
         v = json.load(f)
     with open(caso["renta"], "r", encoding="utf-8") as f:
         r = json.load(f)
-    b_venta = next(x for x in v["escenarios"] if x["escenario_id"] == "B_ESTANDAR")
+    mejor_v = max(v["escenarios"], key=lambda x: x["ROI_pct"])
+    mix_v = next((x for x in v["escenarios"] if x["escenario_id"] == "D_MIXTO"), None)
     mejor_renta = r["recomendacion"].get("recomendado")
     tir = f"{mejor_renta['TIR_pct']:.1f}%" if mejor_renta and mejor_renta["TIR_pct"] else "—"
     vpn = _fmt_m(mejor_renta["VPN_cop"]) if mejor_renta else "—"
+    mix_renta = None
+    if r["resultados"]:
+        mixs = [x for x in r["resultados"] if x["escenario_id"] == "D_MIXTO"]
+        if mixs:
+            mix_renta = max(mixs, key=lambda x: (x["TIR_pct"] or -99.0))
+    mix_tir = f"{mix_renta['TIR_pct']:.1f}%" if mix_renta and mix_renta["TIR_pct"] is not None else "—"
+    mix_v_roi = f"{mix_v['ROI_pct']:.1f}%" if mix_v else "—"
     return f"""<div class="cards">
-<div class="card"><div class="k">Venta · B Estándar</div><div class="v">{b_venta['ROI_pct']:.1f}%</div>
-<div class="d">ROI (umbral 22%) · UB {_fmt_m(b_venta['utilidad_bruta_cop'])} M</div></div>
+<div class="card"><div class="k">Venta · mejor escenario</div><div class="v">{mejor_v['ROI_pct']:.1f}%</div>
+<div class="d">{_h(mejor_v['producto'])} · umbral 22% · UB {_fmt_m(mejor_v['utilidad_bruta_cop'])} M</div></div>
 <div class="card"><div class="k">Renta · mejor combo</div><div class="v">{tir}</div>
 <div class="d">TIR {_h(mejor_renta['estrategia_nombre'].split(' — ')[0])} x {_h(mejor_renta['producto'].split(' — ')[0]) if mejor_renta else ''} · VPN {vpn} M</div></div>
+<div class="card"><div class="k">Uso-multiple D_MIXTO</div><div class="v">{mix_v_roi} · {mix_tir}</div>
+<div class="d">ROI venta · TIR renta (override usuario, fuera de norma)</div></div>
 <div class="card"><div class="k">Suelo del caso</div><div class="v">{_fmt_m(caso['cl'])} M</div>
 <div class="d">GFA {caso['gfa']:.0f} m²</div></div>
 </div>"""
+
+
+def _mix_html(caso) -> str:
+    """Tabla del escenario D_MIXTO (USO-MULTIPLE): desglose por componente y KPIs."""
+    with open(caso["venta"], "r", encoding="utf-8") as f:
+        v = json.load(f)
+    with open(caso["renta"], "r", encoding="utf-8") as f:
+        r = json.load(f)
+    mix_v = next((x for x in v["escenarios"] if x["escenario_id"] == "D_MIXTO"), None)
+    mix_r = [x for x in r["resultados"] if x["escenario_id"] == "D_MIXTO"]
+    if not mix_v:
+        return ""
+    det = mix_v.get("mix_usos_detalle") or []
+    filas_det = ""
+    for c in det:
+        filas_det += (f"<tr><td>{_h(c['uso'])}</td><td class='num'>{c['pct_gfa'] * 100:.0f}%</td>"
+                      f"<td class='num'>{c['gfa_i']:.0f}</td><td class='num'>{c['num_unidades']}</td>"
+                      f"<td class='num'>{c['area_vendible_m2']:.0f}</td>"
+                      f"<td class='num'>{_fmt_m(c['precio_venta_m2'])}</td>"
+                      f"<td class='num'>{_fmt_m(c['costo_construccion_m2'])}</td></tr>")
+    filas_r = ""
+    for res in mix_r:
+        tir = f"{res['TIR_pct']:.1f}%" if res["TIR_pct"] is not None else "—"
+        alertas = r["alertas"].get(f"{res['estrategia']}_{res['escenario_id']}", [])
+        criticas = [a for a in alertas if a["nivel"] == "critica"]
+        estado = ("<span class='estado bad'>NO VIABLE</span>" if criticas
+                  else "<span class='estado ok'>VIABLE</span>")
+        filas_r += (f"<tr><td>{_h(res['estrategia_nombre'].split(' — ')[0])}</td>"
+                    f"<td class='num'>{res['num_unidades']}</td>"
+                    f"<td class='num'>{_fmt_m(res['gpi_1_cop'])}</td>"
+                    f"<td class='num'>{res['cap_rate_entrada_pct']:.1f}%</td>"
+                    f"<td class='num'>{tir}</td>"
+                    f"<td class='num'>{_fmt_m(res['VPN_cop'])}</td><td>{estado}</td></tr>")
+    roi = f"{mix_v['ROI_pct']:.1f}%"
+    est_v = ("<span class='estado ok'>VIABLE</span>" if mix_v["ROI_pct"] >= v["reglas_decision"]["roi_minimo_pct"]
+             else "<span class='estado bad'>NO VIABLE</span>")
+    return f"""<h3>Uso-multiple (D_MIXTO) — override de usuario, fuera de reglamentacion</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Componente</th><th class="num">% GFA</th><th class="num">GFA (m²)</th><th class="num">Unid.</th>
+<th class="num">Area vendible (m²)</th><th class="num">Precio (M$/m²)</th><th class="num">Costo (M$/m²)</th></tr>
+{filas_det}</table></div>
+<p class="mini">Venta: ROI {roi} {est_v} · CL/IT {mix_v['CL_IT_pct']:.1f}% · MUB {mix_v['MUB_pct']:.1f}%</p>
+<div class="tabla-scroll"><table>
+<tr><th>Renta — estrategia</th><th class="num">Unid.</th><th class="num">GPI a1 (M$)</th><th class="num">Cap rate</th>
+<th class="num">TIR</th><th class="num">VPN (M$)</th><th>Estado</th></tr>{filas_r}</table></div>"""
+
+
+def _alcance_html() -> str:
+    """Seccion de areas de influencia multi-nivel (N1 2 km / N2 5 km / N3 accesibilidad)."""
+    with open(os.path.join(DATA, "alcance-investigacion.json"), "r", encoding="utf-8") as f:
+        cfg = json.load(f)
+    niveles = cfg["niveles"]
+    filas = ""
+    for n in niveles.values():
+        if n["id"] == "N3-LEJANO-ACCESIBILIDAD":
+            alcance = "radio fijo: no — criterios: estaciones TM/paraderos SITP &lt; 500 m; isocrona 20 min TP; malla vial arterial"
+        else:
+            alcance = f"radio {n['radio_m'] / 1000:.0f} km desde el origen SIRGAS del lote"
+        filas += (f"<tr><td><b>{n['id']}</b></td><td>{_h(n['etiqueta'])}</td><td>{_h(alcance)}</td>"
+                  f"<td>{_h(n['enfoque'])}</td></tr>")
+    return f"""<section class="alt"><div class="wrap">
+<h2>Alcance de la investigacion: areas de influencia multi-nivel</h2>
+<p class="lead">El estudio de demanda se organiza en tres niveles: un anillo cercano de 2 km
+(vecindario directo), el anillo intermedio de hasta 5 km (area de mercado actual) y un nivel
+lejano de accesibilidad basado en preferencias de transporte — estaciones de TransMilenio y
+paraderos SITP a menos de 500 m del lote, e isocrona de 20 minutos en transporte publico sobre
+la red principal (publica y privada).</p>
+<div class="tabla-scroll"><table>
+<tr><th>Nivel</th><th>Etiqueta</th><th>Alcance geografico</th><th>Enfoque de la investigacion</th></tr>
+{filas}</table></div>
+<p class="mini">Configuracion: data/fase-2-demanda/alcance-investigacion.json · anillos por lote:
+exports/alcance/&lt;CHIP&gt;-alcance.json (N1/N2 como circulos SIRGAS; N3 reporta estado de datos:
+malla vial del POT disponible, capas de estaciones/GTFS pendientes de datos abiertos de Bogota).</p>
+</div></section>"""
 
 
 def generar() -> None:
@@ -246,6 +337,7 @@ def generar() -> None:
 {_venta_html(caso)}
 {_renta_html(caso)}
 {_suelo_html(caso)}
+{_mix_html(caso)}
 <div class="nota"><b>Lectura del caso:</b> {_h(caso['lectura'])}</div>
 </div>
 </section>"""
@@ -266,7 +358,7 @@ de prueba (norte medio, centro historico y sur) evaluadas en venta y en renta (B
 con reglas de decision de Bogota 2026 y datos de mercado auditables.</div>
 <div class="meta"><span><b>Fecha:</b> 2026-08-14</span><span><b>Moneda:</b> COP</span>
 <span><b>Motores:</b> F2_DEMANDA_MOTOR_v01 (venta) + F2_RENTA_MOTOR_v01 (renta)</span>
-<span><b>Verificacion:</b> independiente PASS · tests 73/73</span></div>
+<span><b>Verificacion:</b> independiente PASS · tests 79/79</span></div>
 </div></div>
 
 <section><div class="wrap">
@@ -292,24 +384,29 @@ lote pequeno en zona de valores bajos.</p>
 <tr><th>Caso</th><th>Zona</th><th class="num">Lote (m²)</th><th class="num">GFA (m²)</th><th class="num">CL (M$)</th>
 <th>Venta (mejor)</th><th>Renta (mejor)</th><th>Veredicto del ejercicio</th></tr>
 <tr><td><b>A — AAA0127AZPA</b></td><td>El Prado, Suba (estrato 3-4)</td><td class="num">450</td><td class="num">1.053</td><td class="num">550</td>
-<td>B 18,5% (no viable)</td><td>LP×VIS TIR 11,1% (VIABLE)</td><td><span class="estado ok">Resuelto: renta LP</span></td></tr>
+<td>B 18,5% · <b>D_MIXTO 26,6% (VIABLE)</b></td><td>LP×VIS TIR 11,1% (VIABLE)</td><td><span class="estado ok">Resuelto: renta LP (venta viable solo con mix)</span></td></tr>
 <tr><td><b>B — AAA0030JKOE</b></td><td>La Candelaria (centro historico)</td><td class="num">946</td><td class="num">3.313</td><td class="num">1.420</td>
-<td>B 22,3% (VIABLE)</td><td>CP×VIS TIR 12,8% (VIABLE)</td><td><span class="estado ok">Viable en venta y renta</span></td></tr>
-<tr><td><b>C — 002407033006</b></td><td>Venecia, Tunjuelito (sur, estrato 2)</td><td class="num">192</td><td class="num">650</td><td class="num">192</td>
-<td>A 16,7% (no viable)</td><td>ninguna (suelo soportable $0)</td><td><span class="estado bad">No viable: revalidar o descartar</span></td></tr>
+<td>B 22,3% (VIABLE) · D_MIXTO −8,6%</td><td>CP×VIS TIR 12,8% (VIABLE)</td><td><span class="estado ok">Viable en venta y renta</span></td></tr>
+<tr><td><b>C — AAA0039KRMR</b></td><td>Muzu, Puente Aranda (occidente)</td><td class="num">357</td><td class="num">1.100</td><td class="num">700</td>
+<td>D_MIXTO −2,5% (mejor; no viable)</td><td>CP×Lujo TIR 2,5% (no viable)</td><td><span class="estado bad">No viable: suelo caro + lote pequeno</span></td></tr>
 </table></div>
 <div class="nota"><b>Conclusion del ejercicio:</b> la gama de pruebas demuestra que el pipeline
 distingue correctamente los casos viables de los inviables y que la estrategia de renta (BTR)
-amplia la viabilidad frente a la venta en 2 de los 3 casos. El precio del suelo, la escala (GFA)
-y los canones de la zona son las palancas que gobiernan el resultado.</div>
+amplia la viabilidad frente a la venta en 2 de los 3 casos. El override de USO-MULTIPLE
+(D_MIXTO) permite validar hipotesis fuera de reglamentacion: en el caso A convierte la venta en
+viable (ROI 26,6%), en B y C no salva el proyecto. El precio del suelo, la escala (GFA) y los
+canones de la zona son las palancas que gobiernan el resultado.</div>
 </div></section>
+{_alcance_html()}
 
 <footer><div class="wrap">
 Generado por scripts/utilities/generar_presentacion.py — DiseñoParametrico, 2026-08-14.
 Fuentes: motores F2 (venta v2.1) y F2 Renta (v1.0) con parametros auditables; datos de mercado
 Bogota 2026 (Ciencuadras Q1-2026, FincaRaiz, Properati, Tinsa, DANE) — ver vault
-(20-fases/fase-2-demanda, 30-referencia). Documento de ejercicio: validar comparables antes de
-decisiones de inversion.
+(20-fases/fase-2-demanda, 30-referencia). Casos A/B/C con escenario D_MIXTO (USO-MULTIPLE,
+override de desarrollo en Grasshopper: src/fase-1-contexto/F1_OVERRIDE_USO_v01.py).
+Areas de influencia multi-nivel configuradas en data/fase-2-demanda/alcance-investigacion.json.
+Documento de ejercicio: validar comparables antes de decisiones de inversion.
 </div></footer>
 </body></html>"""
 

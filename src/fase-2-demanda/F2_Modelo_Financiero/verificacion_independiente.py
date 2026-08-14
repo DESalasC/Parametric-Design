@@ -35,7 +35,10 @@ def verificar(params_path, results_path):
     gfa = params["gfa_max_m2"]
     lote = params["lote"]
     fin = params["financiero"]
-    cl = lote["area_m2"] * lote["precio_suelo_m2"] * (1 + lote["impuestos_escritura_pct"] / 100.0)
+    if lote.get("costo_lote_total_cop"):
+        cl = float(lote["costo_lote_total_cop"])
+    else:
+        cl = lote["area_m2"] * lote["precio_suelo_m2"] * (1 + lote["impuestos_escritura_pct"] / 100.0)
 
     ok_total = True
     print("=" * 70)
@@ -45,12 +48,33 @@ def verificar(params_path, results_path):
 
     for esc_id, esc in params["escenarios"].items():
         # --- Recalculo manual (mismas reglas: unidades enteras floor) ---
-        nga = gfa * esc["eficiencia_nga"]
-        unidades = int(nga // esc["unidad_m2"])
-        area_vendible = unidades * esc["unidad_m2"]
+        if esc.get("mix_usos"):
+            nga = 0.0
+            unidades = 0
+            area_vendible = 0.0
+            ingresos = 0.0
+            costo_duro = 0.0
+            abs_pond = 0.0
+            for m in esc["mix_usos"]:
+                gfa_i = gfa * m["pct_gfa"]
+                nga_i = gfa_i * m["eficiencia_nga"]
+                unid = int(nga_i // m["unidad_m2"])
+                area_i = unid * m["unidad_m2"]
+                nga += nga_i
+                unidades += unid
+                area_vendible += area_i
+                ingresos += area_i * m["precio_venta_m2"]
+                costo_duro += gfa_i * m["costo_construccion_m2"]
+                abs_pond += unid / max(m.get("absorcion_unid_mes", 2.0), 0.1)
+            absorcion = unidades / abs_pond if abs_pond > 0 else 0.0
+        else:
+            nga = gfa * esc["eficiencia_nga"]
+            unidades = int(nga // esc["unidad_m2"])
+            area_vendible = unidades * esc["unidad_m2"]
+            ingresos = area_vendible * esc["precio_venta_m2"]
+            costo_duro = gfa * esc["costo_construccion_m2"]
+            absorcion = esc["absorcion_unid_mes"]
 
-        ingresos = area_vendible * esc["precio_venta_m2"]
-        costo_duro = gfa * esc["costo_construccion_m2"]
         costo_blando = costo_duro * fin["costos_blandos_pct"] / 100.0
         costo_mkt = ingresos * fin["marketing_ventas_pct"] / 100.0
         costo_total = cl + costo_duro + costo_blando + costo_mkt
@@ -59,7 +83,7 @@ def verificar(params_path, results_path):
         mub = utilidad / ingresos * 100.0 if ingresos else 0.0
         roi = utilidad / costo_total * 100.0 if costo_total else 0.0
         cl_it = cl / ingresos * 100.0 if ingresos else 0.0
-        meses = unidades / esc["absorcion_unid_mes"] if esc["absorcion_unid_mes"] else float("inf")
+        meses = unidades / absorcion if absorcion else float("inf")
 
         esperado = {
             "nga_m2": nga, "num_unidades": unidades, "area_vendible_m2": area_vendible,

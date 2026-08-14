@@ -1,81 +1,111 @@
 {
-  "meta": {
-    "modelo": "F2_DEMANDA_MOTOR_v01",
-    "version": "1.1",
-    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Inmobiliario",
-    "ciudad": "Bogota D.C., Colombia",
-    "moneda": "COP",
-    "fecha_ejecucion": "2026-08-14",
-    "chip": "AAA0030JKOE-CANDELARIA",
-    "ciclo_desarrollo_anios": 2,
-    "origen_datos": "Lote real AAA0030JKOE (La Candelaria, UPZ 94, KR 1 12 D 54; area 946,45 m2; estrato 2). Norma manual verificada 2020-12-01 (Casa de la Cultura; ADR-008): IO 0,7 x 5 pisos -> IC 3,5 -> GFA 3.312,6 m2. CL = supuesto de ejercicio $1.420 M (~$1,5 M/m2 de suelo en centro historico).",
-    "nota_general": "Caso de estudio 2026-08-14 (ejercicio): centro historico — suelo caro por ubicacion, sobrecosto de restauracion, precios premium por turismo. Los precios/costos son supuestos de ejercicio documentados (no validados con comparables)."
-  },
-  "gfa_max_m2": 3312.575,
-  "lote": {
-    "area_m2": 946.45,
-    "precio_suelo_m2": 1500342.0,
-    "impuestos_escritura_pct": 0.0,
-    "costo_lote_total_cop": 1420000000.0,
-    "fuente": "CL $1.420.000.000 COP = supuesto de ejercicio (~$1,5 M/m2, suelo centro historico La Candelaria). Dato real del lote: area 946,45 m2 (contexto F1 cacheado).",
-    "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\pot-cache\\AAA0030JKOE-norma-manual.json"
-  },
-  "financiero": {
-    "costos_blandos_pct": 15.0,
-    "marketing_ventas_pct": 4.0
-  },
-  "reglas_decision": {
-    "mub_riesgo_pct": 18.0,
-    "mub_atractivo_pct": 25.0,
-    "roi_minimo_pct": 22.0,
-    "cl_it_precaucion_pct": 25.0,
-    "cl_it_inviable_pct": 30.0
-  },
-  "sensibilidad": {
-    "variacion_pct": 10.0
-  },
-  "escenarios": {
-    "A_VIS": {
-      "nombre": "A — VIS / VIP",
-      "nivel_acabados": "Basico",
-      "unidad_m2": 55.0,
-      "eficiencia_nga": 0.8,
-      "precio_venta_m2": 4727444,
-      "costo_construccion_m2": 2600000,
-      "absorcion_unid_mes": 4.0,
-      "fuente_precio": "Tope VIS 2026 (135 SMMLV = $236,37 M; Argos/Decreto 1469/2025).",
-      "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",
-      "fuente_costo": "Konstruing (07-ago-2026) + sobrecosto centro historico/restauracion +13%: $2,6 M/m2 (supuesto de ejercicio).",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Supuestos de ejercicio (no validados con comparables)."
+    "meta": {
+        "modelo": "F2_DEMANDA_MOTOR_v01",
+        "version": "1.1",
+        "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Inmobiliario",
+        "ciudad": "Bogota D.C., Colombia",
+        "moneda": "COP",
+        "fecha_ejecucion": "2026-08-14",
+        "chip": "AAA0030JKOE-CANDELARIA",
+        "ciclo_desarrollo_anios": 2,
+        "origen_datos": "Lote real AAA0030JKOE (La Candelaria, UPZ 94, KR 1 12 D 54; area 946,45 m2; estrato 2). Norma manual verificada 2020-12-01 (Casa de la Cultura; ADR-008): IO 0,7 x 5 pisos -> IC 3,5 -> GFA 3.312,6 m2. CL = supuesto de ejercicio $1.420 M (~$1,5 M/m2 de suelo en centro historico).",
+        "nota_general": "Caso de estudio 2026-08-14 (ejercicio): centro historico — suelo caro por ubicacion, sobrecosto de restauracion, precios premium por turismo. Los precios/costos son supuestos de ejercicio documentados (no validados con comparables). | Incluye D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion) para validacion de hipotesis."
     },
-    "B_ESTANDAR": {
-      "nombre": "B — Estandar",
-      "nivel_acabados": "Medio",
-      "unidad_m2": 85.0,
-      "eficiencia_nga": 0.75,
-      "precio_venta_m2": 7500000,
-      "costo_construccion_m2": 3400000,
-      "absorcion_unid_mes": 2.0,
-      "fuente_precio": "Centro historico obra nueva: promedio Bogota Q1-2026 $7,42 M/m2 (Ciencuadras) + restauracion -> $7,5 M/m2 (supuesto de ejercicio).",
-      "fuente_precio_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
-      "fuente_costo": "Konstruing + sobrecosto centro historico +13%: $3,4 M/m2 (supuesto de ejercicio).",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Supuestos de ejercicio."
+    "gfa_max_m2": 3312.575,
+    "lote": {
+        "area_m2": 946.45,
+        "precio_suelo_m2": 1500342.0,
+        "impuestos_escritura_pct": 0.0,
+        "costo_lote_total_cop": 1420000000.0,
+        "fuente": "CL $1.420.000.000 COP = supuesto de ejercicio (~$1,5 M/m2, suelo centro historico La Candelaria). Dato real del lote: area 946,45 m2 (contexto F1 cacheado).",
+        "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\pot-cache\\AAA0030JKOE-norma-manual.json"
     },
-    "C_LUJO": {
-      "nombre": "C — Lujo / Alto nivel",
-      "nivel_acabados": "Premium",
-      "unidad_m2": 150.0,
-      "eficiencia_nga": 0.7,
-      "precio_venta_m2": 10500000,
-      "costo_construccion_m2": 4800000,
-      "absorcion_unid_mes": 0.8,
-      "fuente_precio": "Boutique/restauracion premium centro historico: $10,5 M/m2 (supuesto de ejercicio; rango premium norte $9-11 M).",
-      "fuente_precio_url": "https://www.metrocuadrado.com/noticias/actualidad/valor-del-metro-cuadrado-por-barrio-en-bogota-6020",
-      "fuente_costo": "Konstruing premium $4,3 M + restauracion: $4,8 M/m2 (supuesto de ejercicio).",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Supuestos de ejercicio."
+    "financiero": {
+        "costos_blandos_pct": 15.0,
+        "marketing_ventas_pct": 4.0
+    },
+    "reglas_decision": {
+        "mub_riesgo_pct": 18.0,
+        "mub_atractivo_pct": 25.0,
+        "roi_minimo_pct": 22.0,
+        "cl_it_precaucion_pct": 25.0,
+        "cl_it_inviable_pct": 30.0
+    },
+    "sensibilidad": {
+        "variacion_pct": 10.0
+    },
+    "escenarios": {
+        "A_VIS": {
+            "nombre": "A — VIS / VIP",
+            "nivel_acabados": "Basico",
+            "unidad_m2": 55.0,
+            "eficiencia_nga": 0.8,
+            "precio_venta_m2": 4727444,
+            "costo_construccion_m2": 2600000,
+            "absorcion_unid_mes": 4.0,
+            "fuente_precio": "Tope VIS 2026 (135 SMMLV = $236,37 M; Argos/Decreto 1469/2025).",
+            "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",
+            "fuente_costo": "Konstruing (07-ago-2026) + sobrecosto centro historico/restauracion +13%: $2,6 M/m2 (supuesto de ejercicio).",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Supuestos de ejercicio (no validados con comparables)."
+        },
+        "B_ESTANDAR": {
+            "nombre": "B — Estandar",
+            "nivel_acabados": "Medio",
+            "unidad_m2": 85.0,
+            "eficiencia_nga": 0.75,
+            "precio_venta_m2": 7500000,
+            "costo_construccion_m2": 3400000,
+            "absorcion_unid_mes": 2.0,
+            "fuente_precio": "Centro historico obra nueva: promedio Bogota Q1-2026 $7,42 M/m2 (Ciencuadras) + restauracion -> $7,5 M/m2 (supuesto de ejercicio).",
+            "fuente_precio_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+            "fuente_costo": "Konstruing + sobrecosto centro historico +13%: $3,4 M/m2 (supuesto de ejercicio).",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Supuestos de ejercicio."
+        },
+        "C_LUJO": {
+            "nombre": "C — Lujo / Alto nivel",
+            "nivel_acabados": "Premium",
+            "unidad_m2": 150.0,
+            "eficiencia_nga": 0.7,
+            "precio_venta_m2": 10500000,
+            "costo_construccion_m2": 4800000,
+            "absorcion_unid_mes": 0.8,
+            "fuente_precio": "Boutique/restauracion premium centro historico: $10,5 M/m2 (supuesto de ejercicio; rango premium norte $9-11 M).",
+            "fuente_precio_url": "https://www.metrocuadrado.com/noticias/actualidad/valor-del-metro-cuadrado-por-barrio-en-bogota-6020",
+            "fuente_costo": "Konstruing premium $4,3 M + restauracion: $4,8 M/m2 (supuesto de ejercicio).",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Supuestos de ejercicio."
+        },
+        "D_MIXTO": {
+            "nombre": "D - Mixto (override usuario)",
+            "nivel_acabados": "Mixto",
+            "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion (hipotesis de validacion/prefactibilidad). Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Supuestos de ejercicio.",
+            "override_uso": true,
+            "mix_usos": [
+                {
+                    "uso": "Local comercial turistico",
+                    "pct_gfa": 0.3,
+                    "unidad_m2": 40.0,
+                    "eficiencia_nga": 0.85,
+                    "precio_venta_m2": 8500000,
+                    "costo_construccion_m2": 4500000,
+                    "absorcion_unid_mes": 0.4,
+                    "fuente": "Locales centro historico/turistico: ,5 M/m2 (supuesto de ejercicio)."
+                },
+                {
+                    "uso": "Vivienda estandar",
+                    "pct_gfa": 0.7,
+                    "unidad_m2": 55.0,
+                    "eficiencia_nga": 0.75,
+                    "precio_venta_m2": 5400000,
+                    "costo_construccion_m2": 4000000,
+                    "absorcion_unid_mes": 1.5,
+                    "fuente": "Centro historico vivienda: ,4 M/m2 (supuesto de ejercicio, sin premium)."
+                }
+            ],
+            "fuente_precio": "Supuestos de ejercicio 2026-08-14 (mix uso multiple: local ,5 M/m2 + vivienda ,4 M/m2).",
+            "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local restauracion ,5 M/m2, vivienda ,0 M/m2)."
+        }
     }
-  }
 }

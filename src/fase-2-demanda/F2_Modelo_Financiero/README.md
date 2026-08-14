@@ -176,3 +176,15 @@ Cada parámetro del JSON lleva su fuente y URL para auditoría.
 - ✘ No incluye financiación, TIR, VPN ni flujo de caja mensual (Fase 3); el flujo trimestral es un estimado de liquidez, no un modelo financiero completo
 - ✘ No emite concepto legal, urbanístico ni de uso de suelo
 - ✘ El precio de suelo del caso base es un supuesto de referencia: **reemplácelo por el dato real del lote** antes de decisiones de inversión
+
+## Escenario D_MIXTO (USO-MULTIPLE / override de usuario)
+
+Los escenarios pueden declarar mix_usos` (lista de componentes: uso, pct_gfa, unidad_m2,
+eficiencia_nga`, precio_venta_m2`, costo_construccion_m2` y bsorcion_unid_mes`). El motor
+reparte el GFA por componente y agrega IT, CD, unidades y area vendible; la sensibilidad marginal
+y el informe usan los promedios agregados (normalizacion automatica en main). Es la
+materializacion del OVERRIDE de uso de Grasshopper (F1_OVERRIDE_USO_v01.py, boolean + lista):
+el analisis financiero decide la recomendacion mas adecuada comparando el mixto contra los usos puros.
+
+Ejemplo (casos de estudio 2026-08-14): parametros_AAA0127AZPA_venta_gfa1053_cl550.json -> escenario D_MIXTO.
+

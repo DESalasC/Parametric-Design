@@ -79,29 +79,53 @@ def calcular_manual(params: dict) -> dict:
 
     salida = {}
     for esc_id, esc in params["escenarios"].items():
-        nga = gfa * esc["eficiencia_nga"]
-        unidades = int(nga // esc["unidad_m2"])
-        area = unidades * esc["unidad_m2"]
+        if esc.get("mix_usos"):
+            comps = []
+            for m in esc["mix_usos"]:
+                gfa_i = gfa * m["pct_gfa"]
+                nga_i = gfa_i * m["eficiencia_nga"]
+                unid = int(nga_i // m["unidad_m2"])
+                area_i = unid * m["unidad_m2"]
+                comps.append({"area": area_i, "canon": m["canon_m2_mes"],
+                              "costo": m["costo_construccion_m2"], "gfa_i": gfa_i,
+                              "unidades": unid})
+            area_mix = sum(c["area"] for c in comps)
+            cd_mix = sum(c["gfa_i"] * c["costo"] for c in comps)
+            esc_mix_flag = True
+        else:
+            esc_eff = esc
+            cd_mix = None
+            esc_mix_flag = False
+            area_mix = None
         for estr_id, estr in params["estrategias"].items():
-            canon = esc["canon_m2_mes"][estr_id]
+            if esc_mix_flag:
+                canon = (sum(c["area"] * c["canon"][estr_id] for c in comps) / area_mix
+                         if area_mix else 0.0)
+                cd = cd_mix
+            else:
+                canon = esc_eff["canon_m2_mes"][estr_id]
+                cd = gfa * esc_eff["costo_construccion_m2"]
+            if area_mix is None:
+                nga = gfa * esc_eff["eficiencia_nga"]
+                unidades = int(nga // esc_eff["unidad_m2"])
+                area_mix = unidades * esc_eff["unidad_m2"]
             ocup = estr["ocupacion_pct"] / 100.0
             adm_m2 = estr["administracion_m2_mes"]
             gastos_pct = (estr["gastos_operativos_pct_egi"] + estr["capex_pct_egi"]) / 100.0
 
             # Inversion
-            cd = gfa * esc["costo_construccion_m2"]
             cb = cd * fin["costos_blandos_pct"] / 100.0
-            gpi_1 = area * canon * 12.0
+            gpi_1 = area_mix * canon * 12.0
             mkt = gpi_1 * fin["marketing_leasing_pct"] / 100.0
-            mob = area * float(estr.get("mobiliario_cop_m2", 0.0))
+            mob = area_mix * float(estr.get("mobiliario_cop_m2", 0.0))
             inv = cl + cd + cb + mkt + mob
 
             # Flujo anual
             nois = []
             for t in range(1, h + 1):
-                gpi = area * canon * 12.0 * (1 + inc_c) ** (t - 1)
+                gpi = area_mix * canon * 12.0 * (1 + inc_c) ** (t - 1)
                 egi = gpi * ocup
-                adm = area * adm_m2 * 12.0 * (1 + inc_g) ** (t - 1)
+                adm = area_mix * adm_m2 * 12.0 * (1 + inc_g) ** (t - 1)
                 gastos = egi * gastos_pct
                 nois.append(egi - adm - gastos)
             salida_activo = nois[-1] * (1 + inc_c) / cap_sal
@@ -126,7 +150,7 @@ def calcular_manual(params: dict) -> dict:
                     pb_d = (i - 1) + (-prev) / (acum - prev)
 
             # Breakeven de ocupacion
-            adm_1 = area * adm_m2 * 12.0
+            adm_1 = area_mix * adm_m2 * 12.0
             be = adm_1 / (gpi_1 * (1 - gastos_pct)) if gpi_1 * (1 - gastos_pct) > 0 else float("inf")
 
             salida[f"{estr_id}_{esc_id}"] = {

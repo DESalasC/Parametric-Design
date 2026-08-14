@@ -82,6 +82,7 @@ FUENTES DE MERCADO (consultadas 2026-08-13):
 """
 
 import argparse
+import copy
 import csv
 import json
 import os
@@ -187,16 +188,54 @@ def costo_lote_total(lote_cfg: dict) -> float:
 # ----------------------------------------------------------------------------
 
 def area_arrendable(gfa: float, esc: dict) -> tuple:
-    """NGA = GFA * eficiencia; unidades enteras; area arrendable real."""
+    """NGA = GFA * eficiencia; unidades enteras; area arrendable real.
+    Si el escenario trae 'mix_usos' (override de uso multiple), el GFA se reparte
+    por componente (pct_gfa) y cada uso tiene su propia eficiencia y tamano."""
+    if esc.get("mix_usos"):
+        unidades = 0
+        area = 0.0
+        for m in esc["mix_usos"]:
+            gfa_i = gfa * m["pct_gfa"]
+            nga_i = gfa_i * m["eficiencia_nga"]
+            unid = int(nga_i // m["unidad_m2"])
+            unidades += unid
+            area += unid * m["unidad_m2"]
+        return unidades, area
     nga = gfa * esc["eficiencia_nga"]
     unidades = int(nga // esc["unidad_m2"])
     return unidades, unidades * esc["unidad_m2"]
 
 
+def componentes_mix(gfa: float, esc: dict, estr_id: str) -> list:
+    """Desglose por componente de un escenario mixto (override de uso multiple).
+    Cada componente: uso, pct_gfa, gfa_i, nga_i, unidades, area, canon, costo."""
+    comps = []
+    for m in esc.get("mix_usos", []):
+        gfa_i = gfa * m["pct_gfa"]
+        nga_i = gfa_i * m["eficiencia_nga"]
+        unid = int(nga_i // m["unidad_m2"])
+        area_i = unid * m["unidad_m2"]
+        comps.append({
+            "uso": m.get("uso", "?"),
+            "pct_gfa": m["pct_gfa"],
+            "gfa_i": gfa_i,
+            "nga_i": nga_i,
+            "unidades": unid,
+            "area": area_i,
+            "canon": m["canon_m2_mes"][estr_id],
+            "costo": m["costo_construccion_m2"],
+        })
+    return comps
+
+
 def inversion_inicial(gfa: float, cl: float, esc: dict, estr: dict, fin: dict,
-                      area: float, gp1: float) -> dict:
-    """Inversion del ano 0: CL + CD + CB + MKT (leasing) + mobiliario (CP)."""
-    cd = gfa * esc["costo_construccion_m2"]
+                      area: float, gp1: float, cd_override: float = None) -> dict:
+    """Inversion del ano 0: CL + CD + CB + MKT (leasing) + mobiliario (CP).
+    Con mix_usos, el costo duro se calcula por componente (gfa_i x costo_i)."""
+    if cd_override is not None:
+        cd = cd_override
+    else:
+        cd = gfa * esc["costo_construccion_m2"]
     cb = cd * fin["costos_blandos_pct"] / 100.0
     mkt = gp1 * fin["marketing_leasing_pct"] / 100.0
     mob = area * float(estr.get("mobiliario_cop_m2", 0.0))
@@ -319,9 +358,23 @@ def run_combinacion(gfa: float, cl: float, esc: dict, estr_id: str, estr: dict,
     estr["_id"] = estr_id
     horizonte = int(renta["horizonte_anios"])
 
-    fl = flujo_anual(area, esc, estr, renta, horizonte)
+    mix_detalle = None
+    esc_eff = esc
+    cd_override = None
+    if esc.get("mix_usos"):
+        comps = componentes_mix(gfa, esc, estr_id)
+        area = sum(c["area"] for c in comps)
+        unidades = sum(c["unidades"] for c in comps)
+        canon_ef = (sum(c["area"] * c["canon"] for c in comps) / area) if area > 0 else 0.0
+        esc_eff = dict(esc)
+        esc_eff["canon_m2_mes"] = {estr_id: canon_ef}
+        cd_override = sum(c["gfa_i"] * c["costo"] for c in comps)
+        mix_detalle = [{k: (round(v, 2) if isinstance(v, float) else v)
+                        for k, v in c.items()} for c in comps]
+
+    fl = flujo_anual(area, esc_eff, estr, renta, horizonte)
     gp1, noi1 = fl["gpi_1_cop"], fl["noi_1_cop"]
-    inv = inversion_inicial(gfa, cl, esc, estr, fin, area, gp1)
+    inv = inversion_inicial(gfa, cl, esc_eff, estr, fin, area, gp1, cd_override)
     inv_total = inv["total_cop"]
 
     flujos = [-inv_total] + [a["noi_cop"] for a in fl["anos"]]
@@ -344,17 +397,26 @@ def run_combinacion(gfa: float, cl: float, esc: dict, estr_id: str, estr: dict,
     multiplo = (fl["sum_noi_cop"] + fl["salida_cop"]) / inv_total if inv_total > 0 else 0.0
     cl_inv = cl / inv_total * 100.0 if inv_total > 0 else 0.0
 
+    # Campos agregados para salida: con mix_usos, nga/unidad reales por componentes
+    if mix_detalle:
+        nga_sal = sum(c["nga_i"] for c in mix_detalle)
+        unidad_sal = round(area / unidades, 2) if unidades > 0 else 0.0
+    else:
+        nga_sal = gfa * esc["eficiencia_nga"]
+        unidad_sal = esc["unidad_m2"]
+
     return {
         "estrategia": estr_id,
         "estrategia_nombre": estr["nombre"],
         "escenario_id": esc["id"],
         "producto": esc["nombre"],
         "gfa_m2": round(gfa, 2),
-        "nga_m2": round(gfa * esc["eficiencia_nga"], 2),
-        "unidad_m2": esc["unidad_m2"],
+        "nga_m2": round(nga_sal, 2),
+        "unidad_m2": unidad_sal,
         "num_unidades": unidades,
         "area_arrendable_m2": round(area, 2),
-        "canon_m2_mes": esc["canon_m2_mes"][estr_id],
+        "canon_m2_mes": esc_eff["canon_m2_mes"][estr_id],
+        "mix_usos_detalle": mix_detalle,
         "ocupacion_pct": estr["ocupacion_pct"],
         "horizonte_anios": horizonte,
         "gpi_1_cop": round(gp1, 2),
@@ -472,18 +534,28 @@ def analizar_sensibilidad(gfa: float, cl: float, escenarios: dict, estrategias: 
 
     def _kpi(var_id: str, factor_lo: float, factor_hi: float,
              esc: dict, estr_id: str, estr: dict) -> tuple:
-        esc_m = dict(esc)
+        esc_m = copy.deepcopy(esc)
         estr_m = dict(estr)
         renta_m = dict(renta)
         reglas_m = dict(reglas)
         if var_id == "canon_m2_mes":
-            canon = dict(esc["canon_m2_mes"])
-            canon[estr_id] = canon[estr_id] * factor_lo
-            esc_m["canon_m2_mes"] = canon
+            if esc_m.get("mix_usos"):
+                for c in esc_m["mix_usos"]:
+                    canon = dict(c["canon_m2_mes"])
+                    canon[estr_id] = canon[estr_id] * factor_lo
+                    c["canon_m2_mes"] = canon
+            else:
+                canon = dict(esc["canon_m2_mes"])
+                canon[estr_id] = canon[estr_id] * factor_lo
+                esc_m["canon_m2_mes"] = canon
         elif var_id == "ocupacion_pct":
             estr_m["ocupacion_pct"] = estr["ocupacion_pct"] * factor_lo
         elif var_id == "costo_construccion_m2":
-            esc_m["costo_construccion_m2"] = esc["costo_construccion_m2"] * factor_lo
+            if esc_m.get("mix_usos"):
+                for c in esc_m["mix_usos"]:
+                    c["costo_construccion_m2"] = c["costo_construccion_m2"] * factor_lo
+            else:
+                esc_m["costo_construccion_m2"] = esc["costo_construccion_m2"] * factor_lo
         elif var_id == "cap_rate_salida_pct":
             renta_m["cap_rate_salida_pct"] = renta["cap_rate_salida_pct"] * factor_lo
         elif var_id == "tasa_descuento_pct":
@@ -968,14 +1040,22 @@ operativo, y su atractivo depende de la tasa exigida y del precio del suelo.</di
     # --- Supuestos y fuentes ---
     filas_fuentes = ""
     for esc_id, esc in params["escenarios"].items():
-        cps = esc["canon_m2_mes"].get("CP", "—")
-        lps = esc["canon_m2_mes"].get("LP", "—")
+        if esc.get("mix_usos"):
+            cps = "Mixto"
+            lps = "Mixto"
+            costo_celda = "Mixto"
+            nota_fuente = esc.get("nota", "USO-MULTIPLE (override usuario); ver detalle por componente en el JSON de resultados.")
+        else:
+            cps = esc["canon_m2_mes"].get("CP", "—")
+            lps = esc["canon_m2_mes"].get("LP", "—")
+            costo_celda = esc["costo_construccion_m2"]
+            nota_fuente = esc.get("nota", "")
         filas_fuentes += f"""<tr>
 <td><b>{_h(esc['nombre'])}</b></td>
 <td class="num">{_fmt_cop(lps)}</td>
 <td class="num">{_fmt_cop(cps)}</td>
-<td class="num">{_fmt_cop(esc['costo_construccion_m2'])}</td>
-<td>{_h(esc.get('fuente_canon', ''))}<br>
+<td class="num">{_fmt_cop(costo_celda)}</td>
+<td>{_h(nota_fuente)}<br>
 <a href="{_h(esc.get('fuente_canon_url', '#'))}">{_h(esc.get('fuente_canon_url', ''))}</a></td>
 <td>{_h(esc.get('fuente_costo', ''))}</td></tr>"""
     fuentes_html = f"""<div class="tabla-scroll"><table>
