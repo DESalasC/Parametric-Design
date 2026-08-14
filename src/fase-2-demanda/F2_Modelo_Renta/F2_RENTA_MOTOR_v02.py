@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
-F2_RENTA_MOTOR_v01.py — Modelo Financiero Build-to-Rent (Fase 2)
+F2_RENTA_MOTOR_v02.py — Modelo Financiero Build-to-Rent (Fase 2)
 Proyecto: DiseñoParametrico — Fase 2 (ampliación del F2_Modelo_Financiero)
 Python 3.8+ Standalone (sin dependencias externas)
 ================================================================================
@@ -32,10 +32,10 @@ ALCANCE (prefactibilidad):
   - No emite concepto legal, urbanistico, tributario o de uso de suelo.
 
 USO:
-  python F2_RENTA_MOTOR_v01.py
-  python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta.json
-  python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta.json --estrategia LP
-  python F2_RENTA_MOTOR_v01.py --chip AAA0127AZPA --gfa 632.695061 --costo-lote 1200000000
+  python F2_RENTA_MOTOR_v02.py
+  python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json
+  python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json --estrategia LP
+  python F2_RENTA_MOTOR_v02.py --chip AAA0127AZPA --gfa 632.695061 --costo-lote 1200000000
 
 SALIDAS (carpeta resultados/ o --outdir):
   - resultados_completos.json   : todos los calculos (auditable)
@@ -92,8 +92,11 @@ import sys
 # Utilidades de formato
 # ----------------------------------------------------------------------------
 
-def _fmt_cop(valor: float) -> str:
-    """Formatea COP con separadores de miles y sin decimales."""
+def _fmt_cop(valor) -> str:
+    """Formatea COP con separadores de miles y sin decimales.
+    Acepta numeros o textos como "Mixto" (celdas del informe de usos multiples)."""
+    if isinstance(valor, str):
+        return valor
     return f"{round(valor):,}".replace(",", ".")
 
 
@@ -1136,11 +1139,11 @@ se modela aparte (COP/m2/mes).</div>
 <h2>10. Como actualizar el modelo</h2>
 <div class="nota">Edite <b>parametros_entrada.json</b> (GFA, lote, cánones por escenario y estrategia,
 ocupacion, gastos, reglas, horizonte o cap rate de salida) y vuelva a ejecutar:
-<code>python F2_RENTA_MOTOR_v01.py</code>. El script recalcula KPIs, alertas, sensibilidad,
+<code>python F2_RENTA_MOTOR_v02.py</code>. El script recalcula KPIs, alertas, sensibilidad,
 recomendacion e informe sin tocar el codigo. Para el lote real use
 <code>--parametros parametros_AAA0127AZPA_renta.json</code>.</div>
 
-<footer>Generado por F2_RENTA_MOTOR_v01.py — Fase 2, Build-to-Rent (prefactibilidad).
+<footer>Generado por F2_RENTA_MOTOR_v02.py — Fase 2, Build-to-Rent (prefactibilidad).
 Datos de mercado consultados el {_h(meta.get('fecha_ejecucion', ''))}; fuentes en la seccion 8.
 Este documento es una herramienta de decision preliminar; requiere validacion de comparables de
 cánones en radio 5 km y revision especializada antes de decisiones de inversion.</footer>

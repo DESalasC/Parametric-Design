@@ -50,7 +50,7 @@ cd D:\Work\PROJECTS\DiseñoParametrico\src\fase-2-demanda\F2_Modelo_Renta
 **Paso 2.** Ejecute con el lote real (el caso que ya viene configurado):
 
 ```powershell
-python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta.json
+python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json
 ```
 
 **Paso 3.** Abra el informe:
@@ -65,13 +65,13 @@ Otras ejecuciones útiles:
 
 ```powershell
 # Alternativa de curaduría (GFA 1054)
-python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json
+python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json
 
 # Solo largo plazo
-python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta.json --estrategia LP
+python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json --estrategia LP
 
 # Caso de referencia (GFA 1200, lote genérico)
-python F2_RENTA_MOTOR_v01.py
+python F2_RENTA_MOTOR_v02.py
 ```
 
 ---

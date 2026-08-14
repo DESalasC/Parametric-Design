@@ -16,7 +16,7 @@ sys.path.insert(0, str(FIN_DIR))
 
 import pytest
 
-import F2_DEMANDA_MOTOR_v01 as motor
+import F2_DEMANDA_MOTOR_v02 as motor
 
 
 @pytest.fixture(scope="module")

@@ -11,7 +11,7 @@ Motor de viabilidad comercial, programa de áreas y **modelo financiero de prefa
 | `F2_PROG_INTERIOR_v01.py` | 347 | Programa interior de unidades |
 | `F2_PROGRAMA_AREAS_v01.py` | 488 | Programa de áreas por tipología |
 
-> El **motor mejorado** (v2.1: KPIs, alertas, sensibilidad ±10%, escenarios D/E, flujo de caja,
+> El **motor mejorado** (v2.2: KPIs, alertas, sensibilidad ±10%, escenarios D/E, flujo de caja,
 > informe HTML, CLI `--chip/--gfa/--costo-lote` compatible con el pipeline) vive en
 > **`F2_Modelo_Financiero\`** dentro de esta carpeta. Ver su `MANUAL_DE_USO.md`.
 
@@ -28,8 +28,8 @@ Motor de viabilidad comercial, programa de áreas y **modelo financiero de prefa
 
 ```powershell
 cd src\fase-2-demanda\F2_Modelo_Financiero
-python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_mercado2026.json
-python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json
+python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_mercado2026.json
+python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json
 ```
 
 ## Resultados clave (mercado 2026, CL $1.200 M)

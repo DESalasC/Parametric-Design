@@ -1,99 +1,108 @@
 {
-  "meta": {
-    "modelo": "F2_RENTA_MOTOR_v01",
-    "version": "1.0",
-    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Build-to-Rent",
-    "ciudad": "Bogota D.C., Colombia",
-    "moneda": "COP",
-    "fecha_ejecucion": "2026-08-13",
-    "chip": "AAA0127AZPA-GFA1054-CL817",
-    "origen_datos": "Caso de validacion de la mecanica del modelo: mismo lote AAA0127AZPA con GFA 1054,49 m2 (curaduria) pero con CL = $817 M, que es el suelo soportable que el motor calculo para la combinacion LP x A_VIS (maximo CL con VPN >= 0 @ 10%).",
-    "nota_general": "Prueba de concepto: muestra que el modelo encuentra la viabilidad cuando el suelo se negocia a su valor soportable, y cuantifica la vara de negociacion con el dueno del lote (CL pedido $1.200 M -> soportable $817 M = -32%)."
-  },
-  "gfa_max_m2": 1054.491768,
-  "lote": {
-    "area_m2": 450.0,
-    "precio_suelo_m2": 1815556.0,
-    "impuestos_escritura_pct": 0.0,
-    "costo_lote_total_cop": 817000000.0,
-    "fuente": "CL soportable calculado por el propio modelo (parametros_AAA0127AZPA_renta_gfa1054.json, corrida 2026-08-13): $816,7 M para LP x A_VIS.",
-    "fuente_url": ""
-  },
-  "financiero": {
-    "costos_blandos_pct": 15.0,
-    "marketing_leasing_pct": 2.0
-  },
-  "renta": {
-    "horizonte_anios": 10,
-    "incremento_canon_pct": 5.5,
-    "incremento_gastos_pct": 6.5,
-    "cap_rate_salida_pct": 6.2
-  },
-  "reglas_renta": {
-    "tasa_descuento_pct": 10.0,
-    "tir_minima_pct": 10.0,
-    "cap_rate_entrada_min_pct": 5.0,
-    "payback_max_anios": 8.0,
-    "cl_inversion_precaucion_pct": 25.0,
-    "cl_inversion_inviable_pct": 30.0
-  },
-  "sensibilidad": {
-    "variacion_pct": 10.0
-  },
-  "estrategias": {
-    "CP": {
-      "nombre": "Corto plazo — temporal amoblado",
-      "ocupacion_pct": 75.0,
-      "administracion_m2_mes": 8000.0,
-      "gastos_operativos_pct_egi": 25.0,
-      "capex_pct_egi": 3.0,
-      "mobiliario_cop_m2": 500000.0
+    "meta": {
+        "modelo": "F2_RENTA_MOTOR_v02",
+        "version": "2.0",
+        "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Build-to-Rent",
+        "ciudad": "Bogota D.C., Colombia",
+        "moneda": "COP",
+        "fecha_ejecucion": "2026-08-13",
+        "chip": "AAA0127AZPA-GFA1054-CL817",
+        "origen_datos": "Caso de validacion de la mecanica del modelo: mismo lote AAA0127AZPA con GFA 1054,49 m2 (curaduria) pero con CL = $817 M, que es el suelo soportable que el motor calculo para la combinacion LP x A_VIS (maximo CL con VPN >= 0 @ 10%).",
+        "nota_general": "Prueba de concepto: muestra que el modelo encuentra la viabilidad cuando el suelo se negocia a su valor soportable, y cuantifica la vara de negociacion con el dueno del lote (CL pedido $1.200 M -> soportable $817 M = -32%)."
     },
-    "LP": {
-      "nombre": "Largo plazo — arriendo tradicional",
-      "ocupacion_pct": 95.0,
-      "administracion_m2_mes": 6000.0,
-      "gastos_operativos_pct_egi": 12.0,
-      "capex_pct_egi": 1.0,
-      "mobiliario_cop_m2": 0.0
+    "gfa_max_m2": 1054.491768,
+    "lote": {
+        "area_m2": 450.0,
+        "precio_suelo_m2": 1815556.0,
+        "impuestos_escritura_pct": 0.0,
+        "costo_lote_total_cop": 817000000.0,
+        "fuente": "CL soportable calculado por el propio modelo (parametros_AAA0127AZPA_renta_gfa1054.json, corrida 2026-08-13): $816,7 M para LP x A_VIS.",
+        "fuente_url": ""
+    },
+    "financiero": {
+        "costos_blandos_pct": 15.0,
+        "marketing_leasing_pct": 2.0
+    },
+    "renta": {
+        "horizonte_anios": 10,
+        "incremento_canon_pct": 5.5,
+        "incremento_gastos_pct": 6.5,
+        "cap_rate_salida_pct": 6.2
+    },
+    "reglas_renta": {
+        "tasa_descuento_pct": 10.0,
+        "tir_minima_pct": 10.0,
+        "cap_rate_entrada_min_pct": 5.0,
+        "payback_max_anios": 8.0,
+        "cl_inversion_precaucion_pct": 25.0,
+        "cl_inversion_inviable_pct": 30.0
+    },
+    "sensibilidad": {
+        "variacion_pct": 10.0
+    },
+    "estrategias": {
+        "CP": {
+            "nombre": "Corto plazo — temporal amoblado",
+            "ocupacion_pct": 75.0,
+            "administracion_m2_mes": 8000.0,
+            "gastos_operativos_pct_egi": 25.0,
+            "capex_pct_egi": 3.0,
+            "mobiliario_cop_m2": 500000.0
+        },
+        "LP": {
+            "nombre": "Largo plazo — arriendo tradicional",
+            "ocupacion_pct": 95.0,
+            "administracion_m2_mes": 6000.0,
+            "gastos_operativos_pct_egi": 12.0,
+            "capex_pct_egi": 1.0,
+            "mobiliario_cop_m2": 0.0
+        }
+    },
+    "escenarios": {
+        "A_VIS": {
+            "nombre": "A — VIS / VIP",
+            "unidad_m2": 55.0,
+            "eficiencia_nga": 0.8,
+            "costo_construccion_m2": 2300000.0,
+            "canon_m2_mes": {
+                "CP": 54400.0,
+                "LP": 32000.0
+            },
+            "fuente_canon": "Idem parametros_AAA0127AZPA_renta_gfa1054.json (FincaRaiz Prado Veraniego; Ciencuadras Q1-2026).",
+            "fuente_canon_url": "https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota",
+            "fuente_costo": "Konstruing (07-ago-2026): acabados basicos $2,3 M/m2.",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Producto identico al F2 validado."
+        },
+        "B_ESTANDAR": {
+            "nombre": "B — Estandar",
+            "unidad_m2": 85.0,
+            "eficiencia_nga": 0.75,
+            "costo_construccion_m2": 3000000.0,
+            "canon_m2_mes": {
+                "CP": 64600.0,
+                "LP": 38000.0
+            },
+            "fuente_canon": "Idem parametros_AAA0127AZPA_renta_gfa1054.json (Properati; Mitula).",
+            "fuente_canon_url": "https://www.properati.com.co/s/prado-veraniego/arriendo",
+            "fuente_costo": "Konstruing (07-ago-2026): acabados medios $3,0 M/m2.",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Producto identico al F2 validado."
+        },
+        "C_LUJO": {
+            "nombre": "C — Lujo / Alto nivel",
+            "unidad_m2": 150.0,
+            "eficiencia_nga": 0.7,
+            "costo_construccion_m2": 4300000.0,
+            "canon_m2_mes": {
+                "CP": 76500.0,
+                "LP": 45000.0
+            },
+            "fuente_canon": "Idem parametros_AAA0127AZPA_renta_gfa1054.json (supuesto tecnico premium norte).",
+            "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
+            "fuente_costo": "Konstruing (07-ago-2026): acabados premium $4,3 M/m2.",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Producto identico al F2 validado."
+        }
     }
-  },
-  "escenarios": {
-    "A_VIS": {
-      "nombre": "A — VIS / VIP",
-      "unidad_m2": 55.0,
-      "eficiencia_nga": 0.8,
-      "costo_construccion_m2": 2300000.0,
-      "canon_m2_mes": { "CP": 54400.0, "LP": 32000.0 },
-      "fuente_canon": "Idem parametros_AAA0127AZPA_renta_gfa1054.json (FincaRaiz Prado Veraniego; Ciencuadras Q1-2026).",
-      "fuente_canon_url": "https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados basicos $2,3 M/m2.",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Producto identico al F2 validado."
-    },
-    "B_ESTANDAR": {
-      "nombre": "B — Estandar",
-      "unidad_m2": 85.0,
-      "eficiencia_nga": 0.75,
-      "costo_construccion_m2": 3000000.0,
-      "canon_m2_mes": { "CP": 64600.0, "LP": 38000.0 },
-      "fuente_canon": "Idem parametros_AAA0127AZPA_renta_gfa1054.json (Properati; Mitula).",
-      "fuente_canon_url": "https://www.properati.com.co/s/prado-veraniego/arriendo",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados medios $3,0 M/m2.",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Producto identico al F2 validado."
-    },
-    "C_LUJO": {
-      "nombre": "C — Lujo / Alto nivel",
-      "unidad_m2": 150.0,
-      "eficiencia_nga": 0.7,
-      "costo_construccion_m2": 4300000.0,
-      "canon_m2_mes": { "CP": 76500.0, "LP": 45000.0 },
-      "fuente_canon": "Idem parametros_AAA0127AZPA_renta_gfa1054.json (supuesto tecnico premium norte).",
-      "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados premium $4,3 M/m2.",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Producto identico al F2 validado."
-    }
-  }
 }

@@ -15,7 +15,7 @@ estrategias de explotación:
 
 | Archivo | Propósito |
 |---|---|
-| `F2_RENTA_MOTOR_v01.py` | Motor: flujo descontado 10 años, KPIs de renta (yield, cap rate, TIR, VPN, payback, múltiplo), suelo soportable, sensibilidad ±10%, salidas JSON/CSV/HTML |
+| `F2_RENTA_MOTOR_v02.py` | Motor: flujo descontado 10 años, KPIs de renta (yield, cap rate, TIR, VPN, payback, múltiplo), suelo soportable, sensibilidad ±10%, salidas JSON/CSV/HTML |
 | `parametros_entrada.json` | **Único archivo a editar** en el caso de referencia (GFA 1200, lote genérico) |
 | `parametros_AAA0127AZPA_renta.json` | Lote real AAA0127AZPA (GFA 632,7 m²; CL $1.200 M; cánones de la zona; referencia de venta del F2 validado) |
 | `parametros_AAA0127AZPA_renta_gfa1054.json` | Alternativa de curaduría (GFA 1054,49 m²) |
@@ -30,12 +30,12 @@ Requisito: Python 3.8+ (sin dependencias externas).
 
 ```bash
 cd src\fase-2-demanda\F2_Modelo_Renta
-python F2_RENTA_MOTOR_v01.py                                                          # caso de referencia
-python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta.json           # lote real
-python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json   # curaduría
-python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta.json --estrategia LP
-python F2_RENTA_MOTOR_v01.py --chip AAA0127AZPA --gfa 632.695061 --costo-lote 1200000000
-python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta.json --outdir resultados_prueba --sin-informe
+python F2_RENTA_MOTOR_v02.py                                                          # caso de referencia
+python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json           # lote real
+python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json   # curaduría
+python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json --estrategia LP
+python F2_RENTA_MOTOR_v02.py --chip AAA0127AZPA --gfa 632.695061 --costo-lote 1200000000
+python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json --outdir resultados_prueba --sin-informe
 ```
 
 Verificación independiente (PASS):

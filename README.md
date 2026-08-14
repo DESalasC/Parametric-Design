@@ -56,13 +56,13 @@ pytest tests\
 
 # Fase 2 — modelo financiero (ver src\fase-2-demanda\F2_Modelo_Financiero\MANUAL_DE_USO.md)
 cd src\fase-2-demanda\F2_Modelo_Financiero
-python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_mercado2026.json
-python F2_DEMANDA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json  # alternativa curaduría
+python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_mercado2026.json
+python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json  # alternativa curaduría
 
 # Fase 2 — modelo Build-to-Rent (ver src\fase-2-demanda\F2_Modelo_Renta\MANUAL_DE_USO.md)
 cd ..\F2_Modelo_Renta
-python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta.json
-python F2_RENTA_MOTOR_v01.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json  # alternativa curaduría
+python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json
+python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json  # alternativa curaduría
 
 # Rhino.Compute
 powershell scripts\rhino-compute\start-compute.ps1

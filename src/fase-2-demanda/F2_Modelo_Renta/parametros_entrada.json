@@ -1,105 +1,114 @@
 {
-  "meta": {
-    "modelo": "F2_RENTA_MOTOR_v01",
-    "version": "1.0",
-    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Build-to-Rent",
-    "ciudad": "Bogota D.C., Colombia",
-    "moneda": "COP",
-    "fecha_ejecucion": "2026-08-13",
-    "chip": "REFERENCIA-1200",
-    "origen_datos": "Caso de referencia del modelo F2 (GFA 1200 m2, lote 450 m2 a $2,6 M/m2 + 4% impuestos). Cánones de arriendo: Ciencuadras Q1-2026 canon promedio Bogota $3.761.958/mes en 79 m2 ($47.821/m2/mes); FincaRaiz Bogota promedio $5.530.543/mes en 66 m2; FincaRaiz Prado Veraniego-Canodromo promedio $1.841.565/mes. Consultados 2026-08-13.",
-    "nota_general": "El modelo de renta es la ampliacion del F2 (que recomendaba evaluar arriendo cuando CL/IT > 30%): construir para arrendar en vez de vender, con estrategias CP (temporal amoblado) y LP (tradicional)."
-  },
-  "gfa_max_m2": 1200.0,
-  "lote": {
-    "area_m2": 450.0,
-    "precio_suelo_m2": 2600000.0,
-    "impuestos_escritura_pct": 4.0,
-    "fuente": "Supuesto de referencia del F2 (reemplazar por el dato real del lote: para AAA0127AZPA usar parametros_AAA0127AZPA_renta.json).",
-    "fuente_url": ""
-  },
-  "financiero": {
-    "costos_blandos_pct": 15.0,
-    "marketing_leasing_pct": 2.0,
-    "nota_costos_blandos": "15% (igual que el pipeline F2, para comparacion limpia).",
-    "nota_marketing": "2% del GPI a1 (corretaje + campana de leasing; menor que el 4% de venta porque no hay comision de venta final)."
-  },
-  "renta": {
-    "horizonte_anios": 10,
-    "incremento_canon_pct": 5.5,
-    "incremento_gastos_pct": 6.5,
-    "cap_rate_salida_pct": 6.2,
-    "nota": "IPC 2026 5,56% (DANE, IPVN Q1-2026); incremento de canon LP atado al IPC (Ley 820). Los gastos (administracion, mantenimiento) crecen con SMMLV (+23% 2026) y se usan 6,5% conservador. Cap rate de salida 6,2% (cap rates vivienda Colombia 5,4-6,0% segun Tinsa e inversionistas 2026; se usa 6,2% conservador con compresion)."
-  },
-  "reglas_renta": {
-    "tasa_descuento_pct": 10.0,
-    "tir_minima_pct": 10.0,
-    "cap_rate_entrada_min_pct": 5.0,
-    "payback_max_anios": 8.0,
-    "cl_inversion_precaucion_pct": 25.0,
-    "cl_inversion_inviable_pct": 30.0,
-    "nota": "Reglas de decision para inversion en renta (Bogota 2026): TIR >= 10% (tasa exigida por inversionistas inmobiliarios en COP), cap rate de entrada >= 5% (NOI a1/inversion), VPN > 0 @ 10%, payback descontado <= 8 anos, CL/inversion <= 30%."
-  },
-  "sensibilidad": {
-    "variacion_pct": 10.0,
-    "nota": "Variacion +-10% sobre canon m2, ocupacion, costo duro, cap rate de salida, tasa de descuento, gastos operativos e incremento de canon; efecto marginal sobre VPN y TIR."
-  },
-  "estrategias": {
-    "CP": {
-      "nombre": "Corto plazo — temporal amoblado",
-      "ocupacion_pct": 75.0,
-      "administracion_m2_mes": 8000.0,
-      "gastos_operativos_pct_egi": 25.0,
-      "capex_pct_egi": 3.0,
-      "mobiliario_cop_m2": 500000.0,
-      "nota": "Arriendo temporal amoblado (apartahotel/coliving). Canon = LP x 1,7 (prima por amoblado y temporalidad; rango de mercado 1,5-2,0x). Vacancia 25% (rotacion alta), gestion intensiva (plataforma, limpieza, suministros = gastos 25% EGI) y renovacion de mobiliario (capex 3% EGI; inversion inicial de mobiliario $500.000/m2, supuesto tecnico rango $400-700K)."
+    "meta": {
+        "modelo": "F2_RENTA_MOTOR_v02",
+        "version": "2.0",
+        "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Build-to-Rent",
+        "ciudad": "Bogota D.C., Colombia",
+        "moneda": "COP",
+        "fecha_ejecucion": "2026-08-13",
+        "chip": "REFERENCIA-1200",
+        "origen_datos": "Caso de referencia del modelo F2 (GFA 1200 m2, lote 450 m2 a $2,6 M/m2 + 4% impuestos). Cánones de arriendo: Ciencuadras Q1-2026 canon promedio Bogota $3.761.958/mes en 79 m2 ($47.821/m2/mes); FincaRaiz Bogota promedio $5.530.543/mes en 66 m2; FincaRaiz Prado Veraniego-Canodromo promedio $1.841.565/mes. Consultados 2026-08-13.",
+        "nota_general": "El modelo de renta es la ampliacion del F2 (que recomendaba evaluar arriendo cuando CL/IT > 30%): construir para arrendar en vez de vender, con estrategias CP (temporal amoblado) y LP (tradicional)."
     },
-    "LP": {
-      "nombre": "Largo plazo — arriendo tradicional",
-      "ocupacion_pct": 95.0,
-      "administracion_m2_mes": 6000.0,
-      "gastos_operativos_pct_egi": 12.0,
-      "capex_pct_egi": 1.0,
-      "mobiliario_cop_m2": 0.0,
-      "nota": "Contratos 12+ meses. Vacancia 5% (Bogota 1,9% real segun inversionistas 2026 + rotacion). Gastos 12% EGI: predial (~0,5% avaluo), mantenimiento, seguros, corretaje de renovacion; capex 1% EGI. Administracion PH $6.000/m2/mes (norte Bogota, con vigilancia)."
+    "gfa_max_m2": 1200.0,
+    "lote": {
+        "area_m2": 450.0,
+        "precio_suelo_m2": 2600000.0,
+        "impuestos_escritura_pct": 4.0,
+        "fuente": "Supuesto de referencia del F2 (reemplazar por el dato real del lote: para AAA0127AZPA usar parametros_AAA0127AZPA_renta.json).",
+        "fuente_url": ""
+    },
+    "financiero": {
+        "costos_blandos_pct": 15.0,
+        "marketing_leasing_pct": 2.0,
+        "nota_costos_blandos": "15% (igual que el pipeline F2, para comparacion limpia).",
+        "nota_marketing": "2% del GPI a1 (corretaje + campana de leasing; menor que el 4% de venta porque no hay comision de venta final)."
+    },
+    "renta": {
+        "horizonte_anios": 10,
+        "incremento_canon_pct": 5.5,
+        "incremento_gastos_pct": 6.5,
+        "cap_rate_salida_pct": 6.2,
+        "nota": "IPC 2026 5,56% (DANE, IPVN Q1-2026); incremento de canon LP atado al IPC (Ley 820). Los gastos (administracion, mantenimiento) crecen con SMMLV (+23% 2026) y se usan 6,5% conservador. Cap rate de salida 6,2% (cap rates vivienda Colombia 5,4-6,0% segun Tinsa e inversionistas 2026; se usa 6,2% conservador con compresion)."
+    },
+    "reglas_renta": {
+        "tasa_descuento_pct": 10.0,
+        "tir_minima_pct": 10.0,
+        "cap_rate_entrada_min_pct": 5.0,
+        "payback_max_anios": 8.0,
+        "cl_inversion_precaucion_pct": 25.0,
+        "cl_inversion_inviable_pct": 30.0,
+        "nota": "Reglas de decision para inversion en renta (Bogota 2026): TIR >= 10% (tasa exigida por inversionistas inmobiliarios en COP), cap rate de entrada >= 5% (NOI a1/inversion), VPN > 0 @ 10%, payback descontado <= 8 anos, CL/inversion <= 30%."
+    },
+    "sensibilidad": {
+        "variacion_pct": 10.0,
+        "nota": "Variacion +-10% sobre canon m2, ocupacion, costo duro, cap rate de salida, tasa de descuento, gastos operativos e incremento de canon; efecto marginal sobre VPN y TIR."
+    },
+    "estrategias": {
+        "CP": {
+            "nombre": "Corto plazo — temporal amoblado",
+            "ocupacion_pct": 75.0,
+            "administracion_m2_mes": 8000.0,
+            "gastos_operativos_pct_egi": 25.0,
+            "capex_pct_egi": 3.0,
+            "mobiliario_cop_m2": 500000.0,
+            "nota": "Arriendo temporal amoblado (apartahotel/coliving). Canon = LP x 1,7 (prima por amoblado y temporalidad; rango de mercado 1,5-2,0x). Vacancia 25% (rotacion alta), gestion intensiva (plataforma, limpieza, suministros = gastos 25% EGI) y renovacion de mobiliario (capex 3% EGI; inversion inicial de mobiliario $500.000/m2, supuesto tecnico rango $400-700K)."
+        },
+        "LP": {
+            "nombre": "Largo plazo — arriendo tradicional",
+            "ocupacion_pct": 95.0,
+            "administracion_m2_mes": 6000.0,
+            "gastos_operativos_pct_egi": 12.0,
+            "capex_pct_egi": 1.0,
+            "mobiliario_cop_m2": 0.0,
+            "nota": "Contratos 12+ meses. Vacancia 5% (Bogota 1,9% real segun inversionistas 2026 + rotacion). Gastos 12% EGI: predial (~0,5% avaluo), mantenimiento, seguros, corretaje de renovacion; capex 1% EGI. Administracion PH $6.000/m2/mes (norte Bogota, con vigilancia)."
+        }
+    },
+    "escenarios": {
+        "A_VIS": {
+            "nombre": "A — VIS / VIP",
+            "unidad_m2": 55.0,
+            "eficiencia_nga": 0.8,
+            "costo_construccion_m2": 2300000.0,
+            "canon_m2_mes": {
+                "CP": 54400.0,
+                "LP": 32000.0
+            },
+            "fuente_canon": "LP: FincaRaiz Prado Veraniego-Canodromo promedio $1.841.565/mes y MercadoLibre 47 m2 @ $2,7M ($57K/m2/mes); para unidad de 55 m2 estrato 3 se toma $32.000/m2/mes ($1,76M/mes). CP = LP x 1,7 amoblado.",
+            "fuente_canon_url": "https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota ; https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+            "fuente_costo": "Konstruing (07-ago-2026): acabados basicos Bogota dentro del rango $2,2-3,8 M/m2; se toma $2,3 M/m2 (igual que F2).",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Mismos parametros de producto que el F2 validado (precio/costo), con canon de renta."
+        },
+        "B_ESTANDAR": {
+            "nombre": "B — Estandar",
+            "unidad_m2": 85.0,
+            "eficiencia_nga": 0.75,
+            "costo_construccion_m2": 3000000.0,
+            "canon_m2_mes": {
+                "CP": 64600.0,
+                "LP": 38000.0
+            },
+            "fuente_canon": "LP: Properati 80 m2 @ $3,0M = $37.500/m2/mes y Mitula 2 hab @ $2,3M; obra nueva con premium -> $38.000/m2/mes ($3,23M/mes por unidad de 85 m2). CP = LP x 1,7 amoblado.",
+            "fuente_canon_url": "https://www.properati.com.co/s/prado-veraniego/arriendo ; https://casas.mitula.com.co/casas/arriendo-apartamentos-bogota-prado-veraniego",
+            "fuente_costo": "Konstruing (07-ago-2026): acabados medios $2,2-3,5 M/m2; se toma $3,0 M/m2 (igual que F2).",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Mismos parametros de producto que el F2 validado."
+        },
+        "C_LUJO": {
+            "nombre": "C — Lujo / Alto nivel",
+            "unidad_m2": 150.0,
+            "eficiencia_nga": 0.7,
+            "costo_construccion_m2": 4300000.0,
+            "canon_m2_mes": {
+                "CP": 76500.0,
+                "LP": 45000.0
+            },
+            "fuente_canon": "LP: supuesto tecnico de producto premium del norte (Prado Veraniego Norte/Suba alta; referencia Ciencuadras 110 m2) -> $45.000/m2/mes ($6,75M/mes por unidad de 150 m2). CP = LP x 1,7 amoblado.",
+            "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
+            "fuente_costo": "Konstruing (07-ago-2026) y Aliados de Obras (2026): rango Bogota hasta $3,8 M/m2; acabados premium elevan a $4,3 M/m2 (supuesto tecnico documentado, igual que F2).",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Mismos parametros de producto que el F2 validado."
+        }
     }
-  },
-  "escenarios": {
-    "A_VIS": {
-      "nombre": "A — VIS / VIP",
-      "unidad_m2": 55.0,
-      "eficiencia_nga": 0.8,
-      "costo_construccion_m2": 2300000.0,
-      "canon_m2_mes": { "CP": 54400.0, "LP": 32000.0 },
-      "fuente_canon": "LP: FincaRaiz Prado Veraniego-Canodromo promedio $1.841.565/mes y MercadoLibre 47 m2 @ $2,7M ($57K/m2/mes); para unidad de 55 m2 estrato 3 se toma $32.000/m2/mes ($1,76M/mes). CP = LP x 1,7 amoblado.",
-      "fuente_canon_url": "https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota ; https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados basicos Bogota dentro del rango $2,2-3,8 M/m2; se toma $2,3 M/m2 (igual que F2).",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Mismos parametros de producto que el F2 validado (precio/costo), con canon de renta."
-    },
-    "B_ESTANDAR": {
-      "nombre": "B — Estandar",
-      "unidad_m2": 85.0,
-      "eficiencia_nga": 0.75,
-      "costo_construccion_m2": 3000000.0,
-      "canon_m2_mes": { "CP": 64600.0, "LP": 38000.0 },
-      "fuente_canon": "LP: Properati 80 m2 @ $3,0M = $37.500/m2/mes y Mitula 2 hab @ $2,3M; obra nueva con premium -> $38.000/m2/mes ($3,23M/mes por unidad de 85 m2). CP = LP x 1,7 amoblado.",
-      "fuente_canon_url": "https://www.properati.com.co/s/prado-veraniego/arriendo ; https://casas.mitula.com.co/casas/arriendo-apartamentos-bogota-prado-veraniego",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados medios $2,2-3,5 M/m2; se toma $3,0 M/m2 (igual que F2).",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Mismos parametros de producto que el F2 validado."
-    },
-    "C_LUJO": {
-      "nombre": "C — Lujo / Alto nivel",
-      "unidad_m2": 150.0,
-      "eficiencia_nga": 0.7,
-      "costo_construccion_m2": 4300000.0,
-      "canon_m2_mes": { "CP": 76500.0, "LP": 45000.0 },
-      "fuente_canon": "LP: supuesto tecnico de producto premium del norte (Prado Veraniego Norte/Suba alta; referencia Ciencuadras 110 m2) -> $45.000/m2/mes ($6,75M/mes por unidad de 150 m2). CP = LP x 1,7 amoblado.",
-      "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
-      "fuente_costo": "Konstruing (07-ago-2026) y Aliados de Obras (2026): rango Bogota hasta $3,8 M/m2; acabados premium elevan a $4,3 M/m2 (supuesto tecnico documentado, igual que F2).",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Mismos parametros de producto que el F2 validado."
-    }
-  }
 }

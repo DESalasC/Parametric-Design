@@ -1,85 +1,85 @@
 {
-  "meta": {
-    "modelo": "F2_DEMANDA_MOTOR_v01",
-    "version": "1.1",
-    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Inmobiliario",
-    "ciudad": "Bogota D.C., Colombia",
-    "moneda": "COP",
-    "fecha_ejecucion": "2026-08-13",
-    "chip": "AAA0127AZPA",
-    "ciclo_desarrollo_anios": 2,
-    "origen_datos": "Precios VALIDADOS con comparables de radio 5 km (UPZ 19 El Prado, Prado Veraniego, Suba norte) consultados 2026-08-13: Metrocuadrado (73,92 m2 @ $498M = $6,74M/m2; 106,18 m2 @ $750M = $7,06M/m2; 58 m2 estrato 3 @ $318M = $5,48M/m2), Ciencuadras (68 m2 @ $340M = $5,0M/m2; promedio Bogota Q1-2026 $7,42M/m2; rango barrio $180-600M), FincaRaiz (promedio Prado Veraniego $385,8M), Viviendax (rango $180-600M).",
-    "nota_general": "Validacion 2026-08-13: A VIS $4,73M/m2 COHERENTE (tope 135 SMMLV); B Estandar baja de $7,2M a $6,8M/m2 (comparables zona $5,0-7,1M usado; obra nueva +10-15% -> $6,8M conservador); C Lujo baja de $12M a $9,5M/m2 ($12M es propio de La Cabrera/El Retiro; Prado Veraniego es estrato 3-4, premium norte $9-11M). El resto de parametros queda igual."
-  },
-  "gfa_max_m2": 632.695061,
-  "lote": {
-    "area_m2": 450,
-    "precio_suelo_m2": 2600000,
-    "impuestos_escritura_pct": 4.0,
-    "costo_lote_total_cop": 1200000000,
-    "fuente": "Costo total de adquisicion del lote = $1.200.000.000 COP (dato real del pipeline).",
-    "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad.json"
-  },
-  "financiero": {
-    "costos_blandos_pct": 15.0,
-    "marketing_ventas_pct": 4.0,
-    "nota_costos_blandos": "15% (igual que pipeline, para comparacion limpia).",
-    "nota_marketing": "4% (igual que pipeline, para comparacion limpia)."
-  },
-  "reglas_decision": {
-    "mub_riesgo_pct": 18.0,
-    "mub_atractivo_pct": 25.0,
-    "roi_minimo_pct": 22.0,
-    "cl_it_precaucion_pct": 25.0,
-    "cl_it_inviable_pct": 30.0,
-    "nota": "Reglas de decision Bogota (objetivo Fase 2)."
-  },
-  "sensibilidad": {
-    "variacion_pct": 10.0,
-    "nota": "Variacion +-10% sobre precio de venta, costo duro, eficiencia NGA, costo del lote y absorcion; unidades continuas (efecto marginal)."
-  },
-  "escenarios": {
-    "A_VIS": {
-      "nombre": "A — VIS / VIP",
-      "nivel_acabados": "Basico",
-      "unidad_m2": 55.0,
-      "eficiencia_nga": 0.8,
-      "precio_venta_m2": 4727444,
-      "costo_construccion_m2": 2300000,
-      "absorcion_unid_mes": 5.0,
-      "fuente_precio": "Tope VIS 2026: 135 SMMLV x $1.750.905 (Decreto 1469/2025) = $236.372.175 / 55 m2 = $4.297.676; se toma $4.727.444 (50 m2) como referencia conservadora de tope. Argos 2026 confirma tope ~$238 M.",
-      "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados basicos Bogota dentro del rango $2,2-3,8 M/m2; se toma $2,3 M/m2.",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Caso comparativo mercado 2026."
+    "meta": {
+        "modelo": "F2_DEMANDA_MOTOR_v02",
+        "version": "2.2",
+        "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Inmobiliario",
+        "ciudad": "Bogota D.C., Colombia",
+        "moneda": "COP",
+        "fecha_ejecucion": "2026-08-13",
+        "chip": "AAA0127AZPA",
+        "ciclo_desarrollo_anios": 2,
+        "origen_datos": "Precios VALIDADOS con comparables de radio 5 km (UPZ 19 El Prado, Prado Veraniego, Suba norte) consultados 2026-08-13: Metrocuadrado (73,92 m2 @ $498M = $6,74M/m2; 106,18 m2 @ $750M = $7,06M/m2; 58 m2 estrato 3 @ $318M = $5,48M/m2), Ciencuadras (68 m2 @ $340M = $5,0M/m2; promedio Bogota Q1-2026 $7,42M/m2; rango barrio $180-600M), FincaRaiz (promedio Prado Veraniego $385,8M), Viviendax (rango $180-600M).",
+        "nota_general": "Validacion 2026-08-13: A VIS $4,73M/m2 COHERENTE (tope 135 SMMLV); B Estandar baja de $7,2M a $6,8M/m2 (comparables zona $5,0-7,1M usado; obra nueva +10-15% -> $6,8M conservador); C Lujo baja de $12M a $9,5M/m2 ($12M es propio de La Cabrera/El Retiro; Prado Veraniego es estrato 3-4, premium norte $9-11M). El resto de parametros queda igual."
     },
-    "B_ESTANDAR": {
-      "nombre": "B — Estandar",
-      "nivel_acabados": "Medio",
-      "unidad_m2": 85.0,
-      "eficiencia_nga": 0.75,
-      "precio_venta_m2": 6800000,
-      "costo_construccion_m2": 3000000,
-      "absorcion_unid_mes": 2.5,
-      "fuente_precio": "VALIDADO 2026-08-13: comparables Prado Veraniego (UPZ 19 El Prado, Suba): Metrocuadrado 73,92 m2 @ $498M = $6,74M/m2 y 106,18 m2 @ $750M = $7,06M/m2; Ciencuadras 68 m2 @ $340M = $5,0M/m2; rango barrio $180-600M (Viviendax/Ciencuadras). Obra nueva con premium 10-15% sobre usado -> $6,8M/m2 conservador.",
-      "fuente_precio_url": "https://www.metrocuadrado.com/apartamentos/venta/prado-veraniego/ ; https://www.ciencuadras.com/blog/guia-de-barrio-prado-veraniego-bogota ; https://co.viviendax.com/blog/bogota/suba/vivir-en-prado-veraniego-bogota-guia-barrio/",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados medios $2,2-3,5 M/m2; se toma $3,0 M/m2.",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Precio validado con comparables 2026-08-13."
+    "gfa_max_m2": 632.695061,
+    "lote": {
+        "area_m2": 450,
+        "precio_suelo_m2": 2600000,
+        "impuestos_escritura_pct": 4.0,
+        "costo_lote_total_cop": 1200000000,
+        "fuente": "Costo total de adquisicion del lote = $1.200.000.000 COP (dato real del pipeline).",
+        "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad.json"
     },
-    "C_LUJO": {
-      "nombre": "C — Lujo / Alto nivel",
-      "nivel_acabados": "Premium",
-      "unidad_m2": 150.0,
-      "eficiencia_nga": 0.7,
-      "precio_venta_m2": 9500000,
-      "costo_construccion_m2": 4300000,
-      "absorcion_unid_mes": 1.0,
-      "fuente_precio": "VALIDADO 2026-08-13: $12M/m2 NO es sostenible en Prado Veraniego (estrato 3-4). Premium real del norte de Bogota (Usaquen/Suba alta) $9-11M/m2; se toma $9,5M/m2 como tope de zona para producto premium nuevo.",
-      "fuente_precio_url": "https://www.metrocuadrado.com/noticias/actualidad/valor-del-metro-cuadrado-por-barrio-en-bogota-6020 ; https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
-      "fuente_costo": "Konstruing (07-ago-2026) y Aliados de Obras (2026): rango Bogota hasta $3,8 M/m2; acabados premium elevan a $4,3 M/m2 (supuesto tecnico documentado).",
-      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Precio corregido por validacion de comparables 2026-08-13."
+    "financiero": {
+        "costos_blandos_pct": 15.0,
+        "marketing_ventas_pct": 4.0,
+        "nota_costos_blandos": "15% (igual que pipeline, para comparacion limpia).",
+        "nota_marketing": "4% (igual que pipeline, para comparacion limpia)."
+    },
+    "reglas_decision": {
+        "mub_riesgo_pct": 18.0,
+        "mub_atractivo_pct": 25.0,
+        "roi_minimo_pct": 22.0,
+        "cl_it_precaucion_pct": 25.0,
+        "cl_it_inviable_pct": 30.0,
+        "nota": "Reglas de decision Bogota (objetivo Fase 2)."
+    },
+    "sensibilidad": {
+        "variacion_pct": 10.0,
+        "nota": "Variacion +-10% sobre precio de venta, costo duro, eficiencia NGA, costo del lote y absorcion; unidades continuas (efecto marginal)."
+    },
+    "escenarios": {
+        "A_VIS": {
+            "nombre": "A — VIS / VIP",
+            "nivel_acabados": "Basico",
+            "unidad_m2": 55.0,
+            "eficiencia_nga": 0.8,
+            "precio_venta_m2": 4727444,
+            "costo_construccion_m2": 2300000,
+            "absorcion_unid_mes": 5.0,
+            "fuente_precio": "Tope VIS 2026: 135 SMMLV x $1.750.905 (Decreto 1469/2025) = $236.372.175 / 55 m2 = $4.297.676; se toma $4.727.444 (50 m2) como referencia conservadora de tope. Argos 2026 confirma tope ~$238 M.",
+            "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",
+            "fuente_costo": "Konstruing (07-ago-2026): acabados basicos Bogota dentro del rango $2,2-3,8 M/m2; se toma $2,3 M/m2.",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Caso comparativo mercado 2026."
+        },
+        "B_ESTANDAR": {
+            "nombre": "B — Estandar",
+            "nivel_acabados": "Medio",
+            "unidad_m2": 85.0,
+            "eficiencia_nga": 0.75,
+            "precio_venta_m2": 6800000,
+            "costo_construccion_m2": 3000000,
+            "absorcion_unid_mes": 2.5,
+            "fuente_precio": "VALIDADO 2026-08-13: comparables Prado Veraniego (UPZ 19 El Prado, Suba): Metrocuadrado 73,92 m2 @ $498M = $6,74M/m2 y 106,18 m2 @ $750M = $7,06M/m2; Ciencuadras 68 m2 @ $340M = $5,0M/m2; rango barrio $180-600M (Viviendax/Ciencuadras). Obra nueva con premium 10-15% sobre usado -> $6,8M/m2 conservador.",
+            "fuente_precio_url": "https://www.metrocuadrado.com/apartamentos/venta/prado-veraniego/ ; https://www.ciencuadras.com/blog/guia-de-barrio-prado-veraniego-bogota ; https://co.viviendax.com/blog/bogota/suba/vivir-en-prado-veraniego-bogota-guia-barrio/",
+            "fuente_costo": "Konstruing (07-ago-2026): acabados medios $2,2-3,5 M/m2; se toma $3,0 M/m2.",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Precio validado con comparables 2026-08-13."
+        },
+        "C_LUJO": {
+            "nombre": "C — Lujo / Alto nivel",
+            "nivel_acabados": "Premium",
+            "unidad_m2": 150.0,
+            "eficiencia_nga": 0.7,
+            "precio_venta_m2": 9500000,
+            "costo_construccion_m2": 4300000,
+            "absorcion_unid_mes": 1.0,
+            "fuente_precio": "VALIDADO 2026-08-13: $12M/m2 NO es sostenible en Prado Veraniego (estrato 3-4). Premium real del norte de Bogota (Usaquen/Suba alta) $9-11M/m2; se toma $9,5M/m2 como tope de zona para producto premium nuevo.",
+            "fuente_precio_url": "https://www.metrocuadrado.com/noticias/actualidad/valor-del-metro-cuadrado-por-barrio-en-bogota-6020 ; https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+            "fuente_costo": "Konstruing (07-ago-2026) y Aliados de Obras (2026): rango Bogota hasta $3,8 M/m2; acabados premium elevan a $4,3 M/m2 (supuesto tecnico documentado).",
+            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+            "nota": "Precio corregido por validacion de comparables 2026-08-13."
+        }
     }
-  }
 }

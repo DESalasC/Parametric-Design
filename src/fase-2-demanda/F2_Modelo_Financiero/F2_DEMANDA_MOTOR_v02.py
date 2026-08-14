@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
-F2_DEMANDA_MOTOR_v01.py — Modelo Financiero Inmobiliario de Prefactibilidad (Fase 2)
+F2_DEMANDA_MOTOR_v02.py — Modelo Financiero Inmobiliario de Prefactibilidad (Fase 2)
 Proyecto: Catalogo / DiseñoParametrico — Fase 2
 Python 3.8+ Standalone (sin dependencias externas)
 ================================================================================
@@ -19,9 +19,9 @@ ALCANCE (prefactibilidad):
   - No emite concepto legal, urbanistico o de uso de suelo.
 
 USO:
-  python F2_DEMANDA_MOTOR_v01.py
-  python F2_DEMANDA_MOTOR_v01.py --parametros parametros_entrada.json
-  python F2_DEMANDA_MOTOR_v01.py --parametros parametros_entrada.json --chip AAA0127AZPA
+  python F2_DEMANDA_MOTOR_v02.py
+  python F2_DEMANDA_MOTOR_v02.py --parametros parametros_entrada.json
+  python F2_DEMANDA_MOTOR_v02.py --parametros parametros_entrada.json --chip AAA0127AZPA
 
 SALIDAS (carpeta resultados/):
   - resultados_completos.json   : todos los calculos (auditable)
@@ -1207,10 +1207,10 @@ financiero se modelara en Fase 3.</div>
 
 <h2>9. Como actualizar el modelo</h2>
 <div class="nota">Edite <b>parametros_entrada.json</b> (GFA, lote, precios, costos, eficiencias,
-absorcion o reglas) y vuelva a ejecutar: <code>python F2_DEMANDA_MOTOR_v01.py</code>. El script
+absorcion o reglas) y vuelva a ejecutar: <code>python F2_DEMANDA_MOTOR_v02.py</code>. El script
 recalcula escenarios, alertas, sensibilidad, recomendacion e informe sin tocar el codigo.</div>
 
-<footer>Generado por F2_DEMANDA_MOTOR_v01.py — Fase 2, prefactibilidad.
+<footer>Generado por F2_DEMANDA_MOTOR_v02.py — Fase 2, prefactibilidad.
 Datos de mercado consultados el {_h(meta.get('fecha_ejecucion', ''))}; fuentes en la seccion 8.
 La seccion 6 compara las alternativas de suelo (compra, aporte del dueno en utilidades o
 arriendo) y la 7 el flujo de caja estimado (24 meses) de la mejor alternativa. Este documento es
@@ -1368,7 +1368,7 @@ def main() -> int:
         "aporte_suelo_analisis": aporte,
         "arriendo_analisis": arriendo,
         "flujo_caja": flujos,
-        "generado_por": "F2_DEMANDA_MOTOR_v01.py",
+        "generado_por": "F2_DEMANDA_MOTOR_v02.py",
     }
     with open(ruta_json, "w", encoding="utf-8") as f:
         json.dump(paquete, f, indent=2, ensure_ascii=False)
