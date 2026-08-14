@@ -1,0 +1,65 @@
+{
+    "chip": "AAA0030JKOE",
+    "gfa_maximo_evaluado": 3312.575,
+    "costo_lote_input": 1420000000.0,
+    "nota": "Caso de estudio 2026-08-14: lote real La Candelaria (UPZ 94), GFA normativo = 946,45 m2 x 0,7 x 5 pisos = 3.312,6 m2. CL supuesto de ejercicio $1.420 M (~$1,5 M/m2, suelo centro historico). Precios/costos con sobrecosto de restauracion (supuestos de ejercicio documentados).",
+    "escenarios": [
+        {
+            "producto": "VIS",
+            "gfa_m2": 3312.57,
+            "nga_m2": 2650.06,
+            "num_unidades": 48,
+            "tamano_unidad_m2": 55.0,
+            "ingresos_totales_cop": 12480452160.0,
+            "costo_lote_cop": 1420000000.0,
+            "costo_duro_cop": 8612695000.0,
+            "costo_blando_cop": 1291904250.0,
+            "costo_mkt_cop": 499218086.4,
+            "costo_total_cop": 11823817336.4,
+            "utilidad_bruta_cop": 656634823.6,
+            "KPIs": {
+                "MUB_pct": 5.26,
+                "ROI_pct": 5.55,
+                "Lote_sobre_Ventas_pct": 11.38
+            }
+        },
+        {
+            "producto": "Estandar",
+            "gfa_m2": 3312.57,
+            "nga_m2": 2484.43,
+            "num_unidades": 29,
+            "tamano_unidad_m2": 85.0,
+            "ingresos_totales_cop": 18487500000.0,
+            "costo_lote_cop": 1420000000.0,
+            "costo_duro_cop": 11262755000.0,
+            "costo_blando_cop": 1689413250.0,
+            "costo_mkt_cop": 739500000.0,
+            "costo_total_cop": 15111668250.0,
+            "utilidad_bruta_cop": 3375831750.0,
+            "KPIs": {
+                "MUB_pct": 18.26,
+                "ROI_pct": 22.34,
+                "Lote_sobre_Ventas_pct": 7.68
+            }
+        },
+        {
+            "producto": "Lujo",
+            "gfa_m2": 3312.57,
+            "nga_m2": 2318.8,
+            "num_unidades": 15,
+            "tamano_unidad_m2": 150.0,
+            "ingresos_totales_cop": 23625000000.0,
+            "costo_lote_cop": 1420000000.0,
+            "costo_duro_cop": 15900360000.0,
+            "costo_blando_cop": 2385054000.0,
+            "costo_mkt_cop": 945000000.0,
+            "costo_total_cop": 20650414000.0,
+            "utilidad_bruta_cop": 2974586000.0,
+            "KPIs": {
+                "MUB_pct": 12.59,
+                "ROI_pct": 14.4,
+                "Lote_sobre_Ventas_pct": 6.01
+            }
+        }
+    ]
+}

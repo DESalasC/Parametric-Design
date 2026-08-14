@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "modelo": "F2_RENTA_MOTOR_v01",
+    "version": "1.0",
+    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Build-to-Rent",
+    "ciudad": "Bogota D.C., Colombia",
+    "moneda": "COP",
+    "fecha_ejecucion": "2026-08-14",
+    "chip": "AAA0127AZPA-GFA1053-CL550",
+    "origen_datos": "Caso de estudio 2026-08-14: GFA 1053 m2 y CL $550 M (ejercicio del usuario). Canones de la zona Prado Veraniego consultados 2026-08-13 (FincaRaiz promedio $1.841.565/mes; Properati 80 m2 @ $3,0M; Ciencuadras Q1-2026 promedio Bogota $47.821/m2/mes).",
+    "nota_general": "Mismo lote y escenarios que el caso de venta (parametros_AAA0127AZPA_venta_gfa1053_cl550.json) para comparar venta vs renta con suelo renegociado."
+  },
+  "gfa_max_m2": 1053.0,
+  "lote": {
+    "area_m2": 450.0,
+    "precio_suelo_m2": 1222222.22,
+    "impuestos_escritura_pct": 0.0,
+    "costo_lote_total_cop": 550000000.0,
+    "fuente": "CL $550.000.000 COP = valor de ejercicio (dato del usuario).",
+    "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad-gfa1053-cl550.json"
+  },
+  "financiero": {
+    "costos_blandos_pct": 15.0,
+    "marketing_leasing_pct": 2.0
+  },
+  "renta": {
+    "horizonte_anios": 10,
+    "incremento_canon_pct": 5.5,
+    "incremento_gastos_pct": 6.5,
+    "cap_rate_salida_pct": 6.2,
+    "nota": "IPC 2026 5,56% (DANE); cap rate salida 6,2% (vivienda 5,4-6,0%, Tinsa)."
+  },
+  "reglas_renta": {
+    "tasa_descuento_pct": 10.0,
+    "tir_minima_pct": 10.0,
+    "cap_rate_entrada_min_pct": 5.0,
+    "payback_max_anios": 8.0,
+    "cl_inversion_precaucion_pct": 25.0,
+    "cl_inversion_inviable_pct": 30.0
+  },
+  "sensibilidad": {
+    "variacion_pct": 10.0
+  },
+  "estrategias": {
+    "CP": {
+      "nombre": "Corto plazo — temporal amoblado",
+      "ocupacion_pct": 75.0,
+      "administracion_m2_mes": 8000.0,
+      "gastos_operativos_pct_egi": 25.0,
+      "capex_pct_egi": 3.0,
+      "mobiliario_cop_m2": 500000.0
+    },
+    "LP": {
+      "nombre": "Largo plazo — arriendo tradicional",
+      "ocupacion_pct": 95.0,
+      "administracion_m2_mes": 6000.0,
+      "gastos_operativos_pct_egi": 12.0,
+      "capex_pct_egi": 1.0,
+      "mobiliario_cop_m2": 0.0
+    }
+  },
+  "escenarios": {
+    "A_VIS": {
+      "nombre": "A — VIS / VIP",
+      "unidad_m2": 55.0,
+      "eficiencia_nga": 0.8,
+      "costo_construccion_m2": 2300000.0,
+      "canon_m2_mes": { "CP": 54400.0, "LP": 32000.0 },
+      "fuente_canon": "FincaRaiz Prado Veraniego-Canodromo promedio $1.841.565/mes; 55 m2 estrato 3 -> $32.000/m2/mes; CP = x1,7.",
+      "fuente_canon_url": "https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota",
+      "fuente_costo": "Konstruing (07-ago-2026): acabados basicos $2,3 M/m2.",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Producto identico al F2 validado."
+    },
+    "B_ESTANDAR": {
+      "nombre": "B — Estandar",
+      "unidad_m2": 85.0,
+      "eficiencia_nga": 0.75,
+      "costo_construccion_m2": 3000000.0,
+      "canon_m2_mes": { "CP": 64600.0, "LP": 38000.0 },
+      "fuente_canon": "Properati 80 m2 @ $3,0M = $37.500/m2/mes; obra nueva -> $38.000; CP = x1,7.",
+      "fuente_canon_url": "https://www.properati.com.co/s/prado-veraniego/arriendo",
+      "fuente_costo": "Konstruing (07-ago-2026): acabados medios $3,0 M/m2.",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Producto identico al F2 validado."
+    },
+    "C_LUJO": {
+      "nombre": "C — Lujo / Alto nivel",
+      "unidad_m2": 150.0,
+      "eficiencia_nga": 0.7,
+      "costo_construccion_m2": 4300000.0,
+      "canon_m2_mes": { "CP": 76500.0, "LP": 45000.0 },
+      "fuente_canon": "Supuesto tecnico premium norte -> $45.000/m2/mes; CP = x1,7.",
+      "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
+      "fuente_costo": "Konstruing (07-ago-2026): acabados premium $4,3 M/m2.",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Producto identico al F2 validado."
+    }
+  },
+  "referencia_venta": {
+    "nota": "KPIs del modelo de venta F2 para el mismo caso (GFA 1053, CL $550 M, corrida 2026-08-14): B Estándar ROI 18,5% (aun bajo el 22%); con aporte del dueno (escenario D) B es viable al 34,5% (ROI dev 23,2%). La renta LP x A VIS supera el umbral (TIR 11,1%).",
+    "escenarios": {
+      "A_VIS": { "nombre": "A — VIS / VIP", "ROI_venta_pct": 11.71, "MUB_venta_pct": 10.48, "CL_IT_pct": 14.10, "estado": "NO VIABLE" },
+      "B_ESTANDAR": { "nombre": "B — Estandar", "ROI_venta_pct": 18.47, "MUB_venta_pct": 15.59, "CL_IT_pct": 10.57, "estado": "NO VIABLE" },
+      "C_LUJO": { "nombre": "C — Lujo / Alto nivel", "ROI_venta_pct": -4.76, "MUB_venta_pct": -5.0, "CL_IT_pct": 9.65, "estado": "NO VIABLE" }
+    }
+  }
+}

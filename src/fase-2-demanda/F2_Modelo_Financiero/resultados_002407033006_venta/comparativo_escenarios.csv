@@ -1,0 +1,4 @@
+﻿escenario_id;producto;nivel_acabados;gfa_m2;nga_m2;eficiencia_nga;tamano_unidad_m2;num_unidades;area_vendible_m2;precio_venta_m2;costo_construccion_m2;ingresos_totales_cop;costo_lote_cop;costo_duro_cop;costo_blando_cop;costo_mkt_cop;costo_total_cop;utilidad_bruta_cop;MUB_pct;ROI_pct;CL_IT_pct;absorcion_unid_mes;meses_venta_estimados
+A_VIS;A — VIS / VIP;Basico;650.0;520.0;0.8;55.0;9;495.0;4727444;2300000;2340084780.0;192000000.0;1495000000.0;224250000.0;93603391.2;2004853391.2;335231388.8;14.33;16.72;8.2;4.0;2.2
+B_ESTANDAR;B — Estandar;Medio;650.0;487.5;0.75;85.0;5;425.0;4600000;2800000;1955000000.0;192000000.0;1820000000.0;273000000.0;78200000.0;2363200000.0;-408200000.0;-20.88;-17.27;9.82;1.5;3.3
+C_LUJO;C — Lujo / Alto nivel;Premium;650.0;455.0;0.7;150.0;3;450.0;6500000;3500000;2925000000.0;192000000.0;2275000000.0;341250000.0;117000000.0;2925250000.0;-250000.0;-0.01;-0.01;6.56;0.5;6.0

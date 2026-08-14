@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presentacion de casos — DiseñoParametrico (2026-08-14)</title>
+<style>
+:root{--papel:#FAF9F6;--tinta:#1C1C1A;--gris:#6B6B66;--linea:#D8D5CD;--navy:#1F3A5F;
+--rojo:#B0413E;--verde:#3E6B4F;--amarillo:#9A7B2D;--celda:#F1EFE9;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--papel);color:var(--tinta);
+font-family:"Helvetica Neue",Helvetica,Arial,"Segoe UI",sans-serif;line-height:1.55;}
+.hero{background:var(--tinta);color:var(--papel);padding:64px 0 48px;}
+.wrap{max-width:1060px;margin:0 auto;padding:0 28px;}
+.kicker{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A9A9A2;margin-bottom:14px;}
+.hero h1{font-size:34px;line-height:1.18;letter-spacing:-.01em;max-width:18ch;}
+.hero .sub{color:#CFCEC8;font-size:15px;margin-top:14px;max-width:64ch;}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:22px;font-size:12.5px;color:#A9A9A2;}
+.hero .meta b{color:#fff;font-weight:600;}
+section{padding:46px 0;border-bottom:1px solid var(--linea);}
+section.alt{background:#F4F2EC;}
+h2{font-size:17px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;}
+.lead{color:var(--gris);font-size:13.5px;margin-bottom:18px;max-width:72ch;}
+h3{font-size:14px;font-weight:700;margin:20px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0 6px;}
+th{background:var(--celda);text-align:left;font-weight:600;padding:8px 10px;
+border-bottom:2px solid var(--tinta);font-size:11.5px;letter-spacing:.03em;}
+td{padding:8px 10px;border-bottom:1px solid var(--linea);vertical-align:top;}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+tr.grupo td{background:var(--celda);font-weight:700;font-size:11.5px;letter-spacing:.08em;
+text-transform:uppercase;color:var(--navy);border-bottom:2px solid var(--tinta);}
+.estado{padding:2px 8px;border-radius:2px;font-size:11px;font-weight:600;letter-spacing:.04em;white-space:nowrap;}
+.ok{background:#E3EDE6;color:var(--verde);}
+.bad{background:#F6E4E3;color:var(--rojo);}
+.warn{background:#F4EDDC;color:var(--amarillo);}
+.nota{background:var(--celda);border-left:3px solid var(--navy);padding:14px 18px;font-size:13.5px;margin:16px 0;}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0;}
+@media(max-width:760px){.cards{grid-template-columns:1fr;}}
+.card{border:1px solid var(--linea);padding:16px;background:#fff;}
+.card .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);}
+.card .v{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:4px;}
+.card .d{font-size:12px;color:var(--gris);margin-top:2px;}
+.road{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;}
+@media(max-width:760px){.road{grid-template-columns:1fr;}}
+.road .f{border:1px solid var(--linea);padding:14px;background:#fff;position:relative;}
+.road .f .n{font-size:10.5px;letter-spacing:.14em;color:var(--gris);}
+.road .f .t{font-size:13.5px;font-weight:700;margin-top:4px;}
+.road .f .s{font-size:11.5px;margin-top:6px;}
+.road .f.hecha .s{color:var(--verde);}
+.road .f.prox .s{color:var(--amarillo);}
+footer{padding:34px 0 60px;font-size:11.5px;color:var(--gris);}
+.tabla-scroll{overflow-x:auto;}
+.mini{font-size:12px;color:var(--gris);}
+.badge{display:inline-block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+border:1px solid currentColor;padding:3px 10px;border-radius:2px;margin-bottom:12px;}
+.badge.ok{color:var(--verde);} .badge.bad{color:var(--rojo);}
+</style>
+</head>
+<body>
+<div class="hero"><div class="wrap">
+<div class="kicker">DiseñoParametrico · Proceso BIM-GIS-AI · Fase 2</div>
+<h1>Prefactibilidad y presentacion de casos de estudio</h1>
+<div class="sub">Ejercicio de resolucion del proceso completo con lotes reales: tres situaciones
+de prueba (norte medio, centro historico y sur) evaluadas en venta y en renta (Build-to-Rent),
+con reglas de decision de Bogota 2026 y datos de mercado auditables.</div>
+<div class="meta"><span><b>Fecha:</b> 2026-08-14</span><span><b>Moneda:</b> COP</span>
+<span><b>Motores:</b> F2_DEMANDA_MOTOR_v01 (venta) + F2_RENTA_MOTOR_v01 (renta)</span>
+<span><b>Verificacion:</b> independiente PASS · tests 73/73</span></div>
+</div></div>
+
+<section><div class="wrap">
+<h2>El proceso (F1 → F5)</h2>
+<p class="lead">Cada caso recorre el mismo pipeline: contexto normativo (F1), demanda y modelo
+financiero (F2), generacion de masa (F3), analisis ambiental (F4) e inyeccion BIM (F5). Esta
+presentacion entrega la resolucion de F1-F2 y el plan de continuacion F3-F5.</p>
+<div class="road">
+<div class="f hecha"><div class="n">F1</div><div class="t">Contexto</div><div class="s">✅ POT/NSR-10, retiros, envolvente (GFA)</div></div>
+<div class="f hecha"><div class="n">F2</div><div class="t">Demanda + financiero</div><div class="s">✅ Venta y renta, KPIs, sensibilidad</div></div>
+<div class="f prox"><div class="n">F3</div><div class="t">Masa</div><div class="s">🔶 VOLUM_GENERADOR en Grasshopper</div></div>
+<div class="f prox"><div class="n">F4</div><div class="t">Ambiental</div><div class="s">🔶 Ladybug + EPW Bogota</div></div>
+<div class="f prox"><div class="n">F5</div><div class="t">BIM</div><div class="s">⏳ Tapir → ArchiCAD</div></div>
+</div>
+</div></section>
+
+<section style="border-top:6px solid #1F3A5F">
+<div class="wrap">
+<span class="badge ok">Caso A</span>
+<h2>Caso A — El Prado, Suba (norte medio)</h2>
+<p class="lead">AAA0127AZPA · UPZ 19 El Prado · GFA 1053 m² · CL 550,0 M · fecha de datos 2026-08-14</p>
+<div class="cards">
+<div class="card"><div class="k">Venta · B Estándar</div><div class="v">18.5%</div>
+<div class="d">ROI (umbral 22%) · UB 811,1 M</div></div>
+<div class="card"><div class="k">Renta · mejor combo</div><div class="v">11.1%</div>
+<div class="d">TIR Largo plazo x A · VPN 270,6 M</div></div>
+<div class="card"><div class="k">Suelo del caso</div><div class="v">550,0 M</div>
+<div class="d">GFA 1053 m²</div></div>
+</div>
+
+<h3>Modelo de venta (F2) — KPIs por escenario</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Producto</th><th class="num">Unid.</th><th class="num">m2/u</th><th class="num">Ingresos (M$)</th>
+<th class="num">CTD (M$)</th><th class="num">UB (M$)</th><th class="num">MUB</th><th class="num">ROI</th>
+<th class="num">CL/IT</th><th>Estado</th></tr><tr><td><b>A — VIS / VIP</b></td><td class='num'>15</td><td class='num'>55</td><td class='num'>3.900,1</td><td class='num'>3.491,2</td><td class='num'>409,0</td><td class='num'>10.5%</td><td class='num'>11.7%</td><td class='num'>14.1%</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>B — Estandar</b></td><td class='num'>9</td><td class='num'>85</td><td class='num'>5.202,0</td><td class='num'>4.390,9</td><td class='num'>811,1</td><td class='num'>15.6%</td><td class='num'>18.5%</td><td class='num'>10.6%</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>C — Lujo / Alto nivel</b></td><td class='num'>4</td><td class='num'>150</td><td class='num'>5.700,0</td><td class='num'>5.985,1</td><td class='num'>-285,1</td><td class='num'>-5.0%</td><td class='num'>-4.8%</td><td class='num'>9.7%</td><td><span class='estado bad'>NO VIABLE</span></td></tr></table></div>
+<p class="mini">Regla: ROI ≥ 22% · MUB ≥ 18% · CL/IT ≤ 30%. Montos en millones de COP.</p>
+<div class="nota"><b>Veredicto venta:</b> Ningun escenario cumple las reglas de viabilidad (MUB &gt;= 18%, ROI &gt;= 22%, CL/IT &lt;= 30%). Conclusion: con los parametros actuales el lote no soporta desarrollo y venta bajo las reglas de Bogota. Opciones: (1) renegociar el precio del suelo, (2) validar precios de venta reales con comparables de radio 5 km (el precio y el costo duro son las variables de mayor impacto), (3) evaluar alternativa de arriendo del lote.</div>
+
+<h3>Modelo Build-to-Rent (F2 Renta) — 10 años con valor de salida</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Producto</th><th class="num">Unid.</th><th class="num">GPI a1 (M$)</th><th class="num">NOI a1 (M$)</th>
+<th class="num">Inversion (M$)</th><th class="num">Cap rate</th><th class="num">TIR</th>
+<th class="num">VPN (M$)</th><th>Estado</th></tr><tr class='grupo'><td colspan='9'>Corto plazo — temporal amoblado</td></tr><tr><td><b>A — VIS / VIP</b></td><td class='num'>15</td><td class='num'>538,6</td><td class='num'>211,6</td><td class='num'>3.758,5</td><td class='num'>5.6%</td><td class='num'>10.0%</td><td class='num'>-3,7</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>B — Estandar</b></td><td class='num'>9</td><td class='num'>593,0</td><td class='num'>246,8</td><td class='num'>4.577,2</td><td class='num'>5.4%</td><td class='num'>9.5%</td><td class='num'>-174,8</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>C — Lujo / Alto nivel</b></td><td class='num'>4</td><td class='num'>550,8</td><td class='num'>239,8</td><td class='num'>6.068,1</td><td class='num'>4.0%</td><td class='num'>5.4%</td><td class='num'>-1.772,7</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr class='grupo'><td colspan='9'>Largo plazo — arriendo tradicional</td></tr><tr><td><b>A — VIS / VIP</b></td><td class='num'>15</td><td class='num'>316,8</td><td class='num'>202,4</td><td class='num'>3.341,5</td><td class='num'>6.1%</td><td class='num'>11.1%</td><td class='num'>270,6</td><td><span class='estado ok'>VIABLE</span></td></tr><tr><td><b>B — Estandar</b></td><td class='num'>9</td><td class='num'>348,8</td><td class='num'>233,2</td><td class='num'>4.189,8</td><td class='num'>5.6%</td><td class='num'>10.0%</td><td class='num'>-11,4</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>C — Lujo / Alto nivel</b></td><td class='num'>4</td><td class='num'>324,0</td><td class='num'>224,6</td><td class='num'>5.763,6</td><td class='num'>3.9%</td><td class='num'>5.3%</td><td class='num'>-1.727,9</td><td><span class='estado bad'>NO VIABLE</span></td></tr></table></div>
+<p class="mini">Regla: TIR ≥ 10% · cap rate entrada ≥ 5% · VPN > 0 @ 10%. Montos en millones de COP.</p>
+<div class="nota"><b>Veredicto renta:</b> La combinacion Largo plazo — arriendo tradicional x A — VIS / VIP es la unica estrategia viable con TIR 11.1% (VPN 270.6 M, cap rate de entrada 6.1%). Producto: 15 unidades de 55 m2 con canon 32.000/m2/mes y ocupacion 95%. Mejor: Largo plazo x A — VIS / VIP (TIR 11.1%, VPN 270,6 M).</div>
+<h3>Suelo soportable en renta (vara de negociacion)</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Estrategia</th><th>Producto</th><th class="num">CL soportable (M$)</th>
+<th class="num">CL / inversion</th><th>Vs. CL del caso (550,0 M)</th></tr><tr><td>Largo plazo</td><td><b>A — VIS / VIP</b></td><td class='num'>820,6</td><td class='num'>16.5%</td><td><span class='estado ok'>cubre CL</span></td></tr><tr><td>Corto plazo</td><td><b>A — VIS / VIP</b></td><td class='num'>546,3</td><td class='num'>14.6%</td><td><span class='estado bad'>no cubre CL</span></td></tr><tr><td>Largo plazo</td><td><b>B — Estandar</b></td><td class='num'>538,6</td><td class='num'>13.1%</td><td><span class='estado bad'>no cubre CL</span></td></tr><tr><td>Corto plazo</td><td><b>B — Estandar</b></td><td class='num'>375,2</td><td class='num'>12.0%</td><td><span class='estado bad'>no cubre CL</span></td></tr></table></div>
+<div class="nota"><b>Lectura del caso:</b> Suelo renegociado ($550 M): la venta mejora (B ROI 18,5%) pero no alcanza el 22%; la renta LP x VIS es VIABLE (TIR 11,1%, VPN +$271 M). Veredicto del caso: construir para arrendar con producto VIS en largo plazo.</div>
+</div>
+</section>
+<section style="border-top:6px solid #7A4E2D">
+<div class="wrap">
+<span class="badge ok">Caso B</span>
+<h2>Caso B — La Candelaria (centro historico)</h2>
+<p class="lead">AAA0030JKOE · UPZ 94 La Candelaria · GFA 3313 m² · CL 1.420,0 M · fecha de datos 2026-08-14</p>
+<div class="cards">
+<div class="card"><div class="k">Venta · B Estándar</div><div class="v">22.3%</div>
+<div class="d">ROI (umbral 22%) · UB 3.375,8 M</div></div>
+<div class="card"><div class="k">Renta · mejor combo</div><div class="v">12.8%</div>
+<div class="d">TIR Corto plazo x A · VPN 2.721,0 M</div></div>
+<div class="card"><div class="k">Suelo del caso</div><div class="v">1.420,0 M</div>
+<div class="d">GFA 3313 m²</div></div>
+</div>
+
+<h3>Modelo de venta (F2) — KPIs por escenario</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Producto</th><th class="num">Unid.</th><th class="num">m2/u</th><th class="num">Ingresos (M$)</th>
+<th class="num">CTD (M$)</th><th class="num">UB (M$)</th><th class="num">MUB</th><th class="num">ROI</th>
+<th class="num">CL/IT</th><th>Estado</th></tr><tr><td><b>A — VIS / VIP</b></td><td class='num'>48</td><td class='num'>55</td><td class='num'>12.480,5</td><td class='num'>11.823,8</td><td class='num'>656,6</td><td class='num'>5.3%</td><td class='num'>5.5%</td><td class='num'>11.4%</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>B — Estandar</b></td><td class='num'>29</td><td class='num'>85</td><td class='num'>18.487,5</td><td class='num'>15.111,7</td><td class='num'>3.375,8</td><td class='num'>18.3%</td><td class='num'>22.3%</td><td class='num'>7.7%</td><td><span class='estado ok'>VIABLE</span></td></tr><tr><td><b>C — Lujo / Alto nivel</b></td><td class='num'>15</td><td class='num'>150</td><td class='num'>23.625,0</td><td class='num'>20.650,4</td><td class='num'>2.974,6</td><td class='num'>12.6%</td><td class='num'>14.4%</td><td class='num'>6.0%</td><td><span class='estado bad'>NO VIABLE</span></td></tr></table></div>
+<p class="mini">Regla: ROI ≥ 22% · MUB ≥ 18% · CL/IT ≤ 30%. Montos en millones de COP.</p>
+<div class="nota"><b>Veredicto venta:</b> El escenario B — Estandar proyecta un ROI del 22.3%, superando a A — VIS / VIP y C — Lujo / Alto nivel. Se recomienda disenar aproximadamente 29 unidades de 85 m2 con acabados medio. Rentabilidad esperada: utilidad bruta de 3.375.831.750 COP (MUB 18.3%, CL/IT 7.7%). Mix de usos: los 3 escenarios son residenciales puros; un escenario mixto (p.ej. local comercial en primer piso) se modela duplicando un escenario con precio y costo propios del uso adicional.</div>
+
+<h3>Modelo Build-to-Rent (F2 Renta) — 10 años con valor de salida</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Producto</th><th class="num">Unid.</th><th class="num">GPI a1 (M$)</th><th class="num">NOI a1 (M$)</th>
+<th class="num">Inversion (M$)</th><th class="num">Cap rate</th><th class="num">TIR</th>
+<th class="num">VPN (M$)</th><th>Estado</th></tr><tr class='grupo'><td colspan='9'>Corto plazo — temporal amoblado (turismo)</td></tr><tr><td><b>A — VIS / VIP</b></td><td class='num'>48</td><td class='num'>1.938,8</td><td class='num'>863,3</td><td class='num'>12.683,4</td><td class='num'>6.8%</td><td class='num'>12.8%</td><td class='num'>2.721,0</td><td><span class='estado ok'>VIABLE</span></td></tr><tr><td><b>B — Estandar</b></td><td class='num'>29</td><td class='num'>2.212,6</td><td class='num'>1.037,8</td><td class='num'>15.648,9</td><td class='num'>6.6%</td><td class='num'>12.4%</td><td class='num'>2.953,8</td><td><span class='estado ok'>VIABLE</span></td></tr><tr><td><b>C — Lujo / Alto nivel</b></td><td class='num'>15</td><td class='num'>2.478,6</td><td class='num'>1.211,7</td><td class='num'>20.880,0</td><td class='num'>5.8%</td><td class='num'>10.6%</td><td class='num'>914,5</td><td><span class='estado ok'>VIABLE</span></td></tr><tr class='grupo'><td colspan='9'>Largo plazo — arriendo tradicional</td></tr><tr><td><b>A — VIS / VIP</b></td><td class='num'>48</td><td class='num'>1.140,5</td><td class='num'>687,1</td><td class='num'>11.347,4</td><td class='num'>6.0%</td><td class='num'>11.1%</td><td class='num'>907,0</td><td><span class='estado ok'>VIABLE</span></td></tr><tr><td><b>B — Estandar</b></td><td class='num'>29</td><td class='num'>1.301,5</td><td class='num'>826,8</td><td class='num'>14.398,2</td><td class='num'>5.7%</td><td class='num'>10.4%</td><td class='num'>417,9</td><td><span class='estado ok'>VIABLE</span></td></tr><tr><td><b>C — Lujo / Alto nivel</b></td><td class='num'>15</td><td class='num'>1.458,0</td><td class='num'>966,1</td><td class='num'>19.734,6</td><td class='num'>4.9%</td><td class='num'>8.3%</td><td class='num'>-2.361,1</td><td><span class='estado bad'>NO VIABLE</span></td></tr></table></div>
+<p class="mini">Regla: TIR ≥ 10% · cap rate entrada ≥ 5% · VPN > 0 @ 10%. Montos en millones de COP.</p>
+<div class="nota"><b>Veredicto renta:</b> La combinacion Corto plazo — temporal amoblado (turismo) x A — VIS / VIP es la unica estrategia viable con TIR 12.8% (VPN 2.721.0 M, cap rate de entrada 6.8%). Producto: 48 unidades de 55 m2 con canon 61.200/m2/mes y ocupacion 80%. Mejor: Corto plazo x A — VIS / VIP (TIR 12.8%, VPN 2.721,0 M).</div>
+<h3>Suelo soportable en renta (vara de negociacion)</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Estrategia</th><th>Producto</th><th class="num">CL soportable (M$)</th>
+<th class="num">CL / inversion</th><th>Vs. CL del caso (1.420,0 M)</th></tr><tr><td>Corto plazo</td><td><b>B — Estandar</b></td><td class='num'>4.373,8</td><td class='num'>9.1%</td><td><span class='estado ok'>cubre CL</span></td></tr><tr><td>Corto plazo</td><td><b>A — VIS / VIP</b></td><td class='num'>4.141,0</td><td class='num'>11.2%</td><td><span class='estado ok'>cubre CL</span></td></tr><tr><td>Corto plazo</td><td><b>C — Lujo / Alto nivel</b></td><td class='num'>2.334,5</td><td class='num'>6.8%</td><td><span class='estado ok'>cubre CL</span></td></tr><tr><td>Largo plazo</td><td><b>A — VIS / VIP</b></td><td class='num'>2.327,0</td><td class='num'>12.5%</td><td><span class='estado ok'>cubre CL</span></td></tr></table></div>
+<div class="nota"><b>Lectura del caso:</b> Escala grande + zona turistica: la venta B Estándar ya es VIABLE (ROI 22,3%) y la renta amplia la viabilidad a 5 de 6 combinaciones (mejor CP x A, TIR 12,8%). El suelo soportable ($4.374 M max.) supera con holgura el CL del ejercicio.</div>
+</div>
+</section>
+<section style="border-top:6px solid #3E6B4F">
+<div class="wrap">
+<span class="badge bad">Caso C</span>
+<h2>Caso C — Venecia, Tunjuelito (sur)</h2>
+<p class="lead">002407033006 · UPZ 42 Venecia · GFA 650 m² · CL 192,0 M · fecha de datos 2026-08-14</p>
+<div class="cards">
+<div class="card"><div class="k">Venta · B Estándar</div><div class="v">-17.3%</div>
+<div class="d">ROI (umbral 22%) · UB -408,2 M</div></div>
+<div class="card"><div class="k">Renta · mejor combo</div><div class="v">6.0%</div>
+<div class="d">TIR Largo plazo x C · VPN -738,6 M</div></div>
+<div class="card"><div class="k">Suelo del caso</div><div class="v">192,0 M</div>
+<div class="d">GFA 650 m²</div></div>
+</div>
+
+<h3>Modelo de venta (F2) — KPIs por escenario</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Producto</th><th class="num">Unid.</th><th class="num">m2/u</th><th class="num">Ingresos (M$)</th>
+<th class="num">CTD (M$)</th><th class="num">UB (M$)</th><th class="num">MUB</th><th class="num">ROI</th>
+<th class="num">CL/IT</th><th>Estado</th></tr><tr><td><b>A — VIS / VIP</b></td><td class='num'>9</td><td class='num'>55</td><td class='num'>2.340,1</td><td class='num'>2.004,9</td><td class='num'>335,2</td><td class='num'>14.3%</td><td class='num'>16.7%</td><td class='num'>8.2%</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>B — Estandar</b></td><td class='num'>5</td><td class='num'>85</td><td class='num'>1.955,0</td><td class='num'>2.363,2</td><td class='num'>-408,2</td><td class='num'>-20.9%</td><td class='num'>-17.3%</td><td class='num'>9.8%</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>C — Lujo / Alto nivel</b></td><td class='num'>3</td><td class='num'>150</td><td class='num'>2.925,0</td><td class='num'>2.925,2</td><td class='num'>-0,2</td><td class='num'>-0.0%</td><td class='num'>-0.0%</td><td class='num'>6.6%</td><td><span class='estado bad'>NO VIABLE</span></td></tr></table></div>
+<p class="mini">Regla: ROI ≥ 22% · MUB ≥ 18% · CL/IT ≤ 30%. Montos en millones de COP.</p>
+<div class="nota"><b>Veredicto venta:</b> Ningun escenario cumple las reglas de viabilidad (MUB &gt;= 18%, ROI &gt;= 22%, CL/IT &lt;= 30%). Conclusion: con los parametros actuales el lote no soporta desarrollo y venta bajo las reglas de Bogota. Opciones: (1) renegociar el precio del suelo, (2) validar precios de venta reales con comparables de radio 5 km (el precio y el costo duro son las variables de mayor impacto), (3) evaluar alternativa de arriendo del lote.</div>
+
+<h3>Modelo Build-to-Rent (F2 Renta) — 10 años con valor de salida</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Producto</th><th class="num">Unid.</th><th class="num">GPI a1 (M$)</th><th class="num">NOI a1 (M$)</th>
+<th class="num">Inversion (M$)</th><th class="num">Cap rate</th><th class="num">TIR</th>
+<th class="num">VPN (M$)</th><th>Estado</th></tr><tr class='grupo'><td colspan='9'>Corto plazo — temporal amoblado</td></tr><tr><td><b>A — VIS / VIP</b></td><td class='num'>9</td><td class='num'>222,2</td><td class='num'>70,4</td><td class='num'>2.163,2</td><td class='num'>3.2%</td><td class='num'>2.7%</td><td class='num'>-933,4</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>B — Estandar</b></td><td class='num'>5</td><td class='num'>225,4</td><td class='num'>77,9</td><td class='num'>2.502,0</td><td class='num'>3.1%</td><td class='num'>2.3%</td><td class='num'>-1.127,8</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>C — Lujo / Alto nivel</b></td><td class='num'>3</td><td class='num'>293,8</td><td class='num'>110,3</td><td class='num'>3.039,1</td><td class='num'>3.6%</td><td class='num'>4.3%</td><td class='num'>-1.078,6</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr class='grupo'><td colspan='9'>Largo plazo — arriendo tradicional</td></tr><tr><td><b>A — VIS / VIP</b></td><td class='num'>9</td><td class='num'>130,7</td><td class='num'>79,0</td><td class='num'>1.913,9</td><td class='num'>4.1%</td><td class='num'>5.9%</td><td class='num'>-508,6</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>B — Estandar</b></td><td class='num'>5</td><td class='num'>132,6</td><td class='num'>84,3</td><td class='num'>2.287,7</td><td class='num'>3.7%</td><td class='num'>4.5%</td><td class='num'>-780,6</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>C — Lujo / Alto nivel</b></td><td class='num'>3</td><td class='num'>172,8</td><td class='num'>115,5</td><td class='num'>2.811,7</td><td class='num'>4.1%</td><td class='num'>6.0%</td><td class='num'>-738,6</td><td><span class='estado bad'>NO VIABLE</span></td></tr></table></div>
+<p class="mini">Regla: TIR ≥ 10% · cap rate entrada ≥ 5% · VPN > 0 @ 10%. Montos en millones de COP.</p>
+<div class="nota"><b>Veredicto renta:</b> Ninguna combinacion de producto y estrategia cumple las reglas de inversion en renta (TIR &gt;= 10%, cap rate de entrada &gt;= 5%, VPN &gt; 0). La mejor alternativa es la que reporta mayor TIR; las palancas que el analisis de sensibilidad identifica como criticas son: (1) canon de arriendo y ocupacion (gestion comercial y producto), (2) costo duro de construccion, (3) cap rate de salida (mercado de inversion) y (4) precio del suelo: el CL soportable se reporta por combinacion y es la vara de negociacion con el dueno del lote. Mejor: Largo plazo x C — Lujo / Alto nivel (TIR 6.0%, VPN -738,6 M).</div>
+<h3>Suelo soportable en renta (vara de negociacion)</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Estrategia</th><th>Producto</th><th class="num">CL soportable (M$)</th>
+<th class="num">CL / inversion</th><th>Vs. CL del caso (192,0 M)</th></tr><tr><td>Corto plazo</td><td><b>A — VIS / VIP</b></td><td class='num'>0,0</td><td class='num'>8.9%</td><td><span class='estado bad'>no cubre CL</span></td></tr><tr><td>Corto plazo</td><td><b>B — Estandar</b></td><td class='num'>0,0</td><td class='num'>7.7%</td><td><span class='estado bad'>no cubre CL</span></td></tr><tr><td>Corto plazo</td><td><b>C — Lujo / Alto nivel</b></td><td class='num'>0,0</td><td class='num'>6.3%</td><td><span class='estado bad'>no cubre CL</span></td></tr><tr><td>Largo plazo</td><td><b>A — VIS / VIP</b></td><td class='num'>0,0</td><td class='num'>10.0%</td><td><span class='estado bad'>no cubre CL</span></td></tr></table></div>
+<div class="nota"><b>Lectura del caso:</b> Caso de estres (lote pequeno, valores bajos): ni la venta (A ROI 16,7%) ni la renta (suelo soportable $0) alcanzan los umbrales. Leccion: en esta zona el producto VIS apenas se acerca; se requiere revalidar canones/costos o no invertir.</div>
+</div>
+</section>
+<section class="alt"><div class="wrap">
+<h2>Resumen comparativo de la gama de pruebas</h2>
+<p class="lead">Tres situaciones deliberadamente distintas para cubrir el espectro de un lote real
+de proyecto: escala media en zona de valores medios, escala grande en centro historico turistico y
+lote pequeno en zona de valores bajos.</p>
+<div class="tabla-scroll"><table>
+<tr><th>Caso</th><th>Zona</th><th class="num">Lote (m²)</th><th class="num">GFA (m²)</th><th class="num">CL (M$)</th>
+<th>Venta (mejor)</th><th>Renta (mejor)</th><th>Veredicto del ejercicio</th></tr>
+<tr><td><b>A — AAA0127AZPA</b></td><td>El Prado, Suba (estrato 3-4)</td><td class="num">450</td><td class="num">1.053</td><td class="num">550</td>
+<td>B 18,5% (no viable)</td><td>LP×VIS TIR 11,1% (VIABLE)</td><td><span class="estado ok">Resuelto: renta LP</span></td></tr>
+<tr><td><b>B — AAA0030JKOE</b></td><td>La Candelaria (centro historico)</td><td class="num">946</td><td class="num">3.313</td><td class="num">1.420</td>
+<td>B 22,3% (VIABLE)</td><td>CP×VIS TIR 12,8% (VIABLE)</td><td><span class="estado ok">Viable en venta y renta</span></td></tr>
+<tr><td><b>C — 002407033006</b></td><td>Venecia, Tunjuelito (sur, estrato 2)</td><td class="num">192</td><td class="num">650</td><td class="num">192</td>
+<td>A 16,7% (no viable)</td><td>ninguna (suelo soportable $0)</td><td><span class="estado bad">No viable: revalidar o descartar</span></td></tr>
+</table></div>
+<div class="nota"><b>Conclusion del ejercicio:</b> la gama de pruebas demuestra que el pipeline
+distingue correctamente los casos viables de los inviables y que la estrategia de renta (BTR)
+amplia la viabilidad frente a la venta en 2 de los 3 casos. El precio del suelo, la escala (GFA)
+y los canones de la zona son las palancas que gobiernan el resultado.</div>
+</div></section>
+
+<footer><div class="wrap">
+Generado por scripts/utilities/generar_presentacion.py — DiseñoParametrico, 2026-08-14.
+Fuentes: motores F2 (venta v2.1) y F2 Renta (v1.0) con parametros auditables; datos de mercado
+Bogota 2026 (Ciencuadras Q1-2026, FincaRaiz, Properati, Tinsa, DANE) — ver vault
+(20-fases/fase-2-demanda, 30-referencia). Documento de ejercicio: validar comparables antes de
+decisiones de inversion.
+</div></footer>
+</body></html>

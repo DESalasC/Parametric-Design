@@ -1,0 +1,65 @@
+{
+    "chip": "AAA0127AZPA",
+    "gfa_maximo_evaluado": 1053.0,
+    "costo_lote_input": 550000000.0,
+    "nota": "Caso de estudio 2026-08-14: GFA 1053 m2 y CL $550 M (ejercicio del usuario). Precios validados con comparables Prado Veraniego (2026-08-13).",
+    "escenarios": [
+        {
+            "producto": "VIS",
+            "gfa_m2": 1053.0,
+            "nga_m2": 842.4,
+            "num_unidades": 15,
+            "tamano_unidad_m2": 55.0,
+            "ingresos_totales_cop": 3900141300.0,
+            "costo_lote_cop": 550000000.0,
+            "costo_duro_cop": 2421900000.0,
+            "costo_blando_cop": 363285000.0,
+            "costo_mkt_cop": 156005652.0,
+            "costo_total_cop": 3491190652.0,
+            "utilidad_bruta_cop": 408950648.0,
+            "KPIs": {
+                "MUB_pct": 10.49,
+                "ROI_pct": 11.71,
+                "Lote_sobre_Ventas_pct": 14.1
+            }
+        },
+        {
+            "producto": "Estandar",
+            "gfa_m2": 1053.0,
+            "nga_m2": 789.75,
+            "num_unidades": 9,
+            "tamano_unidad_m2": 85.0,
+            "ingresos_totales_cop": 5202000000.0,
+            "costo_lote_cop": 550000000.0,
+            "costo_duro_cop": 3159000000.0,
+            "costo_blando_cop": 473850000.0,
+            "costo_mkt_cop": 208080000.0,
+            "costo_total_cop": 4390930000.0,
+            "utilidad_bruta_cop": 811070000.0,
+            "KPIs": {
+                "MUB_pct": 15.59,
+                "ROI_pct": 18.47,
+                "Lote_sobre_Ventas_pct": 10.57
+            }
+        },
+        {
+            "producto": "Lujo",
+            "gfa_m2": 1053.0,
+            "nga_m2": 737.1,
+            "num_unidades": 4,
+            "tamano_unidad_m2": 150.0,
+            "ingresos_totales_cop": 5700000000.0,
+            "costo_lote_cop": 550000000.0,
+            "costo_duro_cop": 4527900000.0,
+            "costo_blando_cop": 679185000.0,
+            "costo_mkt_cop": 228000000.0,
+            "costo_total_cop": 5985085000.0,
+            "utilidad_bruta_cop": -285085000.0,
+            "KPIs": {
+                "MUB_pct": -5.0,
+                "ROI_pct": -4.76,
+                "Lote_sobre_Ventas_pct": 9.65
+            }
+        }
+    ]
+}

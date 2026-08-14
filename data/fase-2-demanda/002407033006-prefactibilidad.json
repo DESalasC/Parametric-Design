@@ -1,0 +1,65 @@
+{
+    "chip": "002407033006",
+    "gfa_maximo_evaluado": 650.0,
+    "costo_lote_input": 192000000.0,
+    "nota": "Caso de estudio 2026-08-14: lote real pequeno del sur (UPZ 42 Venecia, Tunjuelito; 192 m2; estrato 2). GFA 650 m2 (supuesto de ejercicio, rango 4 = 5-8 pisos). CL $192 M (~$1,0 M/m2, supuesto de ejercicio). Precios/costos de zona sur (supuestos de ejercicio documentados).",
+    "escenarios": [
+        {
+            "producto": "VIS",
+            "gfa_m2": 650.0,
+            "nga_m2": 520.0,
+            "num_unidades": 9,
+            "tamano_unidad_m2": 55.0,
+            "ingresos_totales_cop": 2340084780.0,
+            "costo_lote_cop": 192000000.0,
+            "costo_duro_cop": 1495000000.0,
+            "costo_blando_cop": 224250000.0,
+            "costo_mkt_cop": 93603391.2,
+            "costo_total_cop": 2004853391.2,
+            "utilidad_bruta_cop": 335231388.8,
+            "KPIs": {
+                "MUB_pct": 14.33,
+                "ROI_pct": 16.72,
+                "Lote_sobre_Ventas_pct": 8.2
+            }
+        },
+        {
+            "producto": "Estandar",
+            "gfa_m2": 650.0,
+            "nga_m2": 487.5,
+            "num_unidades": 5,
+            "tamano_unidad_m2": 85.0,
+            "ingresos_totales_cop": 1955000000.0,
+            "costo_lote_cop": 192000000.0,
+            "costo_duro_cop": 1820000000.0,
+            "costo_blando_cop": 273000000.0,
+            "costo_mkt_cop": 78200000.0,
+            "costo_total_cop": 2363200000.0,
+            "utilidad_bruta_cop": -408200000.0,
+            "KPIs": {
+                "MUB_pct": -20.88,
+                "ROI_pct": -17.27,
+                "Lote_sobre_Ventas_pct": 9.82
+            }
+        },
+        {
+            "producto": "Lujo",
+            "gfa_m2": 650.0,
+            "nga_m2": 455.0,
+            "num_unidades": 3,
+            "tamano_unidad_m2": 150.0,
+            "ingresos_totales_cop": 2925000000.0,
+            "costo_lote_cop": 192000000.0,
+            "costo_duro_cop": 2275000000.0,
+            "costo_blando_cop": 341250000.0,
+            "costo_mkt_cop": 117000000.0,
+            "costo_total_cop": 2925250000.0,
+            "utilidad_bruta_cop": -250000.0,
+            "KPIs": {
+                "MUB_pct": -0.01,
+                "ROI_pct": -0.01,
+                "Lote_sobre_Ventas_pct": 6.56
+            }
+        }
+    ]
+}
