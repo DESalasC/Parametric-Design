@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 """
-VOLUMEN_v03 - Generacion Envolvente Edificio para ArchiCAD
+F3_VOLUM_GENERADOR_v03 - Generacion Envolvente Edificio para ArchiCAD
 Blindado contra nulls usando Listas de .NET
 """
 

@@ -7,13 +7,13 @@ núcleos de servicios y transporte vertical, planos esquemáticos y masa 3D.
 ## Integración con el flujo GH existente (2026-08-14)
 
 El motor **emite `programa-areas.json` balanceado** (esquema compatible con
-`VOLUM_GENERADOR_v04/v05`) en cada carpeta de caso. Diagnóstico de las piezas preexistentes:
+`F3_VOLUM_GENERADOR_v04/v05`) en cada carpeta de caso. Diagnóstico de las piezas preexistentes:
 
 | Archivo | Estado | Diagnóstico |
 |---|---|---|
 | `F3_PROGRAMA_AREAS_v01.py` | ⚠️ bug de balance | Con GFA 1.053 m² generaba solo **382,6 m²** construidos (déficit 670 m²): la vivienda se dividía entre (pisos−2) sin re-multiplicar, el piso 1 solo cubría el 30% de la losa y el núcleo se contaba mal. Mix limitado a Comercio/Salud/Vivienda sin integrar F2 |
-| `VOLUM_GENERADOR_v04.py` | ✅ base sólida, 4 mejoras | Núcleo heurístico 10% (sin NSR-10); Z fijas 3,0 m; `open()` sin encoding; `CreatePlanarBreps` tomaba solo el primer brep (patio perdido) |
-| `VOLUM_GENERADOR_v05.py` (nuevo) | ✅ | Mismo contrato GH (envelope_curve, json_path, floor_height → losas, volumenes_principales, volumenes_nucleo, etiquetas, mensaje) con: núcleo real del JSON (lado por componentes NSR-10), `altura_piso` por nivel (primer piso 3,6 m), lectura UTF-8 y unión de losas con patio |
+| `F3_VOLUM_GENERADOR_v04.py` | ✅ base sólida, 4 mejoras | Núcleo heurístico 10% (sin NSR-10); Z fijas 3,0 m; `open()` sin encoding; `CreatePlanarBreps` tomaba solo el primer brep (patio perdido) |
+| `F3_VOLUM_GENERADOR_v05.py` (nuevo) | ✅ | Mismo contrato GH (envelope_curve, json_path, floor_height → losas, volumenes_principales, volumenes_nucleo, etiquetas, mensaje) con: núcleo real del JSON (lado por componentes NSR-10), `altura_piso` por nivel (primer piso 3,6 m), lectura UTF-8 y unión de losas con patio |
 | `F3_ACCESOS_INTEGRADOR_v01.py` | ⚠️ referencia rota | Consume `OPTIMIZADOR_ADYACENCIA_v01.py`, que no existe en la carpeta |
 | `F3_PREP_LADYBUG_v01.py` | ✅ | Consume salidas de VOLUMEN_v03 → F4 |
 
