@@ -1,0 +1,40 @@
+{
+  "usos": [
+    "Local comercial",
+    "Vivienda"
+  ],
+  "matriz": {
+    "Local comercial": {
+      "Local comercial": 1,
+      "Vivienda": 1
+    },
+    "Vivienda": {
+      "Local comercial": 1,
+      "Vivienda": 1
+    }
+  },
+  "justificaciones": {
+    "Local comercial|Local comercial": {
+      "nivel": 1,
+      "razon": "Continuidad de fachada activa."
+    },
+    "Local comercial|Vivienda": {
+      "nivel": 1,
+      "razon": "Sin relacion programatica directa."
+    },
+    "Vivienda|Local comercial": {
+      "nivel": 1,
+      "razon": "Sin relacion programatica directa."
+    },
+    "Vivienda|Vivienda": {
+      "nivel": 1,
+      "razon": "Agrupacion por niveles; sin relacion programatica directa."
+    }
+  },
+  "escala": {
+    "3": "Requerida",
+    "2": "Deseable",
+    "1": "Indiferente",
+    "0": "Incompatible"
+  }
+}

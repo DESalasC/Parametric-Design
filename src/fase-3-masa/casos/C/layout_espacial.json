@@ -1,0 +1,89 @@
+{
+  "huella_m2": 249.9,
+  "niveles_total": 5,
+  "nucleos": {
+    "escaleras": {
+      "cantidad": 2,
+      "tipo": "comun de evacuacion (NSR-10 Titulo K)",
+      "modulo_m2": 13.5
+    },
+    "ascensores": {
+      "cantidad": 1,
+      "capacidad_personas": 8,
+      "modulo_m2": 4.8,
+      "criterio": "poblacion 64 pers; 1 asc / ~40 unid"
+    },
+    "servicios": {
+      "ductos_basuras_cuarto_m2": 8.0
+    },
+    "total_m2_piso": 39.8
+  },
+  "reparto_vertical": {
+    "Local comercial": [
+      1,
+      2
+    ],
+    "Vivienda": [
+      3,
+      4,
+      5
+    ]
+  },
+  "poblacion_estimada": {
+    "vivienda": 25,
+    "servicios": 38,
+    "total": 64
+  },
+  "niveles": [
+    {
+      "nivel": 1,
+      "altura_m": 3.6,
+      "usos": [
+        "Local comercial"
+      ],
+      "gfa_m2": 249.9,
+      "nucleo_m2": 39.8,
+      "eficiencia_losa_pct": 84.1
+    },
+    {
+      "nivel": 2,
+      "altura_m": 3.0,
+      "usos": [
+        "Local comercial"
+      ],
+      "gfa_m2": 249.9,
+      "nucleo_m2": 39.8,
+      "eficiencia_losa_pct": 84.1
+    },
+    {
+      "nivel": 3,
+      "altura_m": 3.0,
+      "usos": [
+        "Vivienda"
+      ],
+      "gfa_m2": 249.9,
+      "nucleo_m2": 39.8,
+      "eficiencia_losa_pct": 84.1
+    },
+    {
+      "nivel": 4,
+      "altura_m": 3.0,
+      "usos": [
+        "Vivienda"
+      ],
+      "gfa_m2": 249.9,
+      "nucleo_m2": 39.8,
+      "eficiencia_losa_pct": 84.1
+    },
+    {
+      "nivel": 5,
+      "altura_m": 3.0,
+      "usos": [
+        "Vivienda"
+      ],
+      "gfa_m2": 100.4,
+      "nucleo_m2": 39.8,
+      "eficiencia_losa_pct": 60.4
+    }
+  ]
+}

@@ -359,6 +359,51 @@ barrio (consultorios Prado Veraniego $61,5-88k/m2/mes). Precio de venta derivado
 {filas}</table></div>"""
 
 
+def _f3_html(caso) -> str:
+    """Resumen F3: distribucion espacial del D_MIXTO (matriz de adyacencias + nucleos)."""
+    mapa = {"AAA0127AZPA": "A", "AAA0030JKOE": "B", "AAA0039KRMR": "C"}
+    cid = mapa.get(caso["id"], "A")
+    carpeta = os.path.join(ROOT, "src", "fase-3-masa", "casos", cid)
+    ruta_lay = os.path.join(carpeta, "layout_espacial.json")
+    if not os.path.exists(ruta_lay):
+        return ""
+    with open(ruta_lay, "r", encoding="utf-8") as f:
+        lay = json.load(f)
+    with open(os.path.join(carpeta, "matriz_adyacencias.json"), "r", encoding="utf-8") as f:
+        mat = json.load(f)
+    filas_niv = ""
+    for nv in lay["niveles"]:
+        filas_niv += (f"<tr><td class='num'>N{nv['nivel']}</td><td>{', '.join(nv['usos'])}"
+                      f"</td><td class='num'>{nv['gfa_m2']:.0f}</td>"
+                      f"<td class='num'>{nv['nucleo_m2']:.0f}</td>"
+                      f"<td class='num'>{nv['eficiencia_losa_pct']:.0f}%</td></tr>")
+    nuc = lay["nucleos"]
+    celdas_mat = ""
+    for a in mat["usos"]:
+        celdas_mat += f"<tr><td><b>{a}</b></td>" + "".join(
+            f"<td class='num'>{mat['matriz'][a][b]}</td>" for b in mat["usos"]) + "</tr>"
+    cab_mat = "".join(f"<th>{u}</th>" for u in mat["usos"])
+    plano_url = os.path.join(ROOT, "src", "fase-3-masa", "casos", cid, f"planos_{cid}.html")
+    variante = "" if caso["id"] != "AAA0030JKOE" else (
+        " Variante B_SALUD (consultorios 25%): consultorios en N1-2, vivienda N3-6 — ver "
+        f"<a href='file:///D:/Work/PROJECTS/DiseñoParametrico/src/fase-3-masa/casos/B_SALUD/planos_B_SALUD.html'>planos B_SALUD</a>.")
+    return f"""<h3>F3 — Distribucion espacial del uso-multiple (matriz de adyacencias + nucleos)</h3>
+<p class="mini">Motor F3_DISTRIBUCION_v01: programa del {lay['reparto_vertical'] and 'D_MIXTO'} · "
+        f"huella {lay['huella_m2']:.0f} m² · {lay['niveles_total']} niveles · "
+        f"poblacion est. {lay['poblacion_estimada']['total']} pers. Planos esquematicos y masa 3D: "
+        f"<a href='file:///D:/Work/PROJECTS/DiseñoParametrico/src/fase-3-masa/casos/{cid}/planos_{cid}.html'>planos_{cid}.html</a> · "
+        f"F3_{cid}.3dm (Rhino).{variante}</p>
+<div class="tabla-scroll"><table>
+<tr><th>Nivel</th><th>Usos</th><th class="num">GFA (m²)</th><th class="num">Nucleo (m²)</th><th class="num">Efic. losa</th></tr>
+{filas_niv}</table></div>
+<p class="mini">Nucleos: <b>{nuc['escaleras']['cantidad']} escaleras</b> ({nuc['escaleras']['tipo']}) · "
+        f"<b>{nuc['ascensores']['cantidad']} ascensores</b> ({nuc['ascensores']['criterio']}) · "
+        f"servicios 8 m²/piso · total <b>{nuc['total_m2_piso']:.0f} m²/piso</b></p>
+<p class="mini">Matriz de adyacencias (3 requerida · 2 deseable · 1 indiferente · 0 incompatible):</p>
+<div class="tabla-scroll"><table>
+<tr><th></th>{cab_mat}</tr>{celdas_mat}</table></div>"""
+
+
 def _salud_html(caso) -> str:
     """Estudio de mercado de salud del caso A: inventario oficial de IPS por radios."""
     ruta = os.path.join(ROOT, "exports", "alcance", caso["id"] + "-salud.json")
@@ -492,6 +537,7 @@ def generar() -> None:
 {_suelo_html(caso)}
 {_mix_html(caso)}
 {_sensibilidad_html(caso)}
+{_f3_html(caso)}
 {_salud_html(caso)}
 {_accesibilidad_html(caso)}
 <div class="nota"><b>Lectura del caso:</b> {_h(caso['lectura'])}</div>

@@ -139,6 +139,21 @@ barrio (consultorios Prado Veraniego $61,5-88k/m2/mes). Precio de venta derivado
 <th class="num">Venta — ROI</th><th>Venta</th>
 <th>Renta — mejor combo</th><th>Renta</th></tr>
 <tr><td><b>Consultorios (salud)</b></td><td class='num'>25%</td><td class='num'>12.2%</td><td><span class='estado bad'>NO VIABLE</span></td><td>mejor TIR 8.1% (sin umbral)</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>Oficinas (servicios)</b></td><td class='num'>25%</td><td class='num'>13.4%</td><td><span class='estado bad'>NO VIABLE</span></td><td>mejor TIR 6.9% (sin umbral)</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>Institucional salud (lab/IPS)</b></td><td class='num'>30%</td><td class='num'>-20.9%</td><td><span class='estado bad'>NO VIABLE</span></td><td>mejor TIR 0.8% (sin umbral)</td><td><span class='estado bad'>NO VIABLE</span></td></tr><tr><td><b>Hogar geriatrico (operador)</b></td><td class='num'>30%</td><td class='num'>-19.6%</td><td><span class='estado bad'>NO VIABLE</span></td><td>mejor TIR 1.0% (sin umbral)</td><td><span class='estado bad'>NO VIABLE</span></td></tr></table></div>
+<h3>F3 — Distribucion espacial del uso-multiple (matriz de adyacencias + nucleos)</h3>
+<p class="mini">Motor F3_DISTRIBUCION_v01: programa del D_MIXTO · "
+        f"huella 220 m² · 5 niveles · "
+        f"poblacion est. 46 pers. Planos esquematicos y masa 3D: "
+        f"<a href='file:///D:/Work/PROJECTS/DiseñoParametrico/src/fase-3-masa/casos/A/planos_A.html'>planos_A.html</a> · "
+        f"F3_A.3dm (Rhino).</p>
+<div class="tabla-scroll"><table>
+<tr><th>Nivel</th><th>Usos</th><th class="num">GFA (m²)</th><th class="num">Nucleo (m²)</th><th class="num">Efic. losa</th></tr>
+<tr><td class='num'>N1</td><td>Local comercial</td><td class='num'>220</td><td class='num'>40</td><td class='num'>82%</td></tr><tr><td class='num'>N2</td><td>Vivienda</td><td class='num'>220</td><td class='num'>40</td><td class='num'>82%</td></tr><tr><td class='num'>N3</td><td>Vivienda</td><td class='num'>220</td><td class='num'>40</td><td class='num'>82%</td></tr><tr><td class='num'>N4</td><td>Vivienda</td><td class='num'>220</td><td class='num'>40</td><td class='num'>82%</td></tr><tr><td class='num'>N5</td><td>Vivienda</td><td class='num'>171</td><td class='num'>40</td><td class='num'>77%</td></tr></table></div>
+<p class="mini">Nucleos: <b>2 escaleras</b> (comun de evacuacion (NSR-10 Titulo K)) · "
+        f"<b>1 ascensores</b> (poblacion 46 pers; 1 asc / ~40 unid) · "
+        f"servicios 8 m²/piso · total <b>40 m²/piso</b></p>
+<p class="mini">Matriz de adyacencias (3 requerida · 2 deseable · 1 indiferente · 0 incompatible):</p>
+<div class="tabla-scroll"><table>
+<tr><th></th><th>Local comercial</th><th>Vivienda</th></tr><tr><td><b>Local comercial</b></td><td class='num'>1</td><td class='num'>1</td></tr><tr><td><b>Vivienda</b></td><td class='num'>1</td><td class='num'>1</td></tr></table></div>
 <h3>Estudio de mercado: salud institucional en el barrio (2026-08-14)</h3>
 <p class="mini">Inventario con capa oficial de IPS (Datos Abiertos Bogota, ips.geojson) desde el origen SIRGAS del lote (ESRI:102233). Hechos del usuario verificados: edificio nuevo de 5 pisos con laboratorio y una IPS en construccion a < 200 m; el inventario oficial confirma 2 IPS < 200 m (incl. CRAC y SEDE NORTE) y un cluster consolidado de salud.</p>
 <div class="tabla-scroll"><table>
@@ -227,6 +242,21 @@ barrio (consultorios Prado Veraniego $61,5-88k/m2/mes). Precio de venta derivado
 <th class="num">Venta — ROI</th><th>Venta</th>
 <th>Renta — mejor combo</th><th>Renta</th></tr>
 <tr><td><b>Consultorios (salud)</b></td><td class='num'>25%</td><td class='num'>30.9%</td><td><span class='estado ok'>VIABLE</span></td><td>Largo plazo x D - Mixto Salud (sensibilidad) <b>12.9%</b> · VPN 3.026,2 M</td><td><span class='estado ok'>VIABLE</span></td></tr><tr><td><b>Oficinas (servicios)</b></td><td class='num'>25%</td><td class='num'>29.9%</td><td><span class='estado ok'>VIABLE</span></td><td>Corto plazo x D - Mixto Oficinas (sensibilidad) <b>11.4%</b> · VPN 1.531,9 M</td><td><span class='estado ok'>VIABLE</span></td></tr></table></div>
+<h3>F3 — Distribucion espacial del uso-multiple (matriz de adyacencias + nucleos)</h3>
+<p class="mini">Motor F3_DISTRIBUCION_v01: programa del D_MIXTO · "
+        f"huella 652 m² · 6 niveles · "
+        f"poblacion est. 177 pers. Planos esquematicos y masa 3D: "
+        f"<a href='file:///D:/Work/PROJECTS/DiseñoParametrico/src/fase-3-masa/casos/B/planos_B.html'>planos_B.html</a> · "
+        f"F3_B.3dm (Rhino). Variante B_SALUD (consultorios 25%): consultorios en N1-2, vivienda N3-6 — ver <a href='file:///D:/Work/PROJECTS/DiseñoParametrico/src/fase-3-masa/casos/B_SALUD/planos_B_SALUD.html'>planos B_SALUD</a>.</p>
+<div class="tabla-scroll"><table>
+<tr><th>Nivel</th><th>Usos</th><th class="num">GFA (m²)</th><th class="num">Nucleo (m²)</th><th class="num">Efic. losa</th></tr>
+<tr><td class='num'>N1</td><td>Local comercial</td><td class='num'>652</td><td class='num'>45</td><td class='num'>93%</td></tr><tr><td class='num'>N2</td><td>Local comercial</td><td class='num'>652</td><td class='num'>45</td><td class='num'>93%</td></tr><tr><td class='num'>N3</td><td>Vivienda</td><td class='num'>652</td><td class='num'>45</td><td class='num'>93%</td></tr><tr><td class='num'>N4</td><td>Vivienda</td><td class='num'>652</td><td class='num'>45</td><td class='num'>93%</td></tr><tr><td class='num'>N5</td><td>Vivienda</td><td class='num'>652</td><td class='num'>45</td><td class='num'>93%</td></tr><tr><td class='num'>N6</td><td>Vivienda</td><td class='num'>54</td><td class='num'>45</td><td class='num'>18%</td></tr></table></div>
+<p class="mini">Nucleos: <b>2 escaleras</b> (comun de evacuacion (NSR-10 Titulo K)) · "
+        f"<b>2 ascensores</b> (poblacion 177 pers; 1 asc / ~40 unid) · "
+        f"servicios 8 m²/piso · total <b>45 m²/piso</b></p>
+<p class="mini">Matriz de adyacencias (3 requerida · 2 deseable · 1 indiferente · 0 incompatible):</p>
+<div class="tabla-scroll"><table>
+<tr><th></th><th>Local comercial</th><th>Vivienda</th></tr><tr><td><b>Local comercial</b></td><td class='num'>1</td><td class='num'>1</td></tr><tr><td><b>Vivienda</b></td><td class='num'>1</td><td class='num'>1</td></tr></table></div>
 <h3>Estudio de mercado: salud institucional en el barrio (2026-08-14)</h3>
 <p class="mini">Inventario con capa oficial de IPS (Datos Abiertos Bogota, ips.geojson) desde el origen SIRGAS del lote (ESRI:102233).</p>
 <div class="tabla-scroll"><table>
@@ -315,6 +345,21 @@ barrio (consultorios Prado Veraniego $61,5-88k/m2/mes). Precio de venta derivado
 <th class="num">Venta — ROI</th><th>Venta</th>
 <th>Renta — mejor combo</th><th>Renta</th></tr>
 <tr><td><b>Consultorios (salud)</b></td><td class='num'>25%</td><td class='num'>-2.6%</td><td><span class='estado bad'>NO VIABLE</span></td><td>Largo plazo - arriendo tradicional x D - Mixto Salud (sensibilidad) <b>10.9%</b> · VPN 266,5 M</td><td><span class='estado ok'>VIABLE</span></td></tr><tr><td><b>Oficinas (servicios)</b></td><td class='num'>25%</td><td class='num'>-7.6%</td><td><span class='estado bad'>NO VIABLE</span></td><td>mejor TIR 8.7% (sin umbral)</td><td><span class='estado bad'>NO VIABLE</span></td></tr></table></div>
+<h3>F3 — Distribucion espacial del uso-multiple (matriz de adyacencias + nucleos)</h3>
+<p class="mini">Motor F3_DISTRIBUCION_v01: programa del D_MIXTO · "
+        f"huella 250 m² · 5 niveles · "
+        f"poblacion est. 64 pers. Planos esquematicos y masa 3D: "
+        f"<a href='file:///D:/Work/PROJECTS/DiseñoParametrico/src/fase-3-masa/casos/C/planos_C.html'>planos_C.html</a> · "
+        f"F3_C.3dm (Rhino).</p>
+<div class="tabla-scroll"><table>
+<tr><th>Nivel</th><th>Usos</th><th class="num">GFA (m²)</th><th class="num">Nucleo (m²)</th><th class="num">Efic. losa</th></tr>
+<tr><td class='num'>N1</td><td>Local comercial</td><td class='num'>250</td><td class='num'>40</td><td class='num'>84%</td></tr><tr><td class='num'>N2</td><td>Local comercial</td><td class='num'>250</td><td class='num'>40</td><td class='num'>84%</td></tr><tr><td class='num'>N3</td><td>Vivienda</td><td class='num'>250</td><td class='num'>40</td><td class='num'>84%</td></tr><tr><td class='num'>N4</td><td>Vivienda</td><td class='num'>250</td><td class='num'>40</td><td class='num'>84%</td></tr><tr><td class='num'>N5</td><td>Vivienda</td><td class='num'>100</td><td class='num'>40</td><td class='num'>60%</td></tr></table></div>
+<p class="mini">Nucleos: <b>2 escaleras</b> (comun de evacuacion (NSR-10 Titulo K)) · "
+        f"<b>1 ascensores</b> (poblacion 64 pers; 1 asc / ~40 unid) · "
+        f"servicios 8 m²/piso · total <b>40 m²/piso</b></p>
+<p class="mini">Matriz de adyacencias (3 requerida · 2 deseable · 1 indiferente · 0 incompatible):</p>
+<div class="tabla-scroll"><table>
+<tr><th></th><th>Local comercial</th><th>Vivienda</th></tr><tr><td><b>Local comercial</b></td><td class='num'>1</td><td class='num'>1</td></tr><tr><td><b>Vivienda</b></td><td class='num'>1</td><td class='num'>1</td></tr></table></div>
 <h3>Estudio de mercado: salud institucional en el barrio (2026-08-14)</h3>
 <p class="mini">Inventario con capa oficial de IPS (Datos Abiertos Bogota, ips.geojson) desde el origen SIRGAS del lote (ESRI:102233).</p>
 <div class="tabla-scroll"><table>

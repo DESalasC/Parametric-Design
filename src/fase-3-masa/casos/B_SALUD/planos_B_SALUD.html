@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<title>F3 — Distribución B_SALUD (D_MIXTO_SALUD)</title>
+<style>body{font-family:Segoe UI,Arial,sans-serif;margin:0;background:#F4F6F8;color:#223}
+.wrap{max-width:960px;margin:auto;padding:24px}h1{font-size:22px}
+h3{margin-top:28px;border-bottom:2px solid #1F3A5F;padding-bottom:4px}
+.mini{font-size:12px;color:#555}table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{border:1px solid #ccc;padding:5px 8px;text-align:left}th{background:#1F3A5F;color:#fff}
+.num{text-align:center}.leyenda span{display:inline-block;padding:2px 8px;margin:2px;border-radius:4px;font-size:11px}
+.badge{background:#1F3A5F;color:#fff;padding:2px 10px;border-radius:12px;font-size:12px}</style></head>
+<body><div class="wrap">
+<h1>F3 — Distribución espacial <span class="badge">B — La Candelaria (variante salud)</span></h1>
+<p class="mini">Escenario D_MIXTO_SALUD · GFA 3313 m² · lote 931 m² ·
+huella 652 m² · 6 niveles · población est. 148</p>
+<h3>1. Programa</h3>
+<table><tr><th>Uso</th><th>% GFA</th><th>GFA (m²)</th><th>Unid.</th><th>Unidad (m²)</th><th>Vendible (m²)</th></tr>
+<tr><td>Consultorios</td><td class='num'>25%</td><td class='num'>828</td><td class='num'>15</td><td class='num'>40</td><td class='num'>600</td></tr><tr><td>Vivienda</td><td class='num'>75%</td><td class='num'>2484</td><td class='num'>26</td><td class='num'>70</td><td class='num'>1820</td></tr></table>
+<h3>2. Matriz de adyacencias</h3>
+<p class="mini">3 Requerida · 2 Deseable · 1 Indiferente · 0 Incompatible</p>
+<table><tr><th></th><th>Consultorios</th><th>Vivienda</th></tr><tr><td><b>Consultorios</b></td><td class='num'>3</td><td class='num'>1</td></tr><tr><td><b>Vivienda</b></td><td class='num'>1</td><td class='num'>1</td></tr></table>
+<h3>Justificaciones (requeridas y deseables)</h3><ul><li><b>Consultorios ↔ Consultorios</b> (Requerida): Requerida: agrupacion del cluster de salud (sinergia de remision y pacientes).</li></ul>
+<h3>3. Núcleos de servicios y transporte vertical</h3>
+<table><tr><th>Componente</th><th>Cant.</th><th>Detalle</th></tr>
+<tr><td>Escaleras</td><td class='num'>2</td><td>comun de evacuacion (NSR-10 Titulo K)</td></tr>
+<tr><td>Ascensores</td><td class='num'>2</td><td>poblacion 148 pers; 1 asc / ~40 unid</td></tr>
+<tr><td>Servicios</td><td class='num'>—</td><td>ductos, basuras y cuarto técnico: 8 m²/piso</td></tr>
+<tr><td><b>Total núcleo</b></td><td class='num'>—</td><td><b>45 m²/piso</b> (7% de la losa)</td></tr>
+</table>
+<h3>4. Planos esquemáticos por nivel</h3>
+<div class="leyenda"><span style='background:#8FB8DE;color:#222'>Vivienda</span><span style='background:#F2C14E;color:#222'>Local comercial</span><span style='background:#7BC8A4;color:#222'>Consultorios</span><span style='background:#C9A8E0;color:#222'>Oficinas</span><span style='background:#E8877C;color:#222'>Institucional salud</span><span style='background:#E8B4D0;color:#222'>Hogar geriatrico</span><span style='background:#555555;color:#222'>Nucleo</span></div>
+<h4>Nivel 1 — Consultorios</h4><p class='mini'>GFA 652 m² · núcleo 45 m² · eficiencia 93% · altura 3.6 m</p><svg viewBox="0 0 1303.4 1303.4" style="width:100%;max-width:420px">
+<rect x='0' y='0' width='1303.4' height='1303.4' fill='#FAFAFA' stroke='#333' stroke-width='2'/>
+<rect x='1290.043353714349' y='0' width='13.3566462856512' height='1303.4' fill='#555555'
+      stroke='#222'/><text x='1296.043353714349' y='651.7' fill='#fff' font-size='10'
+      transform='rotate(-90 1316.043353714349 651.7)'>NUCLEO 1</text>
+<rect x='4' y='4' width='1278.043353714349' height='80.00289024762327' fill='#7BC8A4' stroke='#333' stroke-width='1'/><text x='10' y='22' font-size='11'>Consultorios (15)</text>
+<text x='6' y='1297.4' font-size='10' fill='#666'>Losa 652 m² · núcleo 45 m² · ['Consultorios']</text>
+</svg><h4>Nivel 2 — Consultorios</h4><p class='mini'>GFA 652 m² · núcleo 45 m² · eficiencia 93% · altura 3.0 m</p><svg viewBox="0 0 1303.4 1303.4" style="width:100%;max-width:420px">
+<rect x='0' y='0' width='1303.4' height='1303.4' fill='#FAFAFA' stroke='#333' stroke-width='2'/>
+<rect x='1290.043353714349' y='0' width='13.3566462856512' height='1303.4' fill='#555555'
+      stroke='#222'/><text x='1296.043353714349' y='651.7' fill='#fff' font-size='10'
+      transform='rotate(-90 1316.043353714349 651.7)'>NUCLEO 2</text>
+<rect x='4' y='4' width='1278.043353714349' height='80.00289024762327' fill='#7BC8A4' stroke='#333' stroke-width='1'/><text x='10' y='22' font-size='11'>Consultorios (15)</text>
+<text x='6' y='1297.4' font-size='10' fill='#666'>Losa 652 m² · núcleo 45 m² · ['Consultorios']</text>
+</svg><h4>Nivel 3 — Vivienda</h4><p class='mini'>GFA 652 m² · núcleo 45 m² · eficiencia 93% · altura 3.0 m</p><svg viewBox="0 0 1303.4 1303.4" style="width:100%;max-width:420px">
+<rect x='0' y='0' width='1303.4' height='1303.4' fill='#FAFAFA' stroke='#333' stroke-width='2'/>
+<rect x='1290.043353714349' y='0' width='13.3566462856512' height='1303.4' fill='#555555'
+      stroke='#222'/><text x='1296.043353714349' y='651.7' fill='#fff' font-size='10'
+      transform='rotate(-90 1316.043353714349 651.7)'>NUCLEO 3</text>
+<rect x='4' y='4' width='1278.043353714349' height='43.6170520659365' fill='#8FB8DE' stroke='#333' stroke-width='1'/><text x='10' y='22' font-size='11'>Vivienda (26)</text>
+<text x='6' y='1297.4' font-size='10' fill='#666'>Losa 652 m² · núcleo 45 m² · ['Vivienda']</text>
+</svg><h4>Nivel 4 — Vivienda</h4><p class='mini'>GFA 652 m² · núcleo 45 m² · eficiencia 93% · altura 3.0 m</p><svg viewBox="0 0 1303.4 1303.4" style="width:100%;max-width:420px">
+<rect x='0' y='0' width='1303.4' height='1303.4' fill='#FAFAFA' stroke='#333' stroke-width='2'/>
+<rect x='1290.043353714349' y='0' width='13.3566462856512' height='1303.4' fill='#555555'
+      stroke='#222'/><text x='1296.043353714349' y='651.7' fill='#fff' font-size='10'
+      transform='rotate(-90 1316.043353714349 651.7)'>NUCLEO 4</text>
+<rect x='4' y='4' width='1278.043353714349' height='43.6170520659365' fill='#8FB8DE' stroke='#333' stroke-width='1'/><text x='10' y='22' font-size='11'>Vivienda (26)</text>
+<text x='6' y='1297.4' font-size='10' fill='#666'>Losa 652 m² · núcleo 45 m² · ['Vivienda']</text>
+</svg><h4>Nivel 5 — Vivienda</h4><p class='mini'>GFA 652 m² · núcleo 45 m² · eficiencia 93% · altura 3.0 m</p><svg viewBox="0 0 1303.4 1303.4" style="width:100%;max-width:420px">
+<rect x='0' y='0' width='1303.4' height='1303.4' fill='#FAFAFA' stroke='#333' stroke-width='2'/>
+<rect x='1290.043353714349' y='0' width='13.3566462856512' height='1303.4' fill='#555555'
+      stroke='#222'/><text x='1296.043353714349' y='651.7' fill='#fff' font-size='10'
+      transform='rotate(-90 1316.043353714349 651.7)'>NUCLEO 5</text>
+<rect x='4' y='4' width='1278.043353714349' height='43.6170520659365' fill='#8FB8DE' stroke='#333' stroke-width='1'/><text x='10' y='22' font-size='11'>Vivienda (26)</text>
+<text x='6' y='1297.4' font-size='10' fill='#666'>Losa 652 m² · núcleo 45 m² · ['Vivienda']</text>
+</svg><h4>Nivel 6 — Vivienda</h4><p class='mini'>GFA 54 m² · núcleo 45 m² · eficiencia 18% · altura 3.0 m</p><svg viewBox="0 0 1303.4 1303.4" style="width:100%;max-width:420px">
+<rect x='0' y='0' width='1303.4' height='1303.4' fill='#FAFAFA' stroke='#333' stroke-width='2'/>
+<rect x='1290.043353714349' y='0' width='13.3566462856512' height='1303.4' fill='#555555'
+      stroke='#222'/><text x='1296.043353714349' y='651.7' fill='#fff' font-size='10'
+      transform='rotate(-90 1316.043353714349 651.7)'>NUCLEO 6</text>
+<rect x='4' y='4' width='1278.043353714349' height='43.6170520659365' fill='#8FB8DE' stroke='#333' stroke-width='1'/><text x='10' y='22' font-size='11'>Vivienda (26)</text>
+<text x='6' y='1297.4' font-size='10' fill='#666'>Losa 652 m² · núcleo 45 m² · ['Vivienda']</text>
+</svg>
+</div></body></html>

@@ -1,0 +1,25 @@
+{
+  "gfa_total": 3312.575,
+  "lote_m2": 931.0,
+  "escenario": "D_MIXTO_SALUD",
+  "componentes": [
+    {
+      "uso": "Consultorios",
+      "uso_original": "Consultorios (salud)",
+      "pct_gfa": 0.25,
+      "gfa_m2": 828.14,
+      "num_unidades": 15,
+      "unidad_m2": 40.0,
+      "area_vendible_m2": 600.0
+    },
+    {
+      "uso": "Vivienda",
+      "uso_original": "Vivienda estandar",
+      "pct_gfa": 0.75,
+      "gfa_m2": 2484.43,
+      "num_unidades": 26,
+      "unidad_m2": 70.0,
+      "area_vendible_m2": 1820.0
+    }
+  ]
+}

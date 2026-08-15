@@ -1,0 +1,25 @@
+{
+  "gfa_total": 1100.0,
+  "lote_m2": 356.96,
+  "escenario": "D_MIXTO",
+  "componentes": [
+    {
+      "uso": "Local comercial",
+      "uso_original": "Local comercial",
+      "pct_gfa": 0.35,
+      "gfa_m2": 385.0,
+      "num_unidades": 5,
+      "unidad_m2": 60.0,
+      "area_vendible_m2": 300.0
+    },
+    {
+      "uso": "Vivienda",
+      "uso_original": "Vivienda VIS",
+      "pct_gfa": 0.65,
+      "gfa_m2": 715.0,
+      "num_unidades": 10,
+      "unidad_m2": 55.0,
+      "area_vendible_m2": 550.0
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "usos": [
+    "Consultorios",
+    "Vivienda"
+  ],
+  "matriz": {
+    "Consultorios": {
+      "Consultorios": 3,
+      "Vivienda": 1
+    },
+    "Vivienda": {
+      "Consultorios": 1,
+      "Vivienda": 1
+    }
+  },
+  "justificaciones": {
+    "Consultorios|Consultorios": {
+      "nivel": 3,
+      "razon": "Requerida: agrupacion del cluster de salud (sinergia de remision y pacientes)."
+    },
+    "Consultorios|Vivienda": {
+      "nivel": 1,
+      "razon": "Sin relacion programatica directa."
+    },
+    "Vivienda|Consultorios": {
+      "nivel": 1,
+      "razon": "Sin relacion programatica directa."
+    },
+    "Vivienda|Vivienda": {
+      "nivel": 1,
+      "razon": "Agrupacion por niveles; sin relacion programatica directa."
+    }
+  },
+  "escala": {
+    "3": "Requerida",
+    "2": "Deseable",
+    "1": "Indiferente",
+    "0": "Incompatible"
+  }
+}
