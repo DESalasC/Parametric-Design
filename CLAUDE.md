@@ -91,11 +91,11 @@ ArchiCAD (layers clasificados) → Tapir GetElements → GH
 
 ### Grasshopper / GHPython
 9. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm).
-10. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v02a.py` (pipeline modular v26, regla híbrida 15m).
+10. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v03.py` (pipeline modular v26, regla híbrida 15m).
     El linaje legacy (`F1_NORMATIVA_APLICAR_*`, `F1_CONTEXTO_POT_*`, `F1_LADOS_CONFIGURAR_*`,
     `F1_LADOS_CLASIFICAR_*`, patios viejos) está archivado en `src/fase-1-contexto/_legacy/`.
     Pipeline Fase 1: `F1_ETAPA1_CONTEXTO_v01` → `F1_ETAPA2_LADOS_v02` → `F1_ETAPA2_PATIO_v01`
-    → `F1_ETAPA2_NORMATIVA_v02a`.
+    → `F1_ETAPA2_NORMATIVA_v03`.
 
 ### PROHIBIDO usar 
 11. Rhinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg).
@@ -248,10 +248,10 @@ vecinos, NO a frentes de calle o espacio público. La calle ya provee ventilaci�
    - Lotes < 500 m² + Continua + ≤ 5 pisos: 3.0m × 3.0m fijo
    - Regla general: max(3.0, altura_total × 0.25) m por lado
 
-4. **Implementación:**
-   - `F1_LADOS_CONFIGURAR` clasifica lados por proximidad a street_curves
-   - `F1_PATIO_VECINO_v04` detecta vértices vecino-vecino y genera rectángulos
-   - `F1_NORMATIVA_APLICAR_v22` aplica retiros diferenciados y resta todos los patios
+4. **Implementación (pipeline modular actual):**
+   - `F1_ETAPA2_LADOS_v02` clasifica lados por proximidad a street_curves
+   - `F1_ETAPA2_PATIO_v01` detecta vértices vecino-vecino y genera rectángulos
+   - `F1_ETAPA2_NORMATIVA_v03` aplica retiros diferenciados y resta todos los patios
 
 ## Cuándo preguntar al usuario
 - Cambios arquitectónicos mayores (nuevo stack, cambiar de plugin).

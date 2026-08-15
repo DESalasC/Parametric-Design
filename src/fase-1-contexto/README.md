@@ -17,12 +17,12 @@ fetch-urban-context-v6 (scripts/utilities) → data/pot-cache/<CHIP>-contexto.js
 ArchiCAD (layers) → Tapir GetElements → GH
   → F1_ETAPA2_LADOS_v02.py      (clasificación de lados: regla 15m + paralelismo)
   → F1_ETAPA2_PATIO_v01.py      (patios de aislamiento en vértices vecino-vecino)
-  → F1_ETAPA2_NORMATIVA_v02a.py (retiros diferenciados + resta booleana de patio + IO/IC/altura)
+  → F1_ETAPA2_NORMATIVA_v03.py (retiros diferenciados + resta booleana de patio + IO/IC/altura)
   → envelope_curve → Fase 3 (VOLUM_GENERADOR)
 ```
 
 **Vigentes:** `F1_ETAPA1_CONTEXTO_v01` · `F1_ETAPA2_LADOS_v02` · `F1_ETAPA2_PATIO_v01` ·
-`F1_ETAPA2_NORMATIVA_v02a`. Utilidades: `F1_DESPLAZAR_ORIGEN_v01`, `F1_VECINOS_ANALISIS_*`,
+`F1_ETAPA2_NORMATIVA_v03`. Utilidades: `F1_DESPLAZAR_ORIGEN_v01`, `F1_VECINOS_ANALISIS_*`,
 `F1_VALIDADOR_CRUZADO_v01`, `F1_PATIO_DISCONTINUIDAD_v*` (variantes de patio).
 
 ## Archivo

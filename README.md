@@ -79,6 +79,6 @@ referencia normativa y de mercado (`30-referencia\`), lecciones (`50-lecciones\`
 Ver `CLAUDE.md` (reglas de GHPython/IronPython, capas ArchiCAD, normativa POT/NSR-10, coordenadas
 MAGNA-SIRGAS, clasificación híbrida ADR-008, estructura de datos). Resumen crítico:
 - GHPython: componente "Script" clásico (IronPython 2.7), nunca "Python 3 Script" (bug Rhino 8).
-- Pipeline Fase 1 vigente: modular ETAPA1/ETAPA2 (v26); normativa: `F1_ETAPA2_NORMATIVA_v02a`.
+- Pipeline Fase 1 vigente: modular ETAPA1/ETAPA2 (v26); normativa: `F1_ETAPA2_NORMATIVA_v03`.
 - Lotes como polilíneas, coordenadas locales (0,0,0), JSON del fetch como única entrada de Fase 1.
 - Git: commitear al final de cada sesión (ver historial de consolidaciones 2026-08-13).
