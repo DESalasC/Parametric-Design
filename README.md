@@ -1,6 +1,6 @@
 # DiseñoParametrico — Ecosistema BIM-GIS-AI para diseño arquitectónico paramétrico en Bogotá
 
-**Última actualización:** 2026-08-13 · **Hardware:** i5-12600K · 64 GB RAM · RTX 4070 Ti · Win 11 Pro
+**Última actualización:** 2026-08-14 · **Hardware:** i5-12600K · 64 GB RAM · RTX 4070 Ti · Win 11 Pro
 
 Sistema que automatiza el flujo completo de prefactibilidad arquitectónica: contexto normativo
 POT/NSR-10 desde geodatos oficiales, análisis de demanda y modelo financiero, generación de masa,
@@ -13,7 +13,7 @@ análisis ambiental y inyección BIM nativa en ArchiCAD vía Grasshopper.
 | **F0** | Setup BIM | ✅ Hecha | Layers ArchiCAD (GuBIMclass), plantilla XML |
 | **F1** | Contexto normativo y lote | ✅ Hecha | Pipeline modular v26 (2 etapas): fetch contexto → clasificación de lados → patios → normativa/envolvente. Linaje legacy en `_legacy\` |
 | **F2** | Demanda + modelo financiero | ✅ Hecha | `src\fase-2-demanda\`: 4 scripts de pipeline + `F2_Modelo_Financiero\` (motor v2.1: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja) + `F2_Modelo_Renta\` (BTR v1.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable) |
-| **F3** | Generación de masa | 🔶 Iniciada | `src\fase-3-masa\`: VOLUM_GENERADOR v03, ACCESOS_INTEGRADOR, PREP_LADYBUG |
+| **F3** | Generación de masa | Avanzada | src\fase-3-masa\: F3_DISTRIBUCION_v01 (matriz/layout/programa-areas balanceado), F3_VOLUM_GENERADOR_v06 (fixes Rhino 8), prueba real de masa en Rhino 8.33 (caso A) |
 | **F4** | Análisis ambiental | 🔶 Iniciada | `src\fase-4-ambiental\`: F4_LADYBUG_ANALISIS v02 |
 | **F5** | Inyección BIM nativa | ⏳ Pendiente | `src\fase-5-bim\` (solo README) |
 
