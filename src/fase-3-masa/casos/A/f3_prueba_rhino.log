@@ -1,0 +1,12 @@
+MENSAJE: VOLUM v06 | OK | 5 pisos | Nucleo 6.3x6.3m | balance GFA 1053 m2
+Losas: 5 | Vol. principales: 5 | Vol. nucleo: 5
+  Piso 1: Local comercial: 181m2
+  Piso 2: Vivienda: 181m2
+  Piso 3: Vivienda: 181m2
+  Piso 4: Vivienda: 181m2
+  Piso 5: Vivienda: 131m2
+Objetos agregados al documento: 15
+SAVE: D:\Work\PROJECTS\DiseñoParametrico\src\fase-3-masa\casos\A\F3_A_masa_rhino.3dm -> OK
+Volumen total: 5535.1 m3 | esperado envelope x alturas: 4914.0 m3 | desv 12.6%
+Nota: la masa usa la huella real (314.999309589 m2); el GFA del layout (1053.0 m2) corresponde a la ocupacion POT aplicada en F1 (envelope con retiros).
+DONE

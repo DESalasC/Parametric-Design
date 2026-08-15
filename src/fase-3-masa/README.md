@@ -4,6 +4,23 @@ Motor que convierte el programa del escenario **D_MIXTO** (override de uso múlt
 caso F2 en una **distribución espacial** verificable: matriz de adyacencias, layout con
 núcleos de servicios y transporte vertical, planos esquemáticos y masa 3D.
 
+## Prueba real en Rhino 8 (2026-08-14, caso A)
+
+`F3_PRUEBA_MASA_A_rhino.py` ejecuta el cuerpo del `F3_VOLUM_GENERADOR_v06` DENTRO de Rhino 8.33
+(API completa, no rhino3dm) con la huella real del lote (contexto F1) y el `programa-areas.json`
+del caso A. Resultado: **5 losas, 5 volúmenes principales, 5 volúmenes de núcleo, etiquetas
+correctas y .3dm guardado (15 objetos)** — valida el contrato GH y el balance del programa.
+
+Hallazgos de la prueba (ya corregidos en v06):
+- `rg.Extrude.Create` no existe en Rhino 8.33 → `Extrusion.Create(...).ToBrep()`.
+- `rg.Rectangle` no se expone al namespace Python → contorno del núcleo con `PolylineCurve`.
+- `doc.Layers.Add(nombre, tupla)` espera objeto Layer en Rhino 8 (solo nombre).
+
+Pendiente documentado: la **resta booleana del núcleo** (2D y 3D) cayó al fallback en esta
+huella de catastro (volumen = envelope completo + núcleo; el v06 reporta `huecos aplicados n/N`
+para detectarlo en GH). Con el envelope cerrado de F1 el boolean 2D suele funcionar; si no, la
+masa con núcleo superpuesto es geométricamente válida para la prueba de distribución.
+
 ## Integración con el flujo GH existente (2026-08-14)
 
 El motor **emite `programa-areas.json` balanceado** (esquema compatible con
