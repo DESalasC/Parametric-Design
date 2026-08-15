@@ -20,11 +20,11 @@
     },
     "Consultorios|Vivienda": {
       "nivel": 1,
-      "razon": "Sin relacion programatica directa."
+      "razon": "Consultorios en pisos bajos; evitar mezcla en el mismo piso."
     },
     "Vivienda|Consultorios": {
       "nivel": 1,
-      "razon": "Sin relacion programatica directa."
+      "razon": "Consultorios en pisos bajos; evitar mezcla en el mismo piso."
     },
     "Vivienda|Vivienda": {
       "nivel": 1,

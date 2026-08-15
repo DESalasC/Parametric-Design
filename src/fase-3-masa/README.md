@@ -4,15 +4,33 @@ Motor que convierte el programa del escenario **D_MIXTO** (override de uso múlt
 caso F2 en una **distribución espacial** verificable: matriz de adyacencias, layout con
 núcleos de servicios y transporte vertical, planos esquemáticos y masa 3D.
 
+## Integración con el flujo GH existente (2026-08-14)
+
+El motor **emite `programa-areas.json` balanceado** (esquema compatible con
+`VOLUM_GENERADOR_v04/v05`) en cada carpeta de caso. Diagnóstico de las piezas preexistentes:
+
+| Archivo | Estado | Diagnóstico |
+|---|---|---|
+| `F3_PROGRAMA_AREAS_v01.py` | ⚠️ bug de balance | Con GFA 1.053 m² generaba solo **382,6 m²** construidos (déficit 670 m²): la vivienda se dividía entre (pisos−2) sin re-multiplicar, el piso 1 solo cubría el 30% de la losa y el núcleo se contaba mal. Mix limitado a Comercio/Salud/Vivienda sin integrar F2 |
+| `VOLUM_GENERADOR_v04.py` | ✅ base sólida, 4 mejoras | Núcleo heurístico 10% (sin NSR-10); Z fijas 3,0 m; `open()` sin encoding; `CreatePlanarBreps` tomaba solo el primer brep (patio perdido) |
+| `VOLUM_GENERADOR_v05.py` (nuevo) | ✅ | Mismo contrato GH (envelope_curve, json_path, floor_height → losas, volumenes_principales, volumenes_nucleo, etiquetas, mensaje) con: núcleo real del JSON (lado por componentes NSR-10), `altura_piso` por nivel (primer piso 3,6 m), lectura UTF-8 y unión de losas con patio |
+| `F3_ACCESOS_INTEGRADOR_v01.py` | ⚠️ referencia rota | Consume `OPTIMIZADOR_ADYACENCIA_v01.py`, que no existe en la carpeta |
+| `F3_PREP_LADYBUG_v01.py` | ✅ | Consume salidas de VOLUMEN_v03 → F4 |
+
+El `programa-areas.json` de F3_DISTRIBUCION incluye: `programa_pisos` (piso, `altura_z` real,
+`altura_piso`, usos con `area_bruta`/`area_neta` balanceadas — suma = GFA exacto — y `Nucleo`),
+`matriz_adyacencia` proyectada a la escala −1/0/1 del v04, y `nucleo` con la dimensión real.
+
 ## Qué genera (`F3_DISTRIBUCION_v01.py <CASO_ID>`)
 
 | Salida | Contenido |
 |---|---|
 | `programa.json` | Usos del D_MIXTO con % GFA, área, unidades y unidad tipo |
-| `matriz_adyacencias.json` | Matriz de relaciones entre usos (3 Requerida / 2 Deseable / 1 Indiferente / 0 Incompatible) con justificación funcional y normativa (NSR-10 Título C y K, habilitación IPS, accesibilidad) |
-| `layout_espacial.json` | Huella (ocupación POT × lote), niveles, reparto vertical de usos, núcleos (escaleras según altura — presurizada > 6 pisos NSR-10 K.3.6 —, ascensores según población ~1/40 unid, ductos/basuras/cuarto técnico), población estimada |
-| `planos_<id>.html` | Planos esquemáticos SVG por nivel (losa, núcleo, unidades por uso coloreadas) |
-| `F3_<id>.3dm` | Masa 3D: cajas por nivel (capas N1..Nn) + volumen del núcleo (capa NUCLEO), con rhino3dm (sin abrir Rhino) |
+| `matriz_adyacencias.json` | Matriz 0-3 (Requerida/Deseable/Indiferente/Incompatible) con justificación funcional y normativa |
+| `layout_espacial.json` | Huella, niveles, reparto vertical, núcleos (escaleras/ascensores NSR-10), población |
+| `programa-areas.json` | **Esquema GH v04/v05 balanceado** (losas + volúmenes por piso) |
+| `planos_<id>.html` | Planos esquemáticos SVG por nivel |
+| `F3_<id>.3dm` | Masa 3D (capas N1..Nn + NUCLEO), rhino3dm |
 
 ## Casos
 

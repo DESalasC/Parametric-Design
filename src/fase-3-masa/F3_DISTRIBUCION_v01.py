@@ -92,6 +92,9 @@ ADY = {
 USOS = ["Vivienda", "Local comercial", "Consultorios", "Oficinas",
         "Institucional salud", "Hogar geriatrico"]
 
+# Claves normalizadas (tuple ordenado) para lookup simetrico
+ADY_NORM = {tuple(sorted(k)): v for k, v in ADY.items()}
+
 
 def normalizar_uso(uso: str) -> str:
     u = uso.lower()
@@ -174,8 +177,8 @@ def matriz_adyacencias(usos_presentes):
     just = {}
     for a in usos:
         for b in usos:
-            clave = (a, b) if a <= b else (b, a)
-            valor, razon = ADY.get(clave, (1, "Sin relacion programatica directa."))
+            clave = tuple(sorted((a, b)))
+            valor, razon = ADY_NORM.get(clave, (1, "Sin relacion programatica directa."))
             matriz[a][b] = matriz[b][a] = valor
             just[f"{a}|{b}"] = {"nivel": valor, "razon": razon}
     return {"usos": usos, "matriz": matriz, "justificaciones": just,
@@ -197,18 +200,22 @@ def layout_espacial(prog, huella, niveles, niveles_uso):
         n_esc = 2
     nucleo_m2 = n_esc * ESCALERA_M2 + asc * ASCENSOR_M2 + 8.0  # ductos/basuras/cuarto
     niveles_out = []
+    z_acum = 0.0
     for nv in range(1, niveles + 1):
         usos_nv = [u for u, ns in niveles_uso.items() if nv in ns]
         # GFA del nivel: huella si no es el ultimo (ajuste al GFA real)
         gfa_nv = huella if nv < niveles else round(prog["gfa_total"] - huella * (niveles - 1), 1)
+        alt_nv = ALTURA_PISO_1 if nv == 1 else ALTURA_PISO
         niveles_out.append({
             "nivel": nv,
-            "altura_m": ALTURA_PISO_1 if nv == 1 else ALTURA_PISO,
+            "z_base_m": round(z_acum, 2),
+            "altura_m": alt_nv,
             "usos": usos_nv,
             "gfa_m2": gfa_nv,
             "nucleo_m2": round(nucleo_m2, 1),
             "eficiencia_losa_pct": round(100 * (1 - nucleo_m2 / gfa_nv), 1),
         })
+        z_acum += alt_nv
     return {
         "huella_m2": huella, "niveles_total": niveles,
         "nucleos": {
@@ -346,6 +353,72 @@ def exportar_3dm(caso_id, prog, layout, ruta):
     print(f"  [3dm] {ruta}")
 
 
+# ------------------------------------------------------------------ programa-areas
+# Esquema compatible con VOLUM_GENERADOR_v04/v05 (GH): programa_pisos + matriz.
+# Balanceado: la suma de areas brutas por piso = GFA real del layout (a diferencia
+# del F3_PROGRAMA_AREAS_v01 original, que solo construia ~36% del GFA).
+EFICIENCIA_POR_USO = {"Vivienda": 0.78, "Local comercial": 0.85, "Consultorios": 0.75,
+                     "Oficinas": 0.80, "Institucional salud": 0.75,
+                     "Hogar geriatrico": 0.80}
+# Proyeccion de la matriz 0-3 a la escala -1/0/1 del VOLUM_GENERADOR_v04
+ESCALA_V04 = {0: -1, 1: 0, 2: 1, 3: 1}
+USOS_V04 = {"Vivienda": "Vivienda", "Local comercial": "Comercio",
+            "Consultorios": "Salud", "Oficinas": "Comercio",
+            "Institucional salud": "Salud", "Hogar geriatrico": "Salud"}
+
+
+def exportar_programa_areas(carpeta, prog, layout, matriz):
+    """Escribe programa-areas.json (esquema VOLUM_GENERADOR_v04/v05) balanceado."""
+    # Peso de cada uso en el programa (por area bruta total)
+    peso = {c["uso"]: c["gfa_m2"] for c in prog["componentes"]}
+    tot_peso = sum(peso.values()) or 1.0
+    # Area neta por uso segun eficiencia real del componente
+    efic = {c["uso"]: c.get("eficiencia", EFICIENCIA_POR_USO.get(c["uso"], 0.8))
+            for c in prog["componentes"]}
+    programa = []
+    for nv in layout["niveles"]:
+        usos = []
+        resto = nv["gfa_m2"] - nv["nucleo_m2"]
+        # Pesos normalizados dentro del nivel (suma de usos = resto exacto)
+        pesos_nv = {u: peso.get(u, 0) for u in nv["usos"]}
+        tot_nv = sum(pesos_nv.values()) or 1.0
+        for u in nv["usos"]:
+            area = round(resto * pesos_nv[u] / tot_nv, 2)
+            usos.append({"uso": u, "area_bruta": area,
+                         "area_neta": round(area * efic.get(u, 0.8), 2)})
+        usos.append({"uso": "Nucleo", "area_bruta": round(nv["nucleo_m2"], 2),
+                     "area_neta": round(nv["nucleo_m2"], 2)})
+        programa.append({"piso": nv["nivel"], "altura_z": nv.get("z_base_m", 0.0),
+                         "altura_piso": nv["altura_m"], "usos": usos})
+    # Matriz en escala v04 (-1/0/1) con categorias v04: el valor entre categorias
+    # es el maximo sobre los usos originales que mapean a cada categoria.
+    usos_v04 = sorted({USOS_V04.get(u, u) for u in matriz["usos"]})
+    orig = {c: [u for u in matriz["usos"] if USOS_V04.get(u, u) == c] for c in usos_v04}
+    matriz_v04 = {}
+    for a in usos_v04:
+        matriz_v04[a] = {}
+        for b in usos_v04:
+            vals = [ESCALA_V04.get(matriz["matriz"][ua][ub], 0)
+                    for ua in orig[a] for ub in orig[b]]
+            matriz_v04[a][b] = max(vals) if vals else 0
+    doc = {
+        "gfa_total": round(prog["gfa_total"], 2),
+        "pisos": layout["niveles_total"],
+        "area_por_piso": round(layout["huella_m2"], 2),
+        "programa_pisos": programa,
+        "matriz_adyacencia": matriz_v04,
+        "nucleo": {"total_m2_piso": round(layout["nucleos"]["total_m2_piso"], 2),
+                    "lado_m": round(math.sqrt(layout["nucleos"]["total_m2_piso"]), 2),
+                    "escaleras": layout["nucleos"]["escaleras"],
+                    "ascensores": layout["nucleos"]["ascensores"]},
+        "origen": "F3_DISTRIBUCION_v01 (balanceado)",
+    }
+    with io.open(os.path.join(carpeta, "programa-areas.json"), "w",
+                 encoding="utf-8") as f:
+        json.dump(doc, f, ensure_ascii=False, indent=2)
+    return doc
+
+
 # ------------------------------------------------------------------ main
 def main():
     caso_id = sys.argv[1] if len(sys.argv) > 1 else "A"
@@ -366,6 +439,11 @@ def main():
                         ("layout_espacial.json", layout)):
         with io.open(os.path.join(carpeta, nombre), "w", encoding="utf-8") as f:
             json.dump(obj, f, ensure_ascii=False, indent=2)
+
+    pa = exportar_programa_areas(carpeta, prog, layout, matriz)
+    print("  [programa-areas.json] balance:",
+          round(sum(p["usos"][0]["area_bruta"] for p in pa["programa_pisos"]) + 0, 1),
+          "(huella por piso)")
 
     html = generar_html(caso_id, prog, matriz, layout)
     with io.open(os.path.join(carpeta, f"planos_{caso_id}.html"), "w", encoding="utf-8") as f:

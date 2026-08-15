@@ -37,6 +37,7 @@
   "niveles": [
     {
       "nivel": 1,
+      "z_base_m": 0.0,
       "altura_m": 3.6,
       "usos": [
         "Local comercial"
@@ -47,6 +48,7 @@
     },
     {
       "nivel": 2,
+      "z_base_m": 3.6,
       "altura_m": 3.0,
       "usos": [
         "Vivienda"
@@ -57,6 +59,7 @@
     },
     {
       "nivel": 3,
+      "z_base_m": 6.6,
       "altura_m": 3.0,
       "usos": [
         "Vivienda"
@@ -67,6 +70,7 @@
     },
     {
       "nivel": 4,
+      "z_base_m": 9.6,
       "altura_m": 3.0,
       "usos": [
         "Vivienda"
@@ -77,6 +81,7 @@
     },
     {
       "nivel": 5,
+      "z_base_m": 12.6,
       "altura_m": 3.0,
       "usos": [
         "Vivienda"

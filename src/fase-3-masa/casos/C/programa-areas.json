@@ -1,0 +1,118 @@
+{
+  "gfa_total": 1100.0,
+  "pisos": 5,
+  "area_por_piso": 249.9,
+  "programa_pisos": [
+    {
+      "piso": 1,
+      "altura_z": 0.0,
+      "altura_piso": 3.6,
+      "usos": [
+        {
+          "uso": "Local comercial",
+          "area_bruta": 210.1,
+          "area_neta": 178.58
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 39.8,
+          "area_neta": 39.8
+        }
+      ]
+    },
+    {
+      "piso": 2,
+      "altura_z": 3.6,
+      "altura_piso": 3.0,
+      "usos": [
+        {
+          "uso": "Local comercial",
+          "area_bruta": 210.1,
+          "area_neta": 178.58
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 39.8,
+          "area_neta": 39.8
+        }
+      ]
+    },
+    {
+      "piso": 3,
+      "altura_z": 6.6,
+      "altura_piso": 3.0,
+      "usos": [
+        {
+          "uso": "Vivienda",
+          "area_bruta": 210.1,
+          "area_neta": 163.88
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 39.8,
+          "area_neta": 39.8
+        }
+      ]
+    },
+    {
+      "piso": 4,
+      "altura_z": 9.6,
+      "altura_piso": 3.0,
+      "usos": [
+        {
+          "uso": "Vivienda",
+          "area_bruta": 210.1,
+          "area_neta": 163.88
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 39.8,
+          "area_neta": 39.8
+        }
+      ]
+    },
+    {
+      "piso": 5,
+      "altura_z": 12.6,
+      "altura_piso": 3.0,
+      "usos": [
+        {
+          "uso": "Vivienda",
+          "area_bruta": 60.6,
+          "area_neta": 47.27
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 39.8,
+          "area_neta": 39.8
+        }
+      ]
+    }
+  ],
+  "matriz_adyacencia": {
+    "Comercio": {
+      "Comercio": 0,
+      "Vivienda": 1
+    },
+    "Vivienda": {
+      "Comercio": 1,
+      "Vivienda": 0
+    }
+  },
+  "nucleo": {
+    "total_m2_piso": 39.8,
+    "lado_m": 6.31,
+    "escaleras": {
+      "cantidad": 2,
+      "tipo": "comun de evacuacion (NSR-10 Titulo K)",
+      "modulo_m2": 13.5
+    },
+    "ascensores": {
+      "cantidad": 1,
+      "capacidad_personas": 8,
+      "modulo_m2": 4.8,
+      "criterio": "poblacion 64 pers; 1 asc / ~40 unid"
+    }
+  },
+  "origen": "F3_DISTRIBUCION_v01 (balanceado)"
+}
