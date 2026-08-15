@@ -1,0 +1,305 @@
+{
+  "chip": "AAA0030JKOE",
+  "origen_sirgas": {
+    "crs": "ESRI:102233",
+    "x": 101007.78039999958,
+    "y": 100174.47269999981
+  },
+  "capa": "instituciones-prestadoras-de-salud-bogota (Datos Abiertos Bogota, ips.geojson)",
+  "fecha": "2026-08-14",
+  "total_ips_ciudad": 2900,
+  "radios": {
+    "200": [],
+    "500": [
+      {
+        "distancia_m": 250.7,
+        "nombre": "UNIDAD DE SERVICIOS DE SALUD LA CANDELARIA",
+        "direccion": "KR 3 # 12 D 23",
+        "nivel": "3",
+        "naturaleza": "Pública",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CANDELARIA"
+      },
+      {
+        "distancia_m": 332.1,
+        "nombre": "INSTITUTO DE ORTOPEDIA INFANTIL ROOSEVELT",
+        "direccion": "CRA 4 ESTE # 17 50 AV CIRCUNVALAR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CANDELARIA"
+      },
+      {
+        "distancia_m": 401.7,
+        "nombre": "CONSULTORIO EMPRESARIAL UNIVERSIDAD DE LOS ANDES",
+        "direccion": "CL 18 A No. 1 - 33 ES - PI 2 - CS 205",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CANDELARIA"
+      }
+    ],
+    "1000": [
+      {
+        "distancia_m": 250.7,
+        "nombre": "UNIDAD DE SERVICIOS DE SALUD LA CANDELARIA",
+        "direccion": "KR 3 # 12 D 23",
+        "nivel": "3",
+        "naturaleza": "Pública",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CANDELARIA"
+      },
+      {
+        "distancia_m": 332.1,
+        "nombre": "INSTITUTO DE ORTOPEDIA INFANTIL ROOSEVELT",
+        "direccion": "CRA 4 ESTE # 17 50 AV CIRCUNVALAR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CANDELARIA"
+      },
+      {
+        "distancia_m": 401.7,
+        "nombre": "CONSULTORIO EMPRESARIAL UNIVERSIDAD DE LOS ANDES",
+        "direccion": "CL 18 A No. 1 - 33 ES - PI 2 - CS 205",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CANDELARIA"
+      },
+      {
+        "distancia_m": 507.8,
+        "nombre": "Centro de Atención en Salud Cafam Procuraduría",
+        "direccion": "cra 5 no 15 80 piso 2",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "La Candelaria"
+      },
+      {
+        "distancia_m": 638.1,
+        "nombre": "CENDIATRA PRINCIPAL",
+        "direccion": "CALLE 19 NO. 3-50 PISO 1202 Y 1203",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CENTRO"
+      },
+      {
+        "distancia_m": 649.1,
+        "nombre": "Clinica Europa",
+        "direccion": "KR 7 # 12B 58 CA 1 MN 1",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CANDELARIA"
+      },
+      {
+        "distancia_m": 674.9,
+        "nombre": "DENTISALUD CENTRO",
+        "direccion": "CRA 7 # 17 - 75 LOCAL 13",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CENTRO"
+      },
+      {
+        "distancia_m": 683.8,
+        "nombre": "CLINISANITAS CENTRO MEDICO EMPRESARIAL",
+        "direccion": "CALLE 16 # 6 -66 PISO 2",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": " "
+      },
+      {
+        "distancia_m": 683.8,
+        "nombre": "COLSANITAS SERVICIO MEDICO EMPRESARIAL",
+        "direccion": "CALLE 16 # 6-66, PISO 2, CONSULTORIOS 201, 202, 203 Y 205",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CANDELARIA"
+      },
+      {
+        "distancia_m": 715.3,
+        "nombre": "OPTICAS GMO COLOMBIA S.A.S.",
+        "direccion": "CARRERA 7 No. 16 - 74",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CONCORDIA"
+      },
+      {
+        "distancia_m": 770.0,
+        "nombre": "CENDIATRA CENTRO",
+        "direccion": "CRA 5 No. 19-08",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CENTRO"
+      },
+      {
+        "distancia_m": 770.0,
+        "nombre": "OPTICAS GMO COLOMBIA S.A.S.",
+        "direccion": "CALLE 19 # 4 - 98 LC 102",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "GERMAN"
+      },
+      {
+        "distancia_m": 822.6,
+        "nombre": "MEDIEXPRESS SEDE 4",
+        "direccion": "AV CIRCUNVALAR # 20 53 SERVICIO MEDICO",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CANDELARIA"
+      },
+      {
+        "distancia_m": 831.0,
+        "nombre": "ODONTOLOGIA MARLON BECERRA SEDE BACATA",
+        "direccion": "CALLE 19 No 5-30/52/62 PLANTA 01 LOCAL 05",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LAS NIEVES"
+      },
+      {
+        "distancia_m": 883.2,
+        "nombre": "UNIDAD DE SERVICIOS DE SALUD JORGE ELIECER GAITAN",
+        "direccion": "CL 6 NUMERO 4 A 26 ESTE",
+        "nivel": "3",
+        "naturaleza": "Pública",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "EL GUAVIO"
+      },
+      {
+        "distancia_m": 908.8,
+        "nombre": "LABORATORIO BIOCLINICO G.V. LTDA.",
+        "direccion": "CL 17 No. 8-35 PISO 2 CS 202",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "PERSEVERANCIA"
+      },
+      {
+        "distancia_m": 917.2,
+        "nombre": "OPTICAS ÉXITO Y CIA LTDA NO. 1",
+        "direccion": "KR 9 # 15 - 52",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CENTRO"
+      },
+      {
+        "distancia_m": 936.4,
+        "nombre": "MEDICLINICO SANTA ANA IPS SAS",
+        "direccion": "KR 3 ESTE # 6 21",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BELEN"
+      },
+      {
+        "distancia_m": 944.5,
+        "nombre": "SONRISAS BRILLANTES SAS",
+        "direccion": "CLL 12b 9-22 C.C.SAVILLE 2 PISO LOC 127,128,129,130,131,132,133,134,135",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CENTRO"
+      },
+      {
+        "distancia_m": 984.0,
+        "nombre": "OPTICA ITALIANA OMNI 19",
+        "direccion": "CL 19 # 8-23 y 8 -25",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTAFE"
+      },
+      {
+        "distancia_m": 984.0,
+        "nombre": "CONSULTORIO 1 LABORATORIO Y OPTICA ELITE",
+        "direccion": "CRA 9 No 18-51 LOCAL 115",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CENTRO"
+      },
+      {
+        "distancia_m": 984.0,
+        "nombre": "RETINOPTICAL SAS",
+        "direccion": "CALLE 19 No 8-11",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CENTRO"
+      }
+    ]
+  },
+  "resumen": {
+    "200": 0,
+    "500": 3,
+    "1000": 22
+  },
+  "detalle_500m": [
+    {
+      "distancia_m": 250.7,
+      "nombre": "UNIDAD DE SERVICIOS DE SALUD LA CANDELARIA",
+      "direccion": "KR 3 # 12 D 23",
+      "nivel": "3",
+      "naturaleza": "Pública",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "CANDELARIA"
+    },
+    {
+      "distancia_m": 332.1,
+      "nombre": "INSTITUTO DE ORTOPEDIA INFANTIL ROOSEVELT",
+      "direccion": "CRA 4 ESTE # 17 50 AV CIRCUNVALAR",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "CANDELARIA"
+    },
+    {
+      "distancia_m": 401.7,
+      "nombre": "CONSULTORIO EMPRESARIAL UNIVERSIDAD DE LOS ANDES",
+      "direccion": "CL 18 A No. 1 - 33 ES - PI 2 - CS 205",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "CANDELARIA"
+    }
+  ]
+}

@@ -1,0 +1,516 @@
+{
+  "chip": "AAA0039KRMR",
+  "origen_sirgas": {
+    "crs": "ESRI:102233",
+    "x": 94669.07620000001,
+    "y": 99670.44189999998
+  },
+  "capa": "instituciones-prestadoras-de-salud-bogota (Datos Abiertos Bogota, ips.geojson)",
+  "fecha": "2026-08-14",
+  "total_ips_ciudad": 2900,
+  "radios": {
+    "200": [
+      {
+        "distancia_m": 84.5,
+        "nombre": "CTM DENTAL CARE ODONTOLOGIA ESPECIALIZADA SAS",
+        "direccion": "TRANSVERSAL 35 No 39 41 SUR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA SONIA"
+      },
+      {
+        "distancia_m": 181.7,
+        "nombre": "SOLUCION ORAL",
+        "direccion": "TR 35 # 38 B -13 SUR PISO 1",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA RITA"
+      }
+    ],
+    "500": [
+      {
+        "distancia_m": 84.5,
+        "nombre": "CTM DENTAL CARE ODONTOLOGIA ESPECIALIZADA SAS",
+        "direccion": "TRANSVERSAL 35 No 39 41 SUR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA SONIA"
+      },
+      {
+        "distancia_m": 181.7,
+        "nombre": "SOLUCION ORAL",
+        "direccion": "TR 35 # 38 B -13 SUR PISO 1",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA RITA"
+      },
+      {
+        "distancia_m": 237.6,
+        "nombre": "SONRIA DAMA SALUD SEDE CENTRO MAYOR",
+        "direccion": "Calle 38A SUR NO 34D 51 C.C CENTRO MAYOR LC 1-107",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Villa Mayor"
+      },
+      {
+        "distancia_m": 237.6,
+        "nombre": "OPTICA ITALIANA SUCURSAL CENTRO COMERCIAL CENTRO MAYOR",
+        "direccion": "AK 27 # 38A - 01 SUR LC 1150",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 237.6,
+        "nombre": "OPTICAS SBC LIMITADA CONSULTORIO",
+        "direccion": "AK 27 No. 38A-83 Sur LC 1-112 CC CENTRO MAYOR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "IPS CENTRO MEDICO BODYTECH CENTRO MAYOR",
+        "direccion": "CALLE 38 A SUR NO 34 D- 50 LOC 1-145",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CENTRO MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "OPTICENTRO CENTRO MAYOR",
+        "direccion": "CALLE 38 A SUR N 34D-50 LOCAL 1041",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "DENTISALUD CENTRO MAYOR",
+        "direccion": "CL 38 A SUR No. 34D-50 LC 3028, 3029",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "OPTICAS GMO COLOMBIA S.A.S.",
+        "direccion": "CALLE 38 A SUR No 34D Local. 1079",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "OPTICAS GMO COLOMBIA S.A.S.",
+        "direccion": "CALLE 38 A SUR No 34D - 50 Local. 2092",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "LAFAM",
+        "direccion": "calle 38 A sur No 34 D-50 C.C LC 1077",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "C.C CENTRO MAYOR"
+      },
+      {
+        "distancia_m": 286.6,
+        "nombre": "ODONTOFAMILY VENECIA",
+        "direccion": "DIAGONAL 46 A SUR N. 50 56",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VENECIA"
+      },
+      {
+        "distancia_m": 295.7,
+        "nombre": "ODONTOLOGIA DE MARLON BECERRA CENTRO MAYOR",
+        "direccion": "TV 35 N° 37 - 83 SUR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA RITA"
+      },
+      {
+        "distancia_m": 364.7,
+        "nombre": "DENTAL LINE",
+        "direccion": "TRANV 34A BIS NO. 40-67 SUR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      }
+    ],
+    "1000": [
+      {
+        "distancia_m": 84.5,
+        "nombre": "CTM DENTAL CARE ODONTOLOGIA ESPECIALIZADA SAS",
+        "direccion": "TRANSVERSAL 35 No 39 41 SUR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA SONIA"
+      },
+      {
+        "distancia_m": 181.7,
+        "nombre": "SOLUCION ORAL",
+        "direccion": "TR 35 # 38 B -13 SUR PISO 1",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA RITA"
+      },
+      {
+        "distancia_m": 237.6,
+        "nombre": "SONRIA DAMA SALUD SEDE CENTRO MAYOR",
+        "direccion": "Calle 38A SUR NO 34D 51 C.C CENTRO MAYOR LC 1-107",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Villa Mayor"
+      },
+      {
+        "distancia_m": 237.6,
+        "nombre": "OPTICA ITALIANA SUCURSAL CENTRO COMERCIAL CENTRO MAYOR",
+        "direccion": "AK 27 # 38A - 01 SUR LC 1150",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 237.6,
+        "nombre": "OPTICAS SBC LIMITADA CONSULTORIO",
+        "direccion": "AK 27 No. 38A-83 Sur LC 1-112 CC CENTRO MAYOR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "IPS CENTRO MEDICO BODYTECH CENTRO MAYOR",
+        "direccion": "CALLE 38 A SUR NO 34 D- 50 LOC 1-145",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CENTRO MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "OPTICENTRO CENTRO MAYOR",
+        "direccion": "CALLE 38 A SUR N 34D-50 LOCAL 1041",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "DENTISALUD CENTRO MAYOR",
+        "direccion": "CL 38 A SUR No. 34D-50 LC 3028, 3029",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "OPTICAS GMO COLOMBIA S.A.S.",
+        "direccion": "CALLE 38 A SUR No 34D Local. 1079",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "OPTICAS GMO COLOMBIA S.A.S.",
+        "direccion": "CALLE 38 A SUR No 34D - 50 Local. 2092",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 244.8,
+        "nombre": "LAFAM",
+        "direccion": "calle 38 A sur No 34 D-50 C.C LC 1077",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "C.C CENTRO MAYOR"
+      },
+      {
+        "distancia_m": 286.6,
+        "nombre": "ODONTOFAMILY VENECIA",
+        "direccion": "DIAGONAL 46 A SUR N. 50 56",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VENECIA"
+      },
+      {
+        "distancia_m": 295.7,
+        "nombre": "ODONTOLOGIA DE MARLON BECERRA CENTRO MAYOR",
+        "direccion": "TV 35 N° 37 - 83 SUR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA RITA"
+      },
+      {
+        "distancia_m": 364.7,
+        "nombre": "DENTAL LINE",
+        "direccion": "TRANV 34A BIS NO. 40-67 SUR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 588.4,
+        "nombre": "CENDIATRA SUR",
+        "direccion": "TV 35 NO. 32B-42 SUR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLAMAYOR"
+      },
+      {
+        "distancia_m": 601.0,
+        "nombre": "CRC PROFESIONALES DE LA SALUD VILLA MAYOR S.A.S",
+        "direccion": "TRANSVERSAL 35 # 32 B - 36 SUR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "VILLA MAYOR"
+      },
+      {
+        "distancia_m": 603.1,
+        "nombre": "DENTIX VENECIA",
+        "direccion": "CRA. 51 NO. 41 -23 SUR",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": " "
+      },
+      {
+        "distancia_m": 943.3,
+        "nombre": "MEDICAL WORLD AT YOUR HOME S.A.S",
+        "direccion": "Calle 29 b sur n 50-41",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA RITA"
+      },
+      {
+        "distancia_m": 977.5,
+        "nombre": "MEDICAL HEALTH SOCIETY S.A.S",
+        "direccion": "CALLE 31 SUR N 51 A 11",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "ALCALA"
+      }
+    ]
+  },
+  "resumen": {
+    "200": 2,
+    "500": 14,
+    "1000": 19
+  },
+  "detalle_500m": [
+    {
+      "distancia_m": 84.5,
+      "nombre": "CTM DENTAL CARE ODONTOLOGIA ESPECIALIZADA SAS",
+      "direccion": "TRANSVERSAL 35 No 39 41 SUR",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "VILLA SONIA"
+    },
+    {
+      "distancia_m": 181.7,
+      "nombre": "SOLUCION ORAL",
+      "direccion": "TR 35 # 38 B -13 SUR PISO 1",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "SANTA RITA"
+    },
+    {
+      "distancia_m": 237.6,
+      "nombre": "SONRIA DAMA SALUD SEDE CENTRO MAYOR",
+      "direccion": "Calle 38A SUR NO 34D 51 C.C CENTRO MAYOR LC 1-107",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "Villa Mayor"
+    },
+    {
+      "distancia_m": 237.6,
+      "nombre": "OPTICA ITALIANA SUCURSAL CENTRO COMERCIAL CENTRO MAYOR",
+      "direccion": "AK 27 # 38A - 01 SUR LC 1150",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "VILLA MAYOR"
+    },
+    {
+      "distancia_m": 237.6,
+      "nombre": "OPTICAS SBC LIMITADA CONSULTORIO",
+      "direccion": "AK 27 No. 38A-83 Sur LC 1-112 CC CENTRO MAYOR",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "VILLA MAYOR"
+    },
+    {
+      "distancia_m": 244.8,
+      "nombre": "IPS CENTRO MEDICO BODYTECH CENTRO MAYOR",
+      "direccion": "CALLE 38 A SUR NO 34 D- 50 LOC 1-145",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "CENTRO MAYOR"
+    },
+    {
+      "distancia_m": 244.8,
+      "nombre": "OPTICENTRO CENTRO MAYOR",
+      "direccion": "CALLE 38 A SUR N 34D-50 LOCAL 1041",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "VILLA MAYOR"
+    },
+    {
+      "distancia_m": 244.8,
+      "nombre": "DENTISALUD CENTRO MAYOR",
+      "direccion": "CL 38 A SUR No. 34D-50 LC 3028, 3029",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "VILLA MAYOR"
+    },
+    {
+      "distancia_m": 244.8,
+      "nombre": "OPTICAS GMO COLOMBIA S.A.S.",
+      "direccion": "CALLE 38 A SUR No 34D Local. 1079",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "VILLA MAYOR"
+    },
+    {
+      "distancia_m": 244.8,
+      "nombre": "OPTICAS GMO COLOMBIA S.A.S.",
+      "direccion": "CALLE 38 A SUR No 34D - 50 Local. 2092",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "VILLA MAYOR"
+    },
+    {
+      "distancia_m": 244.8,
+      "nombre": "LAFAM",
+      "direccion": "calle 38 A sur No 34 D-50 C.C LC 1077",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "C.C CENTRO MAYOR"
+    },
+    {
+      "distancia_m": 286.6,
+      "nombre": "ODONTOFAMILY VENECIA",
+      "direccion": "DIAGONAL 46 A SUR N. 50 56",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "VENECIA"
+    },
+    {
+      "distancia_m": 295.7,
+      "nombre": "ODONTOLOGIA DE MARLON BECERRA CENTRO MAYOR",
+      "direccion": "TV 35 N° 37 - 83 SUR",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "SANTA RITA"
+    },
+    {
+      "distancia_m": 364.7,
+      "nombre": "DENTAL LINE",
+      "direccion": "TRANV 34A BIS NO. 40-67 SUR",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "VILLA MAYOR"
+    }
+  ]
+}

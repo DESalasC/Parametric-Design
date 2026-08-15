@@ -37,10 +37,12 @@ CASOS = [
         "color": "#1F3A5F",
         "lectura": ("Suelo renegociado ($550 M): con usos puros la venta no alcanza (B ROI 18,5%); "
                     "el USO-MULTIPLE (D_MIXTO 20% local + 80% vivienda) SÍ resuelve la venta "
-                    "(ROI 26,6% VIABLE). En renta hay dos vias viables: LP x VIS (TIR 11,1%, "
-                    "VPN +$271 M) y LP x D_MIXTO_SALUD (TIR 10,8%, VPN +218 M); oficinas no "
-                    "cruzan el umbral en esta zona (9,7%). Veredicto: el mix permite vender; "
-                    "si se arrienda, producto VIS o mix con consultorios en largo plazo."),
+                    "(ROI 26,6% VIABLE). En renta, LP x VIS (TIR 11,1%) es la via principal. "
+                    "Estudio de salud del barrio (2026-08-14): el cluster ya esta consolidado "
+                    "(2 IPS < 200 m, 8 < 500 m, 5+ geriatricos) y los escenarios institucionales "
+                    "NO cruzan el umbral (venta -20,9%; renta LP 0,8-8,1%) — la captura de ese "
+                    "mercado exige ancla pre-arrendada. Veredicto: vender con D_MIXTO o arrendar "
+                    "VIS en largo plazo."),
     },
     {
         "id": "AAA0030JKOE",
@@ -308,8 +310,11 @@ def _sensibilidad_html(caso) -> str:
         r = json.load(f)
     umbral_v = v["reglas_decision"]["roi_minimo_pct"]
     filas = ""
-    for esc_id, etiqueta in (("D_MIXTO_SALUD", "Consultorios (salud)"),
-                             ("D_MIXTO_OFICINAS", "Oficinas (servicios)")):
+    etiquetas = {"D_MIXTO_SALUD": "Consultorios (salud)",
+                 "D_MIXTO_OFICINAS": "Oficinas (servicios)",
+                 "D_MIXTO_INSTITUCIONAL": "Institucional salud (lab/IPS)",
+                 "D_MIXTO_GERIATRICO": "Hogar geriatrico (operador)"}
+    for esc_id, etiqueta in etiquetas.items():
         ev = next((x for x in v["escenarios"] if x["escenario_id"] == esc_id), None)
         if not ev:
             continue
@@ -339,18 +344,61 @@ def _sensibilidad_html(caso) -> str:
     if not filas:
         return ""
     return f"""<h3>Sensibilidad de usos de servicios: salud/consultorios y oficinas (2026-08-14)</h3>
-<p class="mini">Escenarios D_MIXTO_SALUD y D_MIXTO_OFICINAS: 25% del GFA en el uso de servicios
-+ 75% vivienda del caso (override de usuario). Parametrizacion etiquetada como supuesto de
-sensibilidad: canones de rango ciudad 2026 (consultorios $45-140.000/m2/mes segun
-FincaRaiz/MercadoLibre/Ciencuadras/SaludTools; oficinas clase A $82,7k y prime $88,3k segun
-RentOfficeToday/ValoraAnalitik Q3-2025) con valor no-prime; precio de venta derivado del canon
-(cap rate implicito 7,5-8,5%); costo consultorios = estandar x1,10 (instalaciones medicas).
-CP = LP para salud/oficinas (el temporal amoblado no aplica).</p>
+<p class="mini">Escenarios con 25-30% del GFA en el uso de servicios + vivienda del caso
+(override de usuario). Parametrizacion etiquetada como supuesto de sensibilidad: canones de
+rango ciudad 2026 (consultorios $45-140.000/m2/mes segun FincaRaiz/MercadoLibre/Ciencuadras/
+SaludTools; oficinas clase A $82,7k y prime $88,3k segun RentOfficeToday/ValoraAnalitik
+Q3-2025) con valor no-prime; en el caso A los escenarios institucionales usan comparables del
+barrio (consultorios Prado Veraniego $61,5-88k/m2/mes). Precio de venta derivado del canon
+(cap rate implicito 7,5-10%); costo consultorios = estandar x1,10 e institucional x1,15
+(instalaciones medicas). CP = LP para salud/oficinas (el temporal amoblado no aplica).</p>
 <div class="tabla-scroll"><table>
 <tr><th>Componente anadido (25% GFA)</th><th class="num">% GFA</th>
 <th class="num">Venta — ROI</th><th>Venta</th>
 <th>Renta — mejor combo</th><th>Renta</th></tr>
 {filas}</table></div>"""
+
+
+def _salud_html(caso) -> str:
+    """Estudio de mercado de salud del caso A: inventario oficial de IPS por radios."""
+    ruta = os.path.join(ROOT, "exports", "alcance", caso["id"] + "-salud.json")
+    if not os.path.exists(ruta):
+        return ""
+    with open(ruta, "r", encoding="utf-8") as f:
+        doc = json.load(f)
+    res = doc["resumen"]
+    det = doc.get("detalle_500m") or []
+    filas_det = ""
+    for x in det:
+        filas_det += (f"<tr><td class='num'>{x['distancia_m']:.0f} m</td><td>{_h(x['nombre'])}"
+                      f"<br><span class='mini'>{_h(x['direccion'])}</span></td>"
+                      f"<td>{_h(x['nivel'])}</td><td>{_h(x['naturaleza'])}</td></tr>")
+    lead = ("Inventario con capa oficial de IPS (Datos Abiertos Bogota, ips.geojson) desde el "
+            "origen SIRGAS del lote (ESRI:102233).") if caso["id"] != "AAA0127AZPA" else (
+            "Inventario con capa oficial de IPS (Datos Abiertos Bogota, ips.geojson) desde el "
+            "origen SIRGAS del lote (ESRI:102233). Hechos del usuario verificados: edificio "
+            "nuevo de 5 pisos con laboratorio y una IPS en construccion a < 200 m; el "
+            "inventario oficial confirma 2 IPS < 200 m (incl. CRAC y SEDE NORTE) y un cluster "
+            "consolidado de salud.")
+    return f"""<h3>Estudio de mercado: salud institucional en el barrio (2026-08-14)</h3>
+<p class="mini">{lead}</p>
+<div class="tabla-scroll"><table>
+<tr><th>Radio</th><th>IPS (capa oficial)</th><th>Lectura de mercado</th></tr>
+<tr><td><b>&lt; 200 m</b></td><td class="num"><b>{res['200']}</b></td><td>Cluster inmediato: laboratorio/IPS en el mismo frente de manzana</td></tr>
+<tr><td><b>&lt; 500 m</b></td><td class="num"><b>{res['500']}</b></td><td>Incluye 2 unidades de cronicos/paliativos (San Luis) — perfil geriatrico</td></tr>
+<tr><td><b>&lt; 1.000 m</b></td><td class="num"><b>{res['1000']}</b></td><td>Red amplia (laboratorios, rehabilitacion, IPS de baja complejidad)</td></tr>
+</table></div>
+<div class="tabla-scroll"><table>
+<tr><th>Dist.</th><th>IPS a &lt; 500 m</th><th>Nivel</th><th>Naturaleza</th></tr>
+{filas_det}</table></div>
+<p class="mini">Lectura: el cluster de salud del barrio ya esta consolidado (2 IPS &lt; 200 m, 8 &lt; 500 m,
+5+ hogares geriatricos segun levantamiento del usuario). Por eso los escenarios institucionales
+(D_MIXTO_INSTITUCIONAL, D_MIXTO_GERIATRICO) NO cruzan el umbral con absorcion prudente
+(1 unidad/4 meses): compiten con oferta existente. La via para capturar este mercado seria un
+<b>ancla pre-arrendada</b> (laboratorio/IPS que comprometa el espacio antes de construir);
+con pre-arriendo la absorcion pasa a 100% desde el dia 1 y la ecuacion cambia.
+Demanda de fondo respaldada: Suba concentra 13% de los adultos mayores de Bogota (Alcaldia) y el
+indice de envejecimiento de la ciudad llega a 72 mayores por cada 100 menores de 15 anios.</p>"""
 
 
 def _accesibilidad_html(caso) -> str:
@@ -444,6 +492,7 @@ def generar() -> None:
 {_suelo_html(caso)}
 {_mix_html(caso)}
 {_sensibilidad_html(caso)}
+{_salud_html(caso)}
 {_accesibilidad_html(caso)}
 <div class="nota"><b>Lectura del caso:</b> {_h(caso['lectura'])}</div>
 </div>

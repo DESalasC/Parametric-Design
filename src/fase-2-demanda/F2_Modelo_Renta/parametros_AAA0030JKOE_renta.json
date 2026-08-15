@@ -1,258 +1,258 @@
 {
-    "meta": {
-        "modelo": "F2_RENTA_MOTOR_v02",
-        "version": "2.0",
-        "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Build-to-Rent",
-        "ciudad": "Bogota D.C., Colombia",
-        "moneda": "COP",
-        "fecha_ejecucion": "2026-08-14",
-        "chip": "AAA0030JKOE-CANDELARIA",
-        "origen_datos": "Lote real AAA0030JKOE (La Candelaria, UPZ 94; 946,45 m2; estrato 2; norma manual Decreto 492/07: IO 0,7 x 5 pisos -> GFA 3.312,6 m2). CL supuesto de ejercicio $1.420 M. Canones: zona turistica centro historico (supuestos de ejercicio; Ciencuadras Q1-2026 promedio Bogota $47.821/m2/mes como referencia).",
-        "nota_general": "Caso de estudio centro historico: alta demanda turistica (ocupacion CP alta), canones premium por m2, sobrecosto de restauracion. Canones parcialmente validados 2026-08-14 (Properati/Facebook ofertas Candelaria)."
+  "meta": {
+    "modelo": "F2_RENTA_MOTOR_v02",
+    "version": "2.0",
+    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Build-to-Rent",
+    "ciudad": "Bogota D.C., Colombia",
+    "moneda": "COP",
+    "fecha_ejecucion": "2026-08-14",
+    "chip": "AAA0030JKOE-CANDELARIA",
+    "origen_datos": "Lote real AAA0030JKOE (La Candelaria, UPZ 94; 946,45 m2; estrato 2; norma manual Decreto 492/07: IO 0,7 x 5 pisos -> GFA 3.312,6 m2). CL supuesto de ejercicio $1.420 M. Canones: zona turistica centro historico (supuestos de ejercicio; Ciencuadras Q1-2026 promedio Bogota $47.821/m2/mes como referencia).",
+    "nota_general": "Caso de estudio centro historico: alta demanda turistica (ocupacion CP alta), canones premium por m2, sobrecosto de restauracion. Canones parcialmente validados 2026-08-14 (Properati/Facebook ofertas Candelaria)."
+  },
+  "gfa_max_m2": 3312.575,
+  "lote": {
+    "area_m2": 946.45,
+    "precio_suelo_m2": 1500342.0,
+    "impuestos_escritura_pct": 0.0,
+    "costo_lote_total_cop": 1420000000.0,
+    "fuente": "CL $1.420.000.000 COP = supuesto de ejercicio (~$1,5 M/m2 centro historico).",
+    "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\pot-cache\\AAA0030JKOE-norma-manual.json"
+  },
+  "financiero": {
+    "costos_blandos_pct": 15.0,
+    "marketing_leasing_pct": 2.0
+  },
+  "renta": {
+    "horizonte_anios": 10,
+    "incremento_canon_pct": 5.5,
+    "incremento_gastos_pct": 6.5,
+    "cap_rate_salida_pct": 6.2
+  },
+  "reglas_renta": {
+    "tasa_descuento_pct": 10.0,
+    "tir_minima_pct": 10.0,
+    "cap_rate_entrada_min_pct": 5.0,
+    "payback_max_anios": 8.0,
+    "cl_inversion_precaucion_pct": 25.0,
+    "cl_inversion_inviable_pct": 30.0
+  },
+  "sensibilidad": {
+    "variacion_pct": 10.0
+  },
+  "estrategias": {
+    "CP": {
+      "nombre": "Corto plazo — temporal amoblado (turismo)",
+      "ocupacion_pct": 80.0,
+      "administracion_m2_mes": 8000.0,
+      "gastos_operativos_pct_egi": 25.0,
+      "capex_pct_egi": 3.0,
+      "mobiliario_cop_m2": 500000.0,
+      "nota": "Zona turistica: ocupacion 80% (mayor que el 75% base)."
     },
-    "gfa_max_m2": 3312.575,
-    "lote": {
-        "area_m2": 946.45,
-        "precio_suelo_m2": 1500342.0,
-        "impuestos_escritura_pct": 0.0,
-        "costo_lote_total_cop": 1420000000.0,
-        "fuente": "CL $1.420.000.000 COP = supuesto de ejercicio (~$1,5 M/m2 centro historico).",
-        "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\pot-cache\\AAA0030JKOE-norma-manual.json"
-    },
-    "financiero": {
-        "costos_blandos_pct": 15.0,
-        "marketing_leasing_pct": 2.0
-    },
-    "renta": {
-        "horizonte_anios": 10,
-        "incremento_canon_pct": 5.5,
-        "incremento_gastos_pct": 6.5,
-        "cap_rate_salida_pct": 6.2
-    },
-    "reglas_renta": {
-        "tasa_descuento_pct": 10.0,
-        "tir_minima_pct": 10.0,
-        "cap_rate_entrada_min_pct": 5.0,
-        "payback_max_anios": 8.0,
-        "cl_inversion_precaucion_pct": 25.0,
-        "cl_inversion_inviable_pct": 30.0
-    },
-    "sensibilidad": {
-        "variacion_pct": 10.0
-    },
-    "estrategias": {
-        "CP": {
-            "nombre": "Corto plazo — temporal amoblado (turismo)",
-            "ocupacion_pct": 80.0,
-            "administracion_m2_mes": 8000.0,
-            "gastos_operativos_pct_egi": 25.0,
-            "capex_pct_egi": 3.0,
-            "mobiliario_cop_m2": 500000.0,
-            "nota": "Zona turistica: ocupacion 80% (mayor que el 75% base)."
-        },
-        "LP": {
-            "nombre": "Largo plazo — arriendo tradicional",
-            "ocupacion_pct": 90.0,
-            "administracion_m2_mes": 6500.0,
-            "gastos_operativos_pct_egi": 12.0,
-            "capex_pct_egi": 1.0,
-            "mobiliario_cop_m2": 0.0,
-            "nota": "Centro historico: ocupacion 90% (menor que 95% por estacionalidad turistica)."
-        }
-    },
-    "escenarios": {
-        "A_VIS": {
-            "nombre": "A — VIS / VIP",
-            "unidad_m2": 55.0,
-            "eficiencia_nga": 0.8,
-            "costo_construccion_m2": 2600000.0,
-            "canon_m2_mes": {
-                "CP": 61200.0,
-                "LP": 36000.0
-            },
-            "fuente_canon": "Centro historico zona turistica: LP $36.000/m2/mes (supuesto de ejercicio sobre FincaRaiz/Ciencuadras); CP = x1,7.",
-            "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
-            "fuente_costo": "Konstruing + restauracion: $2,6 M/m2 (supuesto de ejercicio).",
-            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Supuestos de ejercicio."
-        },
-        "B_ESTANDAR": {
-            "nombre": "B — Estandar",
-            "unidad_m2": 85.0,
-            "eficiencia_nga": 0.75,
-            "costo_construccion_m2": 3400000.0,
-            "canon_m2_mes": {
-                "CP": 74800.0,
-                "LP": 44000.0
-            },
-            "fuente_canon": "Validado parcial 2026-08-14: apartaestudios turisticos Candelaria ,3-1,7 M/mes en 30-40 m2 (~-45.000/m2/mes); se mantiene .000 LP (zona turistica). CP = x1,7.",
-            "fuente_canon_url": "https://www.properati.com.co/s/la-candelaria-bogota-d-c/apartamento/arriendo",
-            "fuente_costo": "Konstruing + restauracion: $3,4 M/m2 (supuesto de ejercicio).",
-            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Canon mantenido en .000 LP tras validacion parcial 2026-08-14 (correccion de ajuste previo)."
-        },
-        "C_LUJO": {
-            "nombre": "C — Lujo / Alto nivel",
-            "unidad_m2": 150.0,
-            "eficiencia_nga": 0.7,
-            "costo_construccion_m2": 4800000.0,
-            "canon_m2_mes": {
-                "CP": 91800.0,
-                "LP": 54000.0
-            },
-            "fuente_canon": "Boutique premium centro: LP $54.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
-            "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
-            "fuente_costo": "Konstruing premium + restauracion: $4,8 M/m2 (supuesto de ejercicio).",
-            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Supuestos de ejercicio."
-        },
-        "D_MIXTO": {
-            "nombre": "D - Mixto (override usuario)",
-            "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Canones ajustados a comparables 2026-08-14.",
-            "override_uso": true,
-            "mix_usos": [
-                {
-                    "uso": "Local comercial turistico",
-                    "pct_gfa": 0.3,
-                    "unidad_m2": 40.0,
-                    "eficiencia_nga": 0.85,
-                    "costo_construccion_m2": 4500000,
-                    "canon_m2_mes": {
-                        "CP": 70000,
-                        "LP": 42000
-                    },
-                    "fuente": "Local centro historico LP $42.000/m2/mes (supuesto de ejercicio)."
-                },
-                {
-                    "uso": "Vivienda estandar",
-                    "pct_gfa": 0.7,
-                    "unidad_m2": 55.0,
-                    "eficiencia_nga": 0.75,
-                    "costo_construccion_m2": 4000000,
-                    "canon_m2_mes": {
-                        "CP": 74800,
-                        "LP": 44000
-                    },
-                    "fuente": "Vivienda centro historico LP $44.000/m2/mes (apartaestudios turisticos 2026-08-14)."
-                }
-            ],
-            "fuente_canon": "Comparables 2026-08-14 + supuestos (mix uso multiple).",
-            "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local restauracion $4,5 M/m2, vivienda $4,0 M/m2)."
-        },
-        "D_MIXTO_SALUD": {
-            "nombre": "D - Mixto Salud (sensibilidad)",
-            "nota": "USO-MULTIPLE + componente de salud (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
-            "override_uso": true,
-            "sensibilidad": "salud/oficinas",
-            "mix_usos": [
-                {
-                    "uso": "Consultorios (salud)",
-                    "pct_gfa": 0.25,
-                    "unidad_m2": 40.0,
-                    "eficiencia_nga": 0.75,
-                    "costo_construccion_m2": 3300000.0,
-                    "fuente": "Consultorios: canon no-prime $55-60k/m2/mes (rango ciudad 2026, ver nota).",
-                    "canon_m2_mes": {
-                        "CP": 60000,
-                        "LP": 60000
-                    }
-                },
-                {
-                    "uso": "Vivienda estandar",
-                    "pct_gfa": 0.75,
-                    "unidad_m2": 70.0,
-                    "eficiencia_nga": 0.75,
-                    "costo_construccion_m2": 3000000,
-                    "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
-                    "canon_m2_mes": {
-                        "CP": 74800,
-                        "LP": 44000
-                    }
-                }
-            ],
-            "fuente_canon": "Canones de sensibilidad 2026-08-14 (consultorio rango ciudad; vivienda del caso).",
-            "fuente_costo": "Costo consultorio = estandar x1,10 (instalaciones medicas); vivienda del caso."
-        },
-        "D_MIXTO_OFICINAS": {
-            "nombre": "D - Mixto Oficinas (sensibilidad)",
-            "nota": "USO-MULTIPLE + componente de oficinas (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
-            "override_uso": true,
-            "sensibilidad": "salud/oficinas",
-            "mix_usos": [
-                {
-                    "uso": "Oficinas (servicios)",
-                    "pct_gfa": 0.25,
-                    "unidad_m2": 60.0,
-                    "eficiencia_nga": 0.8,
-                    "costo_construccion_m2": 3000000,
-                    "fuente": "Oficinas: canon no-prime $38.000/m2/mes (clase A $82,7k, ver nota).",
-                    "canon_m2_mes": {
-                        "CP": 38000,
-                        "LP": 38000
-                    }
-                },
-                {
-                    "uso": "Vivienda estandar",
-                    "pct_gfa": 0.75,
-                    "unidad_m2": 70.0,
-                    "eficiencia_nga": 0.75,
-                    "costo_construccion_m2": 3000000,
-                    "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
-                    "canon_m2_mes": {
-                        "CP": 74800,
-                        "LP": 44000
-                    }
-                }
-            ],
-            "fuente_canon": "Canones de sensibilidad 2026-08-14 (oficina no-prime; vivienda del caso).",
-            "fuente_costo": "Costo de vivienda del caso (oficina sin sobrecosto)."
-        }
-    },
-    "referencia_venta": {
-        "nota": "KPIs del modelo de venta F2 (corrida 2026-08-14 con D_MIXTO): B estandar VIABLE (ROI 22,3%); D_MIXTO NO viable (ROI -8,6% por sobrecosto restauracion).",
-        "escenarios": {
-            "A_VIS": {
-                "nombre": "A — VIS / VIP",
-                "ROI_venta_pct": 5.55,
-                "MUB_venta_pct": 5.26,
-                "CL_IT_pct": 11.38,
-                "estado": "NO VIABLE"
-            },
-            "B_ESTANDAR": {
-                "nombre": "B — Estandar",
-                "ROI_venta_pct": 22.34,
-                "MUB_venta_pct": 18.26,
-                "CL_IT_pct": 7.68,
-                "estado": "NO VIABLE"
-            },
-            "C_LUJO": {
-                "nombre": "C — Lujo / Alto nivel",
-                "ROI_venta_pct": 14.4,
-                "MUB_venta_pct": 12.59,
-                "CL_IT_pct": 6.01,
-                "estado": "NO VIABLE"
-            },
-            "D_MIXTO": {
-                "nombre": "D - Mixto (override usuario)",
-                "ROI_venta_pct": -8.59,
-                "MUB_venta_pct": -9.4,
-                "CL_IT_pct": 8.69,
-                "estado": "NO VIABLE"
-            },
-            "D_MIXTO_SALUD": {
-                "nombre": "D - Mixto Salud (sensibilidad)",
-                "ROI_venta_pct": 30.95,
-                "MUB_venta_pct": 23.64,
-                "CL_IT_pct": 7.82,
-                "estado": "NO VIABLE"
-            },
-            "D_MIXTO_OFICINAS": {
-                "nombre": "D - Mixto Oficinas (sensibilidad)",
-                "ROI_venta_pct": 29.94,
-                "MUB_venta_pct": 23.04,
-                "CL_IT_pct": 8.06,
-                "estado": "NO VIABLE"
-            }
-        }
+    "LP": {
+      "nombre": "Largo plazo — arriendo tradicional",
+      "ocupacion_pct": 90.0,
+      "administracion_m2_mes": 6500.0,
+      "gastos_operativos_pct_egi": 12.0,
+      "capex_pct_egi": 1.0,
+      "mobiliario_cop_m2": 0.0,
+      "nota": "Centro historico: ocupacion 90% (menor que 95% por estacionalidad turistica)."
     }
+  },
+  "escenarios": {
+    "A_VIS": {
+      "nombre": "A — VIS / VIP",
+      "unidad_m2": 55.0,
+      "eficiencia_nga": 0.8,
+      "costo_construccion_m2": 2600000.0,
+      "canon_m2_mes": {
+        "CP": 61200.0,
+        "LP": 36000.0
+      },
+      "fuente_canon": "Centro historico zona turistica: LP $36.000/m2/mes (supuesto de ejercicio sobre FincaRaiz/Ciencuadras); CP = x1,7.",
+      "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+      "fuente_costo": "Konstruing + restauracion: $2,6 M/m2 (supuesto de ejercicio).",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Supuestos de ejercicio."
+    },
+    "B_ESTANDAR": {
+      "nombre": "B — Estandar",
+      "unidad_m2": 85.0,
+      "eficiencia_nga": 0.75,
+      "costo_construccion_m2": 3400000.0,
+      "canon_m2_mes": {
+        "CP": 74800.0,
+        "LP": 44000.0
+      },
+      "fuente_canon": "Validado parcial 2026-08-14: apartaestudios turisticos Candelaria ,3-1,7 M/mes en 30-40 m2 (~-45.000/m2/mes); se mantiene .000 LP (zona turistica). CP = x1,7.",
+      "fuente_canon_url": "https://www.properati.com.co/s/la-candelaria-bogota-d-c/apartamento/arriendo",
+      "fuente_costo": "Konstruing + restauracion: $3,4 M/m2 (supuesto de ejercicio).",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Canon mantenido en .000 LP tras validacion parcial 2026-08-14 (correccion de ajuste previo)."
+    },
+    "C_LUJO": {
+      "nombre": "C — Lujo / Alto nivel",
+      "unidad_m2": 150.0,
+      "eficiencia_nga": 0.7,
+      "costo_construccion_m2": 4800000.0,
+      "canon_m2_mes": {
+        "CP": 91800.0,
+        "LP": 54000.0
+      },
+      "fuente_canon": "Boutique premium centro: LP $54.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
+      "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
+      "fuente_costo": "Konstruing premium + restauracion: $4,8 M/m2 (supuesto de ejercicio).",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Supuestos de ejercicio."
+    },
+    "D_MIXTO": {
+      "nombre": "D - Mixto (override usuario)",
+      "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Canones ajustados a comparables 2026-08-14.",
+      "override_uso": true,
+      "mix_usos": [
+        {
+          "uso": "Local comercial turistico",
+          "pct_gfa": 0.3,
+          "unidad_m2": 40.0,
+          "eficiencia_nga": 0.85,
+          "costo_construccion_m2": 4500000,
+          "canon_m2_mes": {
+            "CP": 70000,
+            "LP": 42000
+          },
+          "fuente": "Local centro historico LP $42.000/m2/mes (supuesto de ejercicio)."
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.7,
+          "unidad_m2": 55.0,
+          "eficiencia_nga": 0.75,
+          "costo_construccion_m2": 4000000,
+          "canon_m2_mes": {
+            "CP": 74800,
+            "LP": 44000
+          },
+          "fuente": "Vivienda centro historico LP $44.000/m2/mes (apartaestudios turisticos 2026-08-14)."
+        }
+      ],
+      "fuente_canon": "Comparables 2026-08-14 + supuestos (mix uso multiple).",
+      "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local restauracion $4,5 M/m2, vivienda $4,0 M/m2)."
+    },
+    "D_MIXTO_SALUD": {
+      "nombre": "D - Mixto Salud (sensibilidad)",
+      "nota": "USO-MULTIPLE + componente de salud (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
+      "override_uso": true,
+      "sensibilidad": "salud/oficinas",
+      "mix_usos": [
+        {
+          "uso": "Consultorios (salud)",
+          "pct_gfa": 0.25,
+          "unidad_m2": 40.0,
+          "eficiencia_nga": 0.75,
+          "costo_construccion_m2": 3300000.0,
+          "fuente": "Consultorios: canon no-prime $55-60k/m2/mes (rango ciudad 2026, ver nota).",
+          "canon_m2_mes": {
+            "CP": 60000,
+            "LP": 60000
+          }
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.75,
+          "unidad_m2": 70.0,
+          "eficiencia_nga": 0.75,
+          "costo_construccion_m2": 3000000,
+          "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+          "canon_m2_mes": {
+            "CP": 74800,
+            "LP": 44000
+          }
+        }
+      ],
+      "fuente_canon": "Canones de sensibilidad 2026-08-14 (consultorio rango ciudad; vivienda del caso).",
+      "fuente_costo": "Costo consultorio = estandar x1,10 (instalaciones medicas); vivienda del caso."
+    },
+    "D_MIXTO_OFICINAS": {
+      "nombre": "D - Mixto Oficinas (sensibilidad)",
+      "nota": "USO-MULTIPLE + componente de oficinas (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
+      "override_uso": true,
+      "sensibilidad": "salud/oficinas",
+      "mix_usos": [
+        {
+          "uso": "Oficinas (servicios)",
+          "pct_gfa": 0.25,
+          "unidad_m2": 60.0,
+          "eficiencia_nga": 0.8,
+          "costo_construccion_m2": 3000000,
+          "fuente": "Oficinas: canon no-prime $38.000/m2/mes (clase A $82,7k, ver nota).",
+          "canon_m2_mes": {
+            "CP": 38000,
+            "LP": 38000
+          }
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.75,
+          "unidad_m2": 70.0,
+          "eficiencia_nga": 0.75,
+          "costo_construccion_m2": 3000000,
+          "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+          "canon_m2_mes": {
+            "CP": 74800,
+            "LP": 44000
+          }
+        }
+      ],
+      "fuente_canon": "Canones de sensibilidad 2026-08-14 (oficina no-prime; vivienda del caso).",
+      "fuente_costo": "Costo de vivienda del caso (oficina sin sobrecosto)."
+    }
+  },
+  "referencia_venta": {
+    "nota": "KPIs del modelo de venta F2 (corrida 2026-08-14 con D_MIXTO): B estandar VIABLE (ROI 22,3%); D_MIXTO NO viable (ROI -8,6% por sobrecosto restauracion).",
+    "escenarios": {
+      "A_VIS": {
+        "nombre": "A — VIS / VIP",
+        "ROI_venta_pct": 5.55,
+        "MUB_venta_pct": 5.26,
+        "CL_IT_pct": 11.38,
+        "estado": "NO VIABLE"
+      },
+      "B_ESTANDAR": {
+        "nombre": "B — Estandar",
+        "ROI_venta_pct": 22.34,
+        "MUB_venta_pct": 18.26,
+        "CL_IT_pct": 7.68,
+        "estado": "NO VIABLE"
+      },
+      "C_LUJO": {
+        "nombre": "C — Lujo / Alto nivel",
+        "ROI_venta_pct": 14.4,
+        "MUB_venta_pct": 12.59,
+        "CL_IT_pct": 6.01,
+        "estado": "NO VIABLE"
+      },
+      "D_MIXTO": {
+        "nombre": "D - Mixto (override usuario)",
+        "ROI_venta_pct": -8.59,
+        "MUB_venta_pct": -9.4,
+        "CL_IT_pct": 8.69,
+        "estado": "NO VIABLE"
+      },
+      "D_MIXTO_SALUD": {
+        "nombre": "D - Mixto Salud (sensibilidad)",
+        "ROI_venta_pct": 30.95,
+        "MUB_venta_pct": 23.64,
+        "CL_IT_pct": 7.82,
+        "estado": "NO VIABLE"
+      },
+      "D_MIXTO_OFICINAS": {
+        "nombre": "D - Mixto Oficinas (sensibilidad)",
+        "ROI_venta_pct": 29.94,
+        "MUB_venta_pct": 23.04,
+        "CL_IT_pct": 8.06,
+        "estado": "NO VIABLE"
+      }
+    }
+  }
 }

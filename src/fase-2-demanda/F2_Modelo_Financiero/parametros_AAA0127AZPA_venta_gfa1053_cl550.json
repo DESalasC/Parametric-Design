@@ -123,19 +123,19 @@
           "pct_gfa": 0.25,
           "unidad_m2": 40.0,
           "eficiencia_nga": 0.75,
-          "costo_construccion_m2": 2900000.0,
+          "costo_construccion_m2": 3300000.0,
           "fuente": "Consultorios: canon no-prime $55-60k/m2/mes (rango ciudad 2026, ver nota).",
           "precio_venta_m2": 6500000,
           "absorcion_unid_mes": 1.0
         },
         {
-          "uso": "Vivienda VIS",
+          "uso": "Vivienda estandar",
           "pct_gfa": 0.75,
-          "unidad_m2": 55.0,
-          "eficiencia_nga": 0.8,
-          "costo_construccion_m2": 2600000,
+          "unidad_m2": 65.0,
+          "eficiencia_nga": 0.78,
+          "costo_construccion_m2": 3000000,
           "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
-          "precio_venta_m2": 4300000,
+          "precio_venta_m2": 6800000,
           "absorcion_unid_mes": 2.5
         }
       ],
@@ -154,24 +154,86 @@
           "pct_gfa": 0.25,
           "unidad_m2": 60.0,
           "eficiencia_nga": 0.8,
-          "costo_construccion_m2": 2600000,
+          "costo_construccion_m2": 3000000,
           "fuente": "Oficinas: canon no-prime $38.000/m2/mes (clase A $82,7k, ver nota).",
           "precio_venta_m2": 5500000,
           "absorcion_unid_mes": 0.5
         },
         {
-          "uso": "Vivienda VIS",
+          "uso": "Vivienda estandar",
           "pct_gfa": 0.75,
-          "unidad_m2": 55.0,
-          "eficiencia_nga": 0.8,
-          "costo_construccion_m2": 2600000,
+          "unidad_m2": 65.0,
+          "eficiencia_nga": 0.78,
+          "costo_construccion_m2": 3000000,
           "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
-          "precio_venta_m2": 4300000,
+          "precio_venta_m2": 6800000,
           "absorcion_unid_mes": 2.5
         }
       ],
       "fuente_precio": "Precios de sensibilidad 2026-08-14 (oficina derivado del canon; vivienda del caso).",
       "fuente_costo": "Costo de vivienda del caso (oficina sin sobrecosto)."
+    },
+    "D_MIXTO_INSTITUCIONAL": {
+      "nombre": "D - Mixto Institucional Salud (sensibilidad)",
+      "nivel_acabados": "Mixto",
+      "nota": "USO-MULTIPLE + institucional salud (laboratorio/IPS). Mercado real del barrio: 2 IPS < 200 m y 8 < 500 m (capa oficial Datos Abiertos Bogota 2026-08-14), 5+ hogares geriatricos < 200 m (levantamiento del usuario). Precio de venta derivado del canon (cap rate implicito ~10%).",
+      "override_uso": true,
+      "sensibilidad": "salud-institucional",
+      "mix_usos": [
+        {
+          "uso": "Institucional salud (laboratorio/IPS)",
+          "pct_gfa": 0.3,
+          "unidad_m2": 300.0,
+          "eficiencia_nga": 0.75,
+          "costo_construccion_m2": 3400000.0,
+          "fuente": "Canon LP $60.000/m2/mes: comparables consultorios Prado Veraniego $61,5-88k/m2/mes (FincaRaiz 2026-08-14), descuento ~20% por escala (areas >= 300 m2, contratos largos). Costo x1,15 (instalaciones de laboratorio).",
+          "precio_venta_m2": 7000000,
+          "absorcion_unid_mes": 0.25
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.7,
+          "unidad_m2": 65.0,
+          "eficiencia_nga": 0.78,
+          "costo_construccion_m2": 3000000,
+          "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+          "precio_venta_m2": 6800000,
+          "absorcion_unid_mes": 2.5
+        }
+      ],
+      "fuente_precio": "Institucional salud $7,0 M/m2 derivado del canon 60.000x12/0,10; vivienda del caso.",
+      "fuente_costo": "Institucional = estandar x1,15 (instalaciones de laboratorio)."
+    },
+    "D_MIXTO_GERIATRICO": {
+      "nombre": "D - Mixto Geriatrico (sensibilidad)",
+      "nivel_acabados": "Mixto",
+      "nota": "USO-MULTIPLE + hogar geriatrico (operador arrienda el espacio). Demanda respaldada: Suba concentra 13% de los adultos mayores de Bogota (Alcaldia) e indice de envejecimiento de la ciudad 72/100 (proyecciones).",
+      "override_uso": true,
+      "sensibilidad": "salud-institucional",
+      "mix_usos": [
+        {
+          "uso": "Hogar geriatrico (operador)",
+          "pct_gfa": 0.3,
+          "unidad_m2": 400.0,
+          "eficiencia_nga": 0.8,
+          "costo_construccion_m2": 3200000.0,
+          "fuente": "Canon LP $40.000/m2/mes derivado de capacidad de pago (25-30 cupos x $2,5-4 M/mes, hogaresgerontologicos.com/MayorVida 2026). 5+ hogares en < 200 m (levantamiento del usuario 2026-08-14).",
+          "precio_venta_m2": 5500000,
+          "absorcion_unid_mes": 0.25
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.7,
+          "unidad_m2": 65.0,
+          "eficiencia_nga": 0.78,
+          "costo_construccion_m2": 3000000,
+          "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+          "precio_venta_m2": 6800000,
+          "absorcion_unid_mes": 2.5
+        }
+      ],
+      "fuente_precio": "Geriátrico $5,5 M/m2 (derivado del canon con cap rate ~8,7%); vivienda del caso.",
+      "fuente_costo": "Geriátrico = estandar x1,05 (adecuaciones basicas; el operador equipa)."
     }
   }
 }

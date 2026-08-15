@@ -1,0 +1,1126 @@
+{
+  "chip": "AAA0127AZPA",
+  "origen_sirgas": {
+    "crs": "ESRI:102233",
+    "x": 102233.20650000032,
+    "y": 112615.23399999924
+  },
+  "capa": "instituciones-prestadoras-de-salud-bogota (Datos Abiertos Bogota, ips.geojson)",
+  "fecha": "2026-08-14",
+  "total_ips_ciudad": 2900,
+  "radios": {
+    "200": [
+      {
+        "distancia_m": 86.3,
+        "nombre": "SEDE NORTE",
+        "direccion": "CL 127B # 49 79",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BARRIO TIERRA LINDA"
+      },
+      {
+        "distancia_m": 172.1,
+        "nombre": "Centro de Rehabilitación para Adultos Ciegos CRAC Sede Norte",
+        "direccion": "Calle 127B No 46-39",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Canodromo"
+      }
+    ],
+    "500": [
+      {
+        "distancia_m": 86.3,
+        "nombre": "SEDE NORTE",
+        "direccion": "CL 127B # 49 79",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BARRIO TIERRA LINDA"
+      },
+      {
+        "distancia_m": 172.1,
+        "nombre": "Centro de Rehabilitación para Adultos Ciegos CRAC Sede Norte",
+        "direccion": "Calle 127B No 46-39",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Canodromo"
+      },
+      {
+        "distancia_m": 253.4,
+        "nombre": "SAN LUIS UNIDAD DE CRONICOS Y PALIATIVOS SAS",
+        "direccion": "CL 127B 45 92",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "TIERRALINDA"
+      },
+      {
+        "distancia_m": 290.8,
+        "nombre": "SAN LUIS UNIDAD DE CRONICOS Y PALIATIVOS SEDE DOS SAS",
+        "direccion": "CALLE 127 B No. 45 68",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "TIERRA LINDA"
+      },
+      {
+        "distancia_m": 353.3,
+        "nombre": "ASOCIACION CENTRO DE ATENCION PARA NIÑOS CON TRASTORNOS SENSORIOMOTORES \"\"ACONIÑO\"\"\"",
+        "direccion": "CALLE 127 B # 45-28",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "EL PRADO"
+      },
+      {
+        "distancia_m": 369.8,
+        "nombre": "PRAXIS DE COLOMBIA LTDA",
+        "direccion": "AC 127 NO. 50-21 piso 1",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BATÁN"
+      },
+      {
+        "distancia_m": 427.6,
+        "nombre": "RH POSITIVO SALUD IPS SAS",
+        "direccion": "CALLE 127D No.53-80 LOCAL 101",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "PRADO VERANIEGO"
+      },
+      {
+        "distancia_m": 431.8,
+        "nombre": "ASSISTANCE INTERNATIONAL",
+        "direccion": "KR 46 # 126-33",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BATAN"
+      }
+    ],
+    "1000": [
+      {
+        "distancia_m": 86.3,
+        "nombre": "SEDE NORTE",
+        "direccion": "CL 127B # 49 79",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BARRIO TIERRA LINDA"
+      },
+      {
+        "distancia_m": 172.1,
+        "nombre": "Centro de Rehabilitación para Adultos Ciegos CRAC Sede Norte",
+        "direccion": "Calle 127B No 46-39",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Canodromo"
+      },
+      {
+        "distancia_m": 253.4,
+        "nombre": "SAN LUIS UNIDAD DE CRONICOS Y PALIATIVOS SAS",
+        "direccion": "CL 127B 45 92",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "TIERRALINDA"
+      },
+      {
+        "distancia_m": 290.8,
+        "nombre": "SAN LUIS UNIDAD DE CRONICOS Y PALIATIVOS SEDE DOS SAS",
+        "direccion": "CALLE 127 B No. 45 68",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "TIERRA LINDA"
+      },
+      {
+        "distancia_m": 353.3,
+        "nombre": "ASOCIACION CENTRO DE ATENCION PARA NIÑOS CON TRASTORNOS SENSORIOMOTORES \"\"ACONIÑO\"\"\"",
+        "direccion": "CALLE 127 B # 45-28",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "EL PRADO"
+      },
+      {
+        "distancia_m": 369.8,
+        "nombre": "PRAXIS DE COLOMBIA LTDA",
+        "direccion": "AC 127 NO. 50-21 piso 1",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BATÁN"
+      },
+      {
+        "distancia_m": 427.6,
+        "nombre": "RH POSITIVO SALUD IPS SAS",
+        "direccion": "CALLE 127D No.53-80 LOCAL 101",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "PRADO VERANIEGO"
+      },
+      {
+        "distancia_m": 431.8,
+        "nombre": "ASSISTANCE INTERNATIONAL",
+        "direccion": "KR 46 # 126-33",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BATAN"
+      },
+      {
+        "distancia_m": 526.3,
+        "nombre": "UNIDAD DE SERVICIOS DE SALUD PRADO VERANIEGO",
+        "direccion": "CALLE 128A Nº53A-17",
+        "nivel": "3",
+        "naturaleza": "Pública",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "PRADO VERANIEGO"
+      },
+      {
+        "distancia_m": 660.3,
+        "nombre": "INSTITUTO VASCULAR ANDINO LTDA",
+        "direccion": "Av. Calle 127 N°21-60 CS 225 Sala I",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "La Calleja"
+      },
+      {
+        "distancia_m": 660.3,
+        "nombre": "ASONEST SAS",
+        "direccion": "AC 127 # 21 60 CS 218",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CALLEJA"
+      },
+      {
+        "distancia_m": 660.3,
+        "nombre": "CONSULTORIO REINA SOFIA",
+        "direccion": "AC 127 21 60 CS 201",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 660.3,
+        "nombre": "ENFASO VACUNACION 314",
+        "direccion": "Av Calle 127 N 21 - 60 Cons 314",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "PALERMO"
+      },
+      {
+        "distancia_m": 660.3,
+        "nombre": "OSTRAUMA LTDA",
+        "direccion": "AC 127 # 21 60 CS 101",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CALLEJA"
+      },
+      {
+        "distancia_m": 660.3,
+        "nombre": "ULTRASONIDO VASCULAR S.A.S. CON SIGLA ULVASC S.A.S.",
+        "direccion": "AV CL 127 21 60 CS408",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 660.3,
+        "nombre": "EURODIGEST S.A.S.",
+        "direccion": "AC 127 NO. 21 - 60 CONSULTORIO 401",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 669.7,
+        "nombre": "CENTRO MEDICO U-FIT",
+        "direccion": "CALLE 129 NO. 51 - 38 CONS 1",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "PRADO VERANIEGO NORTE"
+      },
+      {
+        "distancia_m": 670.6,
+        "nombre": "MAXILARX",
+        "direccion": "Calle 124 No. 45-15 local 1 Edificio Aluna",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BATAN"
+      },
+      {
+        "distancia_m": 674.0,
+        "nombre": "FUNDACION PREVER I.P.S.",
+        "direccion": "KR 48 # 123 10",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Barrio Batán"
+      },
+      {
+        "distancia_m": 702.3,
+        "nombre": "CENTRO OPTICO KERALTY REINA SOFIA",
+        "direccion": "DG 127 # 31 A 48 LOCAL 112",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 704.3,
+        "nombre": "Biosanity IPS",
+        "direccion": "AV 45 AUT NORTE 123 63",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Batan"
+      },
+      {
+        "distancia_m": 718.9,
+        "nombre": "CLINICA REINA SOFIA",
+        "direccion": "CR. 21 NO. 127 - 03 / AC 127 21 - 60 CN 106 AL 110, 202, 203, 210 A y B 211, 310, 316, 410 A y B, 424",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CALLEJA"
+      },
+      {
+        "distancia_m": 724.2,
+        "nombre": "CENTRO DE SALUD CIRUGIA ESTETICA AMBULATORIA",
+        "direccion": "KR 48 # 122 - 28",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BATAN"
+      },
+      {
+        "distancia_m": 765.7,
+        "nombre": "ENFASO PROCEDIMIENTOS PLUSS 127",
+        "direccion": "AC 127 # 20 16 Ofc 215",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CALLEJA"
+      },
+      {
+        "distancia_m": 765.7,
+        "nombre": "ANALIZAR LABORATORIO CLINICO AUTOMATIZADO S.A.S.",
+        "direccion": "Av. Calle 127 No. 20-16 Cons. 415",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 765.7,
+        "nombre": "BIOTECGEN LABORATORIO CLINICO",
+        "direccion": "AVENIDA CALLE 127 # 20-16 CONSULTORIO 318",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 765.7,
+        "nombre": "BIOARRAY S.A.S",
+        "direccion": "AV. CALLE 127 N. 20 - 16 CS 208",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 765.8,
+        "nombre": "IRA PRADO VERANIEGO",
+        "direccion": "KR 51# 130 26",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Prado veraniego"
+      },
+      {
+        "distancia_m": 766.2,
+        "nombre": "GARCIA Y ROJAS CIA S EN C",
+        "direccion": "CALLE 125 # 31 84 CONS 203 Y 202",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 774.8,
+        "nombre": "UNIDAD DE ATENCION PRIMARIA SANTA BARBARA",
+        "direccion": "AK 45 NO. 123 14",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 779.1,
+        "nombre": "KALIL & CABALLERO ODONTOLOGOS SAS",
+        "direccion": "CARRERA 23 # 124 - 70 COS 602",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 779.1,
+        "nombre": "ENDOGER SAS",
+        "direccion": "KR 23 # 124-70 CS 204-207",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA OCCIDENTAL"
+      },
+      {
+        "distancia_m": 788.9,
+        "nombre": "CARDIOLOG LABORATORIO DE CARDIOLOGIA INTEGRAL LIMITADA",
+        "direccion": "AC 127 # 20 - 78 CS 409 Y 411",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 788.9,
+        "nombre": "LABOPAT SAS HORIZONTE",
+        "direccion": "AV. CALLE 127 No. 20-78 CONSULTORIO 323",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CALLEJA"
+      },
+      {
+        "distancia_m": 788.9,
+        "nombre": "DIAGNOSTICO PRENATAL LTDA",
+        "direccion": "AC 127 # 20 78 CONS 420",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CALLEJA"
+      },
+      {
+        "distancia_m": 788.9,
+        "nombre": "UNIDAD RENAL SANITAS",
+        "direccion": "AVENIDA CALLE 127 No 20-78 CONSULTORIOS 201-202-203 Y 204",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CALLEJA"
+      },
+      {
+        "distancia_m": 788.9,
+        "nombre": "CENTRO MEDICO COLSANITAS HORIZONTE",
+        "direccion": "AC 127 20 78 LC 206, 207, LB, UN RAD",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "La Calleja"
+      },
+      {
+        "distancia_m": 788.9,
+        "nombre": "BIOMERTLAB LTDA",
+        "direccion": "AV CALLE 127 No 20-78 CONSULTORIO 205",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 788.9,
+        "nombre": "MEGA ASISTENCIA COMPAÑÍA DE ASISTENCIA SERVICIOS Y ASESORIA LIMITADA",
+        "direccion": "AC 127 # 20 78 OF 628 - 606",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 788.9,
+        "nombre": "FRANCIA ELENA HERMIDA IPS S A S",
+        "direccion": "AC 127 # 20 78 CS 1- 203",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "la calleja"
+      },
+      {
+        "distancia_m": 788.9,
+        "nombre": "FRANCIA ELENA HERMIDA IPS S A S",
+        "direccion": "AC 127 # 20 78 CS 1- 201",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "La calleja"
+      },
+      {
+        "distancia_m": 806.5,
+        "nombre": "SISTEMAS DE TERAPIA RESPIRATORIA SAS",
+        "direccion": "carrera 23 n 124-87 oficina 703-704",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "santa barbara"
+      },
+      {
+        "distancia_m": 806.5,
+        "nombre": "SOLUCIONES DIAGNOSTICAS 3D CP 2",
+        "direccion": "CARRERA 23 Nº 124 87 TORRE 1 OFICINA 506",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 806.5,
+        "nombre": "Dra. Luz Marina Díaz Medicina Estetica",
+        "direccion": "KR 23 N 124 - 87 OF 202",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Santa Barbara"
+      },
+      {
+        "distancia_m": 806.5,
+        "nombre": "CGS CENTRO DE REHABILITACION SANTA BARBARA",
+        "direccion": "CRA 21A # 124 -55 CS 403",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 806.5,
+        "nombre": "DIANA DUSSAN CLINICA AVANZADA",
+        "direccion": "CRA 23 # 124 - 87 TORRE 1 OFICINA 302",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 822.8,
+        "nombre": "Oftalmosanitas La Calleja",
+        "direccion": "Calle 127 N° 20-16 Consultorios 504-505-506",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "La Calleja"
+      },
+      {
+        "distancia_m": 822.8,
+        "nombre": "CENTRO MEDICO COLSANITAS LA CALLEJA",
+        "direccion": "CALLE 127 NO 20 - 16 EDIFICIO PLUSS 127 PROPIEDAD HORIZONTAL PISO 6",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CALLEJA"
+      },
+      {
+        "distancia_m": 822.8,
+        "nombre": "PHYSICAL CARE LTDA",
+        "direccion": "CLL 127 20-16 CONSULTORIO 403",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 822.8,
+        "nombre": "ULTRASONIDO VASCULAR S.A.S.",
+        "direccion": "CALLE 127 NO. 20-16 CS 509",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 837.2,
+        "nombre": "CLINICA PEDIATRICA",
+        "direccion": "AC 127 20 56",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "La Calleja"
+      },
+      {
+        "distancia_m": 839.5,
+        "nombre": "CENTRO ODONTOLOGICO Y DIAGNOSTICO ESPECIALIZADO NORTE",
+        "direccion": "AUT NORTE 122 78",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Calleja"
+      },
+      {
+        "distancia_m": 856.5,
+        "nombre": "ETICA ORAL LIMITADA",
+        "direccion": "CL 127 No 19A - 44 /62 P2 CONS 202-203 ACOMEDICA 2",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 856.5,
+        "nombre": "Centro Especializado en el Cuidado de Heridas y Ostomias",
+        "direccion": "Calle 82 No 18 - 27 y 31",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Chapinero"
+      },
+      {
+        "distancia_m": 856.5,
+        "nombre": "GRUPO MANDARINE SAS",
+        "direccion": "CL 127 No. 19 A 28 CS 606",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": " "
+      },
+      {
+        "distancia_m": 856.5,
+        "nombre": "REQPERA IPS SAS",
+        "direccion": "CALLE 127 # 19 A- 44 EDIFICO ACOMEDICA II CONSULTORIO 505",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 856.5,
+        "nombre": "Medical Pdroz SAS",
+        "direccion": "Calle 127 No 19A - 10 Oficina 315 Acomedica I",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Santa Barbara"
+      },
+      {
+        "distancia_m": 859.9,
+        "nombre": "UNIDAD RADIOLOGICA DENTO CRANEO MAXILO FACIAL",
+        "direccion": "CL 125 No. 20 - 70 OF 204",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 864.4,
+        "nombre": "IDIME S.A SEDE NORTE",
+        "direccion": "AK 45 # 122 68",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 867.8,
+        "nombre": "PROGRAMA DE HOSPITALIZACION DOMICILIARIA",
+        "direccion": "AC 127 No 20-51 PISOS 2 y 3",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Santa Bárbara"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "COLFISIOS LTDA",
+        "direccion": "AV CALL 127 19 A 28 CS 316",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "CALLEJA"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "SERVICIO DE ATENCION ODONTOLOGICA LTDA SEDATO LTDA",
+        "direccion": "AC 127 # 19 A 28 CS 201 ACOMEDICA 1",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "CENTRO AUDIOLÒGICO Y QUIRÙRGICO DEL COUNTRY",
+        "direccion": "Avenida Calle 127 # 19A-10 CS 604",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA OCCIDENTAL"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "UMI EMERGENCIAS S.A.S",
+        "direccion": "AC 127 # 19A 44 CS 501 y 517",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "NATURAL BODY CENTER LTDA",
+        "direccion": "AC 127 19 A 28 CS 205",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "UNICENTRO"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "NOVASENS CLINICA SUIZA ANTIEDAD LTDA. SIGLA NOVASENS LTDA.",
+        "direccion": "Av Calle 127 No. 19 A-44 CONS 601 602",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "SMILE EXPRESS DENTAL SPA S.A.S.",
+        "direccion": "AC 127 # 19 A 28 CS 414-415",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "GASTROMEDICALL LTDA",
+        "direccion": "AC 127 No. 19A-44 CS 512-513-514-305",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "La calleja"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "SALUD ACTIVA MEDICINA ANTIHOMOTOXICA SAS",
+        "direccion": "AC 127 19 A 62 CS 413, 414, 416, 504",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "MOMPRENATAL S.A.S.",
+        "direccion": "AVENIDA CALLE 127 No. 19A - 62 CS 612-613",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "GASTROMEDICS S.A.S",
+        "direccion": "AV CLL 127 No 19a-28 CONS 315",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "PROCTOMEDICAL HMZ SAS",
+        "direccion": "AC 127 No. 19 A 28 CONSULTORIO 608",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA BAJA"
+      },
+      {
+        "distancia_m": 897.1,
+        "nombre": "CENTRO DE ENFERMEDADES HEPÁTICAS Y DIGESTIVAS SAS - CEHYD SAS",
+        "direccion": "AC 127 No. 19A-28 Edificio Acomedica I Cons. 412",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "La Calleja"
+      },
+      {
+        "distancia_m": 912.1,
+        "nombre": "CEMPAI SAS",
+        "direccion": "KR 21A # 124 55 CS 409",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Santa Barbara"
+      },
+      {
+        "distancia_m": 912.1,
+        "nombre": "LACARE LASER MEDICAL CARE",
+        "direccion": "Carrera 21 A # 124 - 55 Consultorio 403",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 913.8,
+        "nombre": "HEALTH PLUS IPS",
+        "direccion": "Calle 120 No. 45A-20",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Malibu"
+      },
+      {
+        "distancia_m": 925.5,
+        "nombre": "LABORATORIO BIOCLINICO G.V. LTDA.",
+        "direccion": "CLL 125 N 20-59 PISO 2 CS 202 203",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 925.5,
+        "nombre": "UNIDAD DE GASTROENTEROLOGIA, HEPATOLOGIA Y NUTRICION PEDIATRICA - GASTRONUTRIPED S.A.S.",
+        "direccion": "CL 125 20 59 OF. 105",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 935.6,
+        "nombre": "BIOTECGEN LABORATORIO CLINICO",
+        "direccion": "CALLE 119 No.49-26 OFICINA 206",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "EL BATAN-MALIBU"
+      },
+      {
+        "distancia_m": 937.8,
+        "nombre": "ORGANIZACIÓN PRAGMA DE COLOMBIA",
+        "direccion": "CALLE 122 Nº 23-28 PISO 1",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 962.2,
+        "nombre": "DERMOSALUD S.A.S",
+        "direccion": "calle 127 bis no 19-25 cons 404,405,406 y 407",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA."
+      },
+      {
+        "distancia_m": 962.2,
+        "nombre": "CLINICAS MEDICAS Y ODONTOLOGICAS MAGUER LA SERENA",
+        "direccion": "CL 127 BIS #19-25 OF 306 ED IMAGEN 127",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA OCCIDENTAL"
+      },
+      {
+        "distancia_m": 962.2,
+        "nombre": "HUMANMED S.A.S",
+        "direccion": "CALLE 127 BIS N° 19-25 OFICINA 202A-203-208 EDIFICIO IMAGEN",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "BARRIO LA CALLEJA"
+      },
+      {
+        "distancia_m": 962.2,
+        "nombre": "DENTAL CARE CENTRO DE ESTETICA ORAL IPS SAS",
+        "direccion": "CL 127 BIS #19 25 CS 310",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "La Calleja"
+      },
+      {
+        "distancia_m": 962.2,
+        "nombre": "ENDOLIFE SAS",
+        "direccion": "CALLE 127 BIS 19 25 CS 409, 410, 411,412, 413",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LA CALLEJA"
+      },
+      {
+        "distancia_m": 965.1,
+        "nombre": "RehaSer S.A.S.",
+        "direccion": "CARRERA 20 # 125 - 38 CONSULTORIOS 105 Y 106",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "Santa Bárbara"
+      },
+      {
+        "distancia_m": 967.1,
+        "nombre": "CIENCIA Y ESTETICA CIRUGIA PLASTICA",
+        "direccion": "AK 45 # 118 86 PI 7",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 967.1,
+        "nombre": "ZHAO HAI E.U.",
+        "direccion": "AK 45 No 118 - 86 CN 808",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 967.1,
+        "nombre": "HISTOLAD EU",
+        "direccion": "AK 45 #118-86 OF 203",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA OCCIDENTAL"
+      },
+      {
+        "distancia_m": 967.1,
+        "nombre": "OPALEN CENTRO MEDICO ESTETICO LASER SAS",
+        "direccion": "AUTOPISTA NORTE NO 118 - 86 CONSULTORIO 106",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BARBARA"
+      },
+      {
+        "distancia_m": 996.6,
+        "nombre": "SOLUCIONES Y ASISTENCIA EN SALUD SAS",
+        "direccion": "CRA 56 N. 128 93",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "LAS VILLAS"
+      },
+      {
+        "distancia_m": 998.7,
+        "nombre": "NUARA SAS",
+        "direccion": "CALLE 122 # 22-49, PISO 1",
+        "nivel": " ",
+        "naturaleza": "Privada",
+        "clase_pres": "Instituciones - IPS",
+        "clase_pers": "JURIDICO",
+        "barrio": "SANTA BÁRBARA OCCIDENTAL"
+      }
+    ]
+  },
+  "resumen": {
+    "200": 2,
+    "500": 8,
+    "1000": 92
+  },
+  "detalle_500m": [
+    {
+      "distancia_m": 86.3,
+      "nombre": "SEDE NORTE",
+      "direccion": "CL 127B # 49 79",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "BARRIO TIERRA LINDA"
+    },
+    {
+      "distancia_m": 172.1,
+      "nombre": "Centro de Rehabilitación para Adultos Ciegos CRAC Sede Norte",
+      "direccion": "Calle 127B No 46-39",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "Canodromo"
+    },
+    {
+      "distancia_m": 253.4,
+      "nombre": "SAN LUIS UNIDAD DE CRONICOS Y PALIATIVOS SAS",
+      "direccion": "CL 127B 45 92",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "TIERRALINDA"
+    },
+    {
+      "distancia_m": 290.8,
+      "nombre": "SAN LUIS UNIDAD DE CRONICOS Y PALIATIVOS SEDE DOS SAS",
+      "direccion": "CALLE 127 B No. 45 68",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "TIERRA LINDA"
+    },
+    {
+      "distancia_m": 353.3,
+      "nombre": "ASOCIACION CENTRO DE ATENCION PARA NIÑOS CON TRASTORNOS SENSORIOMOTORES \"\"ACONIÑO\"\"\"",
+      "direccion": "CALLE 127 B # 45-28",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "EL PRADO"
+    },
+    {
+      "distancia_m": 369.8,
+      "nombre": "PRAXIS DE COLOMBIA LTDA",
+      "direccion": "AC 127 NO. 50-21 piso 1",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "BATÁN"
+    },
+    {
+      "distancia_m": 427.6,
+      "nombre": "RH POSITIVO SALUD IPS SAS",
+      "direccion": "CALLE 127D No.53-80 LOCAL 101",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "PRADO VERANIEGO"
+    },
+    {
+      "distancia_m": 431.8,
+      "nombre": "ASSISTANCE INTERNATIONAL",
+      "direccion": "KR 46 # 126-33",
+      "nivel": " ",
+      "naturaleza": "Privada",
+      "clase_pres": "Instituciones - IPS",
+      "clase_pers": "JURIDICO",
+      "barrio": "BATAN"
+    }
+  ]
+}
