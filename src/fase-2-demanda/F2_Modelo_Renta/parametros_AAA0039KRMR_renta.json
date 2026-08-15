@@ -9,7 +9,7 @@
         "chip": "AAA0039KRMR-MUZU",
         "horizonte_anios": 10,
         "origen_datos": "Lote real AAA0039KRMR (UPZ MUZU - Puente Aranda; area 356,96 m2; tratamiento Consolidacion). GFA de ejercicio 1.100 m2 (IC 3,08; rango '1' de la GDB inconsistente con altura maxima 26,6 m segun ADR-005 -> revision F1).",
-        "nota_general": "Caso de estudio 2026-08-14 (ejercicio). Incluye D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion). Canones/precios/costos: supuestos de ejercicio documentados (no validados con comparables)."
+        "nota_general": "Caso de estudio 2026-08-14 (ejercicio). Incluye D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion) y escenarios de sensibilidad salud/oficinas. Canones VIS/Estandar validados 2026-08-14 (Properati); el resto supuestos de ejercicio documentados."
     },
     "gfa_max_m2": 1100.0,
     "lote": {
@@ -139,10 +139,78 @@
             ],
             "fuente_canon": "Comparables 2026-08-14 (Properati Puente Aranda $36.066/m2/mes; VIS -15%).",
             "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local $3,2 M/m2, vivienda $2,6 M/m2)."
+        },
+        "D_MIXTO_SALUD": {
+            "nombre": "D - Mixto Salud (sensibilidad)",
+            "nota": "USO-MULTIPLE + componente de salud (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
+            "override_uso": true,
+            "sensibilidad": "salud/oficinas",
+            "mix_usos": [
+                {
+                    "uso": "Consultorios (salud)",
+                    "pct_gfa": 0.25,
+                    "unidad_m2": 40.0,
+                    "eficiencia_nga": 0.75,
+                    "costo_construccion_m2": 2900000.0,
+                    "fuente": "Consultorios: canon no-prime $55-60k/m2/mes (rango ciudad 2026, ver nota).",
+                    "canon_m2_mes": {
+                        "CP": 55000,
+                        "LP": 55000
+                    }
+                },
+                {
+                    "uso": "Vivienda VIS",
+                    "pct_gfa": 0.75,
+                    "unidad_m2": 55.0,
+                    "eficiencia_nga": 0.8,
+                    "costo_construccion_m2": 2600000,
+                    "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+                    "canon_m2_mes": {
+                        "CP": 51000,
+                        "LP": 30000
+                    }
+                }
+            ],
+            "fuente_canon": "Canones de sensibilidad 2026-08-14 (consultorio rango ciudad; vivienda del caso).",
+            "fuente_costo": "Costo consultorio = estandar x1,10 (instalaciones medicas); vivienda del caso."
+        },
+        "D_MIXTO_OFICINAS": {
+            "nombre": "D - Mixto Oficinas (sensibilidad)",
+            "nota": "USO-MULTIPLE + componente de oficinas (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
+            "override_uso": true,
+            "sensibilidad": "salud/oficinas",
+            "mix_usos": [
+                {
+                    "uso": "Oficinas (servicios)",
+                    "pct_gfa": 0.25,
+                    "unidad_m2": 60.0,
+                    "eficiencia_nga": 0.8,
+                    "costo_construccion_m2": 2600000,
+                    "fuente": "Oficinas: canon no-prime $38.000/m2/mes (clase A $82,7k, ver nota).",
+                    "canon_m2_mes": {
+                        "CP": 38000,
+                        "LP": 38000
+                    }
+                },
+                {
+                    "uso": "Vivienda VIS",
+                    "pct_gfa": 0.75,
+                    "unidad_m2": 55.0,
+                    "eficiencia_nga": 0.8,
+                    "costo_construccion_m2": 2600000,
+                    "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+                    "canon_m2_mes": {
+                        "CP": 51000,
+                        "LP": 30000
+                    }
+                }
+            ],
+            "fuente_canon": "Canones de sensibilidad 2026-08-14 (oficina no-prime; vivienda del caso).",
+            "fuente_costo": "Costo de vivienda del caso (oficina sin sobrecosto)."
         }
     },
     "referencia_venta": {
-        "nota": "KPIs del modelo de venta F2 para el mismo caso (corrida 2026-08-14): ningun escenario viable (CL $700 M alto para GFA 1.100 m2; D_MIXTO ROI -2,5%). La renta es la alternativa a explorar.",
+        "nota": "KPIs del modelo de venta F2 (corrida 2026-08-14 con precios validados): ningun escenario viable (CL $700 M alto para GFA 1.100 m2; mejor D_MIXTO ROI -7,1%). La renta es la alternativa a explorar (LP x D_MIXTO / D_MIXTO_SALUD viables).",
         "escenarios": {
             "A_VIS": {
                 "nombre": "A - VIS / VIP",
@@ -170,6 +238,20 @@
                 "ROI_venta_pct": -7.1,
                 "MUB_venta_pct": -7.65,
                 "CL_IT_pct": 17.05,
+                "estado": "NO VIABLE"
+            },
+            "D_MIXTO_SALUD": {
+                "nombre": "D - Mixto Salud (sensibilidad)",
+                "ROI_venta_pct": -2.62,
+                "MUB_venta_pct": -2.69,
+                "CL_IT_pct": 16.92,
+                "estado": "NO VIABLE"
+            },
+            "D_MIXTO_OFICINAS": {
+                "nombre": "D - Mixto Oficinas (sensibilidad)",
+                "ROI_venta_pct": -7.58,
+                "MUB_venta_pct": -8.21,
+                "CL_IT_pct": 18.29,
                 "estado": "NO VIABLE"
             }
         }

@@ -137,6 +137,74 @@
             ],
             "fuente_canon": "Supuestos de ejercicio 2026-08-14 (mix uso multiple).",
             "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local $3,6 M/m2, vivienda $3,0 M/m2)."
+        },
+        "D_MIXTO_SALUD": {
+            "nombre": "D - Mixto Salud (sensibilidad)",
+            "nota": "USO-MULTIPLE + componente de salud (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
+            "override_uso": true,
+            "sensibilidad": "salud/oficinas",
+            "mix_usos": [
+                {
+                    "uso": "Consultorios (salud)",
+                    "pct_gfa": 0.25,
+                    "unidad_m2": 40.0,
+                    "eficiencia_nga": 0.75,
+                    "costo_construccion_m2": 2900000.0,
+                    "fuente": "Consultorios: canon no-prime $55-60k/m2/mes (rango ciudad 2026, ver nota).",
+                    "canon_m2_mes": {
+                        "CP": 55000,
+                        "LP": 55000
+                    }
+                },
+                {
+                    "uso": "Vivienda VIS",
+                    "pct_gfa": 0.75,
+                    "unidad_m2": 55.0,
+                    "eficiencia_nga": 0.8,
+                    "costo_construccion_m2": 2600000,
+                    "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+                    "canon_m2_mes": {
+                        "CP": 54400,
+                        "LP": 32000
+                    }
+                }
+            ],
+            "fuente_canon": "Canones de sensibilidad 2026-08-14 (consultorio rango ciudad; vivienda del caso).",
+            "fuente_costo": "Costo consultorio = estandar x1,10 (instalaciones medicas); vivienda del caso."
+        },
+        "D_MIXTO_OFICINAS": {
+            "nombre": "D - Mixto Oficinas (sensibilidad)",
+            "nota": "USO-MULTIPLE + componente de oficinas (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
+            "override_uso": true,
+            "sensibilidad": "salud/oficinas",
+            "mix_usos": [
+                {
+                    "uso": "Oficinas (servicios)",
+                    "pct_gfa": 0.25,
+                    "unidad_m2": 60.0,
+                    "eficiencia_nga": 0.8,
+                    "costo_construccion_m2": 2600000,
+                    "fuente": "Oficinas: canon no-prime $38.000/m2/mes (clase A $82,7k, ver nota).",
+                    "canon_m2_mes": {
+                        "CP": 38000,
+                        "LP": 38000
+                    }
+                },
+                {
+                    "uso": "Vivienda VIS",
+                    "pct_gfa": 0.75,
+                    "unidad_m2": 55.0,
+                    "eficiencia_nga": 0.8,
+                    "costo_construccion_m2": 2600000,
+                    "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+                    "canon_m2_mes": {
+                        "CP": 54400,
+                        "LP": 32000
+                    }
+                }
+            ],
+            "fuente_canon": "Canones de sensibilidad 2026-08-14 (oficina no-prime; vivienda del caso).",
+            "fuente_costo": "Costo de vivienda del caso (oficina sin sobrecosto)."
         }
     },
     "referencia_venta": {
@@ -168,6 +236,20 @@
                 "ROI_venta_pct": 26.56,
                 "MUB_venta_pct": 20.99,
                 "CL_IT_pct": 9.53,
+                "estado": "NO VIABLE"
+            },
+            "D_MIXTO_SALUD": {
+                "nombre": "D - Mixto Salud (sensibilidad)",
+                "ROI_venta_pct": -7.46,
+                "MUB_venta_pct": -8.06,
+                "CL_IT_pct": 15.1,
+                "estado": "NO VIABLE"
+            },
+            "D_MIXTO_OFICINAS": {
+                "nombre": "D - Mixto Oficinas (sensibilidad)",
+                "ROI_venta_pct": -6.52,
+                "MUB_venta_pct": -6.98,
+                "CL_IT_pct": 15.31,
                 "estado": "NO VIABLE"
             }
         }

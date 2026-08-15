@@ -176,6 +176,114 @@
       "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local ,6 M/m2, vivienda ,0 M/m2).",
       "fuente_costo_url": "",
       "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion (hipotesis de validacion/prefactibilidad). Mix 20% local comercial + 80% vivienda estandar (Prado Veraniego). Vivienda con precios validados 2026-08-13; local supuesto de ejercicio."
+    },
+    {
+      "escenario_id": "D_MIXTO_SALUD",
+      "producto": "D - Mixto Salud (sensibilidad)",
+      "nivel_acabados": "Mixto",
+      "gfa_m2": 1053.0,
+      "nga_m2": 829.24,
+      "eficiencia_nga": 0.7875000000000001,
+      "tamano_unidad_m2": 51.0,
+      "num_unidades": 15,
+      "area_vendible_m2": 765.0,
+      "precio_venta_m2": 4760130.72,
+      "costo_construccion_m2": 2675000.0,
+      "absorcion_unid_mes": 1.79,
+      "meses_venta_estimados": 8.4,
+      "mix_usos_detalle": [
+        {
+          "uso": "Consultorios (salud)",
+          "pct_gfa": 0.25,
+          "gfa_i": 263.25,
+          "nga_i": 197.44,
+          "num_unidades": 4,
+          "area_vendible_m2": 160.0,
+          "precio_venta_m2": 6500000,
+          "costo_construccion_m2": 2900000.0,
+          "ingresos_cop": 1040000000.0
+        },
+        {
+          "uso": "Vivienda VIS",
+          "pct_gfa": 0.75,
+          "gfa_i": 789.75,
+          "nga_i": 631.8,
+          "num_unidades": 11,
+          "area_vendible_m2": 605.0,
+          "precio_venta_m2": 4300000,
+          "costo_construccion_m2": 2600000,
+          "ingresos_cop": 2601500000.0
+        }
+      ],
+      "ingresos_totales_cop": 3641500000.0,
+      "costo_lote_cop": 550000000.0,
+      "costo_duro_cop": 2816775000.0,
+      "costo_blando_cop": 422516250.0,
+      "costo_mkt_cop": 145660000.0,
+      "costo_total_cop": 3934951250.0,
+      "utilidad_bruta_cop": -293451250.0,
+      "MUB_pct": -8.06,
+      "ROI_pct": -7.46,
+      "CL_IT_pct": 15.1,
+      "fuente_precio": "Precios de sensibilidad 2026-08-14 (consultorio derivado del canon; vivienda del caso).",
+      "fuente_precio_url": "",
+      "fuente_costo": "Costo consultorio = estandar x1,10 (instalaciones medicas); vivienda del caso.",
+      "fuente_costo_url": "",
+      "nota": "USO-MULTIPLE + componente de salud (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas."
+    },
+    {
+      "escenario_id": "D_MIXTO_OFICINAS",
+      "producto": "D - Mixto Oficinas (sensibilidad)",
+      "nivel_acabados": "Mixto",
+      "gfa_m2": 1053.0,
+      "nga_m2": 842.4,
+      "eficiencia_nga": 0.8,
+      "tamano_unidad_m2": 56.07,
+      "num_unidades": 14,
+      "area_vendible_m2": 785.0,
+      "precio_venta_m2": 4575159.24,
+      "costo_construccion_m2": 2600000.0,
+      "absorcion_unid_mes": 1.35,
+      "meses_venta_estimados": 10.4,
+      "mix_usos_detalle": [
+        {
+          "uso": "Oficinas (servicios)",
+          "pct_gfa": 0.25,
+          "gfa_i": 263.25,
+          "nga_i": 210.6,
+          "num_unidades": 3,
+          "area_vendible_m2": 180.0,
+          "precio_venta_m2": 5500000,
+          "costo_construccion_m2": 2600000,
+          "ingresos_cop": 990000000.0
+        },
+        {
+          "uso": "Vivienda VIS",
+          "pct_gfa": 0.75,
+          "gfa_i": 789.75,
+          "nga_i": 631.8,
+          "num_unidades": 11,
+          "area_vendible_m2": 605.0,
+          "precio_venta_m2": 4300000,
+          "costo_construccion_m2": 2600000,
+          "ingresos_cop": 2601500000.0
+        }
+      ],
+      "ingresos_totales_cop": 3591500000.0,
+      "costo_lote_cop": 550000000.0,
+      "costo_duro_cop": 2737800000.0,
+      "costo_blando_cop": 410670000.0,
+      "costo_mkt_cop": 143660000.0,
+      "costo_total_cop": 3842130000.0,
+      "utilidad_bruta_cop": -250630000.0,
+      "MUB_pct": -6.98,
+      "ROI_pct": -6.52,
+      "CL_IT_pct": 15.31,
+      "fuente_precio": "Precios de sensibilidad 2026-08-14 (oficina derivado del canon; vivienda del caso).",
+      "fuente_precio_url": "",
+      "fuente_costo": "Costo de vivienda del caso (oficina sin sobrecosto).",
+      "fuente_costo_url": "",
+      "nota": "USO-MULTIPLE + componente de oficinas (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas."
     }
   ],
   "alertas": {
@@ -215,7 +323,31 @@
         "texto": "ROI -4.8% < 22.0%: por debajo del minimo estandar para desarrollar."
       }
     ],
-    "D_MIXTO": []
+    "D_MIXTO": [],
+    "D_MIXTO_SALUD": [
+      {
+        "nivel": "critica",
+        "kpi": "MUB",
+        "texto": "MUB -8.1% < 18.0%: margen bruto de alto riesgo en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "ROI",
+        "texto": "ROI -7.5% < 22.0%: por debajo del minimo estandar para desarrollar."
+      }
+    ],
+    "D_MIXTO_OFICINAS": [
+      {
+        "nivel": "critica",
+        "kpi": "MUB",
+        "texto": "MUB -7.0% < 18.0%: margen bruto de alto riesgo en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "ROI",
+        "texto": "ROI -6.5% < 22.0%: por debajo del minimo estandar para desarrollar."
+      }
+    ]
   },
   "sensibilidad": {
     "variacion_pct": 10.0,
@@ -256,6 +388,20 @@
             "ub_base_cop": 1460867768.0,
             "ub_minus_cop": 881964591.2,
             "ub_plus_cop": 2039770944.8
+          },
+          "D_MIXTO_SALUD": {
+            "impacto_pct_IT": 9.6,
+            "delta_abs_cop": 378938774.12,
+            "ub_base_cop": 96491.18,
+            "ub_minus_cop": -378842282.94,
+            "ub_plus_cop": 379035265.29
+          },
+          "D_MIXTO_OFICINAS": {
+            "impacto_pct_IT": 9.6,
+            "delta_abs_cop": 369994957.45,
+            "ub_base_cop": 1479574.52,
+            "ub_minus_cop": -368515382.93,
+            "ub_plus_cop": 371474531.97
           }
         },
         "puesto": 1
@@ -263,8 +409,8 @@
       {
         "variable": "costo_construccion",
         "etiqueta": "Costo duro construccion (m2)",
-        "impacto_pct_IT_promedio": 6.86,
-        "riesgo_esperado": 6.86,
+        "impacto_pct_IT_promedio": 7.31,
+        "riesgo_esperado": 7.31,
         "rango_plausible_x": 1.0,
         "prioridad_fetch": "Critica: definir costo VIS vs Estandar vs Lujo; depende del producto y del mercado de insumos.",
         "por_escenario": {
@@ -295,6 +441,20 @@
             "ub_base_cop": 1460867768.0,
             "ub_minus_cop": 1838684168.0,
             "ub_plus_cop": 1083051368.0
+          },
+          "D_MIXTO_SALUD": {
+            "impacto_pct_IT": 8.21,
+            "delta_abs_cop": 323929125.0,
+            "ub_base_cop": 96491.18,
+            "ub_minus_cop": 324025616.18,
+            "ub_plus_cop": -323832633.82
+          },
+          "D_MIXTO_OFICINAS": {
+            "impacto_pct_IT": 8.17,
+            "delta_abs_cop": 314847000.0,
+            "ub_base_cop": 1479574.52,
+            "ub_minus_cop": 316326574.52,
+            "ub_plus_cop": -313367425.48
           }
         },
         "puesto": 2
@@ -334,6 +494,20 @@
             "ub_base_cop": 1460867768.0,
             "ub_minus_cop": 881964591.2,
             "ub_plus_cop": 2039770944.8
+          },
+          "D_MIXTO_SALUD": {
+            "impacto_pct_IT": 9.6,
+            "delta_abs_cop": 378938774.12,
+            "ub_base_cop": 96491.18,
+            "ub_minus_cop": -378842282.94,
+            "ub_plus_cop": 379035265.29
+          },
+          "D_MIXTO_OFICINAS": {
+            "impacto_pct_IT": 9.6,
+            "delta_abs_cop": 369994957.45,
+            "ub_base_cop": 1479574.52,
+            "ub_minus_cop": -368515382.93,
+            "ub_plus_cop": 371474531.97
           }
         },
         "puesto": 3
@@ -341,8 +515,8 @@
       {
         "variable": "costo_lote",
         "etiqueta": "Costo del lote",
-        "impacto_pct_IT_promedio": 1.03,
-        "riesgo_esperado": 0.31,
+        "impacto_pct_IT_promedio": 1.15,
+        "riesgo_esperado": 0.35,
         "rango_plausible_x": 0.3,
         "prioridad_fetch": "Media: dato real del lote, no modificable en el corto plazo.",
         "por_escenario": {
@@ -373,6 +547,20 @@
             "ub_base_cop": 1460867768.0,
             "ub_minus_cop": 1515867768.0,
             "ub_plus_cop": 1405867768.0
+          },
+          "D_MIXTO_SALUD": {
+            "impacto_pct_IT": 1.39,
+            "delta_abs_cop": 55000000.0,
+            "ub_base_cop": 96491.18,
+            "ub_minus_cop": 55096491.18,
+            "ub_plus_cop": -54903508.82
+          },
+          "D_MIXTO_OFICINAS": {
+            "impacto_pct_IT": 1.43,
+            "delta_abs_cop": 55000000.0,
+            "ub_base_cop": 1479574.52,
+            "ub_minus_cop": 56479574.52,
+            "ub_plus_cop": -53520425.48
           }
         },
         "puesto": 4
@@ -412,6 +600,20 @@
             "ub_base_cop": 1460867768.0,
             "ub_minus_cop": 1460867768.0,
             "ub_plus_cop": 1460867768.0
+          },
+          "D_MIXTO_SALUD": {
+            "impacto_pct_IT": 0.0,
+            "delta_abs_cop": 0.0,
+            "ub_base_cop": 96491.18,
+            "ub_minus_cop": 96491.18,
+            "ub_plus_cop": 96491.18
+          },
+          "D_MIXTO_OFICINAS": {
+            "impacto_pct_IT": 0.0,
+            "delta_abs_cop": 0.0,
+            "ub_base_cop": 1479574.52,
+            "ub_minus_cop": 1479574.52,
+            "ub_plus_cop": 1479574.52
           }
         },
         "puesto": 5
@@ -498,9 +700,21 @@
         "producto": "C — Lujo / Alto nivel",
         "ROI_pct": -4.76,
         "MUB_pct": -5.0
+      },
+      {
+        "escenario_id": "D_MIXTO_OFICINAS",
+        "producto": "D - Mixto Oficinas (sensibilidad)",
+        "ROI_pct": -6.52,
+        "MUB_pct": -6.98
+      },
+      {
+        "escenario_id": "D_MIXTO_SALUD",
+        "producto": "D - Mixto Salud (sensibilidad)",
+        "ROI_pct": -7.46,
+        "MUB_pct": -8.06
       }
     ],
-    "veredicto_textual": "El escenario D - Mixto (override usuario) proyecta un ROI del 26.6%, superando a A — VIS / VIP y B — Estandar y C — Lujo / Alto nivel. Se recomienda disenar aproximadamente 13 unidades de 62 m2 con acabados mixto. Rentabilidad esperada: utilidad bruta de 1.211.036.000 COP (MUB 21.0%, CL/IT 9.5%). Mix de usos: los 3 escenarios son residenciales puros; un escenario mixto (p.ej. local comercial en primer piso) se modela duplicando un escenario con precio y costo propios del uso adicional."
+    "veredicto_textual": "El escenario D - Mixto (override usuario) proyecta un ROI del 26.6%, superando a A — VIS / VIP y B — Estandar y C — Lujo / Alto nivel y D - Mixto Salud (sensibilidad) y D - Mixto Oficinas (sensibilidad). Se recomienda disenar aproximadamente 13 unidades de 62 m2 con acabados mixto. Rentabilidad esperada: utilidad bruta de 1.211.036.000 COP (MUB 21.0%, CL/IT 9.5%). Mix de usos: los 3 escenarios son residenciales puros; un escenario mixto (p.ej. local comercial en primer piso) se modela duplicando un escenario con precio y costo propios del uso adicional."
   },
   "aporte_suelo_analisis": {
     "descripcion": "Escenario D: el dueno del lote lo aporta al proyecto y participa en las utilidades finales en lugar de recibir el precio de venta por adelantado.",
@@ -571,6 +785,38 @@
         "socio_recibe_cop": 799804058.3606558,
         "socio_retorno_vs_pedido_pct": 145.4189197019374,
         "socio_retorno_vs_soportable_pct": 110.99999999999999
+      },
+      {
+        "escenario_id": "D_MIXTO_SALUD",
+        "ub_sin_suelo_cop": 256548750.0,
+        "ctd_sin_suelo_cop": 3384951250.0,
+        "roi_max_dev_pct": 7.579097335596783,
+        "cl_soportable_cop": 0.0,
+        "pct_socio_min_pct": null,
+        "pct_socio_max_pct": -190.27203406759924,
+        "ventana_posible": false,
+        "pct_socio_recomendado_pct": null,
+        "dev_ub_cop": null,
+        "dev_roi_pct": null,
+        "socio_recibe_cop": null,
+        "socio_retorno_vs_pedido_pct": null,
+        "socio_retorno_vs_soportable_pct": null
+      },
+      {
+        "escenario_id": "D_MIXTO_OFICINAS",
+        "ub_sin_suelo_cop": 299370000.0,
+        "ctd_sin_suelo_cop": 3292130000.0,
+        "roi_max_dev_pct": 9.09350481299341,
+        "cl_soportable_cop": 0.0,
+        "pct_socio_min_pct": null,
+        "pct_socio_max_pct": -141.93092160203093,
+        "ventana_posible": false,
+        "pct_socio_recomendado_pct": null,
+        "dev_ub_cop": null,
+        "dev_roi_pct": null,
+        "socio_recibe_cop": null,
+        "socio_retorno_vs_pedido_pct": null,
+        "socio_retorno_vs_soportable_pct": null
       }
     ],
     "mejor_escenario": "D_MIXTO"
@@ -641,6 +887,36 @@
         "mub_soportable_pct": 28.272756405375453,
         "canon_it_soportable_pct": 2.247798187345513,
         "viable_soportable": true
+      },
+      {
+        "escenario_id": "D_MIXTO_SALUD",
+        "canon_pedido_cop": 99000000.0,
+        "ub_pedido_cop": 157548750.0,
+        "roi_pedido_pct": 4.522128431045068,
+        "mub_pedido_pct": 4.326479472744748,
+        "canon_it_pedido_pct": 2.718659892901277,
+        "viable_pedido": false,
+        "canon_soportable_cop": 0.0,
+        "ub_soportable_cop": 256548750.0,
+        "roi_soportable_pct": 7.579097335596783,
+        "mub_soportable_pct": 7.045139365646024,
+        "canon_it_soportable_pct": 0.0,
+        "viable_soportable": false
+      },
+      {
+        "escenario_id": "D_MIXTO_OFICINAS",
+        "canon_pedido_cop": 99000000.0,
+        "ub_pedido_cop": 200370000.0,
+        "roi_pedido_pct": 5.908649919053531,
+        "mub_pedido_pct": 5.579005986356676,
+        "canon_it_pedido_pct": 2.756508422664625,
+        "viable_pedido": false,
+        "canon_soportable_cop": 0.0,
+        "ub_soportable_cop": 299370000.0,
+        "roi_soportable_pct": 9.09350481299341,
+        "mub_soportable_pct": 8.3355144090213,
+        "canon_it_soportable_pct": 0.0,
+        "viable_soportable": false
       }
     ],
     "mejor_escenario": "D_MIXTO"

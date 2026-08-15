@@ -1,111 +1,173 @@
 {
-    "meta": {
-        "modelo": "F2_DEMANDA_MOTOR_v02",
-        "version": "2.2",
-        "fase": "Prefactibilidad (Fase 2) - Modelo Financiero Inmobiliario",
-        "ciudad": "Bogota D.C., Colombia",
-        "moneda": "COP",
-        "fecha_ejecucion": "2026-08-14",
-        "chip": "AAA0039KRMR-MUZU",
-        "ciclo_desarrollo_anios": 2,
-        "origen_datos": "Lote real AAA0039KRMR (UPZ MUZU - Puente Aranda; area 356,96 m2 segun contexto F1 cacheado 2026-08-14; tratamiento Consolidacion; altura max GDB 26,6 m). GFA de ejercicio 1.100 m2 (IC 3,08; supuesto de ejercicio: el rango de edificabilidad '1' de la GDB se considera inconsistente con la altura maxima segun ADR-005 y queda marcado para revision manual en F1).",
-        "nota_general": "Caso de estudio 2026-08-14 (ejercicio): zona de actividad multiple (Puente Aranda). Incluye escenario D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion) para validacion de hipotesis. Los precios/costos son supuestos de ejercicio documentados (no validados con comparables). Precios validados con comparables 2026-08-14 (EstrenarVivienda/Properati)."
+  "meta": {
+    "modelo": "F2_DEMANDA_MOTOR_v02",
+    "version": "2.2",
+    "fase": "Prefactibilidad (Fase 2) - Modelo Financiero Inmobiliario",
+    "ciudad": "Bogota D.C., Colombia",
+    "moneda": "COP",
+    "fecha_ejecucion": "2026-08-14",
+    "chip": "AAA0039KRMR-MUZU",
+    "ciclo_desarrollo_anios": 2,
+    "origen_datos": "Lote real AAA0039KRMR (UPZ MUZU - Puente Aranda; area 356,96 m2 segun contexto F1 cacheado 2026-08-14; tratamiento Consolidacion; altura max GDB 26,6 m). GFA de ejercicio 1.100 m2 (IC 3,08; supuesto de ejercicio: el rango de edificabilidad '1' de la GDB se considera inconsistente con la altura maxima segun ADR-005 y queda marcado para revision manual en F1).",
+    "nota_general": "Caso de estudio 2026-08-14 (ejercicio): zona de actividad multiple (Puente Aranda). Incluye escenario D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion) para validacion de hipotesis. Los precios/costos son supuestos de ejercicio documentados (no validados con comparables). Precios validados con comparables 2026-08-14 (EstrenarVivienda/Properati)."
+  },
+  "gfa_max_m2": 1100.0,
+  "lote": {
+    "area_m2": 356.96,
+    "precio_suelo_m2": 1961000.0,
+    "impuestos_escritura_pct": 0.0,
+    "costo_lote_total_cop": 700000000.0,
+    "fuente": "CL $700.000.000 COP = supuesto de ejercicio (~$1,96 M/m2 de suelo, rango Muzu/Puente Aranda 2026 ~$1,5-2,5 M/m2). Area real 356,96 m2 (contexto F1 cacheado).",
+    "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\pot-cache\\AAA0039KRMR-contexto.json"
+  },
+  "financiero": {
+    "costos_blandos_pct": 15.0,
+    "marketing_ventas_pct": 4.0
+  },
+  "reglas_decision": {
+    "mub_riesgo_pct": 18.0,
+    "mub_atractivo_pct": 25.0,
+    "roi_minimo_pct": 22.0,
+    "cl_it_precaucion_pct": 25.0,
+    "cl_it_inviable_pct": 30.0
+  },
+  "sensibilidad": {
+    "variacion_pct": 10.0
+  },
+  "escenarios": {
+    "A_VIS": {
+      "nombre": "A - VIS / VIP",
+      "nivel_acabados": "Basico",
+      "unidad_m2": 55.0,
+      "eficiencia_nga": 0.8,
+      "precio_venta_m2": 4300000,
+      "costo_construccion_m2": 2600000,
+      "absorcion_unid_mes": 4.0,
+      "fuente_precio": "Tope VIS 2026 (135 SMMLV = $236,37 M / 55 m2 = $4,30 M/m2; Argos/Decreto 1469/2025).",
+      "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",
+      "fuente_costo": "Konstruing (07-ago-2026) rango medio: $2,6 M/m2 (supuesto de ejercicio).",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Supuestos de ejercicio (no validados con comparables)."
     },
-    "gfa_max_m2": 1100.0,
-    "lote": {
-        "area_m2": 356.96,
-        "precio_suelo_m2": 1961000.0,
-        "impuestos_escritura_pct": 0.0,
-        "costo_lote_total_cop": 700000000.0,
-        "fuente": "CL $700.000.000 COP = supuesto de ejercicio (~$1,96 M/m2 de suelo, rango Muzu/Puente Aranda 2026 ~$1,5-2,5 M/m2). Area real 356,96 m2 (contexto F1 cacheado).",
-        "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\pot-cache\\AAA0039KRMR-contexto.json"
+    "B_ESTANDAR": {
+      "nombre": "B - Estandar",
+      "nivel_acabados": "Medio",
+      "unidad_m2": 70.0,
+      "eficiencia_nga": 0.75,
+      "precio_venta_m2": 4800000,
+      "costo_construccion_m2": 3000000,
+      "absorcion_unid_mes": 2.5,
+      "fuente_precio": "Validado 2026-08-14: promedio vivienda nueva Puente Aranda ,8 M/m2 (EstrenarVivienda) y mediana Properati ,53 M/m2 (usado).",
+      "fuente_precio_url": "https://www.estrenarvivienda.com/blog/donde-vivir/puente-aranda-el-sector-para-descubrir-vivienda-nueva-en-bogota",
+      "fuente_costo": "Konstruing: $3,0 M/m2 (supuesto de ejercicio).",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Validado con comparable de zona 2026-08-14 (antes supuesto ,8 M)."
     },
-    "financiero": {
-        "costos_blandos_pct": 15.0,
-        "marketing_ventas_pct": 4.0
+    "C_LUJO": {
+      "nombre": "C - Lujo / Alto nivel",
+      "nivel_acabados": "Premium",
+      "unidad_m2": 120.0,
+      "eficiencia_nga": 0.7,
+      "precio_venta_m2": 5800000,
+      "costo_construccion_m2": 3800000,
+      "absorcion_unid_mes": 1.0,
+      "fuente_precio": "Premium sobre promedio de zona (antes ,2 M): ,8 M/m2 (supuesto ajustado al comparable 2026-08-14).",
+      "fuente_precio_url": "https://www.estrenarvivienda.com/blog/donde-vivir/puente-aranda-el-sector-para-descubrir-vivienda-nueva-en-bogota",
+      "fuente_costo": "Konstruing premium: $3,8 M/m2 (supuesto de ejercicio).",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Ajustado 2026-08-14 al comparable de zona."
     },
-    "reglas_decision": {
-        "mub_riesgo_pct": 18.0,
-        "mub_atractivo_pct": 25.0,
-        "roi_minimo_pct": 22.0,
-        "cl_it_precaucion_pct": 25.0,
-        "cl_it_inviable_pct": 30.0
-    },
-    "sensibilidad": {
-        "variacion_pct": 10.0
-    },
-    "escenarios": {
-        "A_VIS": {
-            "nombre": "A - VIS / VIP",
-            "nivel_acabados": "Basico",
-            "unidad_m2": 55.0,
-            "eficiencia_nga": 0.8,
-            "precio_venta_m2": 4300000,
-            "costo_construccion_m2": 2600000,
-            "absorcion_unid_mes": 4.0,
-            "fuente_precio": "Tope VIS 2026 (135 SMMLV = $236,37 M / 55 m2 = $4,30 M/m2; Argos/Decreto 1469/2025).",
-            "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",
-            "fuente_costo": "Konstruing (07-ago-2026) rango medio: $2,6 M/m2 (supuesto de ejercicio).",
-            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Supuestos de ejercicio (no validados con comparables)."
+    "D_MIXTO": {
+      "nombre": "D - Mixto (override usuario)",
+      "nivel_acabados": "Mixto",
+      "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion (hipotesis de validacion/prefactibilidad). Mix 35% local comercial + 65% vivienda VIS. Precios/costos supuestos de ejercicio documentados.",
+      "override_uso": true,
+      "mix_usos": [
+        {
+          "uso": "Local comercial",
+          "pct_gfa": 0.35,
+          "unidad_m2": 60.0,
+          "eficiencia_nga": 0.85,
+          "precio_venta_m2": 5800000,
+          "costo_construccion_m2": 3200000,
+          "absorcion_unid_mes": 0.5,
+          "fuente": "Local Muzu: ,8 M/m2 (ajustado al comparable de zona 2026-08-14)."
         },
-        "B_ESTANDAR": {
-            "nombre": "B - Estandar",
-            "nivel_acabados": "Medio",
-            "unidad_m2": 70.0,
-            "eficiencia_nga": 0.75,
-            "precio_venta_m2": 4800000,
-            "costo_construccion_m2": 3000000,
-            "absorcion_unid_mes": 2.5,
-            "fuente_precio": "Validado 2026-08-14: promedio vivienda nueva Puente Aranda ,8 M/m2 (EstrenarVivienda) y mediana Properati ,53 M/m2 (usado).",
-            "fuente_precio_url": "https://www.estrenarvivienda.com/blog/donde-vivir/puente-aranda-el-sector-para-descubrir-vivienda-nueva-en-bogota",
-            "fuente_costo": "Konstruing: $3,0 M/m2 (supuesto de ejercicio).",
-            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Validado con comparable de zona 2026-08-14 (antes supuesto ,8 M)."
-        },
-        "C_LUJO": {
-            "nombre": "C - Lujo / Alto nivel",
-            "nivel_acabados": "Premium",
-            "unidad_m2": 120.0,
-            "eficiencia_nga": 0.7,
-            "precio_venta_m2": 5800000,
-            "costo_construccion_m2": 3800000,
-            "absorcion_unid_mes": 1.0,
-            "fuente_precio": "Premium sobre promedio de zona (antes ,2 M): ,8 M/m2 (supuesto ajustado al comparable 2026-08-14).",
-            "fuente_precio_url": "https://www.estrenarvivienda.com/blog/donde-vivir/puente-aranda-el-sector-para-descubrir-vivienda-nueva-en-bogota",
-            "fuente_costo": "Konstruing premium: $3,8 M/m2 (supuesto de ejercicio).",
-            "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Ajustado 2026-08-14 al comparable de zona."
-        },
-        "D_MIXTO": {
-            "nombre": "D - Mixto (override usuario)",
-            "nivel_acabados": "Mixto",
-            "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion (hipotesis de validacion/prefactibilidad). Mix 35% local comercial + 65% vivienda VIS. Precios/costos supuestos de ejercicio documentados.",
-            "override_uso": true,
-            "mix_usos": [
-                {
-                    "uso": "Local comercial",
-                    "pct_gfa": 0.35,
-                    "unidad_m2": 60.0,
-                    "eficiencia_nga": 0.85,
-                    "precio_venta_m2": 5800000,
-                    "costo_construccion_m2": 3200000,
-                    "absorcion_unid_mes": 0.5,
-                    "fuente": "Local Muzu: ,8 M/m2 (ajustado al comparable de zona 2026-08-14)."
-                },
-                {
-                    "uso": "Vivienda VIS",
-                    "pct_gfa": 0.65,
-                    "unidad_m2": 55.0,
-                    "eficiencia_nga": 0.8,
-                    "precio_venta_m2": 4300000,
-                    "costo_construccion_m2": 2600000,
-                    "absorcion_unid_mes": 2.5,
-                    "fuente": "Tope VIS 2026: $4,30 M/m2."
-                }
-            ],
-            "fuente_precio": "Supuestos de ejercicio 2026-08-14 (mix uso multiple: local $6,5 M/m2 + vivienda VIS $4,3 M/m2).",
-            "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local $3,2 M/m2, vivienda $2,6 M/m2)."
+        {
+          "uso": "Vivienda VIS",
+          "pct_gfa": 0.65,
+          "unidad_m2": 55.0,
+          "eficiencia_nga": 0.8,
+          "precio_venta_m2": 4300000,
+          "costo_construccion_m2": 2600000,
+          "absorcion_unid_mes": 2.5,
+          "fuente": "Tope VIS 2026: $4,30 M/m2."
         }
+      ],
+      "fuente_precio": "Supuestos de ejercicio 2026-08-14 (mix uso multiple: local $6,5 M/m2 + vivienda VIS $4,3 M/m2).",
+      "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local $3,2 M/m2, vivienda $2,6 M/m2)."
+    },
+    "D_MIXTO_SALUD": {
+      "nombre": "D - Mixto Salud (sensibilidad)",
+      "nivel_acabados": "Mixto",
+      "nota": "USO-MULTIPLE + componente de salud (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
+      "override_uso": true,
+      "sensibilidad": "salud/oficinas",
+      "mix_usos": [
+        {
+          "uso": "Consultorios (salud)",
+          "pct_gfa": 0.25,
+          "unidad_m2": 40.0,
+          "eficiencia_nga": 0.75,
+          "costo_construccion_m2": 2900000.0,
+          "fuente": "Consultorios: canon no-prime $55-60k/m2/mes (rango ciudad 2026, ver nota).",
+          "precio_venta_m2": 6500000,
+          "absorcion_unid_mes": 1.0
+        },
+        {
+          "uso": "Vivienda VIS",
+          "pct_gfa": 0.75,
+          "unidad_m2": 55.0,
+          "eficiencia_nga": 0.8,
+          "costo_construccion_m2": 2600000,
+          "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+          "precio_venta_m2": 4300000,
+          "absorcion_unid_mes": 2.5
+        }
+      ],
+      "fuente_precio": "Precios de sensibilidad 2026-08-14 (consultorio derivado del canon; vivienda del caso).",
+      "fuente_costo": "Costo consultorio = estandar x1,10 (instalaciones medicas); vivienda del caso."
+    },
+    "D_MIXTO_OFICINAS": {
+      "nombre": "D - Mixto Oficinas (sensibilidad)",
+      "nivel_acabados": "Mixto",
+      "nota": "USO-MULTIPLE + componente de oficinas (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
+      "override_uso": true,
+      "sensibilidad": "salud/oficinas",
+      "mix_usos": [
+        {
+          "uso": "Oficinas (servicios)",
+          "pct_gfa": 0.25,
+          "unidad_m2": 60.0,
+          "eficiencia_nga": 0.8,
+          "costo_construccion_m2": 2600000,
+          "fuente": "Oficinas: canon no-prime $38.000/m2/mes (clase A $82,7k, ver nota).",
+          "precio_venta_m2": 5500000,
+          "absorcion_unid_mes": 0.5
+        },
+        {
+          "uso": "Vivienda VIS",
+          "pct_gfa": 0.75,
+          "unidad_m2": 55.0,
+          "eficiencia_nga": 0.8,
+          "costo_construccion_m2": 2600000,
+          "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+          "precio_venta_m2": 4300000,
+          "absorcion_unid_mes": 2.5
+        }
+      ],
+      "fuente_precio": "Precios de sensibilidad 2026-08-14 (oficina derivado del canon; vivienda del caso).",
+      "fuente_costo": "Costo de vivienda del caso (oficina sin sobrecosto)."
     }
+  }
 }

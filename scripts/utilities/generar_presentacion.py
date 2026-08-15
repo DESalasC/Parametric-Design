@@ -37,9 +37,10 @@ CASOS = [
         "color": "#1F3A5F",
         "lectura": ("Suelo renegociado ($550 M): con usos puros la venta no alcanza (B ROI 18,5%); "
                     "el USO-MULTIPLE (D_MIXTO 20% local + 80% vivienda) SÍ resuelve la venta "
-                    "(ROI 26,6% VIABLE). En renta la recomendacion sigue siendo LP x VIS "
-                    "(TIR 11,1%, VPN +$271 M). Veredicto del caso: el mix permite vender; si se "
-                    "arrienda, producto VIS en largo plazo."),
+                    "(ROI 26,6% VIABLE). En renta hay dos vias viables: LP x VIS (TIR 11,1%, "
+                    "VPN +$271 M) y LP x D_MIXTO_SALUD (TIR 10,8%, VPN +218 M); oficinas no "
+                    "cruzan el umbral en esta zona (9,7%). Veredicto: el mix permite vender; "
+                    "si se arrienda, producto VIS o mix con consultorios en largo plazo."),
     },
     {
         "id": "AAA0030JKOE",
@@ -51,11 +52,12 @@ CASOS = [
         "renta": os.path.join(REN, "resultados", "resultados_AAA0030JKOE.json"),
         "pipeline": os.path.join(DATA, "AAA0030JKOE-prefactibilidad.json"),
         "color": "#7A4E2D",
-        "lectura": ("Escala grande + zona turistica: la venta B Estándar ya es VIABLE (ROI 22,3%) y la "
-                    "renta amplia la viabilidad a 6 de 8 combinaciones (mejor CP x A, TIR 12,8%; "
-                    "incluye CP x D_MIXTO 10,1%). Canones parcialmente validados 2026-08-14 "
-                    "(apartaestudios turisticos $35-45.000/m2/mes). Suelo soportable muy superior "
-                    "al CL del ejercicio."),
+        "lectura": ("Escala grande + zona turistica: la venta B Estándar ya es VIABLE (ROI 22,3%) y "
+                    "los usos de servicios la amplian: D_MIXTO_SALUD (25% consultorios) ROI 30,9% "
+                    "y D_MIXTO_OFICINAS 29,9% — la venta se resuelve con salud/oficinas en el mix. "
+                    "En renta, LP x D_MIXTO_SALUD es el mejor combo de todo el caso (TIR 12,9%, "
+                    "VPN +3.026 M). Canones parcialmente validados 2026-08-14 (apartaestudios "
+                    "turisticos $35-45.000/m2/mes; consultorios rango ciudad etiquetado)."),
     },
     {
         "id": "AAA0039KRMR",
@@ -68,11 +70,11 @@ CASOS = [
         "pipeline": os.path.join(DATA, "AAA0039KRMR-prefactibilidad.json"),
         "color": "#3E6B4F",
         "lectura": ("Caso de estres (lote pequeno 357 m2, suelo caro ~$1,96 M/m2) con precios de venta "
-                    "y canones VALIDADOS 2026-08-14 (vivienda nueva Puente Aranda $4,8 M/m2; "
-                    "Properati $36.066/m2/mes): la venta sigue inviable (mejor D_MIXTO -7,1%) pero "
-                    "el USO-MULTIPLE rescata el caso en renta: LP x D_MIXTO TIR 10,75% (VPN +236 M) "
-                    "y CP x D_MIXTO 10,1%. La validacion de comparables cambio el veredicto del "
-                    "caso de estres; la accesibilidad N3 es excelente (estacion NQS a 209 m)."),
+                    "y canones VALIDADOS 2026-08-14: la venta sigue inviable en todo (mejor "
+                    "D_MIXTO_SALUD -2,6%), pero el USO-MULTIPLE rescata el caso en renta: "
+                    "LP x D_MIXTO TIR 10,75% y LP x D_MIXTO_SALUD TIR 10,9% (VPN +266 M) — la "
+                    "accesibilidad N3 (estacion NQS a 209 m) y los consultorios hacen la "
+                    "diferencia. Oficinas no cruzan el umbral (8,7%)."),
     },
 ]
 
@@ -298,6 +300,59 @@ def _mix_html(caso) -> str:
 <th class="num">TIR</th><th class="num">VPN (M$)</th><th>Estado</th></tr>{filas_r}</table></div>"""
 
 
+def _sensibilidad_html(caso) -> str:
+    """Sensibilidad salud/consultorios y oficinas (D_MIXTO_SALUD / D_MIXTO_OFICINAS)."""
+    with open(caso["venta"], "r", encoding="utf-8") as f:
+        v = json.load(f)
+    with open(caso["renta"], "r", encoding="utf-8") as f:
+        r = json.load(f)
+    umbral_v = v["reglas_decision"]["roi_minimo_pct"]
+    filas = ""
+    for esc_id, etiqueta in (("D_MIXTO_SALUD", "Consultorios (salud)"),
+                             ("D_MIXTO_OFICINAS", "Oficinas (servicios)")):
+        ev = next((x for x in v["escenarios"] if x["escenario_id"] == esc_id), None)
+        if not ev:
+            continue
+        est_v = ("<span class='estado ok'>VIABLE</span>" if ev["ROI_pct"] >= umbral_v
+                 else "<span class='estado bad'>NO VIABLE</span>")
+        det = ev.get("mix_usos_detalle") or []
+        comp = next((c for c in det if c["uso"] != "Vivienda VIS" and c["uso"] != "Vivienda estandar"), None)
+        pct = f"{comp['pct_gfa'] * 100:.0f}%" if comp else "—"
+        combos = [x for x in r["resultados"] if x["escenario_id"] == esc_id]
+        mejor = None
+        for x in combos:
+            crit = [a for a in r["alertas"].get(f"{x['estrategia']}_{x['escenario_id']}", [])
+                    if a["nivel"] == "critica"]
+            if not crit and (mejor is None or (x["TIR_pct"] or 0) > (mejor["TIR_pct"] or 0)):
+                mejor = x
+        if mejor:
+            celda_r = (f"{_h(mejor['estrategia_nombre'].split(' — ')[0])} x {_h(mejor['producto'])} "
+                       f"<b>{mejor['TIR_pct']:.1f}%</b> · VPN {_fmt_m(mejor['VPN_cop'])} M")
+            est_r = "<span class='estado ok'>VIABLE</span>"
+        else:
+            mejor_tir = max((x["TIR_pct"] or 0) for x in combos) if combos else 0
+            celda_r = f"mejor TIR {mejor_tir:.1f}% (sin umbral)"
+            est_r = "<span class='estado bad'>NO VIABLE</span>"
+        filas += (f"<tr><td><b>{_h(etiqueta)}</b></td><td class='num'>{pct}</td>"
+                  f"<td class='num'>{ev['ROI_pct']:.1f}%</td><td>{est_v}</td>"
+                  f"<td>{celda_r}</td><td>{est_r}</td></tr>")
+    if not filas:
+        return ""
+    return f"""<h3>Sensibilidad de usos de servicios: salud/consultorios y oficinas (2026-08-14)</h3>
+<p class="mini">Escenarios D_MIXTO_SALUD y D_MIXTO_OFICINAS: 25% del GFA en el uso de servicios
++ 75% vivienda del caso (override de usuario). Parametrizacion etiquetada como supuesto de
+sensibilidad: canones de rango ciudad 2026 (consultorios $45-140.000/m2/mes segun
+FincaRaiz/MercadoLibre/Ciencuadras/SaludTools; oficinas clase A $82,7k y prime $88,3k segun
+RentOfficeToday/ValoraAnalitik Q3-2025) con valor no-prime; precio de venta derivado del canon
+(cap rate implicito 7,5-8,5%); costo consultorios = estandar x1,10 (instalaciones medicas).
+CP = LP para salud/oficinas (el temporal amoblado no aplica).</p>
+<div class="tabla-scroll"><table>
+<tr><th>Componente anadido (25% GFA)</th><th class="num">% GFA</th>
+<th class="num">Venta — ROI</th><th>Venta</th>
+<th>Renta — mejor combo</th><th>Renta</th></tr>
+{filas}</table></div>"""
+
+
 def _accesibilidad_html(caso) -> str:
     """Accesibilidad N3 materializada (capas reales de transporte) por caso."""
     ruta = os.path.join(ROOT, "exports", "alcance", caso["id"] + "-alcance.json")
@@ -388,6 +443,7 @@ def generar() -> None:
 {_renta_html(caso)}
 {_suelo_html(caso)}
 {_mix_html(caso)}
+{_sensibilidad_html(caso)}
 {_accesibilidad_html(caso)}
 <div class="nota"><b>Lectura del caso:</b> {_h(caso['lectura'])}</div>
 </div>

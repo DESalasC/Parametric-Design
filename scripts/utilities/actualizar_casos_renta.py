@@ -21,10 +21,27 @@ Requiere los resultados de venta ya corridos:
 import io
 import json
 import os
+import sys
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 VENTA = os.path.join(BASE, "..", "..", "src", "fase-2-demanda", "F2_Modelo_Financiero", "resultados")
 RENTA = os.path.join(BASE, "..", "..", "src", "fase-2-demanda", "F2_Modelo_Renta")
+
+# Escenarios de sensibilidad salud/oficinas (mismo modulo que los anade a venta)
+sys.path.insert(0, BASE)
+from agregar_sensibilidad_salud_oficinas import CASOS as CASOS_SENS
+from agregar_sensibilidad_salud_oficinas import _mix_salud, _mix_oficinas  # noqa: E402
+
+
+SENS_KEY = ("D_MIXTO_SALUD", "D_MIXTO_OFICINAS")
+
+
+def anadir_sensibilidad(data, chip):
+    c = CASOS_SENS[chip]
+    for key, fn in zip(SENS_KEY, (_mix_salud, _mix_oficinas)):
+        if key not in data["escenarios"]:
+            data["escenarios"][key] = fn(c, "renta")
+    return data
 
 
 def resumen_venta(path_resultados, nota):
@@ -104,7 +121,7 @@ def crear_caso_C():
             "chip": "AAA0039KRMR-MUZU",
             "horizonte_anios": 10,
             "origen_datos": "Lote real AAA0039KRMR (UPZ MUZU - Puente Aranda; area 356,96 m2; tratamiento Consolidacion). GFA de ejercicio 1.100 m2 (IC 3,08; rango '1' de la GDB inconsistente con altura maxima 26,6 m segun ADR-005 -> revision F1).",
-            "nota_general": "Caso de estudio 2026-08-14 (ejercicio). Incluye D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion). Canones/precios/costos: supuestos de ejercicio documentados (no validados con comparables)."
+            "nota_general": "Caso de estudio 2026-08-14 (ejercicio). Incluye D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion) y escenarios de sensibilidad salud/oficinas. Canones VIS/Estandar validados 2026-08-14 (Properati); el resto supuestos de ejercicio documentados."
         },
         "gfa_max_m2": 1100.0,
         "lote": {
@@ -163,7 +180,7 @@ def crear_caso_C():
     ref_path = os.path.join(VENTA, "resultados_AAA0039KRMR.json")
     data["referencia_venta"] = resumen_venta(
         ref_path,
-        "KPIs del modelo de venta F2 para el mismo caso (corrida 2026-08-14): ningun escenario viable (CL $700 M alto para GFA 1.100 m2; D_MIXTO ROI -2,5%). La renta es la alternativa a explorar.")
+        "KPIs del modelo de venta F2 (corrida 2026-08-14 con precios validados): ningun escenario viable (CL $700 M alto para GFA 1.100 m2; mejor D_MIXTO ROI -7,1%). La renta es la alternativa a explorar (LP x D_MIXTO / D_MIXTO_SALUD viables).")
     with io.open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
     print("OK creado:", path)
@@ -190,3 +207,16 @@ def actualizar_A_B():
 if __name__ == "__main__":
     crear_caso_C()
     actualizar_A_B()
+    # Escenarios de sensibilidad salud/oficinas (idempotente)
+    for fname, chip in [
+        ("parametros_AAA0127AZPA_renta_gfa1053_cl550.json", "AAA0127AZPA"),
+        ("parametros_AAA0030JKOE_renta.json", "AAA0030JKOE"),
+        ("parametros_AAA0039KRMR_renta.json", "AAA0039KRMR"),
+    ]:
+        path = os.path.join(RENTA, fname)
+        with io.open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        data = anadir_sensibilidad(data, chip)
+        with io.open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        print("OK sensibilidad:", fname)
