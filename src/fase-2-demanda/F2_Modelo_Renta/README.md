@@ -15,7 +15,7 @@ estrategias de explotación:
 
 | Archivo | Propósito |
 |---|---|
-| `F2_RENTA_MOTOR_v02.py` | Motor: flujo descontado 10 años, KPIs de renta (yield, cap rate, TIR, VPN, payback, múltiplo), suelo soportable, sensibilidad ±10%, salidas JSON/CSV/HTML |
+| `F2_RENTA_MOTOR_v03.py` | Motor: flujo descontado 10 años, KPIs de renta (yield, cap rate, TIR, VPN, payback, múltiplo), suelo soportable, sensibilidad ±10%, salidas JSON/CSV/HTML |
 | `parametros_entrada.json` | **Único archivo a editar** en el caso de referencia (GFA 1200, lote genérico) |
 | `parametros_AAA0127AZPA_renta.json` | Lote real AAA0127AZPA (GFA 632,7 m²; CL $1.200 M; cánones de la zona; referencia de venta del F2 validado) |
 | `parametros_AAA0127AZPA_renta_gfa1054.json` | Alternativa de curaduría (GFA 1054,49 m²) |
@@ -30,12 +30,12 @@ Requisito: Python 3.8+ (sin dependencias externas).
 
 ```bash
 cd src\fase-2-demanda\F2_Modelo_Renta
-python F2_RENTA_MOTOR_v02.py                                                          # caso de referencia
-python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json           # lote real
-python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json   # curaduría
-python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json --estrategia LP
-python F2_RENTA_MOTOR_v02.py --chip AAA0127AZPA --gfa 632.695061 --costo-lote 1200000000
-python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json --outdir resultados_prueba --sin-informe
+python F2_RENTA_MOTOR_v03.py                                                          # caso de referencia
+python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta.json           # lote real
+python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json   # curaduría
+python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta.json --estrategia LP
+python F2_RENTA_MOTOR_v03.py --chip AAA0127AZPA --gfa 632.695061 --costo-lote 1200000000
+python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta.json --outdir resultados_prueba --sin-informe
 ```
 
 Verificación independiente (PASS):
@@ -44,7 +44,7 @@ Verificación independiente (PASS):
 python verificacion_independiente.py --parametros parametros_AAA0127AZPA_renta.json --resultados resultados_AAA0127AZPA_renta/resultados_completos.json
 ```
 
-Tests: `pytest tests\test_f2_renta.py -v` desde la raíz del proyecto (11 tests; suite total 73 PASS).
+Tests: `pytest tests\test_f2_renta.py -v` desde la raíz del proyecto (14 tests; suite total 79 PASS).
 
 Salidas (por defecto en `resultados/`):
 
@@ -166,3 +166,11 @@ construccion/prefactibilidad y el motor decide si la recomendacion recae en el o
 
 Ejemplo (casos de estudio 2026-08-14): parametros_AAA0127AZPA_renta_gfa1053_cl550.json -> escenario D_MIXTO.
 
+
+
+## Integración con Fase 1 (hook GFA desde Grasshopper)
+
+Igual que el motor de venta (v3.0, 2026-08-15): si la ejecución **no** incluye `--gfa`, el motor
+lee `data\fase-2-demanda\<CHIP>-gfa-gh.json` (escrito por `F1_EXPORTAR_GFA_v02` en el canvas)
+e imprime `[INFO] GFA desde Grasshopper F1...`. `gfa_max_m2` del JSON de parámetros queda como
+respaldo. El flag `override_uso` del OVERRIDE de Fase 1 se propaga a `meta`.

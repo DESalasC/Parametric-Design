@@ -6,7 +6,7 @@ Proyecto: DiseñoParametrico — Fase 2 (Build-to-Rent)
 ================================================================================
 
 Recalcula con formulas escritas a mano (equivalente a una hoja de calculo
-independiente) todos los KPIs del motor F2_RENTA_MOTOR_v02.py y los contrasta
+independiente) todos los KPIs del motor F2_RENTA_MOTOR_v03.py y los contrasta
 contra el JSON de resultados generado por el motor.
 
 Diferencias deliberadas respecto al motor (independencia metodologica):
@@ -224,7 +224,7 @@ def main() -> int:
 
     checks, errores = comparar(args.parametros, args.resultados)
     print("=" * 70)
-    print("VERIFICACION INDEPENDIENTE — F2_RENTA_MOTOR_v02")
+    print("VERIFICACION INDEPENDIENTE — F2_RENTA_MOTOR_v03")
     print(f"  Parametros : {args.parametros}")
     print(f"  Resultados : {args.resultados}")
     print(f"  Chequeos   : {checks}")

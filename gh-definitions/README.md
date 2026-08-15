@@ -4,7 +4,7 @@
 
 | Archivo | Rol |
 |---|---|
-| `F1_Contexto_Base-Editado_v00.gh` / `.ghx` | **Canvas maestro** de Fase 1 (2026-08-13) |
+| `F1_Contexto_Base-Editado_v00.gh` / `.ghx` | **Canvas maestro** de Fase 1 (validado 2026-08-15: `F1_ETAPA2_NORMATIVA_v04` + `F1_EXPORTAR_GFA_v02` cargados, rango de pisos corregido con Value List entre comillas) |
 | `DiseñoParametrico_BaseConexiones.ghx` | Referencia de conexiones del canvas |
 | `test_panel.ghx` / `.json` | Panel de prueba / referencia de componentes |
 
@@ -19,4 +19,6 @@ Rev01–03B, Componentes básicos Rev00–02, Canvas_DisenoP_Rev05, backups, JSO
 ## Reglas
 
 - Unidades en **metros**; lotes como polilíneas; GHPython con componente "Script" (IronPython 2.7).
-- Todo cambio de canvas debe versionarse y documentarse en el vault (`10-arquitectura\guia-integracion-ghx-v25.md`).
+- Pipeline del canvas: ETAPA1_CONTEXTO_v01 → ETAPA2_LADOS_v02 → ETAPA2_PATIO_v02 →
+  ETAPA2_NORMATIVA_v04 → (OVERRIDE_USO_v01) → EXPORTAR_GFA_v02 → `data/fase-2-demanda/<CHIP>-gfa-gh.json`.
+- Todo cambio de canvas debe versionarse y documentarse en el vault (`10-arquitectura\guia-integracion-ghx-v26.md`).

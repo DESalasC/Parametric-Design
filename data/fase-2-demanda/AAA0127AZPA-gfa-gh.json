@@ -1,0 +1,22 @@
+{
+  "altura_total_m": 22.800000000000001, 
+  "area_envelope_m2": 210.89840000000001, 
+  "chip": "AAA0127AZPA", 
+  "fuente": "F1_Contexto_Base-Editado_v00 (F1_EXPORTAR_GFA_v02)", 
+  "generado": "2026-08-15", 
+  "gfa_total_m2": 1265.3901000000001, 
+  "ic_maximo": 6.0, 
+  "ic_real": 4.0171000000000001, 
+  "io_maximo": 6.0, 
+  "mensaje": "NORMATIVA v04 | OK | Lote: 315.0m2 | Ocup: 210.9m2 | IO 0.70 | IC 4.02 (+2) | Alt 22.8m | 6 pisos | GFA: 1265.4m2 | Patios 0.0m2", 
+  "ocupacion_real": 210.89840000000001, 
+  "override_uso": {
+    "activo": true, 
+    "nota": "", 
+    "token": "USO_OVERRIDE:Mixto;", 
+    "uso": "Mixto"
+  }, 
+  "pisos_finales": 6, 
+  "tipo": "resultados-f1-grasshopper", 
+  "valido": true
+}

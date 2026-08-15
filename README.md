@@ -12,7 +12,7 @@ análisis ambiental y inyección BIM nativa en ArchiCAD vía Grasshopper.
 |---|---|---|---|
 | **F0** | Setup BIM | ✅ Hecha | Layers ArchiCAD (GuBIMclass), plantilla XML |
 | **F1** | Contexto normativo y lote | ✅ Hecha | Pipeline modular v26 (2 etapas): fetch contexto → clasificación de lados → patios → normativa/envolvente. Linaje legacy en `_legacy\` |
-| **F2** | Demanda + modelo financiero | ✅ Hecha | `src\fase-2-demanda\`: 4 scripts de pipeline + `F2_Modelo_Financiero\` (motor v2.1: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja) + `F2_Modelo_Renta\` (BTR v1.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable) |
+| **F2** | Demanda + modelo financiero | ✅ Hecha | `src\fase-2-demanda\`: 4 scripts de pipeline + `F2_Modelo_Financiero\` (motor v3.0: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja, hook GFA desde F1) + `F2_Modelo_Renta\` (motor v3.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable, hook GFA desde F1) |
 | **F3** | Generación de masa | Avanzada | src\fase-3-masa\: F3_DISTRIBUCION_v01 (matriz/layout/programa-areas balanceado), F3_VOLUM_GENERADOR_v06 (fixes Rhino 8), prueba real de masa en Rhino 8.33 (caso A) |
 | **F4** | Análisis ambiental | 🔶 Iniciada | `src\fase-4-ambiental\`: F4_LADYBUG_ANALISIS v02 |
 | **F5** | Inyección BIM nativa | ⏳ Pendiente | `src\fase-5-bim\` (solo README) |
@@ -56,13 +56,14 @@ pytest tests\
 
 # Fase 2 — modelo financiero (ver src\fase-2-demanda\F2_Modelo_Financiero\MANUAL_DE_USO.md)
 cd src\fase-2-demanda\F2_Modelo_Financiero
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_mercado2026.json
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json  # alternativa curaduría
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_mercado2026.json
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json  # alternativa curaduría
 
 # Fase 2 — modelo Build-to-Rent (ver src\fase-2-demanda\F2_Modelo_Renta\MANUAL_DE_USO.md)
 cd ..\F2_Modelo_Renta
-python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json
-python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json  # alternativa curaduría
+python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta.json
+python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json  # alternativa curaduría
+# (sin --gfa: los motores leen data\fase-2-demanda\<CHIP>-gfa-gh.json, generado por F1_EXPORTAR_GFA_v02)
 
 # Rhino.Compute
 powershell scripts\rhino-compute\start-compute.ps1
@@ -79,6 +80,7 @@ referencia normativa y de mercado (`30-referencia\`), lecciones (`50-lecciones\`
 Ver `CLAUDE.md` (reglas de GHPython/IronPython, capas ArchiCAD, normativa POT/NSR-10, coordenadas
 MAGNA-SIRGAS, clasificación híbrida ADR-008, estructura de datos). Resumen crítico:
 - GHPython: componente "Script" clásico (IronPython 2.7), nunca "Python 3 Script" (bug Rhino 8).
-- Pipeline Fase 1 vigente: modular ETAPA1/ETAPA2 (v26); normativa: `F1_ETAPA2_NORMATIVA_v03`.
+- Pipeline Fase 1 vigente: modular ETAPA1/ETAPA2 (v26); normativa: `F1_ETAPA2_NORMATIVA_v04` +
+  exportador `F1_EXPORTAR_GFA_v02` (puente automático `<CHIP>-gfa-gh.json` → motores F2 v03).
 - Lotes como polilíneas, coordenadas locales (0,0,0), JSON del fetch como única entrada de Fase 1.
 - Git: commitear al final de cada sesión (ver historial de consolidaciones 2026-08-13).

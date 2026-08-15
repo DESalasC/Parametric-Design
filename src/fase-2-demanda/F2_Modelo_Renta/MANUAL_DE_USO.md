@@ -50,7 +50,7 @@ cd D:\Work\PROJECTS\DiseñoParametrico\src\fase-2-demanda\F2_Modelo_Renta
 **Paso 2.** Ejecute con el lote real (el caso que ya viene configurado):
 
 ```powershell
-python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json
+python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta.json
 ```
 
 **Paso 3.** Abra el informe:
@@ -65,13 +65,13 @@ Otras ejecuciones útiles:
 
 ```powershell
 # Alternativa de curaduría (GFA 1054)
-python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json
+python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json
 
 # Solo largo plazo
-python F2_RENTA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_renta.json --estrategia LP
+python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta.json --estrategia LP
 
 # Caso de referencia (GFA 1200, lote genérico)
-python F2_RENTA_MOTOR_v02.py
+python F2_RENTA_MOTOR_v03.py
 ```
 
 ---
@@ -170,3 +170,12 @@ valide con 5-10 anuncios de arriendo en un radio de 5 km del lote y ajuste
 | Error de JSON al abrir | Coma o comilla mal puesta | Revise la línea indicada; valide en https://jsonlint.com |
 | El informe no se ve bien | Archivo abierto con editor de texto | Ábralo con doble clic (navegador) |
 | Quiere borrar resultados | — | Borre la carpeta `resultados_*`; se regenera al ejecutar |
+
+
+## 9. De dónde sale el GFA (Fase 1 → Fase 2)
+
+Desde la versión 3.0, si ejecuta el modelo **sin** `--gfa`, el programa busca
+`data\fase-2-demanda\<CHIP>-gfa-gh.json` (escrito automáticamente por el canvas de
+Grasshopper, componente `F1_EXPORTAR_GFA_v02`) y usa ese GFA. Verá
+`[INFO] GFA desde Grasshopper F1...`. Si no existe archivo ni `--gfa`, usa `gfa_max_m2`
+del JSON de parámetros.

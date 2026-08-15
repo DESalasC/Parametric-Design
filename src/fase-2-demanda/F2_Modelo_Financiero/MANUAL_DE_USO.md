@@ -1,6 +1,6 @@
 # Manual de Uso — Modelo Financiero de Prefactibilidad (Fase 2)
 
-**Versión:** 2.1 (agosto 2026) · **Proyecto:** DiseñoParamétrico · **Lote de referencia:** AAA0127AZPA
+**Versión:** 3.0 (agosto 2026) · **Proyecto:** DiseñoParamétrico · **Lote de referencia:** AAA0127AZPA
 
 Este manual está escrito para una persona **sin conocimientos técnicos** de programación ni de
 modelos financieros. Si usted puede abrir una carpeta y copiar un texto, puede usar este modelo.
@@ -50,7 +50,7 @@ Tampoco necesita internet para ejecutarlo (solo para consultar las fuentes de da
 
 | Archivo / carpeta | Qué es |
 |---|---|
-| `F2_DEMANDA_MOTOR_v02.py` | **El programa.** No lo modifique (a menos que sepa programar) |
+| `F2_DEMANDA_MOTOR_v03.py` | **El programa.** No lo modifique (a menos que sepa programar) |
 | `parametros_entrada.json` | **Los datos de entrada del caso de referencia** (edítele aquí los números) |
 | `parametros_AAA0127AZPA.json` | Datos del lote real AAA0127AZPA según el pipeline de demanda |
 | `parametros_AAA0127AZPA_mercado2026.json` | El mismo lote con precios y costos de mercado 2026 (GFA 633 m², los más recientes) |
@@ -74,7 +74,7 @@ Tampoco necesita internet para ejecutarlo (solo para consultar las fuentes de da
 3. Ejecute el modelo. **Opción recomendada** (lote real con datos de mercado 2026):
 
    ```
-   python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_mercado2026.json --outdir resultados_AAA0127AZPA_aporte
+   python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_mercado2026.json --outdir resultados_AAA0127AZPA_aporte
    ```
 
 4. Espere unos segundos. Al final verá una tabla con los 3 escenarios y las líneas de resumen
@@ -87,19 +87,19 @@ Tampoco necesita internet para ejecutarlo (solo para consultar las fuentes de da
 
 ```bash
 # Caso de referencia (sin lote real): usa parametros_entrada.json
-python F2_DEMANDA_MOTOR_v02.py
+python F2_DEMANDA_MOTOR_v03.py
 
 # Reproducir exactamente los números del pipeline de demanda (datos originales)
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA.json --outdir resultados_AAA0127AZPA
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA.json --outdir resultados_AAA0127AZPA
 
 # Forma compatible con el pipeline (--chip --gfa --costo-lote)
-python F2_DEMANDA_MOTOR_v02.py --chip AAA0127AZPA --gfa 632.695061 --costo-lote 1200000000
+python F2_DEMANDA_MOTOR_v03.py --chip AAA0127AZPA --gfa 632.695061 --costo-lote 1200000000
 
 # Ejecutar la alternativa de curaduría (GFA 1054,49 m2)
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json
 
 # Fijar el porcentaje de utilidades para el dueño del lote (escenario D)
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_mercado2026.json --pct-socio 30
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_mercado2026.json --pct-socio 30
 ```
 
 Cada ejecución genera 5 archivos en la carpeta `--outdir` (o `resultados` si no la indica):
@@ -116,7 +116,7 @@ usar), **nunca en el programa**. Ábralo con el Bloc de notas (clic derecho → 
 notas*). Respete el formato: cada dato va entre comillas y después de dos puntos.
 
 **Consejo:** antes de editar, haga una copia del archivo (por ejemplo
-`parametros_prueba.json`) y ejecute `python F2_DEMANDA_MOTOR_v02.py --parametros parametros_prueba.json`.
+`parametros_prueba.json`) y ejecute `python F2_DEMANDA_MOTOR_v03.py --parametros parametros_prueba.json`.
 Si rompe el formato, el modelo le dirá cuál línea tiene el error.
 
 Los campos que más le interesarán:
@@ -344,7 +344,7 @@ arriendo es más conservador para el dueño; el aporte le da mayor potencial de 
 
 ```
 1. Abrir cmd → cd /d D:\Work\PROJECTS\DiseñoParametrico\src\fase-2-demanda\F2_Modelo_Financiero
-2. Ejecutar → python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_mercado2026.json
+2. Ejecutar → python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_mercado2026.json
 3. Ver la tabla de escenarios → ¿VIABLE o NO VIABLE? ¿por qué (alertas CRITICA)?
 4. Ver ESCENARIO D (aporte) y ESCENARIO E (arriendo) → ¿existe ventana de acuerdo? ¿pct / canon viable?
 5. Ver FLUJO DE CAJA → ¿chequeo OK? saldo final = utilidad bruta (3 modalidades)
@@ -353,3 +353,18 @@ arriendo es más conservador para el dueño; el aporte le da mayor potencial de 
 
 Si algo no cuadra o aparece un error que no está en esta tabla, guarde el texto de la ventana negra
 y envíelo al responsable del modelo junto con el archivo JSON que usó.
+
+
+## 13. De dónde sale el GFA (Fase 1 → Fase 2)
+
+El GFA máximo construible viene de la **Fase 1** (normativa en Grasshopper). Desde la versión
+3.0 del modelo hay dos formas de pasarlo:
+
+1. **Automática (recomendada):** el canvas de Grasshopper escribe
+   `data\fase-2-demanda\<CHIP>-gfa-gh.json` con el GFA calculado. Si usted ejecuta el modelo
+   **sin** la opción `--gfa`, el programa lo busca solo. Verá el mensaje
+   `[INFO] GFA desde Grasshopper F1...`.
+2. **Manual:** pase el GFA usted mismo con `--gfa <metros>`. Útil para probar escenarios
+   hipotéticos (ej. la alternativa de curaduría).
+
+Si no hay archivo ni `--gfa`, el modelo usa el valor `gfa_max_m2` del JSON de parámetros.

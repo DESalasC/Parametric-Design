@@ -9,7 +9,7 @@ Fase 1), evaluando 3 escenarios para el mismo GFA: **A (VIS/VIP)**, **B (Estánd
 
 | Archivo | Propósito |
 |---|---|
-| `F2_DEMANDA_MOTOR_v02.py` | Motor del modelo: KPIs, alertas de viabilidad, sensibilidad ±10%, recomendación, salidas JSON/CSV/HTML |
+| `F2_DEMANDA_MOTOR_v03.py` | Motor del modelo: KPIs, alertas de viabilidad, sensibilidad ±10%, recomendación, salidas JSON/CSV/HTML |
 | `parametros_entrada.json` | **Único archivo a editar**: GFA, lote, costos, precios, eficiencias, absorción, reglas y fuentes |
 | `parametros_AAA0127AZPA.json` | Lote real AAA0127AZPA con datos del pipeline (reproduce sus KPIs exactamente) |
 | `parametros_AAA0127AZPA_mercado2026.json` | Mismo lote con precios/costos de mercado 2026 (GFA 633) |
@@ -29,15 +29,15 @@ Requisito: Python 3.8+ (sin dependencias externas).
 
 ```bash
 cd F2_Modelo_Financiero
-python F2_DEMANDA_MOTOR_v02.py                              # caso base (GFA 1200 m2)
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_zona_alta.json --outdir resultados_zona_alta
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_provocacion.json --outdir resultados_provocacion
-python F2_DEMANDA_MOTOR_v02.py --chip AAA0127AZPA --sin-informe
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_mercado2026.json --outdir resultados_AAA0127AZPA_aporte
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json --outdir resultados_AAA0127AZPA_gfa1054
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_mercado2026_validado.json --outdir resultados_AAA0127AZPA_validado
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026_validado.json --outdir resultados_AAA0127AZPA_gfa1054_validado
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_mercado2026.json --pct-socio 30
+python F2_DEMANDA_MOTOR_v03.py                              # caso base (GFA 1200 m2)
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_zona_alta.json --outdir resultados_zona_alta
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_provocacion.json --outdir resultados_provocacion
+python F2_DEMANDA_MOTOR_v03.py --chip AAA0127AZPA --sin-informe
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_mercado2026.json --outdir resultados_AAA0127AZPA_aporte
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json --outdir resultados_AAA0127AZPA_gfa1054
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_mercado2026_validado.json --outdir resultados_AAA0127AZPA_validado
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026_validado.json --outdir resultados_AAA0127AZPA_gfa1054_validado
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_mercado2026.json --pct-socio 30
 ```
 
 Salidas (por defecto en `resultados/`):
@@ -188,3 +188,13 @@ el analisis financiero decide la recomendacion mas adecuada comparando el mixto 
 
 Ejemplo (casos de estudio 2026-08-14): parametros_AAA0127AZPA_venta_gfa1053_cl550.json -> escenario D_MIXTO.
 
+
+
+## Integración con Fase 1 (hook GFA desde Grasshopper)
+
+Desde el 2026-08-15 el motor es **v3.0** y se integra con el canvas maestro
+(`F1_Contexto_Base-Editado_v00.gh`): `F1_EXPORTAR_GFA_v02` escribe
+`data\fase-2-demanda\<CHIP>-gfa-gh.json` con el GFA total y los KPIs normativos. Si la
+ejecución **no** incluye `--gfa`, el motor lee ese archivo (`gfa_desde_grasshopper(chip)`),
+imprime `[INFO] GFA desde Grasshopper F1...` y propaga `override_uso` a `meta`. El GFA del
+JSON de parámetros (`gfa_max_m2`) se mantiene como respaldo cuando no hay archivo ni `--gfa`.

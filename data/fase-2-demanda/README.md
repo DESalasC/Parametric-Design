@@ -4,6 +4,16 @@ JSON de entrada de la Fase 2 (formato del pipeline, consumido por `F2_DEMANDA_MO
 por los motores financieros en `src\fase-2-demanda\F2_Modelo_Financiero\` y
 `src\fase-2-demanda\F2_Modelo_Renta\`).
 
+## Salida automática de Fase 1 (no editar)
+
+| Archivo | Contenido |
+|---|---|
+| `AAA0127AZPA-gfa-gh.json` | Escrito por `F1_EXPORTAR_GFA_v02` en el canvas (GFA total, KPIs normativos). Lo leen los motores F2 v3.0 cuando no se pasa `--gfa` |
+
+Formato: `gfa_total_m2`, `ocupacion_real`, `pisos_finales`, `io_real/io_maximo`, `ic_real/ic_maximo`,
+`altura_total`, `valido`, `override_uso` (si hay OVERRIDE), `fuente`. Regenerado en cada corrida
+válida del canvas; si el contenido no cambia, el estado es `SIN_CAMBIOS`.
+
 ## Casos históricos
 
 | Archivo | GFA | Rol |

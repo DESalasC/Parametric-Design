@@ -16,21 +16,28 @@ fetch-urban-context-v6 (scripts/utilities) → data/pot-cache/<CHIP>-contexto.js
 ```
 ArchiCAD (layers) → Tapir GetElements → GH
   → F1_ETAPA2_LADOS_v02.py      (clasificación de lados: regla 15m + paralelismo)
-  → F1_ETAPA2_PATIO_v01.py      (patios de aislamiento en vértices vecino-vecino)
-  → F1_ETAPA2_NORMATIVA_v03.py (retiros diferenciados + resta booleana de patio + IO/IC/altura)
+  → F1_ETAPA2_PATIO_v02.py      (patios de aislamiento en vértices vecino-vecino)
+  → F1_ETAPA2_NORMATIVA_v04.py  (retiros diferenciados + resta booleana de patio + IO/IC/altura)
   → envelope_curve → Fase 3 (VOLUM_GENERADOR)
+  → F1_OVERRIDE_USO_v01.py      (opcional: override de uso del operador, USO-MULTIPLE)
+  → F1_EXPORTAR_GFA_v02.py      (auto-write: data/fase-2-demanda/<CHIP>-gfa-gh.json)
+  → Fase 2 (F2_DEMANDA_MOTOR_v03 / F2_RENTA_MOTOR_v03; hook si no llega --gfa)
 ```
 
-**Vigentes:** `F1_ETAPA1_CONTEXTO_v01` · `F1_ETAPA2_LADOS_v02` · `F1_ETAPA2_PATIO_v01` ·
-`F1_ETAPA2_NORMATIVA_v03`. Utilidades: `F1_DESPLAZAR_ORIGEN_v01`, `F1_VECINOS_ANALISIS_*`,
-`F1_VALIDADOR_CRUZADO_v01`, `F1_PATIO_DISCONTINUIDAD_v*` (variantes de patio).
+**Vigentes:** `F1_ETAPA1_CONTEXTO_v01` · `F1_ETAPA2_LADOS_v02` · `F1_ETAPA2_PATIO_v02` ·
+`F1_ETAPA2_NORMATIVA_v04` · `F1_EXPORTAR_GFA_v02` · `F1_OVERRIDE_USO_v01` (opcional).
+El resto del linaje (patios discontinuidad, análisis de vecinos, validador cruzado, desplazar
+origen, vértice cercano) se archivó en `_legacy/` el 2026-08-15; no usar en definiciones nuevas.
 
 ## Archivo
 
 El linaje anterior (`F1_CONTEXTO_POT_*`, `F1_LADOS_CONFIGURAR_*`, `F1_LADOS_CLASIFICAR_*`,
 `F1_NORMATIVA_APLICAR_*`, `F1_NORMATIVA_DIRECTA_*`, `F1_NORMATIVA_LEER_*`, `F1_PATIO_ESQUINA_*`,
 `F1_PATIO_VECINO_*`, `F1_PATIO_DIRECTO_*`, `F1_NEW_LAYERS_*`) se archivó en **`_legacy/`**
-(2026-08-13) y **no debe usarse** en definiciones nuevas. No eliminar: contiene el historial.
+(2026-08-13) y **no debe usarse** en definiciones nuevas. El 2026-08-15 se sumaron a `_legacy/`
+los utilitarios `F1_PATIO_DISCONTINUIDAD_v01/v02/v03`, `F1_VECINOS_ANALISIS_v01(+_sistema)`,
+`F1_VECINOS_ANALISIS_v02_sistema`, `F1_VALIDADOR_CRUZADO_v01`, `F1_DESPLAZAR_ORIGEN_v01` y
+`F1_VERTICE_CERCANO_v01` (git mv). No eliminar: contiene el historial.
 
 ## Tests
 

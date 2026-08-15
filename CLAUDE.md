@@ -72,7 +72,10 @@ fetch-urban-context-v6 → JSON → F1_ETAPA1_CONTEXTO (GH Python)
 ArchiCAD (layers clasificados) → Tapir GetElements → GH
   → F1_ETAPA2_LADOS: clasificar lados según capas
   → F1_ETAPA2_PATIO: patios según colindancias reales
-  → F1_ETAPA2_NORMATIVA: ocupación + envolvente
+  → F1_ETAPA2_NORMATIVA: ocupación + envolvente (GFA total = ocupación_real × pisos_finales)
+  → F1_OVERRIDE_USO (opcional): override de uso del operador (USO-MULTIPLE)
+  → F1_EXPORTAR_GFA: escribe data/fase-2-demanda/<CHIP>-gfa-gh.json (auto, sin toggle)
+  → Fase 2: F2_DEMANDA_MOTOR_v03 / F2_RENTA_MOTOR_v03 (leen el GFA si no se pasa --gfa)
 ```
 
 ### Normativa
@@ -91,11 +94,14 @@ ArchiCAD (layers clasificados) → Tapir GetElements → GH
 
 ### Grasshopper / GHPython
 9. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm).
-10. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v03.py` (pipeline modular v26, regla híbrida 15m).
+10. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v04.py` (pipeline modular v26, regla híbrida 15m).
     El linaje legacy (`F1_NORMATIVA_APLICAR_*`, `F1_CONTEXTO_POT_*`, `F1_LADOS_CONFIGURAR_*`,
-    `F1_LADOS_CLASIFICAR_*`, patios viejos) está archivado en `src/fase-1-contexto/_legacy/`.
-    Pipeline Fase 1: `F1_ETAPA1_CONTEXTO_v01` → `F1_ETAPA2_LADOS_v02` → `F1_ETAPA2_PATIO_v01`
-    → `F1_ETAPA2_NORMATIVA_v03`.
+    `F1_LADOS_CLASIFICAR_*`, patios viejos, `F1_PATIO_DISCONTINUIDAD_*`, `F1_VECINOS_ANALISIS_*`,
+    `F1_VALIDADOR_CRUZADO_v01`, `F1_DESPLAZAR_ORIGEN_v01`, `F1_VERTICE_CERCANO_v01`) está
+    archivado en `src/fase-1-contexto/_legacy/` (2026-08-15).
+    Pipeline Fase 1: `F1_ETAPA1_CONTEXTO_v01` → `F1_ETAPA2_LADOS_v02` → `F1_ETAPA2_PATIO_v02`
+    → `F1_ETAPA2_NORMATIVA_v04` → (`F1_OVERRIDE_USO_v01` opcional) → `F1_EXPORTAR_GFA_v02`
+    → `data/fase-2-demanda/<CHIP>-gfa-gh.json` → motores F2 v03 (hook `--gfa` opcional).
 
 ### PROHIBIDO usar 
 11. Rhinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg).
@@ -171,7 +177,7 @@ DiseñoParametrico/
 ├── scripts/                   # rhino-compute/ + utilities/
 ├── src/                       # Código por fase
 │   ├── fase-1-contexto/       # Modular ETAPA1/ETAPA2 vigente + _legacy\
-│   ├── fase-2-demanda/        # Pipeline + F2_Modelo_Financiero\ (motor v2.1) + F2_Modelo_Renta\ (BTR v1.0)
+│   ├── fase-2-demanda/        # Pipeline + F2_Modelo_Financiero\ (motor v3.0) + F2_Modelo_Renta\ (motor v3.0) — hook GFA desde F1
 │   ├── fase-3-masa/           # VOLUM_GENERADOR v03, ACCESOS, PREP_LADYBUG
 │   ├── fase-4-ambiental/      # F4_LADYBUG_ANALISIS v02
 │   ├── fase-5-bim/            # Pendiente
@@ -199,7 +205,7 @@ DiseñoParametrico/
 ## Fases del proyecto
 - [x] **Fase 0**: Setup BIM (capas ArchiCAD)
 - [x] **Fase 1**: Contexto POT + retiros + vecinos (clasificación híbrida ADR-008, pipeline modular v26)
-- [x] **Fase 2**: Motor de demanda + modelo financiero de prefactibilidad (`F2_Modelo_Financiero`, v2.1: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja) + **modelo Build-to-Rent** (`F2_Modelo_Renta`, v1.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable)
+- [x] **Fase 2**: Motor de demanda + modelo financiero de prefactibilidad (`F2_Modelo_Financiero`, v3.0: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja, hook GFA desde F1) + **modelo Build-to-Rent** (`F2_Modelo_Renta`, v3.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable, hook GFA desde F1)
 - [~] **Fase 3**: Generación de masa (`VOLUM_GENERADOR`, `ACCESOS_INTEGRADOR`, `PREP_LADYBUG`)
 - [~] **Fase 4**: Análisis ambiental (Ladybug + EPW Bogotá)
 - [ ] **Fase 5**: Inyección BIM nativa (Tapir → ArchiCAD)
@@ -250,8 +256,8 @@ vecinos, NO a frentes de calle o espacio público. La calle ya provee ventilaci�
 
 4. **Implementación (pipeline modular actual):**
    - `F1_ETAPA2_LADOS_v02` clasifica lados por proximidad a street_curves
-   - `F1_ETAPA2_PATIO_v01` detecta vértices vecino-vecino y genera rectángulos
-   - `F1_ETAPA2_NORMATIVA_v03` aplica retiros diferenciados y resta todos los patios
+   - `F1_ETAPA2_PATIO_v02` detecta vértices vecino-vecino y genera rectángulos
+   - `F1_ETAPA2_NORMATIVA_v04` aplica retiros diferenciados y resta todos los patios
 
 ## Cuándo preguntar al usuario
 - Cambios arquitectónicos mayores (nuevo stack, cambiar de plugin).

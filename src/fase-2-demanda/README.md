@@ -11,9 +11,11 @@ Motor de viabilidad comercial, programa de áreas y **modelo financiero de prefa
 | `F2_PROG_INTERIOR_v01.py` | 347 | Programa interior de unidades |
 | `F2_PROGRAMA_AREAS_v01.py` | 488 | Programa de áreas por tipología |
 
-> El **motor mejorado** (v2.2: KPIs, alertas, sensibilidad ±10%, escenarios D/E, flujo de caja,
-> informe HTML, CLI `--chip/--gfa/--costo-lote` compatible con el pipeline) vive en
-> **`F2_Modelo_Financiero\`** dentro de esta carpeta. Ver su `MANUAL_DE_USO.md`.
+> El **motor mejorado** (v3.0: KPIs, alertas, sensibilidad ±10%, escenarios D/E, flujo de caja,
+> informe HTML, CLI `--chip/--gfa/--costo-lote` compatible con el pipeline, **hook GFA desde Fase 1**)
+> vive en **`F2_Modelo_Financiero\`** dentro de esta carpeta. Ver su `MANUAL_DE_USO.md`.
+> Hook: si no se pasa `--gfa`, el motor lee `data\fase-2-demanda\<CHIP>-gfa-gh.json` (escrito por
+> `F1_EXPORTAR_GFA_v02` en el canvas) y usa `gfa_total_m2`. Igual en `F2_Modelo_Renta\` (v3.0).
 
 ## Datos de entrada (canónicos)
 
@@ -28,8 +30,8 @@ Motor de viabilidad comercial, programa de áreas y **modelo financiero de prefa
 
 ```powershell
 cd src\fase-2-demanda\F2_Modelo_Financiero
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_mercado2026.json
-python F2_DEMANDA_MOTOR_v02.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_mercado2026.json
+python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_gfa1054_mercado2026.json
 ```
 
 ## Resultados clave (mercado 2026, CL $1.200 M)

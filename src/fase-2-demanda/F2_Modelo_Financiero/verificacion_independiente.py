@@ -5,7 +5,7 @@ verificacion_independiente.py — Verificacion cruzada del modelo F2
 ================================================================================
 Recalcula los KPIs de los 3 escenarios con formulas escritas a mano (independientes
 del motor) y los contrasta contra resultados_completos.json generado por
-F2_DEMANDA_MOTOR_v02.py. Funciona como la "hoja de calculo independiente" del
+F2_DEMANDA_MOTOR_v03.py. Funciona como la "hoja de calculo independiente" del
 plan de verificacion: si todo PASS, el motor esta correcto.
 
 USO:

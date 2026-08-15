@@ -112,7 +112,7 @@ def crear_caso_C():
     path = os.path.join(RENTA, "parametros_AAA0039KRMR_renta.json")
     data = {
         "meta": {
-            "modelo": "F2_RENTA_MOTOR_v02",
+            "modelo": "F2_RENTA_MOTOR_v03",
             "version": "1.0",
             "fase": "Prefactibilidad (Fase 2) - Modelo Build-to-Rent (BTR)",
             "ciudad": "Bogota D.C., Colombia",
