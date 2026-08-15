@@ -1,7 +1,7 @@
 {
     "meta": {
         "modelo": "F2_RENTA_MOTOR_v02",
-        "version": "2.0",
+        "version": "1.0",
         "fase": "Prefactibilidad (Fase 2) - Modelo Build-to-Rent (BTR)",
         "ciudad": "Bogota D.C., Colombia",
         "moneda": "COP",
@@ -68,14 +68,14 @@
             "eficiencia_nga": 0.8,
             "costo_construccion_m2": 2600000.0,
             "canon_m2_mes": {
-                "CP": 30600.0,
-                "LP": 18000.0
+                "CP": 51000.0,
+                "LP": 30000.0
             },
-            "fuente_canon": "Vivienda Muzu LP $18.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
-            "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+            "fuente_canon": "Validado 2026-08-14: Properati jul-2026 Puente Aranda $36.066/m2/mes; VIS ~ -15% -> $30.000 LP. CP = x1,7.",
+            "fuente_canon_url": "https://www.properati.com.co/s/puente-aranda-bogota-d-c/apartamento/arriendo",
             "fuente_costo": "Konstruing: $2,6 M/m2 (supuesto de ejercicio).",
             "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Supuestos de ejercicio."
+            "nota": "Canon validado con comparable 2026-08-14 (antes $18.000 LP)."
         },
         "B_ESTANDAR": {
             "nombre": "B - Estandar",
@@ -83,14 +83,14 @@
             "eficiencia_nga": 0.75,
             "costo_construccion_m2": 3000000.0,
             "canon_m2_mes": {
-                "CP": 37400.0,
-                "LP": 22000.0
+                "CP": 61200.0,
+                "LP": 36000.0
             },
-            "fuente_canon": "Vivienda Muzu LP $22.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
-            "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+            "fuente_canon": "Validado 2026-08-14: Properati jul-2026 Puente Aranda $36.066/m2/mes. CP = x1,7.",
+            "fuente_canon_url": "https://www.properati.com.co/s/puente-aranda-bogota-d-c/apartamento/arriendo",
             "fuente_costo": "Konstruing: $3,0 M/m2 (supuesto de ejercicio).",
             "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Supuestos de ejercicio."
+            "nota": "Canon validado con comparable 2026-08-14 (antes $22.000 LP)."
         },
         "C_LUJO": {
             "nombre": "C - Lujo / Alto nivel",
@@ -98,18 +98,18 @@
             "eficiencia_nga": 0.7,
             "costo_construccion_m2": 3800000.0,
             "canon_m2_mes": {
-                "CP": 54400.0,
-                "LP": 32000.0
+                "CP": 76500.0,
+                "LP": 45000.0
             },
-            "fuente_canon": "Vivienda premium Muzu LP $32.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
-            "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+            "fuente_canon": "Premium +25% sobre media Properati jul-2026 ($45.000 LP; antes $32.000). CP = x1,7.",
+            "fuente_canon_url": "https://www.properati.com.co/s/puente-aranda-bogota-d-c/apartamento/arriendo",
             "fuente_costo": "Konstruing premium: $3,8 M/m2 (supuesto de ejercicio).",
             "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Supuestos de ejercicio."
+            "nota": "Ajustado 2026-08-14 al comparable de zona."
         },
         "D_MIXTO": {
             "nombre": "D - Mixto (override usuario)",
-            "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 35% local comercial + 65% vivienda VIS (Muzu/Puente Aranda). Supuestos de ejercicio.",
+            "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 35% local comercial + 65% vivienda VIS (Muzu/Puente Aranda). Canones validados 2026-08-14.",
             "override_uso": true,
             "mix_usos": [
                 {
@@ -119,10 +119,10 @@
                     "eficiencia_nga": 0.85,
                     "costo_construccion_m2": 3200000,
                     "canon_m2_mes": {
-                        "CP": 50000,
-                        "LP": 30000
+                        "CP": 85000,
+                        "LP": 50000
                     },
-                    "fuente": "Local Muzu LP $30.000/m2/mes (supuesto de ejercicio)."
+                    "fuente": "Local Muzu LP $50.000/m2/mes (supuesto sobre media zona 2026-08-14)."
                 },
                 {
                     "uso": "Vivienda VIS",
@@ -131,13 +131,13 @@
                     "eficiencia_nga": 0.8,
                     "costo_construccion_m2": 2600000,
                     "canon_m2_mes": {
-                        "CP": 30600,
-                        "LP": 18000
+                        "CP": 51000,
+                        "LP": 30000
                     },
-                    "fuente": "Vivienda VIS Muzu LP $18.000/m2/mes (supuesto de ejercicio)."
+                    "fuente": "Vivienda VIS Muzu LP $30.000/m2/mes (Properati jul-2026)."
                 }
             ],
-            "fuente_canon": "Supuestos de ejercicio 2026-08-14 (mix uso multiple).",
+            "fuente_canon": "Comparables 2026-08-14 (Properati Puente Aranda $36.066/m2/mes; VIS -15%).",
             "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local $3,2 M/m2, vivienda $2,6 M/m2)."
         }
     },
@@ -153,23 +153,23 @@
             },
             "B_ESTANDAR": {
                 "nombre": "B - Estandar",
-                "ROI_venta_pct": -4.44,
-                "MUB_venta_pct": -4.65,
-                "CL_IT_pct": 15.67,
+                "ROI_venta_pct": -20.39,
+                "MUB_venta_pct": -25.62,
+                "CL_IT_pct": 18.94,
                 "estado": "NO VIABLE"
             },
             "C_LUJO": {
                 "nombre": "C - Lujo / Alto nivel",
-                "ROI_venta_pct": -9.28,
-                "MUB_venta_pct": -10.23,
-                "CL_IT_pct": 13.5,
+                "ROI_venta_pct": -26.4,
+                "MUB_venta_pct": -35.87,
+                "CL_IT_pct": 16.76,
                 "estado": "NO VIABLE"
             },
             "D_MIXTO": {
                 "nombre": "D - Mixto (override usuario)",
-                "ROI_venta_pct": -2.54,
-                "MUB_venta_pct": -2.6,
-                "CL_IT_pct": 16.22,
+                "ROI_venta_pct": -7.1,
+                "MUB_venta_pct": -7.65,
+                "CL_IT_pct": 17.05,
                 "estado": "NO VIABLE"
             }
         }

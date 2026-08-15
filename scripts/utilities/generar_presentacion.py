@@ -52,8 +52,10 @@ CASOS = [
         "pipeline": os.path.join(DATA, "AAA0030JKOE-prefactibilidad.json"),
         "color": "#7A4E2D",
         "lectura": ("Escala grande + zona turistica: la venta B Estándar ya es VIABLE (ROI 22,3%) y la "
-                    "renta amplia la viabilidad a 5 de 6 combinaciones (mejor CP x A, TIR 12,8%). "
-                    "El suelo soportable ($4.374 M max.) supera con holgura el CL del ejercicio."),
+                    "renta amplia la viabilidad a 6 de 8 combinaciones (mejor CP x A, TIR 12,8%; "
+                    "incluye CP x D_MIXTO 10,1%). Canones parcialmente validados 2026-08-14 "
+                    "(apartaestudios turisticos $35-45.000/m2/mes). Suelo soportable muy superior "
+                    "al CL del ejercicio."),
     },
     {
         "id": "AAA0039KRMR",
@@ -65,10 +67,12 @@ CASOS = [
         "renta": os.path.join(REN, "resultados", "resultados_AAA0039KRMR.json"),
         "pipeline": os.path.join(DATA, "AAA0039KRMR-prefactibilidad.json"),
         "color": "#3E6B4F",
-        "lectura": ("Caso de estres (lote pequeno 357 m2, suelo caro ~$1,96 M/m2): ni la venta "
-                    "(mejor D_MIXTO ROI -2,5%) ni la renta (mejor CP x C TIR 2,5%, suelo soportable "
-                    "$0) alcanzan los umbrales. Leccion: en esta zona el precio del suelo y la escala "
-                    "del lote descartan el desarrollo; renegociar suelo o buscar lotes mayores."),
+        "lectura": ("Caso de estres (lote pequeno 357 m2, suelo caro ~$1,96 M/m2) con precios de venta "
+                    "y canones VALIDADOS 2026-08-14 (vivienda nueva Puente Aranda $4,8 M/m2; "
+                    "Properati $36.066/m2/mes): la venta sigue inviable (mejor D_MIXTO -7,1%) pero "
+                    "el USO-MULTIPLE rescata el caso en renta: LP x D_MIXTO TIR 10,75% (VPN +236 M) "
+                    "y CP x D_MIXTO 10,1%. La validacion de comparables cambio el veredicto del "
+                    "caso de estres; la accesibilidad N3 es excelente (estacion NQS a 209 m)."),
     },
 ]
 
@@ -294,6 +298,29 @@ def _mix_html(caso) -> str:
 <th class="num">TIR</th><th class="num">VPN (M$)</th><th>Estado</th></tr>{filas_r}</table></div>"""
 
 
+def _accesibilidad_html(caso) -> str:
+    """Accesibilidad N3 materializada (capas reales de transporte) por caso."""
+    ruta = os.path.join(ROOT, "exports", "alcance", caso["id"] + "-alcance.json")
+    if not os.path.exists(ruta):
+        return ""
+    with open(ruta, "r", encoding="utf-8") as f:
+        doc = json.load(f)
+    acc = doc["niveles"][2].get("accesibilidad", {})
+    if "isocrona_20min_aprox" not in acc:
+        return ""
+    iso = acc["isocrona_20min_aprox"]
+    tm = acc["estacion_tm_mas_cercana"]
+    par = acc["paradero_sitp_mas_cercano"]
+    return f"""<h3>Accesibilidad (N3) — capas reales de transporte 2026-08-14</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Indicador</th><th>Valor</th></tr>
+<tr><td>Estación TransMilenio más cercana</td><td><b>{_h(tm['nombre'])}</b> a {tm['distancia_m']:.0f} m · {acc['estaciones_tm_500m']} estaciones &lt; 500 m</td></tr>
+<tr><td>Paradero SITP más cercano</td><td><b>{_h(par['codigo'])}</b> a {par['distancia_m']:.0f} m · {acc['paraderos_sitp_500m']} paraderos &lt; 500 m</td></tr>
+<tr><td>Isocrona 20 min (aprox.)</td><td>{iso['paraderos_sitp_alcanzables_20min']} paraderos · {iso['estaciones_tm_alcanzables_20min']} estaciones TM · corredor {_h(str(iso['corredor_tm_acceso']))}</td></tr>
+</table></div>
+<p class="mini">Método de primer orden (20 km/h → 6.667 m de red; corredores TM por arclength; red zonal sinuosidad 1,3). GTFS con horarios pendiente.</p>"""
+
+
 def _alcance_html() -> str:
     """Seccion de areas de influencia multi-nivel (N1 2 km / N2 5 km / N3 accesibilidad)."""
     with open(os.path.join(DATA, "alcance-investigacion.json"), "r", encoding="utf-8") as f:
@@ -307,19 +334,42 @@ def _alcance_html() -> str:
             alcance = f"radio {n['radio_m'] / 1000:.0f} km desde el origen SIRGAS del lote"
         filas += (f"<tr><td><b>{n['id']}</b></td><td>{_h(n['etiqueta'])}</td><td>{_h(alcance)}</td>"
                   f"<td>{_h(n['enfoque'])}</td></tr>")
+    # Resumen N3 materializado por lote
+    filas_n3 = ""
+    for chip, nom in [("AAA0127AZPA", "El Prado"), ("AAA0030JKOE", "Candelaria"), ("AAA0039KRMR", "Muzú")]:
+        ruta = os.path.join(ROOT, "exports", "alcance", chip + "-alcance.json")
+        if not os.path.exists(ruta):
+            continue
+        with open(ruta, "r", encoding="utf-8") as f:
+            doc = json.load(f)
+        acc = doc["niveles"][2].get("accesibilidad", {})
+        if "isocrona_20min_aprox" not in acc:
+            continue
+        iso = acc["isocrona_20min_aprox"]
+        tm = acc["estacion_tm_mas_cercana"]
+        filas_n3 += (f"<tr><td><b>{chip}</b> ({nom})</td>"
+                     f"<td>{_h(tm['nombre'])} a {tm['distancia_m']:.0f} m · {acc['estaciones_tm_500m']} &lt; 500 m</td>"
+                     f"<td>{_h(acc['paradero_sitp_mas_cercano']['codigo'])} a {acc['paradero_sitp_mas_cercano']['distancia_m']:.0f} m · {acc['paraderos_sitp_500m']} &lt; 500 m</td>"
+                     f"<td>{iso['paraderos_sitp_alcanzables_20min']} paraderos · {iso['estaciones_tm_alcanzables_20min']} estaciones · {_h(str(iso['corredor_tm_acceso']))}</td></tr>")
     return f"""<section class="alt"><div class="wrap">
 <h2>Alcance de la investigacion: areas de influencia multi-nivel</h2>
 <p class="lead">El estudio de demanda se organiza en tres niveles: un anillo cercano de 2 km
 (vecindario directo), el anillo intermedio de hasta 5 km (area de mercado actual) y un nivel
 lejano de accesibilidad basado en preferencias de transporte — estaciones de TransMilenio y
 paraderos SITP a menos de 500 m del lote, e isocrona de 20 minutos en transporte publico sobre
-la red principal (publica y privada).</p>
+la red principal (publica y privada). El nivel N3 está <b>materializado con capas reales</b>
+descargadas el 2026-08-14 (estaciones TM, paraderos SITP, trazados de corredores).</p>
 <div class="tabla-scroll"><table>
 <tr><th>Nivel</th><th>Etiqueta</th><th>Alcance geografico</th><th>Enfoque de la investigacion</th></tr>
 {filas}</table></div>
-<p class="mini">Configuracion: data/fase-2-demanda/alcance-investigacion.json · anillos por lote:
-exports/alcance/&lt;CHIP&gt;-alcance.json (N1/N2 como circulos SIRGAS; N3 reporta estado de datos:
-malla vial del POT disponible, capas de estaciones/GTFS pendientes de datos abiertos de Bogota).</p>
+<h3>N3 materializado por lote (capas de transporte 2026-08-14)</h3>
+<div class="tabla-scroll"><table>
+<tr><th>Lote</th><th>TransMilenio mas cercana</th><th>Paradero SITP mas cercano</th><th>Isocrona 20 min (aprox.)</th></tr>
+{filas_n3}</table></div>
+<p class="mini">Configuracion: data/fase-2-demanda/alcance-investigacion.json · capas: data/transporte/
+(descargar_capas_transporte.py) · anillos y metricas: exports/alcance/&lt;CHIP&gt;-alcance.json.
+Isocrona de primer orden: 20 km/h → 6.667 m de red; corredores TM por arclength del trazado;
+red zonal con factor de sinuosidad 1,3. GTFS con horarios pendiente (mejora futura).</p>
 </div></section>"""
 
 
@@ -338,6 +388,7 @@ def generar() -> None:
 {_renta_html(caso)}
 {_suelo_html(caso)}
 {_mix_html(caso)}
+{_accesibilidad_html(caso)}
 <div class="nota"><b>Lectura del caso:</b> {_h(caso['lectura'])}</div>
 </div>
 </section>"""

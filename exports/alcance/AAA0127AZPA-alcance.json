@@ -442,25 +442,39 @@
       },
       "estado_datos": {
         "malla_vial_disponible": true,
-        "estaciones_tm_disponible": false,
-        "paraderos_sitp_disponible": false,
+        "estaciones_tm_disponible": true,
+        "paraderos_sitp_disponible": true,
         "gtfs_disponible": false,
-        "nota": "La malla vial del POT ya viene en el contexto F1 de cada lote. Las capas de estaciones/paraderos/GTFS se incorporan como paso siguiente (descarga de datos abiertos de Bogota). Hasta entonces, el nivel N3 reporta distancias/cobertura como PENDIENTE."
+        "nota": "Capas de estaciones (153 TM) y paraderos SITP descargadas 2026-08-14 (data/transporte/). La malla vial del POT viene en el contexto F1. El GTFS completo (horarios) queda pendiente: la isocrona N3 se calcula con metodo de primer orden (20 km/h, arclength de corredores, sinuosidad 1,3)."
       },
       "accesibilidad": {
-        "distancia_estacion_tm_m": "PENDIENTE (capa estaciones TransMilenio)",
-        "distancia_paradero_sitp_m": "PENDIENTE (capa paraderos SITP)",
-        "isocrona_20min_tp": "PENDIENTE (GTFS TransMilenio/SITP)",
+        "estacion_tm_mas_cercana": {
+          "nombre": "Calle 127 - L'Oréal Paris",
+          "distancia_m": 716.3
+        },
+        "paradero_sitp_mas_cercano": {
+          "codigo": "Br. Niza IX",
+          "distancia_m": 186.2
+        },
+        "estaciones_tm_500m": 0,
+        "paraderos_sitp_500m": 10,
+        "isocrona_20min_aprox": {
+          "metodo": "Primer orden, SIN GTFS completo: velocidad comercial 20 km/h -> 6666 m de red en 20 min; corredores TM por arclength del trazado; red zonal con factor de sinuosidad 1,3 (5128 m euclidianos).",
+          "distancia_red_max_m": 6666.7,
+          "corredor_tm_acceso": "AUTOPISTA NORTE",
+          "estaciones_tm_alcanzables_20min": 16,
+          "paraderos_sitp_alcanzables_20min": 1428,
+          "gtfs_completo": "PENDIENTE (requiere GTFS con horarios y routing)"
+        },
         "red_principal_privado": {
           "malla_vial_disponible": true,
-          "vias_en_contexto_f1": 42,
-          "vias_por_fuente": {
-            "Eje_vial": 2,
-            "MallaVialIntermedia": 36,
-            "RedInfraestructuraVialArterial": 4
-          },
-          "criterio": "Malla vial arterial e intermedia del POT"
-        }
+          "criterio": "Malla vial arterial e intermedia del POT (contexto F1)"
+        },
+        "capas_utilizadas": [
+          "estaciones_tm.geojson",
+          "paraderos_sitp.geojson",
+          "trazados_tm.geojson"
+        ]
       },
       "enfoque": "Preferencias de localizacion por acceso a red principal de transporte: estaciones TransMilenio y paraderos SITP a menos de 500 m del lote, e isocrona de 20 minutos en transporte publico (captura de demanda metropolitana).",
       "indicadores": [
@@ -485,9 +499,9 @@
     "N3-LEJANO-ACCESIBILIDAD": [
       "Distancia al corredor/estacion TransMilenio mas cercano (<500 m).",
       "Cobertura de paraderos SITP a <500 m.",
-      "Isocrona de 20 min en transporte publico (GTFS) -> demanda capturable.",
+      "Isocrona de 20 min en transporte publico (primer orden; GTFS completo pendiente).",
       "Acceso a la malla vial arterial (transporte privado)."
     ]
   },
-  "nota": "Los radios se miden desde el origen SIRGAS del lote. N3 usa accesibilidad en lugar de radio fijo, segun config alcance-investigacion.json."
+  "nota": "Los radios se miden desde el origen SIRGAS del lote. N3 usa accesibilidad en lugar de radio fijo; capas en data/transporte/ (descargar_capas_transporte.py)."
 }

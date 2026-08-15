@@ -56,15 +56,16 @@ CASOS = [
         "costo_lote": 700_000_000.0,
         "nota": "Caso de estudio 2026-08-14: lote real AAA0039KRMR (UPZ Muzu, Puente Aranda; "
                 "356,96 m2; Consolidacion). GFA 1.100 m2 (supuesto de ejercicio). CL $700 M "
-                "(~$1,96 M/m2, supuesto de ejercicio). Zona de actividad multiple; precios/"
-                "canones de zona (supuestos de ejercicio documentados).",
+                "(~$1,96 M/m2, supuesto de ejercicio). Precios validados 2026-08-14: vivienda "
+                "nueva Puente Aranda $4,8 M/m2 (EstrenarVivienda) y canones Properati jul-2026 "
+                "$36.066/m2/mes.",
         "escenarios": [
             {"producto": "VIS", "unidad": 55.0, "eficiencia": 0.8,
              "precio": 4_300_000, "costo": 2_600_000},
             {"producto": "Estandar", "unidad": 70.0, "eficiencia": 0.75,
-             "precio": 5_800_000, "costo": 3_000_000},
+             "precio": 4_800_000, "costo": 3_000_000},
             {"producto": "Lujo", "unidad": 120.0, "eficiencia": 0.7,
-             "precio": 7_200_000, "costo": 3_800_000},
+             "precio": 5_800_000, "costo": 3_800_000},
         ],
     },
 ]

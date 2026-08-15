@@ -8,7 +8,7 @@
     "fecha_ejecucion": "2026-08-14",
     "chip": "AAA0030JKOE-CANDELARIA",
     "origen_datos": "Lote real AAA0030JKOE (La Candelaria, UPZ 94; 946,45 m2; estrato 2; norma manual Decreto 492/07: IO 0,7 x 5 pisos -> GFA 3.312,6 m2). CL supuesto de ejercicio $1.420 M. Canones: zona turistica centro historico (supuestos de ejercicio; Ciencuadras Q1-2026 promedio Bogota $47.821/m2/mes como referencia).",
-    "nota_general": "Caso de estudio centro historico: alta demanda turistica (ocupacion CP alta), canones premium por m2, sobrecosto de restauracion."
+    "nota_general": "Caso de estudio centro historico: alta demanda turistica (ocupacion CP alta), canones premium por m2, sobrecosto de restauracion. Canones parcialmente validados 2026-08-14 (Properati/Facebook ofertas Candelaria)."
   },
   "gfa_max_m2": 3312.575,
   "costo_lote_cop": 1420000000.0,
@@ -59,11 +59,11 @@
           "CP": 74800.0,
           "LP": 44000.0
         },
-        "fuente_canon": "Centro historico: LP $44.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
-        "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+        "fuente_canon": "Validado parcial 2026-08-14: apartaestudios turisticos Candelaria ,3-1,7 M/mes en 30-40 m2 (~-45.000/m2/mes); se mantiene .000 LP (zona turistica). CP = x1,7.",
+        "fuente_canon_url": "https://www.properati.com.co/s/la-candelaria-bogota-d-c/apartamento/arriendo",
         "fuente_costo": "Konstruing + restauracion: $3,4 M/m2 (supuesto de ejercicio).",
         "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-        "nota": "Supuestos de ejercicio."
+        "nota": "Canon mantenido en .000 LP tras validacion parcial 2026-08-14 (correccion de ajuste previo)."
       },
       "C_LUJO": {
         "nombre": "C — Lujo / Alto nivel",
@@ -82,7 +82,7 @@
       },
       "D_MIXTO": {
         "nombre": "D - Mixto (override usuario)",
-        "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Supuestos de ejercicio.",
+        "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Canones ajustados a comparables 2026-08-14.",
         "override_uso": true,
         "mix_usos": [
           {
@@ -104,13 +104,13 @@
             "eficiencia_nga": 0.75,
             "costo_construccion_m2": 4000000,
             "canon_m2_mes": {
-              "CP": 45000,
-              "LP": 27000
+              "CP": 74800,
+              "LP": 44000
             },
-            "fuente": "Vivienda centro historico LP $27.000/m2/mes (supuesto de ejercicio)."
+            "fuente": "Vivienda centro historico LP $44.000/m2/mes (apartaestudios turisticos 2026-08-14)."
           }
         ],
-        "fuente_canon": "Supuestos de ejercicio 2026-08-14 (mix uso multiple).",
+        "fuente_canon": "Comparables 2026-08-14 + supuestos (mix uso multiple).",
         "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local restauracion $4,5 M/m2, vivienda $4,0 M/m2)."
       }
     },
@@ -212,9 +212,9 @@
       "CL_inversion_pct": 9.07,
       "suelo_soportable_cop": 4373794082.39,
       "ocupacion_breakeven_pct": 14.9,
-      "fuente_canon": "Centro historico: LP $44.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
-      "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
-      "nota": "Supuestos de ejercicio."
+      "fuente_canon": "Validado parcial 2026-08-14: apartaestudios turisticos Candelaria ,3-1,7 M/mes en 30-40 m2 (~-45.000/m2/mes); se mantiene .000 LP (zona turistica). CP = x1,7.",
+      "fuente_canon_url": "https://www.properati.com.co/s/la-candelaria-bogota-d-c/apartamento/arriendo",
+      "nota": "Canon mantenido en .000 LP tras validacion parcial 2026-08-14 (correccion de ajuste previo)."
     },
     {
       "estrategia": "CP",
@@ -266,7 +266,7 @@
       "unidad_m2": 48.94,
       "num_unidades": 52,
       "area_arrendable_m2": 2545.0,
-      "canon_m2_mes": 53251.47347740668,
+      "canon_m2_mes": 73215.71709233792,
       "mix_usos_detalle": [
         {
           "uso": "Local comercial turistico",
@@ -285,37 +285,37 @@
           "nga_i": 1739.1,
           "unidades": 31,
           "area": 1705.0,
-          "canon": 45000,
+          "canon": 74800,
           "costo": 4000000
         }
       ],
       "ocupacion_pct": 80.0,
       "horizonte_anios": 10,
-      "gpi_1_cop": 1626300000.0,
-      "egi_1_cop": 1301040000.0,
-      "noi_1_cop": 692428800.0,
-      "inversion_total_cop": 18534290187.5,
+      "gpi_1_cop": 2236008000.0,
+      "egi_1_cop": 1788806400.0,
+      "noi_1_cop": 1043620608.0,
+      "inversion_total_cop": 18546484347.5,
       "costo_lote_cop": 1420000000.0,
       "costo_duro_cop": 13747186250.0,
       "costo_blando_cop": 2062077937.5,
-      "marketing_leasing_cop": 32526000.0,
+      "marketing_leasing_cop": 44720160.0,
       "mobiliario_cop": 1272500000.0,
-      "salida_cop": 18480425129.86,
-      "sum_noi_cop": 8764014895.11,
-      "yield_bruto_pct": 8.77,
-      "cap_rate_entrada_pct": 3.74,
+      "salida_cop": 28156011269.45,
+      "sum_noi_cop": 13285733670.64,
+      "yield_bruto_pct": 12.06,
+      "cap_rate_entrada_pct": 5.63,
       "cap_rate_salida_pct": 6.2,
-      "TIR_pct": 4.62,
-      "VPN_cop": -6230336323.39,
-      "payback_anios": 9.6,
-      "payback_descontado_anios": null,
-      "multiplico_x": 1.47,
+      "TIR_pct": 10.11,
+      "VPN_cop": 152485822.7,
+      "payback_anios": 9.2,
+      "payback_descontado_anios": 10.0,
+      "multiplico_x": 2.23,
       "CL_inversion_pct": 7.66,
-      "suelo_soportable_cop": 0.0,
-      "ocupacion_breakeven_pct": 20.9,
-      "fuente_canon": "Supuestos de ejercicio 2026-08-14 (mix uso multiple).",
+      "suelo_soportable_cop": 1572485822.7,
+      "ocupacion_breakeven_pct": 15.2,
+      "fuente_canon": "Comparables 2026-08-14 + supuestos (mix uso multiple).",
       "fuente_canon_url": "",
-      "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Supuestos de ejercicio."
+      "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Canones ajustados a comparables 2026-08-14."
     },
     {
       "estrategia": "LP",
@@ -393,9 +393,9 @@
       "CL_inversion_pct": 9.86,
       "suelo_soportable_cop": 1837886636.72,
       "ocupacion_breakeven_pct": 17.0,
-      "fuente_canon": "Centro historico: LP $44.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
-      "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
-      "nota": "Supuestos de ejercicio."
+      "fuente_canon": "Validado parcial 2026-08-14: apartaestudios turisticos Candelaria ,3-1,7 M/mes en 30-40 m2 (~-45.000/m2/mes); se mantiene .000 LP (zona turistica). CP = x1,7.",
+      "fuente_canon_url": "https://www.properati.com.co/s/la-candelaria-bogota-d-c/apartamento/arriendo",
+      "nota": "Canon mantenido en .000 LP tras validacion parcial 2026-08-14 (correccion de ajuste previo)."
     },
     {
       "estrategia": "LP",
@@ -447,7 +447,7 @@
       "unidad_m2": 48.94,
       "num_unidades": 52,
       "area_arrendable_m2": 2545.0,
-      "canon_m2_mes": 31950.884086444006,
+      "canon_m2_mes": 43339.882121807466,
       "mix_usos_detalle": [
         {
           "uso": "Local comercial turistico",
@@ -466,37 +466,37 @@
           "nga_i": 1739.1,
           "unidades": 31,
           "area": 1705.0,
-          "canon": 27000,
+          "canon": 44000,
           "costo": 4000000
         }
       ],
       "ocupacion_pct": 90.0,
       "horizonte_anios": 10,
-      "gpi_1_cop": 975780000.0,
-      "egi_1_cop": 878202000.0,
-      "noi_1_cop": 565525740.0,
-      "inversion_total_cop": 17248779787.5,
+      "gpi_1_cop": 1323600000.0,
+      "egi_1_cop": 1191240000.0,
+      "noi_1_cop": 837868800.0,
+      "inversion_total_cop": 17255736187.5,
       "costo_lote_cop": 1420000000.0,
       "costo_duro_cop": 13747186250.0,
       "costo_blando_cop": 2062077937.5,
-      "marketing_leasing_cop": 19515600.0,
+      "marketing_leasing_cop": 26472000.0,
       "mobiliario_cop": 0.0,
-      "salida_cop": 15095995734.12,
-      "sum_noi_cop": 7158452640.43,
-      "yield_bruto_pct": 5.66,
-      "cap_rate_entrada_pct": 3.28,
+      "salida_cop": 22599242326.22,
+      "sum_noi_cop": 10664965889.71,
+      "yield_bruto_pct": 7.67,
+      "cap_rate_entrada_pct": 4.86,
       "cap_rate_salida_pct": 6.2,
-      "TIR_pct": 3.01,
-      "VPN_cop": -7198511966.22,
-      "payback_anios": 9.7,
+      "TIR_pct": 8.11,
+      "VPN_cop": -2246245884.73,
+      "payback_anios": 9.3,
       "payback_descontado_anios": null,
-      "multiplico_x": 1.29,
+      "multiplico_x": 1.93,
       "CL_inversion_pct": 8.23,
       "suelo_soportable_cop": 0.0,
-      "ocupacion_breakeven_pct": 23.4,
-      "fuente_canon": "Supuestos de ejercicio 2026-08-14 (mix uso multiple).",
+      "ocupacion_breakeven_pct": 17.2,
+      "fuente_canon": "Comparables 2026-08-14 + supuestos (mix uso multiple).",
       "fuente_canon_url": "",
-      "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Supuestos de ejercicio."
+      "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Canones ajustados a comparables 2026-08-14."
     }
   ],
   "alertas": {
@@ -523,19 +523,9 @@
     ],
     "CP_D_MIXTO": [
       {
-        "nivel": "critica",
-        "kpi": "TIR",
-        "texto": "TIR 4.6% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
-      },
-      {
-        "nivel": "critica",
-        "kpi": "VPN",
-        "texto": "VPN -6.230.3 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
-      },
-      {
-        "nivel": "critica",
-        "kpi": "Cap rate",
-        "texto": "Cap rate de entrada 3.7% < 5%: el NOI inicial no cubre el costo de capital."
+        "nivel": "advertencia",
+        "kpi": "Payback",
+        "texto": "Payback descontado 10.0 anos > 8 anos: recuperacion lenta."
       }
     ],
     "LP_A_VIS": [
@@ -573,17 +563,17 @@
       {
         "nivel": "critica",
         "kpi": "TIR",
-        "texto": "TIR 3.0% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+        "texto": "TIR 8.1% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
       },
       {
         "nivel": "critica",
         "kpi": "VPN",
-        "texto": "VPN -7.198.5 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+        "texto": "VPN -2.246.2 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
       },
       {
         "nivel": "critica",
         "kpi": "Cap rate",
-        "texto": "Cap rate de entrada 3.3% < 5%: el NOI inicial no cubre el costo de capital."
+        "texto": "Cap rate de entrada 4.9% < 5%: el NOI inicial no cubre el costo de capital."
       }
     ]
   },
@@ -594,8 +584,8 @@
       {
         "variable": "ocupacion_pct",
         "etiqueta": "Ocupacion promedio",
-        "impacto_vpn_promedio_cop": 1951455187.11,
-        "riesgo_esperado": 1951455187.11,
+        "impacto_vpn_promedio_cop": 2093383171.96,
+        "riesgo_esperado": 2093383171.96,
         "rango_plausible_x": 1.0,
         "prioridad_fetch": "Critica: depende de la gestion (CP) o del mercado (LP); rango plausible amplio.",
         "por_combo": {
@@ -654,22 +644,22 @@
             "impacto_vpn_cop": 2078818463.0
           },
           "CP_D_MIXTO": {
-            "vpn_base_cop": -6230336323.39,
-            "vpn_minus_cop": -7936106137.56,
-            "vpn_plus_cop": -4524566509.22,
-            "tir_base_pct": 4.62,
-            "tir_minus_pct": 2.78,
-            "tir_plus_pct": 6.27,
-            "impacto_vpn_cop": 1705769814.17
+            "vpn_base_cop": 152485822.7,
+            "vpn_minus_cop": -2192785622.08,
+            "vpn_plus_cop": 2497757267.48,
+            "tir_base_pct": 10.11,
+            "tir_minus_pct": 8.29,
+            "tir_plus_pct": 11.78,
+            "impacto_vpn_cop": 2345271444.78
           },
           "LP_D_MIXTO": {
-            "vpn_base_cop": -7198511966.22,
-            "vpn_minus_cop": -8589780470.9,
-            "vpn_plus_cop": -5807243461.54,
-            "tir_base_pct": 3.01,
-            "tir_minus_pct": 1.23,
-            "tir_plus_pct": 4.61,
-            "impacto_vpn_cop": 1391268504.68
+            "vpn_base_cop": -2246245884.73,
+            "vpn_minus_cop": -4133436637.56,
+            "vpn_plus_cop": -359055131.89,
+            "tir_base_pct": 8.11,
+            "tir_minus_pct": 6.35,
+            "tir_plus_pct": 9.71,
+            "impacto_vpn_cop": 1887190752.84
           }
         },
         "puesto": 1
@@ -677,8 +667,8 @@
       {
         "variable": "canon_m2_mes",
         "etiqueta": "Canon de arriendo (m2/mes)",
-        "impacto_vpn_promedio_cop": 1948172167.11,
-        "riesgo_esperado": 1948172167.11,
+        "impacto_vpn_promedio_cop": 2089860769.96,
+        "riesgo_esperado": 2089860769.96,
         "rango_plausible_x": 1.0,
         "prioridad_fetch": "Critica: dato de mercado por zona y tipologia; no controlable.",
         "por_combo": {
@@ -737,22 +727,22 @@
             "impacto_vpn_cop": 2075902463.0
           },
           "CP_D_MIXTO": {
-            "vpn_base_cop": -6230336323.39,
-            "vpn_minus_cop": -7932853537.56,
-            "vpn_plus_cop": -4527819109.22,
-            "tir_base_pct": 4.62,
-            "tir_minus_pct": 2.78,
-            "tir_plus_pct": 6.26,
-            "impacto_vpn_cop": 1702517214.17
+            "vpn_base_cop": 152485822.7,
+            "vpn_minus_cop": -2188313606.08,
+            "vpn_plus_cop": 2493285251.48,
+            "tir_base_pct": 10.11,
+            "tir_minus_pct": 8.29,
+            "tir_plus_pct": 11.77,
+            "impacto_vpn_cop": 2340799428.78
           },
           "LP_D_MIXTO": {
-            "vpn_base_cop": -7198511966.22,
-            "vpn_minus_cop": -8587828910.9,
-            "vpn_plus_cop": -5809195021.54,
-            "tir_base_pct": 3.01,
-            "tir_minus_pct": 1.23,
-            "tir_plus_pct": 4.61,
-            "impacto_vpn_cop": 1389316944.68
+            "vpn_base_cop": -2246245884.73,
+            "vpn_minus_cop": -4130789437.56,
+            "vpn_plus_cop": -361702331.89,
+            "tir_base_pct": 8.11,
+            "tir_minus_pct": 6.35,
+            "tir_plus_pct": 9.71,
+            "impacto_vpn_cop": 1884543552.84
           }
         },
         "puesto": 2
@@ -820,21 +810,21 @@
             "impacto_vpn_cop": 1828541400.0
           },
           "CP_D_MIXTO": {
-            "vpn_base_cop": -6230336323.39,
-            "vpn_minus_cop": -4649409904.64,
-            "vpn_plus_cop": -7811262742.14,
-            "tir_base_pct": 4.62,
-            "tir_minus_pct": 5.74,
-            "tir_plus_pct": 3.6,
+            "vpn_base_cop": 152485822.7,
+            "vpn_minus_cop": 1733412241.45,
+            "vpn_plus_cop": -1428440596.05,
+            "tir_base_pct": 10.11,
+            "tir_minus_pct": 11.36,
+            "tir_plus_pct": 8.99,
             "impacto_vpn_cop": 1580926418.75
           },
           "LP_D_MIXTO": {
-            "vpn_base_cop": -7198511966.22,
-            "vpn_minus_cop": -5617585547.47,
-            "vpn_plus_cop": -8779438384.97,
-            "tir_base_pct": 3.01,
-            "tir_minus_pct": 4.19,
-            "tir_plus_pct": 1.96,
+            "vpn_base_cop": -2246245884.73,
+            "vpn_minus_cop": -665319465.98,
+            "vpn_plus_cop": -3827172303.48,
+            "tir_base_pct": 8.11,
+            "tir_minus_pct": 9.4,
+            "tir_plus_pct": 6.95,
             "impacto_vpn_cop": 1580926418.75
           }
         },
@@ -843,8 +833,8 @@
       {
         "variable": "cap_rate_salida_pct",
         "etiqueta": "Cap rate de salida",
-        "impacto_vpn_promedio_cop": 988157656.68,
-        "riesgo_esperado": 494078828.34,
+        "impacto_vpn_promedio_cop": 1080146318.9,
+        "riesgo_esperado": 540073159.45,
         "rango_plausible_x": 0.5,
         "prioridad_fetch": "Alta: variable de mercado; define el valor de reventa del activo.",
         "por_combo": {
@@ -903,22 +893,22 @@
             "impacto_vpn_cop": 1121873841.05
           },
           "CP_D_MIXTO": {
-            "vpn_base_cop": -6230336323.39,
-            "vpn_minus_cop": -5438669223.99,
-            "vpn_plus_cop": -6878063950.18,
-            "tir_base_pct": 4.62,
-            "tir_minus_pct": 5.47,
-            "tir_plus_pct": 3.87,
-            "impacto_vpn_cop": 791667099.4
+            "vpn_base_cop": 152485822.7,
+            "vpn_minus_cop": 1358637067.37,
+            "vpn_plus_cop": -834365195.67,
+            "tir_base_pct": 10.11,
+            "tir_minus_pct": 10.97,
+            "tir_plus_pct": 9.36,
+            "impacto_vpn_cop": 1206151244.67
           },
           "LP_D_MIXTO": {
-            "vpn_base_cop": -7198511966.22,
-            "vpn_minus_cop": -6551827538.16,
-            "vpn_plus_cop": -7727617407.36,
-            "tir_base_pct": 3.01,
-            "tir_minus_pct": 3.85,
-            "tir_plus_pct": 2.27,
-            "impacto_vpn_cop": 646684428.06
+            "vpn_base_cop": -2246245884.73,
+            "vpn_minus_cop": -1278136304.16,
+            "vpn_plus_cop": -3038335541.55,
+            "tir_base_pct": 8.11,
+            "tir_minus_pct": 8.96,
+            "tir_plus_pct": 7.36,
+            "impacto_vpn_cop": 968109580.57
           }
         },
         "puesto": 4
@@ -926,8 +916,8 @@
       {
         "variable": "incremento_canon_pct",
         "etiqueta": "Incremento anual del canon",
-        "impacto_vpn_promedio_cop": 773144788.44,
-        "riesgo_esperado": 386572394.22,
+        "impacto_vpn_promedio_cop": 830319122.66,
+        "riesgo_esperado": 415159561.33,
         "rango_plausible_x": 0.5,
         "prioridad_fetch": "Media: atado al IPC; piso de rentabilidad real.",
         "por_combo": {
@@ -986,22 +976,22 @@
             "impacto_vpn_cop": 826852615.71
           },
           "CP_D_MIXTO": {
-            "vpn_base_cop": -6230336323.39,
-            "vpn_minus_cop": -6874305513.43,
-            "vpn_plus_cop": -5557911431.31,
-            "tir_base_pct": 4.62,
-            "tir_minus_pct": 3.9,
-            "tir_plus_pct": 5.32,
-            "impacto_vpn_cop": 672424892.08
+            "vpn_base_cop": 152485822.7,
+            "vpn_minus_cop": -738432311.3,
+            "vpn_plus_cop": 1082527843.69,
+            "tir_base_pct": 10.11,
+            "tir_minus_pct": 9.44,
+            "tir_plus_pct": 10.78,
+            "impacto_vpn_cop": 930042020.99
           },
           "LP_D_MIXTO": {
-            "vpn_base_cop": -7198511966.22,
-            "vpn_minus_cop": -7723795362.46,
-            "vpn_plus_cop": -6650019387.99,
-            "tir_base_pct": 3.01,
-            "tir_minus_pct": 2.31,
-            "tir_plus_pct": 3.71,
-            "impacto_vpn_cop": 548492578.23
+            "vpn_base_cop": -2246245884.73,
+            "vpn_minus_cop": -2963033836.4,
+            "vpn_plus_cop": -1497975761.59,
+            "tir_base_pct": 8.11,
+            "tir_minus_pct": 7.44,
+            "tir_plus_pct": 8.77,
+            "impacto_vpn_cop": 748270123.14
           }
         },
         "puesto": 5
@@ -1009,8 +999,8 @@
       {
         "variable": "tasa_descuento_pct",
         "etiqueta": "Tasa de descuento",
-        "impacto_vpn_promedio_cop": 1161584806.39,
-        "riesgo_esperado": 348475441.92,
+        "impacto_vpn_promedio_cop": 1269478900.5,
+        "riesgo_esperado": 380843670.15,
         "rango_plausible_x": 0.3,
         "prioridad_fetch": "Alta: costo de oportunidad del inversionista; politica.",
         "por_combo": {
@@ -1069,22 +1059,22 @@
             "impacto_vpn_cop": 1317946359.67
           },
           "CP_D_MIXTO": {
-            "vpn_base_cop": -6230336323.39,
-            "vpn_minus_cop": -5298870713.24,
-            "vpn_plus_cop": -7080004702.94,
-            "tir_base_pct": 4.62,
-            "tir_minus_pct": 4.62,
-            "tir_plus_pct": 4.62,
-            "impacto_vpn_cop": 931465610.15
+            "vpn_base_cop": 152485822.7,
+            "vpn_minus_cop": 1570102555.13,
+            "vpn_plus_cop": -1140586696.21,
+            "tir_base_pct": 10.11,
+            "tir_minus_pct": 10.11,
+            "tir_plus_pct": 10.11,
+            "impacto_vpn_cop": 1417616732.43
           },
           "LP_D_MIXTO": {
-            "vpn_base_cop": -7198511966.22,
-            "vpn_minus_cop": -6437643872.03,
-            "vpn_plus_cop": -7892563495.42,
-            "tir_base_pct": 3.01,
-            "tir_minus_pct": 3.01,
-            "tir_plus_pct": 3.01,
-            "impacto_vpn_cop": 760868094.19
+            "vpn_base_cop": -2246245884.73,
+            "vpn_minus_cop": -1108376159.95,
+            "vpn_plus_cop": -3284149512.35,
+            "tir_base_pct": 8.11,
+            "tir_minus_pct": 8.11,
+            "tir_plus_pct": 8.11,
+            "impacto_vpn_cop": 1137869724.78
           }
         },
         "puesto": 6
@@ -1092,8 +1082,8 @@
       {
         "variable": "gastos_operativos_pct_egi",
         "etiqueta": "Gastos operativos (% EGI)",
-        "impacto_vpn_promedio_cop": 495717337.0,
-        "riesgo_esperado": 247858668.5,
+        "impacto_vpn_promedio_cop": 532023867.75,
+        "riesgo_esperado": 266011933.87,
         "rango_plausible_x": 0.5,
         "prioridad_fetch": "Media: controlable parcialmente por gestion.",
         "por_combo": {
@@ -1152,22 +1142,22 @@
             "impacto_vpn_cop": 286733581.11
           },
           "CP_D_MIXTO": {
-            "vpn_base_cop": -6230336323.39,
-            "vpn_minus_cop": -5638055137.92,
-            "vpn_plus_cop": -6822617508.87,
-            "tir_base_pct": 4.62,
-            "tir_minus_pct": 5.21,
-            "tir_plus_pct": 4.0,
-            "impacto_vpn_cop": 592281185.48
+            "vpn_base_cop": 152485822.7,
+            "vpn_minus_cop": 966816185.47,
+            "vpn_plus_cop": -661844540.07,
+            "tir_base_pct": 10.11,
+            "tir_minus_pct": 10.71,
+            "tir_plus_pct": 9.5,
+            "impacto_vpn_cop": 814330362.77
           },
           "LP_D_MIXTO": {
-            "vpn_base_cop": -7198511966.22,
-            "vpn_minus_cop": -7006612862.12,
-            "vpn_plus_cop": -7390411070.31,
-            "tir_base_pct": 3.01,
-            "tir_minus_pct": 3.24,
-            "tir_plus_pct": 2.78,
-            "impacto_vpn_cop": 191899104.1
+            "vpn_base_cop": -2246245884.73,
+            "vpn_minus_cop": -1985943711.92,
+            "vpn_plus_cop": -2506548057.53,
+            "tir_base_pct": 8.11,
+            "tir_minus_pct": 8.34,
+            "tir_plus_pct": 7.88,
+            "impacto_vpn_cop": 260302172.81
           }
         },
         "puesto": 7
@@ -1218,6 +1208,14 @@
         "cap_rate_entrada_pct": 5.74
       },
       {
+        "combo": "CP_D_MIXTO",
+        "estrategia": "Corto plazo — temporal amoblado (turismo)",
+        "producto": "D - Mixto (override usuario)",
+        "TIR_pct": 10.11,
+        "VPN_cop": 152485822.7,
+        "cap_rate_entrada_pct": 5.63
+      },
+      {
         "combo": "LP_C_LUJO",
         "estrategia": "Largo plazo — arriendo tradicional",
         "producto": "C — Lujo / Alto nivel",
@@ -1226,23 +1224,15 @@
         "cap_rate_entrada_pct": 4.9
       },
       {
-        "combo": "CP_D_MIXTO",
-        "estrategia": "Corto plazo — temporal amoblado (turismo)",
-        "producto": "D - Mixto (override usuario)",
-        "TIR_pct": 4.62,
-        "VPN_cop": -6230336323.39,
-        "cap_rate_entrada_pct": 3.74
-      },
-      {
         "combo": "LP_D_MIXTO",
         "estrategia": "Largo plazo — arriendo tradicional",
         "producto": "D - Mixto (override usuario)",
-        "TIR_pct": 3.01,
-        "VPN_cop": -7198511966.22,
-        "cap_rate_entrada_pct": 3.28
+        "TIR_pct": 8.11,
+        "VPN_cop": -2246245884.73,
+        "cap_rate_entrada_pct": 4.86
       }
     ],
-    "veredicto_textual": "La combinacion Corto plazo — temporal amoblado (turismo) x A — VIS / VIP es la unica estrategia viable con TIR 12.8% (VPN 2.721.0 M, cap rate de entrada 6.8%). Producto: 48 unidades de 55 m2 con canon 61.200/m2/mes y ocupacion 80%.",
+    "veredicto_textual": "La mejor combinacion viable es Corto plazo — temporal amoblado (turismo) x A — VIS / VIP con TIR 12.8% (VPN 2.721.0 M, cap rate de entrada 6.8%). 6 de 8 combinaciones cumplen las reglas. Producto: 48 unidades de 55 m2 con canon 61.200/m2/mes y ocupacion 80%.",
     "recomendado": {
       "estrategia": "CP",
       "estrategia_nombre": "Corto plazo — temporal amoblado (turismo)",

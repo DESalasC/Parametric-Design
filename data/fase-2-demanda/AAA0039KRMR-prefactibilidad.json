@@ -2,7 +2,7 @@
     "chip": "AAA0039KRMR",
     "gfa_maximo_evaluado": 1100.0,
     "costo_lote_input": 700000000.0,
-    "nota": "Caso de estudio 2026-08-14: lote real AAA0039KRMR (UPZ Muzu, Puente Aranda; 356,96 m2; Consolidacion). GFA 1.100 m2 (supuesto de ejercicio). CL $700 M (~$1,96 M/m2, supuesto de ejercicio). Zona de actividad multiple; precios/canones de zona (supuestos de ejercicio documentados).",
+    "nota": "Caso de estudio 2026-08-14: lote real AAA0039KRMR (UPZ Muzu, Puente Aranda; 356,96 m2; Consolidacion). GFA 1.100 m2 (supuesto de ejercicio). CL $700 M (~$1,96 M/m2, supuesto de ejercicio). Precios validados 2026-08-14: vivienda nueva Puente Aranda $4,8 M/m2 (EstrenarVivienda) y canones Properati jul-2026 $36.066/m2/mes.",
     "escenarios": [
         {
             "producto": "VIS",
@@ -29,17 +29,17 @@
             "nga_m2": 825.0,
             "num_unidades": 11,
             "tamano_unidad_m2": 70.0,
-            "ingresos_totales_cop": 4466000000.0,
+            "ingresos_totales_cop": 3696000000.0,
             "costo_lote_cop": 700000000.0,
             "costo_duro_cop": 3300000000.0,
             "costo_blando_cop": 495000000.0,
-            "costo_mkt_cop": 178640000.0,
-            "costo_total_cop": 4673640000.0,
-            "utilidad_bruta_cop": -207640000.0,
+            "costo_mkt_cop": 147840000.0,
+            "costo_total_cop": 4642840000.0,
+            "utilidad_bruta_cop": -946840000.0,
             "KPIs": {
-                "MUB_pct": -4.65,
-                "ROI_pct": -4.44,
-                "Lote_sobre_Ventas_pct": 15.67
+                "MUB_pct": -25.62,
+                "ROI_pct": -20.39,
+                "Lote_sobre_Ventas_pct": 18.94
             }
         },
         {
@@ -48,17 +48,17 @@
             "nga_m2": 770.0,
             "num_unidades": 6,
             "tamano_unidad_m2": 120.0,
-            "ingresos_totales_cop": 5184000000.0,
+            "ingresos_totales_cop": 4176000000.0,
             "costo_lote_cop": 700000000.0,
             "costo_duro_cop": 4180000000.0,
             "costo_blando_cop": 627000000.0,
-            "costo_mkt_cop": 207360000.0,
-            "costo_total_cop": 5714360000.0,
-            "utilidad_bruta_cop": -530360000.0,
+            "costo_mkt_cop": 167040000.0,
+            "costo_total_cop": 5674040000.0,
+            "utilidad_bruta_cop": -1498040000.0,
             "KPIs": {
-                "MUB_pct": -10.23,
-                "ROI_pct": -9.28,
-                "Lote_sobre_Ventas_pct": 13.5
+                "MUB_pct": -35.87,
+                "ROI_pct": -26.4,
+                "Lote_sobre_Ventas_pct": 16.76
             }
         }
     ]

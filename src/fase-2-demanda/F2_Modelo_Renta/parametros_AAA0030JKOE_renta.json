@@ -8,7 +8,7 @@
         "fecha_ejecucion": "2026-08-14",
         "chip": "AAA0030JKOE-CANDELARIA",
         "origen_datos": "Lote real AAA0030JKOE (La Candelaria, UPZ 94; 946,45 m2; estrato 2; norma manual Decreto 492/07: IO 0,7 x 5 pisos -> GFA 3.312,6 m2). CL supuesto de ejercicio $1.420 M. Canones: zona turistica centro historico (supuestos de ejercicio; Ciencuadras Q1-2026 promedio Bogota $47.821/m2/mes como referencia).",
-        "nota_general": "Caso de estudio centro historico: alta demanda turistica (ocupacion CP alta), canones premium por m2, sobrecosto de restauracion."
+        "nota_general": "Caso de estudio centro historico: alta demanda turistica (ocupacion CP alta), canones premium por m2, sobrecosto de restauracion. Canones parcialmente validados 2026-08-14 (Properati/Facebook ofertas Candelaria)."
     },
     "gfa_max_m2": 3312.575,
     "lote": {
@@ -85,11 +85,11 @@
                 "CP": 74800.0,
                 "LP": 44000.0
             },
-            "fuente_canon": "Centro historico: LP $44.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
-            "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+            "fuente_canon": "Validado parcial 2026-08-14: apartaestudios turisticos Candelaria ,3-1,7 M/mes en 30-40 m2 (~-45.000/m2/mes); se mantiene .000 LP (zona turistica). CP = x1,7.",
+            "fuente_canon_url": "https://www.properati.com.co/s/la-candelaria-bogota-d-c/apartamento/arriendo",
             "fuente_costo": "Konstruing + restauracion: $3,4 M/m2 (supuesto de ejercicio).",
             "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Supuestos de ejercicio."
+            "nota": "Canon mantenido en .000 LP tras validacion parcial 2026-08-14 (correccion de ajuste previo)."
         },
         "C_LUJO": {
             "nombre": "C — Lujo / Alto nivel",
@@ -108,7 +108,7 @@
         },
         "D_MIXTO": {
             "nombre": "D - Mixto (override usuario)",
-            "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Supuestos de ejercicio.",
+            "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Canones ajustados a comparables 2026-08-14.",
             "override_uso": true,
             "mix_usos": [
                 {
@@ -130,13 +130,13 @@
                     "eficiencia_nga": 0.75,
                     "costo_construccion_m2": 4000000,
                     "canon_m2_mes": {
-                        "CP": 45000,
-                        "LP": 27000
+                        "CP": 74800,
+                        "LP": 44000
                     },
-                    "fuente": "Vivienda centro historico LP $27.000/m2/mes (supuesto de ejercicio)."
+                    "fuente": "Vivienda centro historico LP $44.000/m2/mes (apartaestudios turisticos 2026-08-14)."
                 }
             ],
-            "fuente_canon": "Supuestos de ejercicio 2026-08-14 (mix uso multiple).",
+            "fuente_canon": "Comparables 2026-08-14 + supuestos (mix uso multiple).",
             "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local restauracion $4,5 M/m2, vivienda $4,0 M/m2)."
         }
     },

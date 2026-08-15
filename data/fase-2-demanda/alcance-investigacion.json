@@ -60,9 +60,9 @@
     },
     "estado_datos": {
         "malla_vial_disponible": true,
-        "estaciones_tm_disponible": false,
-        "paraderos_sitp_disponible": false,
+        "estaciones_tm_disponible": true,
+        "paraderos_sitp_disponible": true,
         "gtfs_disponible": false,
-        "nota": "La malla vial del POT ya viene en el contexto F1 de cada lote. Las capas de estaciones/paraderos/GTFS se incorporan como paso siguiente (descarga de datos abiertos de Bogota). Hasta entonces, el nivel N3 reporta distancias/cobertura como PENDIENTE."
+        "nota": "Capas de estaciones (153 TM) y paraderos SITP descargadas 2026-08-14 (data/transporte/). La malla vial del POT viene en el contexto F1. El GTFS completo (horarios) queda pendiente: la isocrona N3 se calcula con metodo de primer orden (20 km/h, arclength de corredores, sinuosidad 1,3)."
     }
 }

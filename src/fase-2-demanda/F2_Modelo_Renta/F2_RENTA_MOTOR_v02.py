@@ -634,10 +634,12 @@ def recomendar(resultados: list, alertas_por_combo: dict, reglas: dict) -> dict:
     if viables:
         mejor = sorted(viables, key=lambda r: (r["TIR_pct"] or -99.0, r["VPN_cop"]),
                        reverse=True)[0]
-        texto = (f"La combinacion {mejor['estrategia_nombre']} x {mejor['producto']} es la unica "
-                 f"estrategia viable con TIR {mejor['TIR_pct']:.1f}% (VPN "
+        n_viables = len(viables)
+        texto = (f"La mejor combinacion viable es {mejor['estrategia_nombre']} x {mejor['producto']} "
+                 f"con TIR {mejor['TIR_pct']:.1f}% (VPN "
                  f"{_fmt_m(mejor['VPN_cop'])} M, cap rate de entrada "
                  f"{mejor['cap_rate_entrada_pct']:.1f}%). "
+                 f"{n_viables} de {len(resultados)} combinaciones cumplen las reglas. "
                  f"Producto: {mejor['num_unidades']} unidades de {mejor['unidad_m2']:.0f} m2 con canon "
                  f"{_fmt_cop(mejor['canon_m2_mes'])}/m2/mes y ocupacion {mejor['ocupacion_pct']:.0f}%.")
         estado = "VIABLE"

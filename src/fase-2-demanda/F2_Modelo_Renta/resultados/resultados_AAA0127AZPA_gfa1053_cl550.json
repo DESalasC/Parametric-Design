@@ -1266,7 +1266,7 @@
         "cap_rate_entrada_pct": 3.9
       }
     ],
-    "veredicto_textual": "La combinacion Largo plazo — arriendo tradicional x A — VIS / VIP es la unica estrategia viable con TIR 11.1% (VPN 270.6 M, cap rate de entrada 6.1%). Producto: 15 unidades de 55 m2 con canon 32.000/m2/mes y ocupacion 95%.",
+    "veredicto_textual": "La mejor combinacion viable es Largo plazo — arriendo tradicional x A — VIS / VIP con TIR 11.1% (VPN 270.6 M, cap rate de entrada 6.1%). 1 de 8 combinaciones cumplen las reglas. Producto: 15 unidades de 55 m2 con canon 32.000/m2/mes y ocupacion 95%.",
     "recomendado": {
       "estrategia": "LP",
       "estrategia_nombre": "Largo plazo — arriendo tradicional",

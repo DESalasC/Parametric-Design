@@ -9,7 +9,7 @@
         "chip": "AAA0039KRMR-MUZU",
         "ciclo_desarrollo_anios": 2,
         "origen_datos": "Lote real AAA0039KRMR (UPZ MUZU - Puente Aranda; area 356,96 m2 segun contexto F1 cacheado 2026-08-14; tratamiento Consolidacion; altura max GDB 26,6 m). GFA de ejercicio 1.100 m2 (IC 3,08; supuesto de ejercicio: el rango de edificabilidad '1' de la GDB se considera inconsistente con la altura maxima segun ADR-005 y queda marcado para revision manual en F1).",
-        "nota_general": "Caso de estudio 2026-08-14 (ejercicio): zona de actividad multiple (Puente Aranda). Incluye escenario D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion) para validacion de hipotesis. Los precios/costos son supuestos de ejercicio documentados (no validados con comparables)."
+        "nota_general": "Caso de estudio 2026-08-14 (ejercicio): zona de actividad multiple (Puente Aranda). Incluye escenario D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion) para validacion de hipotesis. Los precios/costos son supuestos de ejercicio documentados (no validados con comparables). Precios validados con comparables 2026-08-14 (EstrenarVivienda/Properati)."
     },
     "gfa_max_m2": 1100.0,
     "lote": {
@@ -54,28 +54,28 @@
             "nivel_acabados": "Medio",
             "unidad_m2": 70.0,
             "eficiencia_nga": 0.75,
-            "precio_venta_m2": 5800000,
+            "precio_venta_m2": 4800000,
             "costo_construccion_m2": 3000000,
             "absorcion_unid_mes": 2.5,
-            "fuente_precio": "Obra nueva Puente Aranda/Muzu: $5,8 M/m2 (supuesto de ejercicio; rango zona $5,5-6,2 M/m2).",
-            "fuente_precio_url": "https://www.metrocuadrado.com/noticias/actualidad/valor-del-metro-cuadrado-por-barrio-en-bogota-6020",
+            "fuente_precio": "Validado 2026-08-14: promedio vivienda nueva Puente Aranda ,8 M/m2 (EstrenarVivienda) y mediana Properati ,53 M/m2 (usado).",
+            "fuente_precio_url": "https://www.estrenarvivienda.com/blog/donde-vivir/puente-aranda-el-sector-para-descubrir-vivienda-nueva-en-bogota",
             "fuente_costo": "Konstruing: $3,0 M/m2 (supuesto de ejercicio).",
             "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Supuestos de ejercicio."
+            "nota": "Validado con comparable de zona 2026-08-14 (antes supuesto ,8 M)."
         },
         "C_LUJO": {
             "nombre": "C - Lujo / Alto nivel",
             "nivel_acabados": "Premium",
             "unidad_m2": 120.0,
             "eficiencia_nga": 0.7,
-            "precio_venta_m2": 7200000,
+            "precio_venta_m2": 5800000,
             "costo_construccion_m2": 3800000,
             "absorcion_unid_mes": 1.0,
-            "fuente_precio": "Premium Puente Aranda: $7,2 M/m2 (supuesto de ejercicio).",
-            "fuente_precio_url": "https://www.metrocuadrado.com/noticias/actualidad/valor-del-metro-cuadrado-por-barrio-en-bogota-6020",
+            "fuente_precio": "Premium sobre promedio de zona (antes ,2 M): ,8 M/m2 (supuesto ajustado al comparable 2026-08-14).",
+            "fuente_precio_url": "https://www.estrenarvivienda.com/blog/donde-vivir/puente-aranda-el-sector-para-descubrir-vivienda-nueva-en-bogota",
             "fuente_costo": "Konstruing premium: $3,8 M/m2 (supuesto de ejercicio).",
             "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-            "nota": "Supuestos de ejercicio."
+            "nota": "Ajustado 2026-08-14 al comparable de zona."
         },
         "D_MIXTO": {
             "nombre": "D - Mixto (override usuario)",
@@ -88,10 +88,10 @@
                     "pct_gfa": 0.35,
                     "unidad_m2": 60.0,
                     "eficiencia_nga": 0.85,
-                    "precio_venta_m2": 6500000,
+                    "precio_venta_m2": 5800000,
                     "costo_construccion_m2": 3200000,
                     "absorcion_unid_mes": 0.5,
-                    "fuente": "Locales Puente Aranda/Muzu: $6,5 M/m2 (supuesto de ejercicio)."
+                    "fuente": "Local Muzu: ,8 M/m2 (ajustado al comparable de zona 2026-08-14)."
                 },
                 {
                     "uso": "Vivienda VIS",
