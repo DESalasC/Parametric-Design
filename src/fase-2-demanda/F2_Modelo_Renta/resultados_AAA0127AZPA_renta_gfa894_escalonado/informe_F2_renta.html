@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Renta (Build-to-Rent) Fase 2 — AAA0127AZPA</title>
+<style>
+:root{--papel:#FAF9F6;--tinta:#1C1C1A;--gris:#6B6B66;--linea:#D8D5CD;--navy:#1F3A5F;
+--rojo:#B0413E;--verde:#3E6B4F;--amarillo:#9A7B2D;--celda:#F1EFE9;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--papel);color:var(--tinta);
+font-family:"Helvetica Neue",Helvetica,Arial,"Segoe UI",sans-serif;
+line-height:1.55;padding:0 0 80px 0;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
+header{padding:56px 0 30px;border-bottom:3px solid var(--tinta);margin-bottom:34px;}
+.kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gris);margin-bottom:10px;}
+h1{font-size:30px;font-weight:700;letter-spacing:-.01em;line-height:1.2;}
+.sub{color:var(--gris);font-size:14px;margin-top:8px;}
+.meta{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:18px;font-size:12.5px;color:var(--gris);}
+.meta b{color:var(--tinta);font-weight:600;}
+h2{font-size:17px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;
+margin:44px 0 14px;padding-top:20px;border-top:1px solid var(--linea);}
+h3{font-size:14px;font-weight:700;margin:18px 0 8px;}
+.veredicto{background:var(--tinta);color:var(--papel);padding:26px 30px;border-radius:2px;}
+.veredicto .tag{display:inline-block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+border:1px solid currentColor;padding:3px 10px;margin-bottom:12px;border-radius:2px;}
+.veredicto.viable .tag{color:#A9CBB4;}
+.veredicto.no-viable .tag{color:#E0A9A6;}
+.veredicto p{font-size:15.5px;max-width:64ch;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0 6px;}
+th{background:var(--celda);text-align:left;font-weight:600;padding:9px 10px;
+border-bottom:2px solid var(--tinta);font-size:12px;letter-spacing:.03em;}
+td{padding:8px 10px;border-bottom:1px solid var(--linea);vertical-align:top;}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+tr.ultimo td{border-bottom:2px solid var(--tinta);}
+tr.grupo td{background:var(--celda);font-weight:700;font-size:12px;letter-spacing:.08em;
+text-transform:uppercase;color:var(--navy);border-bottom:2px solid var(--tinta);}
+.estado{padding:2px 8px;border-radius:2px;font-size:11.5px;font-weight:600;letter-spacing:.04em;white-space:nowrap;}
+.ok{background:#E3EDE6;color:var(--verde);}
+.bad{background:#F6E4E3;color:var(--rojo);}
+.warn{background:#F4EDDC;color:var(--amarillo);}
+.alertas{margin:8px 0 4px;padding:0;list-style:none;font-size:13px;}
+.alertas li{padding:7px 12px 7px 14px;border-left:3px solid var(--linea);margin-bottom:6px;background:var(--celda);}
+.alertas .critica{border-left-color:var(--rojo);}
+.alertas .advertencia{border-left-color:var(--amarillo);}
+.alertas .positiva{border-left-color:var(--verde);}
+.alertas b{font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-right:8px;}
+.fuente{font-size:12px;color:var(--gris);margin:4px 0 10px;}
+.fuente a{color:var(--navy);}
+.nota{background:var(--celda);border-left:3px solid var(--navy);padding:12px 16px;
+font-size:13px;margin:12px 0;color:#33332F;}
+.tabla-scroll{overflow-x:auto;}
+.mini{font-size:12px;color:var(--gris);}
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--linea);
+font-size:11.5px;color:var(--gris);}
+.grid-sens{display:grid;grid-template-columns:1fr 1fr;gap:26px;}
+@media(max-width:860px){.grid-sens{grid-template-columns:1fr;}}
+.tornado{width:100%;height:auto;}
+.leyenda{font-size:12px;color:var(--gris);margin-top:6px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:12px 0;}
+@media(max-width:720px){.kpi-grid{grid-template-columns:1fr;}}
+.kpi-card{border:1px solid var(--linea);padding:14px 16px;background:#fff;}
+.kpi-card .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);}
+.kpi-card .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:4px;}
+.kpi-card .d{font-size:12px;color:var(--gris);margin-top:2px;}
+.barra-tir{display:flex;align-items:center;gap:10px;margin:6px 0;}
+.barra-tir .lab{width:150px;font-size:12px;color:var(--gris);text-align:right;flex-shrink:0;}
+.barra-tir .pista{flex:1;background:var(--celda);height:16px;position:relative;}
+.barra-tir .pista .fill{height:100%;background:var(--navy);}
+.barra-tir .pista .umbral{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--rojo);}
+.barra-tir .val{width:64px;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="kicker">Modelo Financiero Inmobiliario — Construir para arrendar (Fase 2)</div>
+<h1>Build-to-Rent del lote: AAA0127AZPA</h1>
+<div class="sub">Ampliacion del F2 (que recomendaba evaluar arriendo cuando CL/IT > 30%): el proyecto
+se construye y se mantiene como activo generador de renta, con dos estrategias — corto plazo temporal
+amoblado (CP) y largo plazo tradicional (LP) — para cada escenario de producto, a
+10 anos con valor de salida.</div>
+<div class="meta">
+<span><b>GFA maximo (Fase 1):</b> 1200 m2</span>
+<span><b>Lote:</b> 450 m2 · CL 1.216.800.000 COP</span>
+<span><b>Estrategias:</b> CP (temporal amoblado) y LP (tradicional)</span>
+<span><b>Tasa exigida:</b> 10% · <b>TIR minima:</b> 10%</span>
+<span><b>Fecha:</b> 2026-08-13</span>
+<span><b>Moneda:</b> COP</span>
+</div>
+</header>
+
+<div class="veredicto no-viable"><span class="tag">Recomendacion: NO VIABLE</span><p>Ninguna combinacion de producto y estrategia cumple las reglas de inversion en renta (TIR &gt;= 10%, cap rate de entrada &gt;= 5%, VPN &gt; 0). La mejor alternativa es la que reporta mayor TIR; las palancas que el analisis de sensibilidad identifica como criticas son: (1) canon de arriendo y ocupacion (gestion comercial y producto), (2) costo duro de construccion, (3) cap rate de salida (mercado de inversion) y (4) precio del suelo: el CL soportable se reporta por combinacion y es la vara de negociacion con el dueno del lote.</p></div>
+<div class="kpi-grid">
+<div class="kpi-card"><div class="k">TIR (con salida)</div><div class="v">9.8%</div>
+<div class="d">minimo exigido 10%</div></div>
+<div class="kpi-card"><div class="k">Cap rate entrada</div><div class="v">5.5%</div>
+<div class="d">NOI a1 / inversion</div></div>
+<div class="kpi-card"><div class="k">VPN</div><div class="v">$-40.9 M</div>
+<div class="d">@ 10% anual</div></div>
+<div class="kpi-card"><div class="k">Inversion total</div><div class="v">$3.171.4 M</div>
+<div class="d">Largo plazo · 13 unid.</div></div>
+</div>
+
+<h2>1. Resumen ejecutivo</h2>
+<div class="veredicto no-viable"><span class="tag">Recomendacion: NO VIABLE</span><p>Ninguna combinacion de producto y estrategia cumple las reglas de inversion en renta (TIR &gt;= 10%, cap rate de entrada &gt;= 5%, VPN &gt; 0). La mejor alternativa es la que reporta mayor TIR; las palancas que el analisis de sensibilidad identifica como criticas son: (1) canon de arriendo y ocupacion (gestion comercial y producto), (2) costo duro de construccion, (3) cap rate de salida (mercado de inversion) y (4) precio del suelo: el CL soportable se reporta por combinacion y es la vara de negociacion con el dueno del lote.</p></div>
+
+<h2>2. Comparativo de estrategias y productos (KPIs)</h2>
+<div class="tabla-scroll"><table>
+<tr><th>Producto</th><th class="num">Area arr.<br>(m2)</th><th class="num">Canon<br>($/m2/mes)</th>
+<th class="num">Ocup.</th><th class="num">GPI a1<br>(M$)</th><th class="num">NOI a1<br>(M$)</th>
+<th class="num">Inversion<br>(M$)</th><th class="num">Cap rate<br>entrada</th><th class="num">TIR</th>
+<th class="num">VPN (M$)</th><th class="num">Payback<br>desc. (a)</th><th>Estado</th></tr>
+<tr class="grupo"><td colspan="12">Corto plazo — temporal amoblado</td></tr><tr>
+<td><b>A — VIS / VIP</b><br><span class="mini">13 unid. de 55 m2</span></td>
+<td class="num">715</td>
+<td class="num">54.400</td>
+<td class="num">75%</td>
+<td class="num">466.8</td>
+<td class="num">183.4</td>
+<td class="num">3.532.8</td>
+<td class="num">5.2%</td>
+<td class="num">8.9%</td>
+<td class="num">-278.7</td>
+<td class="num">—</td>
+<td><span class="estado bad">NO VIABLE</span></td></tr><tr>
+<td><b>B — Estandar</b><br><span class="mini">7 unid. de 85 m2</span></td>
+<td class="num">595</td>
+<td class="num">64.600</td>
+<td class="num">75%</td>
+<td class="num">461.2</td>
+<td class="num">192.0</td>
+<td class="num">4.192.7</td>
+<td class="num">4.6%</td>
+<td class="num">7.3%</td>
+<td class="num">-768.7</td>
+<td class="num">—</td>
+<td><span class="estado bad">NO VIABLE</span></td></tr><tr>
+<td><b>C — Lujo / Alto nivel</b><br><span class="mini">4 unid. de 150 m2</span></td>
+<td class="num">600</td>
+<td class="num">76.500</td>
+<td class="num">75%</td>
+<td class="num">550.8</td>
+<td class="num">239.8</td>
+<td class="num">5.534.3</td>
+<td class="num">4.3%</td>
+<td class="num">6.6%</td>
+<td class="num">-1.239.0</td>
+<td class="num">—</td>
+<td><span class="estado bad">NO VIABLE</span></td></tr><tr class="grupo"><td colspan="12">Largo plazo — arriendo tradicional</td></tr><tr>
+<td><b>A — VIS / VIP</b><br><span class="mini">13 unid. de 55 m2</span></td>
+<td class="num">715</td>
+<td class="num">32.000</td>
+<td class="num">95%</td>
+<td class="num">274.6</td>
+<td class="num">175.4</td>
+<td class="num">3.171.4</td>
+<td class="num">5.5%</td>
+<td class="num">9.8%</td>
+<td class="num">-40.9</td>
+<td class="num">—</td>
+<td><span class="estado bad">NO VIABLE</span></td></tr><tr>
+<td><b>B — Estandar</b><br><span class="mini">7 unid. de 85 m2</span></td>
+<td class="num">595</td>
+<td class="num">38.000</td>
+<td class="num">95%</td>
+<td class="num">271.3</td>
+<td class="num">181.4</td>
+<td class="num">3.891.5</td>
+<td class="num">4.7%</td>
+<td class="num">7.6%</td>
+<td class="num">-641.6</td>
+<td class="num">—</td>
+<td><span class="estado bad">NO VIABLE</span></td></tr><tr>
+<td><b>C — Lujo / Alto nivel</b><br><span class="mini">4 unid. de 150 m2</span></td>
+<td class="num">600</td>
+<td class="num">45.000</td>
+<td class="num">95%</td>
+<td class="num">324.0</td>
+<td class="num">224.6</td>
+<td class="num">5.229.8</td>
+<td class="num">4.3%</td>
+<td class="num">6.5%</td>
+<td class="num">-1.194.1</td>
+<td class="num">—</td>
+<td><span class="estado bad">NO VIABLE</span></td></tr></table></div>
+<p class="fuente">Cifras en millones de COP. GPI = ingreso bruto potencial; NOI = ingreso neto operativo;
+cap rate de entrada = NOI a1 / inversion; TIR y VPN con horizonte de 10 anos
+y valor de salida capitalizado al 6.2%.</p>
+
+<h2>3. TIR y cap rate frente a umbrales</h2>
+<h3 style="margin-top:10px;">TIR (%)</h3><div class="barra-tir"><span class="lab">Largo plazo · C</span><div class="pista"><div class="fill" style="width:45.4%"></div><div class="umbral" style="left:69.4%"></div></div><span class="val">6.5%</span></div><div class="barra-tir"><span class="lab">Corto plazo · C</span><div class="pista"><div class="fill" style="width:45.9%"></div><div class="umbral" style="left:69.4%"></div></div><span class="val">6.6%</span></div><div class="barra-tir"><span class="lab">Corto plazo · B</span><div class="pista"><div class="fill" style="width:50.5%"></div><div class="umbral" style="left:69.4%"></div></div><span class="val">7.3%</span></div><div class="barra-tir"><span class="lab">Largo plazo · B</span><div class="pista"><div class="fill" style="width:52.6%"></div><div class="umbral" style="left:69.4%"></div></div><span class="val">7.6%</span></div><div class="barra-tir"><span class="lab">Corto plazo · A</span><div class="pista"><div class="fill" style="width:61.7%"></div><div class="umbral" style="left:69.4%"></div></div><span class="val">8.9%</span></div><div class="barra-tir"><span class="lab">Largo plazo · A</span><div class="pista"><div class="fill" style="width:68.2%"></div><div class="umbral" style="left:69.4%"></div></div><span class="val">9.8%</span></div><p class="leyenda">Umbral: 10% (linea roja).</p><h3 style="margin-top:10px;">cap_rate_entrada (%)</h3><div class="barra-tir"><span class="lab">Largo plazo · C</span><div class="pista"><div class="fill" style="width:29.8%"></div><div class="umbral" style="left:34.7%"></div></div><span class="val">4.3%</span></div><div class="barra-tir"><span class="lab">Corto plazo · C</span><div class="pista"><div class="fill" style="width:30.1%"></div><div class="umbral" style="left:34.7%"></div></div><span class="val">4.3%</span></div><div class="barra-tir"><span class="lab">Corto plazo · B</span><div class="pista"><div class="fill" style="width:31.8%"></div><div class="umbral" style="left:34.7%"></div></div><span class="val">4.6%</span></div><div class="barra-tir"><span class="lab">Largo plazo · B</span><div class="pista"><div class="fill" style="width:32.4%"></div><div class="umbral" style="left:34.7%"></div></div><span class="val">4.7%</span></div><div class="barra-tir"><span class="lab">Corto plazo · A</span><div class="pista"><div class="fill" style="width:36.0%"></div><div class="umbral" style="left:34.7%"></div></div><span class="val">5.2%</span></div><div class="barra-tir"><span class="lab">Largo plazo · A</span><div class="pista"><div class="fill" style="width:38.4%"></div><div class="umbral" style="left:34.7%"></div></div><span class="val">5.5%</span></div><p class="leyenda">Umbral: 5% (linea roja).</p>
+
+
+
+<h2>5. Analisis de sensibilidad +-10%</h2>
+<div class="grid-sens">
+<div><div class="tabla-scroll"><table>
+<tr><th class="num">#</th><th>Variable</th><th class="num">Impacto +-10% en VPN<br>(M$, promedio)</th>
+<th class="num">Rango plausible</th><th class="num">Riesgo esperado<br>(M$)</th>
+<th>Prioridad de fetch de datos</th></tr><tr><td class="num">1</td><td><b>Ocupacion promedio</b></td><td class="num">460.5</td><td class="num">1.00x</td><td class="num">460.5</td><td>Critica: depende de la gestion (CP) o del mercado (LP); rango plausible amplio.</td></tr><tr><td class="num">2</td><td><b>Canon de arriendo (m2/mes)</b></td><td class="num">459.8</td><td class="num">1.00x</td><td class="num">459.8</td><td>Critica: dato de mercado por zona y tipologia; no controlable.</td></tr><tr><td class="num">3</td><td><b>Costo duro construccion (m2)</b></td><td class="num">329.2</td><td class="num">1.00x</td><td class="num">329.2</td><td>Critica: definir producto; depende del mercado de insumos (+15% 2026 CAMACOL).</td></tr><tr><td class="num">4</td><td><b>Cap rate de salida</b></td><td class="num">229.8</td><td class="num">0.50x</td><td class="num">114.9</td><td>Alta: variable de mercado; define el valor de reventa del activo.</td></tr><tr><td class="num">5</td><td><b>Incremento anual del canon</b></td><td class="num">182.3</td><td class="num">0.50x</td><td class="num">91.2</td><td>Media: atado al IPC; piso de rentabilidad real.</td></tr><tr><td class="num">6</td><td><b>Tasa de descuento</b></td><td class="num">270.2</td><td class="num">0.30x</td><td class="num">81.0</td><td>Alta: costo de oportunidad del inversionista; politica.</td></tr><tr><td class="num">7</td><td><b>Gastos operativos (% EGI)</b></td><td class="num">114.2</td><td class="num">0.50x</td><td class="num">57.1</td><td>Media: controlable parcialmente por gestion.</td></tr></table></div>
+<div class="nota">Sensibilidad marginal: impacto medido como variacion del VPN (COP) ante +-10% de cada variable, promediado sobre todas las combinaciones estrategia x escenario. El ranking pondera el impacto por el rango plausible de variacion de cada variable.<br><br>
+<b>Lectura:</b> el canon y la ocupacion son las variables de mayor impacto sobre el VPN porque
+escalan directamente el ingreso; el costo duro domina la inversion; el cap rate de salida define
+el valor residual del activo. El incremento del canon (IPC) es la proteccion contra la inflacion
+y la palanca estructural del modelo de renta.</div></div>
+<div><svg class="tornado" viewBox="0 0 740 230" xmlns="http://www.w3.org/2000/svg"><text x="0" y="12" font-size="11" fill="#6B6B66" letter-spacing="1.5">IMPACTO EN VPN (COP) ANTE VARIACION +-10% — PROMEDIO TODAS LAS COMBINACIONES</text><rect x="0.0" y="30" width="460.0" height="14" fill="#1F3A5F" opacity="0.55"/><text x="238.0" y="41" font-size="11.5" fill="#1C1C1A" font-variant-numeric="tabular-nums">460.5 M</text><text x="292.0" y="41" font-size="11.5" fill="#1C1C1A">Ocupacion promedio</text><rect x="0.4" y="60" width="459.2" height="14" fill="#1F3A5F" opacity="0.55"/><text x="238.0" y="71" font-size="11.5" fill="#1C1C1A" font-variant-numeric="tabular-nums">459.8 M</text><text x="292.0" y="71" font-size="11.5" fill="#1C1C1A">Canon de arriendo (m2/mes)</text><rect x="65.6" y="90" width="328.8" height="14" fill="#1F3A5F" opacity="0.55"/><text x="238.0" y="101" font-size="11.5" fill="#1C1C1A" font-variant-numeric="tabular-nums">329.2 M</text><text x="292.0" y="101" font-size="11.5" fill="#1C1C1A">Costo duro construccion (m2)</text><rect x="115.2" y="120" width="229.5" height="14" fill="#1F3A5F" opacity="0.55"/><text x="238.0" y="131" font-size="11.5" fill="#1C1C1A" font-variant-numeric="tabular-nums">229.8 M</text><text x="292.0" y="131" font-size="11.5" fill="#1C1C1A">Cap rate de salida</text><rect x="139.0" y="150" width="182.1" height="14" fill="#1F3A5F" opacity="0.55"/><text x="238.0" y="161" font-size="11.5" fill="#1C1C1A" font-variant-numeric="tabular-nums">182.3 M</text><text x="292.0" y="161" font-size="11.5" fill="#1C1C1A">Incremento anual del canon</text><rect x="95.1" y="180" width="269.8" height="14" fill="#9A7B2D" opacity="0.55"/><text x="238.0" y="191" font-size="11.5" fill="#1C1C1A" font-variant-numeric="tabular-nums">270.2 M</text><text x="292.0" y="191" font-size="11.5" fill="#1C1C1A">Tasa de descuento</text><rect x="172.9" y="210" width="114.1" height="14" fill="#1F3A5F" opacity="0.55"/><text x="238.0" y="221" font-size="11.5" fill="#1C1C1A" font-variant-numeric="tabular-nums">114.2 M</text><text x="292.0" y="221" font-size="11.5" fill="#1C1C1A">Gastos operativos (% EGI)</text><line x1="230.0" y1="20" x2="230.0" y2="240" stroke="#1C1C1A" stroke-width="1"/></svg></div>
+</div>
+
+<h2>6. Suelo soportable por combinacion</h2>
+<div class="tabla-scroll"><table>
+<tr><th>Estrategia</th><th>Producto</th><th class="num">CL soportable<br>(M$)</th>
+<th class="num">CL / inversion</th><th>Vs. CL pedido (1.216.8 M)</th></tr>
+<tr>
+<td>Largo plazo</td>
+<td><b>A — VIS / VIP</b></td>
+<td class="num">759.1</td>
+<td class="num">25.2%</td>
+<td><span class="estado bad">no cubre CL</span></td></tr><tr>
+<td>Corto plazo</td>
+<td><b>A — VIS / VIP</b></td>
+<td class="num">521.3</td>
+<td class="num">22.6%</td>
+<td><span class="estado bad">no cubre CL</span></td></tr><tr>
+<td>Largo plazo</td>
+<td><b>B — Estandar</b></td>
+<td class="num">158.4</td>
+<td class="num">20.6%</td>
+<td><span class="estado bad">no cubre CL</span></td></tr><tr>
+<td>Corto plazo</td>
+<td><b>B — Estandar</b></td>
+<td class="num">31.3</td>
+<td class="num">19.1%</td>
+<td><span class="estado bad">no cubre CL</span></td></tr><tr>
+<td>Corto plazo</td>
+<td><b>C — Lujo / Alto nivel</b></td>
+<td class="num">0.0</td>
+<td class="num">14.5%</td>
+<td><span class="estado bad">no cubre CL</span></td></tr><tr>
+<td>Largo plazo</td>
+<td><b>C — Lujo / Alto nivel</b></td>
+<td class="num">0.0</td>
+<td class="num">15.3%</td>
+<td><span class="estado bad">no cubre CL</span></td></tr></table></div>
+<div class="nota"><b>Lectura:</b> el CL soportable es el maximo que el proyecto de renta puede pagar
+por el suelo dejando VPN >= 0 a la tasa de descuento exigida (10%).
+Si el precio pedido del lote lo supera, la diferencia es la brecha de negociacion (o la razon para
+arrendar el lote / buscar otro esquema de suelo).</div>
+
+<h2>7. Flujo de caja anual — mejor combinacion (Largo plazo — arriendo tradicional · A — VIS / VIP)</h2>
+<p class="mini">Inversion inicial 3.171.4 M (lote
+800.0 M + construccion 2.057.3 M + blandos
+308.6 M + leasing 5.5 M
++ mobiliario 0.0 M). Cifras en millones de COP.</p>
+<div class="tabla-scroll"><table>
+<tr><th class="num">Ano</th><th class="num">GPI</th><th class="num">EGI</th><th class="num">Administracion</th>
+<th class="num">Gastos + capex</th><th class="num">NOI</th><th class="num">Acumulado</th></tr>
+<tr>
+<td class="num">1</td>
+<td class="num">274.6</td>
+<td class="num">260.8</td>
+<td class="num">51.5</td>
+<td class="num">33.9</td>
+<td class="num">175.4</td>
+<td class="num">-2.996.0</td></tr><tr>
+<td class="num">2</td>
+<td class="num">289.7</td>
+<td class="num">275.2</td>
+<td class="num">54.8</td>
+<td class="num">35.8</td>
+<td class="num">184.6</td>
+<td class="num">-2.811.4</td></tr><tr>
+<td class="num">3</td>
+<td class="num">305.6</td>
+<td class="num">290.3</td>
+<td class="num">58.4</td>
+<td class="num">37.7</td>
+<td class="num">194.2</td>
+<td class="num">-2.617.2</td></tr><tr>
+<td class="num">4</td>
+<td class="num">322.4</td>
+<td class="num">306.3</td>
+<td class="num">62.2</td>
+<td class="num">39.8</td>
+<td class="num">204.3</td>
+<td class="num">-2.413.0</td></tr><tr>
+<td class="num">5</td>
+<td class="num">340.1</td>
+<td class="num">323.1</td>
+<td class="num">66.2</td>
+<td class="num">42.0</td>
+<td class="num">214.9</td>
+<td class="num">-2.198.1</td></tr><tr>
+<td class="num">6</td>
+<td class="num">358.8</td>
+<td class="num">340.9</td>
+<td class="num">70.5</td>
+<td class="num">44.3</td>
+<td class="num">226.0</td>
+<td class="num">-1.972.0</td></tr><tr>
+<td class="num">7</td>
+<td class="num">378.6</td>
+<td class="num">359.6</td>
+<td class="num">75.1</td>
+<td class="num">46.8</td>
+<td class="num">237.8</td>
+<td class="num">-1.734.2</td></tr><tr>
+<td class="num">8</td>
+<td class="num">399.4</td>
+<td class="num">379.4</td>
+<td class="num">80.0</td>
+<td class="num">49.3</td>
+<td class="num">250.1</td>
+<td class="num">-1.484.1</td></tr><tr>
+<td class="num">9</td>
+<td class="num">421.4</td>
+<td class="num">400.3</td>
+<td class="num">85.2</td>
+<td class="num">52.0</td>
+<td class="num">263.1</td>
+<td class="num">-1.221.1</td></tr><tr>
+<td class="num">10</td>
+<td class="num">444.5</td>
+<td class="num">422.3</td>
+<td class="num">90.7</td>
+<td class="num">54.9</td>
+<td class="num">276.7</td>
+<td class="num">-944.4</td></tr><tr class="ultimo"><td colspan="5"><b>Valor de salida (a10)</b></td>
+<td class="num"><b>4.707.9</b></td>
+<td class="num"><b>3.763.5</b></td></tr></table></div>
+
+<h2>8. Alertas de viabilidad por combinacion</h2>
+<h3>Corto plazo — temporal amoblado · A — VIS / VIP</h3><ul class="alertas"><li class="critica"><b>TIR</b>TIR 8.9% &lt; 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota.</li><li class="critica"><b>VPN</b>VPN -278.7 M &lt; 0 a la tasa de descuento de 10%: el proyecto destruye valor.</li></ul><h3>Corto plazo — temporal amoblado · B — Estandar</h3><ul class="alertas"><li class="critica"><b>TIR</b>TIR 7.3% &lt; 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota.</li><li class="critica"><b>VPN</b>VPN -768.7 M &lt; 0 a la tasa de descuento de 10%: el proyecto destruye valor.</li><li class="critica"><b>Cap rate</b>Cap rate de entrada 4.6% &lt; 5%: el NOI inicial no cubre el costo de capital.</li></ul><h3>Corto plazo — temporal amoblado · C — Lujo / Alto nivel</h3><ul class="alertas"><li class="critica"><b>TIR</b>TIR 6.6% &lt; 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota.</li><li class="critica"><b>VPN</b>VPN -1.239.0 M &lt; 0 a la tasa de descuento de 10%: el proyecto destruye valor.</li><li class="critica"><b>Cap rate</b>Cap rate de entrada 4.3% &lt; 5%: el NOI inicial no cubre el costo de capital.</li></ul><h3>Largo plazo — arriendo tradicional · A — VIS / VIP</h3><ul class="alertas"><li class="critica"><b>TIR</b>TIR 9.8% &lt; 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota.</li><li class="critica"><b>VPN</b>VPN -40.9 M &lt; 0 a la tasa de descuento de 10%: el proyecto destruye valor.</li><li class="advertencia"><b>CL/Inv</b>CL/inversion 25.2% &gt; 25%: el suelo pesa sobre la inversion.</li></ul><h3>Largo plazo — arriendo tradicional · B — Estandar</h3><ul class="alertas"><li class="critica"><b>TIR</b>TIR 7.6% &lt; 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota.</li><li class="critica"><b>VPN</b>VPN -641.6 M &lt; 0 a la tasa de descuento de 10%: el proyecto destruye valor.</li><li class="critica"><b>Cap rate</b>Cap rate de entrada 4.7% &lt; 5%: el NOI inicial no cubre el costo de capital.</li></ul><h3>Largo plazo — arriendo tradicional · C — Lujo / Alto nivel</h3><ul class="alertas"><li class="critica"><b>TIR</b>TIR 6.5% &lt; 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota.</li><li class="critica"><b>VPN</b>VPN -1.194.1 M &lt; 0 a la tasa de descuento de 10%: el proyecto destruye valor.</li><li class="critica"><b>Cap rate</b>Cap rate de entrada 4.3% &lt; 5%: el NOI inicial no cubre el costo de capital.</li></ul>
+
+<h2>9. Supuestos, fuentes y trazabilidad</h2>
+<div class="tabla-scroll"><table>
+<tr><th>Escenario</th><th class="num">Canon LP<br>($/m2/mes)</th><th class="num">Canon CP<br>($/m2/mes)</th>
+<th class="num">Costo duro<br>($/m2)</th><th>Fuente canon (consultada 2026-08-13)</th>
+<th>Fuente costo</th></tr><tr>
+<td><b>A — VIS / VIP</b></td>
+<td class="num">32.000</td>
+<td class="num">54.400</td>
+<td class="num">2.300.000</td>
+<td>Mismos parametros de producto que el F2 validado (precio/costo), con canon de renta.<br>
+<a href="https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota ; https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026">https://www.fincaraiz.com.co/arriendo/apartamentos/prado-veraniego/zona-norte/bogota ; https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026</a></td>
+<td>Konstruing (07-ago-2026): acabados basicos Bogota dentro del rango $2,2-3,8 M/m2; se toma $2,3 M/m2 (igual que F2).</td></tr><tr>
+<td><b>B — Estandar</b></td>
+<td class="num">38.000</td>
+<td class="num">64.600</td>
+<td class="num">3.000.000</td>
+<td>Mismos parametros de producto que el F2 validado.<br>
+<a href="https://www.properati.com.co/s/prado-veraniego/arriendo ; https://casas.mitula.com.co/casas/arriendo-apartamentos-bogota-prado-veraniego">https://www.properati.com.co/s/prado-veraniego/arriendo ; https://casas.mitula.com.co/casas/arriendo-apartamentos-bogota-prado-veraniego</a></td>
+<td>Konstruing (07-ago-2026): acabados medios $2,2-3,5 M/m2; se toma $3,0 M/m2 (igual que F2).</td></tr><tr>
+<td><b>C — Lujo / Alto nivel</b></td>
+<td class="num">45.000</td>
+<td class="num">76.500</td>
+<td class="num">4.300.000</td>
+<td>Mismos parametros de producto que el F2 validado.<br>
+<a href="https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento">https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento</a></td>
+<td>Konstruing (07-ago-2026) y Aliados de Obras (2026): rango Bogota hasta $3,8 M/m2; acabados premium elevan a $4,3 M/m2 (supuesto tecnico documentado, igual que F2).</td></tr></table></div>
+<p class="fuente">Suelo: Supuesto de referencia del F2 (reemplazar por el dato real del lote: para AAA0127AZPA usar parametros_AAA0127AZPA_renta.json). — .
+Costos blandos 15% del costo duro; leasing
+2% del GPI a1; mobiliario CP
+500.000/m2; incremento de canon
+5.5%/ano (IPC 2026 5,56% DANE) y de gastos
+6.5%/ano.</p>
+<div class="nota"><b>Alcance:</b> inversion 100% propia (sin deuda; el apalancamiento y su efecto
+sobre el ROE se reservan para Fase 3); ocupacion promedio anual constante desde el ano 1 (sin rampa
+de leasing); la envolvente normativa (GFA) es restriccion de entrada de Fase 1; no se emite concepto
+legal, urbanistico, tributario o de uso de suelo. El impuesto predial, seguros, mantenimiento y
+corretaje se agrupan en los gastos operativos (% del EGI); la administracion de propiedad horizontal
+se modela aparte (COP/m2/mes).</div>
+
+<h2>10. Como actualizar el modelo</h2>
+<div class="nota">Edite <b>parametros_entrada.json</b> (GFA, lote, cánones por escenario y estrategia,
+ocupacion, gastos, reglas, horizonte o cap rate de salida) y vuelva a ejecutar:
+<code>python F2_RENTA_MOTOR_v03.py</code>. El script recalcula KPIs, alertas, sensibilidad,
+recomendacion e informe sin tocar el codigo. Para el lote real use
+<code>--parametros parametros_AAA0127AZPA_renta.json</code>.</div>
+
+<footer>Generado por F2_RENTA_MOTOR_v03.py — Fase 2, Build-to-Rent (prefactibilidad).
+Datos de mercado consultados el 2026-08-13; fuentes en la seccion 8.
+Este documento es una herramienta de decision preliminar; requiere validacion de comparables de
+cánones en radio 5 km y revision especializada antes de decisiones de inversion.</footer>
+</div>
+</body>
+</html>

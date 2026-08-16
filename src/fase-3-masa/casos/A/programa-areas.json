@@ -1,7 +1,7 @@
 {
-  "gfa_total": 1053.0,
-  "pisos": 5,
-  "area_por_piso": 220.5,
+  "gfa_total": 1461.1,
+  "pisos": 6,
+  "area_por_piso": 243.52,
   "programa_pisos": [
     {
       "piso": 1,
@@ -10,13 +10,13 @@
       "usos": [
         {
           "uso": "Local comercial",
-          "area_bruta": 180.7,
-          "area_neta": 153.59
+          "area_bruta": 194.92,
+          "area_neta": 165.68
         },
         {
           "uso": "Nucleo",
-          "area_bruta": 39.8,
-          "area_neta": 39.8
+          "area_bruta": 48.6,
+          "area_neta": 48.6
         }
       ]
     },
@@ -26,14 +26,14 @@
       "altura_piso": 3.0,
       "usos": [
         {
-          "uso": "Vivienda",
-          "area_bruta": 180.7,
-          "area_neta": 140.95
+          "uso": "Local comercial",
+          "area_bruta": 194.92,
+          "area_neta": 165.68
         },
         {
           "uso": "Nucleo",
-          "area_bruta": 39.8,
-          "area_neta": 39.8
+          "area_bruta": 48.6,
+          "area_neta": 48.6
         }
       ]
     },
@@ -44,13 +44,13 @@
       "usos": [
         {
           "uso": "Vivienda",
-          "area_bruta": 180.7,
-          "area_neta": 140.95
+          "area_bruta": 194.92,
+          "area_neta": 152.04
         },
         {
           "uso": "Nucleo",
-          "area_bruta": 39.8,
-          "area_neta": 39.8
+          "area_bruta": 48.6,
+          "area_neta": 48.6
         }
       ]
     },
@@ -61,13 +61,13 @@
       "usos": [
         {
           "uso": "Vivienda",
-          "area_bruta": 180.7,
-          "area_neta": 140.95
+          "area_bruta": 194.92,
+          "area_neta": 152.04
         },
         {
           "uso": "Nucleo",
-          "area_bruta": 39.8,
-          "area_neta": 39.8
+          "area_bruta": 48.6,
+          "area_neta": 48.6
         }
       ]
     },
@@ -78,13 +78,30 @@
       "usos": [
         {
           "uso": "Vivienda",
-          "area_bruta": 131.2,
-          "area_neta": 102.34
+          "area_bruta": 194.92,
+          "area_neta": 152.04
         },
         {
           "uso": "Nucleo",
-          "area_bruta": 39.8,
-          "area_neta": 39.8
+          "area_bruta": 48.6,
+          "area_neta": 48.6
+        }
+      ]
+    },
+    {
+      "piso": 6,
+      "altura_z": 15.6,
+      "altura_piso": 3.0,
+      "usos": [
+        {
+          "uso": "Vivienda",
+          "area_bruta": 194.9,
+          "area_neta": 152.02
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 48.6,
+          "area_neta": 48.6
         }
       ]
     }
@@ -101,6 +118,47 @@
   },
   "nucleo": {
     "total_m2_piso": 39.8,
+    "hueco_m2_piso": 48.6,
+    "circulacion_m2": 31.8,
+    "servicios_m2": 8.0,
+    "bloque": {
+      "ancho_m": 5.4,
+      "largo_m": 9.0
+    },
+    "disposicion": [
+      {
+        "tipo": "circulacion",
+        "componente": "Escalera 1",
+        "ancho_m": 2.7,
+        "largo_m": 5.0,
+        "dx": -1.35,
+        "dy": -2.0
+      },
+      {
+        "tipo": "circulacion",
+        "componente": "Escalera 2",
+        "ancho_m": 2.7,
+        "largo_m": 5.0,
+        "dx": 1.35,
+        "dy": -2.0
+      },
+      {
+        "tipo": "circulacion",
+        "componente": "Ascensor 1",
+        "ancho_m": 2.2,
+        "largo_m": 2.2,
+        "dx": -1.0,
+        "dy": 2.5
+      },
+      {
+        "tipo": "servicios",
+        "componente": "Servicios/tecnicos",
+        "ancho_m": 2.0,
+        "largo_m": 4.0,
+        "dx": 1.1,
+        "dy": 2.5
+      }
+    ],
     "lado_m": 6.31,
     "escaleras": {
       "cantidad": 2,
@@ -111,8 +169,8 @@
       "cantidad": 1,
       "capacidad_personas": 8,
       "modulo_m2": 4.8,
-      "criterio": "poblacion 46 pers; 1 asc / ~40 unid"
+      "criterio": "poblacion 64 pers; 1 asc / ~40 unid"
     }
   },
-  "origen": "F3_DISTRIBUCION_v01 (balanceado)"
+  "origen": "F3_DISTRIBUCION_v01 (balanceado; nucleo circulacion/servicios separados)"
 }

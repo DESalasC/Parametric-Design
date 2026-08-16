@@ -40,6 +40,15 @@ python F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_gfa1054_merca
   (ROI 23,0%, dueño recibe $225 M); arriendo sobre valor soportable → A y B viables.
 - **GFA 1054 (alternativa curaduría):** B y C dejan utilidad comprando (ROI 8,9%/7,4%);
   **arriendo del lote → las 3 tipologías VIABLES** (B ROI 35,2% con canon sobre precio pedido).
+- **GFA 1461 (Fase 1 v06 validada, 2026-08-16):** compra NO VIABLE pero C_LUJO a 0,06 pp del
+  umbral (ROI 21,94%, CL/IT 11,1%); **aporte del dueño → 3/3 VIABLES** (ROI dev 23,1-23,7%);
+  **arriendo del lote → 3/3 VIABLES** (ROI 27,0-37,2%). BTR: todas NO VIABLES, LP A_VIS
+  marginal (TIR 9,96%, suelo soportable $1.183,5 M ≈ 99% del CL). Detalle en
+  `2026-08-16-f2-gfa-f1-1461` (vault, fase-2-demanda).
+- **GFA 1461 + CL $800 M (hipótesis 2026-08-16):** **C_LUJO VIABLE en compra** (ROI 27,7%, UB
+  $2.343 M, 6 unid de 150 m²); D_MIXTO VIABLE (ROI 25,6%); **BTR LP A_VIS VIABLE** (TIR
+  11,1%, VPN $383,5 M). Caso F3 A regenerado a 6 niveles (huella 243,5 m² real F1). Detalle en
+  `2026-08-16-f2-cl800-modelado-f3` (vault).
 
 ## Documentación
 

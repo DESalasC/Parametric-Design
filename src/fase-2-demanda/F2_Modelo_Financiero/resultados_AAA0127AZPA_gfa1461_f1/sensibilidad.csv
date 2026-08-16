@@ -1,0 +1,21 @@
+﻿puesto_riesgo;variable;etiqueta;escenario;impacto_pct_IT;delta_abs_cop;ub_base_cop;ub_minus10_cop;ub_plus10_cop
+1;precio_venta;Precio de venta (m2);A_VIS;9.6;530477198.71;240169893.12;-290307305.6;770647091.83
+1;precio_venta;Precio de venta (m2);B_ESTANDAR;9.6;757432788.48;1333542544.8;576109756.32;2090975333.28
+1;precio_venta;Precio de venta (m2);C_LUJO;9.6;1178228782.08;3357162166.8;2178933384.72;4535390948.88
+1;precio_venta;Precio de venta (m2);PROMEDIO;9.6;;;;
+2;costo_construccion;Costo duro construccion (m2);A_VIS;6.99;386460209.4;240169893.12;626630102.52;-146290316.28
+2;costo_construccion;Costo duro construccion (m2);B_ESTANDAR;6.39;504078534.0;1333542544.8;1837621078.8;829464010.8
+2;costo_construccion;Costo duro construccion (m2);C_LUJO;5.89;722512565.4;3357162166.8;4079674732.2;2634649601.4
+2;costo_construccion;Costo duro construccion (m2);PROMEDIO;6.42;;;;
+3;eficiencia_nga;NGA (eficiencia de diseno);A_VIS;9.6;530477198.71;240169893.12;-290307305.6;770647091.83
+3;eficiencia_nga;NGA (eficiencia de diseno);B_ESTANDAR;9.6;757432788.48;1333542544.8;576109756.32;2090975333.28
+3;eficiencia_nga;NGA (eficiencia de diseno);C_LUJO;9.6;1178228782.08;3357162166.8;2178933384.72;4535390948.88
+3;eficiencia_nga;NGA (eficiencia de diseno);PROMEDIO;9.6;;;;
+4;costo_lote;Costo del lote;A_VIS;2.17;120000000.0;240169893.12;360169893.12;120169893.12
+4;costo_lote;Costo del lote;B_ESTANDAR;1.52;120000000.0;1333542544.8;1453542544.8;1213542544.8
+4;costo_lote;Costo del lote;C_LUJO;0.98;120000000.0;3357162166.8;3477162166.8;3237162166.8
+4;costo_lote;Costo del lote;PROMEDIO;1.56;;;;
+5;absorcion;Velocidad de absorcion;A_VIS;0.0;0.0;240169893.12;240169893.12;240169893.12
+5;absorcion;Velocidad de absorcion;B_ESTANDAR;0.0;0.0;1333542544.8;1333542544.8;1333542544.8
+5;absorcion;Velocidad de absorcion;C_LUJO;0.0;0.0;3357162166.8;3357162166.8;3357162166.8
+5;absorcion;Velocidad de absorcion;PROMEDIO;0.0;;;;

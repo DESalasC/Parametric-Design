@@ -12,7 +12,7 @@ análisis ambiental y inyección BIM nativa en ArchiCAD vía Grasshopper.
 |---|---|---|---|
 | **F0** | Setup BIM | ✅ Hecha | Layers ArchiCAD (GuBIMclass), plantilla XML |
 | **F1** | Contexto normativo y lote | ✅ Hecha | Pipeline modular v26 (2 etapas): fetch contexto → clasificación de lados → patios → normativa/envolvente. Linaje legacy en `_legacy\` |
-| **F2** | Demanda + modelo financiero | ✅ Hecha | `src\fase-2-demanda\`: 4 scripts de pipeline + `F2_Modelo_Financiero\` (motor v3.0: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja, hook GFA desde F1) + `F2_Modelo_Renta\` (motor v3.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable, hook GFA desde F1) |
+| **F2** | Demanda + modelo financiero | ✅ Hecha | `src\fase-2-demanda\`: 4 scripts de pipeline + `F2_Modelo_Financiero\` (motor v3.0: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja, hook GFA desde F1) + `F2_Modelo_Renta\` (motor v3.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable, hook GFA desde F1). Re-evaluado 2026-08-16 con GFA F1 v06 (1.461 m²): C_LUJO casi viable en compra, aporte/arriendo viables, BTR marginal |
 | **F3** | Generación de masa | Avanzada | src\fase-3-masa\: F3_DISTRIBUCION_v01 (matriz/layout/programa-areas balanceado), F3_VOLUM_GENERADOR_v06 (fixes Rhino 8), prueba real de masa en Rhino 8.33 (caso A) |
 | **F4** | Análisis ambiental | 🔶 Iniciada | `src\fase-4-ambiental\`: F4_LADYBUG_ANALISIS v02 |
 | **F5** | Inyección BIM nativa | ⏳ Pendiente | `src\fase-5-bim\` (solo README) |

@@ -49,6 +49,13 @@ OCUPACION_POT = 0.70       # ocupacion maxima (tratamiento Consolidacion)
 NUCLEO_M2 = 28.0           # nucleo tipico por piso (2 escaleras + 2 asc + ductos)
 ESCALERA_M2 = 13.5         # modulo de escalera (3.0 x 4.5 m)
 ASCENSOR_M2 = 4.8          # ascensor 8 personas (~2.0 x 2.4 m)
+# Cajas del nucleo (F3_VOLUM_GENERADOR_v07): circulacion y servicios SEPARADOS
+ESCALERA_ANCHO_M = 2.7     # caja de escalera (2 tramos)
+ESCALERA_LARGO_M = 5.0
+ASCENSOR_ANCHO_M = 2.2
+ASCENSOR_LARGO_M = 2.2
+SERVICIOS_ANCHO_M = 2.0    # ductos/basuras/cuarto tecnico (separado de circulacion)
+SERVICIOS_LARGO_M = 4.0
 UNID_POR_ASCENSOR = 40.0   # NSR-10 practica: 1 ascensor / ~40 unidades
 PERS_VIVIENDA = 2.5        # ocupantes por unidad de vivienda (promedio Bogota)
 PERS_SERVICIOS_M2 = 0.10   # 1 persona / 10 m2 (NSR-10 C.2.3 oficinas/servicios)
@@ -115,8 +122,9 @@ def normalizar_uso(uso: str) -> str:
 
 # ------------------------------------------------------------------ casos F2
 CASOS = {
-    "A": {"resultados": "resultados_AAA0127AZPA_gfa1053_cl550.json", "gfa": 1053.0,
-          "lote_m2": 315.0, "escenario": "D_MIXTO", "titulo": "A — El Prado (Suba)"},
+    "A": {"resultados": "resultados_AAA0127AZPA_gfa1461_cl800.json", "gfa": 1461.0972,
+          "lote_m2": 315.0, "huella_m2": 243.5162, "escenario": "D_MIXTO",
+          "titulo": "A - El Prado (Suba) - envolvente F1 v06"},
     "B": {"resultados": "resultados_AAA0030JKOE.json", "gfa": 3312.575,
           "lote_m2": 931.0, "escenario": "D_MIXTO", "titulo": "B — La Candelaria"},
     "B_SALUD": {"resultados": "resultados_AAA0030JKOE.json", "gfa": 3312.575,
@@ -146,13 +154,17 @@ def leer_programa(caso_id):
             "area_vendible_m2": c["area_vendible_m2"],
         })
     return {"gfa_total": cfg["gfa"], "lote_m2": cfg["lote_m2"],
+            "huella_m2": cfg.get("huella_m2"),
             "escenario": cfg["escenario"], "componentes": comps}
 
 
 def distribuir_niveles(prog):
-    """Huella = ocupacion x lote; niveles = ceil(GFA/huella); reparto de usos."""
-    huella = round(prog["lote_m2"] * OCUPACION_POT, 1)
-    niveles = max(2, math.ceil(prog["gfa_total"] / huella))
+    """Huella = ocupacion x lote (o huella_m2 real de Fase 1 si viene en el caso);
+    niveles = ceil(GFA/huella); reparto de usos."""
+    huella = prog.get("huella_m2") or round(prog["lote_m2"] * OCUPACION_POT, 1)
+    # tolerancia 1e-9: un cociente exactamente entero (p. ej. 6 losas de 243,5162 m2)
+    # no debe redondear al piso siguiente por error de punto flotante
+    niveles = max(2, math.ceil(prog["gfa_total"] / huella - 1e-9))
     # Reparto vertical: usos publicos/salud abajo, vivienda arriba
     orden = {"Local comercial": 0, "Consultorios": 1, "Institucional salud": 1,
              "Hogar geriatrico": 2, "Oficinas": 2, "Vivienda": 9}
@@ -185,6 +197,47 @@ def matriz_adyacencias(usos_presentes):
             "escala": {"3": "Requerida", "2": "Deseable", "1": "Indiferente", "0": "Incompatible"}}
 
 
+def _disponer_nucleo(n_esc, asc):
+    """Cajas del nucleo (relativas al centro del bloque) en 2 filas:
+    fila 1 = escaleras, fila 2 = ascensores + servicios. Devuelve el desglose
+    circulacion (escaleras+ascensores) vs servicios (ductos/basuras/cuarto) y
+    el area REAL del hueco (bloque contenedor; el aire interior del bloque se
+    considera circulacion interna del nucleo)."""
+    circulacion = n_esc * ESCALERA_M2 + asc * ASCENSOR_M2
+    servicios = 8.0
+    ancho_f1 = n_esc * ESCALERA_ANCHO_M
+    ancho_f2 = asc * ASCENSOR_ANCHO_M + SERVICIOS_ANCHO_M
+    ancho_bloque = round(max(ancho_f1, ancho_f2), 1)
+    largo_bloque = round(ESCALERA_LARGO_M + SERVICIOS_LARGO_M, 1)  # 9,0 m
+    hueco = round(ancho_bloque * largo_bloque, 1)
+    disp = []
+    # Fila 1: escaleras centradas (y = -2,0 -> caja largo 5,0 en [-4,5, +0,5])
+    x0 = -ancho_f1 / 2.0
+    for i in range(n_esc):
+        cx = x0 + ESCALERA_ANCHO_M * (i + 0.5)
+        disp.append({"tipo": "circulacion", "componente": "Escalera {}".format(i + 1),
+                     "ancho_m": ESCALERA_ANCHO_M, "largo_m": ESCALERA_LARGO_M,
+                     "dx": round(cx, 2), "dy": -2.0})
+    # Fila 2: ascensores + servicios centrados (y = +2,5 -> caja alto 4,0 en [+0,5, +4,5])
+    x0 = -ancho_f2 / 2.0
+    for i in range(asc):
+        cx = x0 + ASCENSOR_ANCHO_M * (i + 0.5)
+        disp.append({"tipo": "circulacion", "componente": "Ascensor {}".format(i + 1),
+                     "ancho_m": ASCENSOR_ANCHO_M, "largo_m": ASCENSOR_LARGO_M,
+                     "dx": round(cx, 2), "dy": 2.5})
+    cx = x0 + ASCENSOR_ANCHO_M * asc + SERVICIOS_ANCHO_M / 2.0
+    disp.append({"tipo": "servicios", "componente": "Servicios/tecnicos",
+                 "ancho_m": SERVICIOS_ANCHO_M, "largo_m": SERVICIOS_LARGO_M,
+                 "dx": round(cx, 2), "dy": 2.5})
+    return {
+        "circulacion_m2": round(circulacion, 1),
+        "servicios_m2": round(servicios, 1),
+        "hueco_m2": hueco,
+        "bloque": {"ancho_m": ancho_bloque, "largo_m": largo_bloque},
+        "disposicion": disp,
+    }
+
+
 def layout_espacial(prog, huella, niveles, niveles_uso):
     n_comp = {u: sum(c["num_unidades"] for c in prog["componentes"]
                      if c["uso"] == u) for u in set(c["uso"] for c in prog["componentes"])}
@@ -199,6 +252,8 @@ def layout_espacial(prog, huella, niveles, niveles_uso):
         esc = "comun de evacuacion (NSR-10 Titulo K)"
         n_esc = 2
     nucleo_m2 = n_esc * ESCALERA_M2 + asc * ASCENSOR_M2 + 8.0  # ductos/basuras/cuarto
+    nucleo_det = _disponer_nucleo(n_esc, asc)
+    hueco_m2 = nucleo_det["hueco_m2"]
     niveles_out = []
     z_acum = 0.0
     for nv in range(1, niveles + 1):
@@ -212,8 +267,9 @@ def layout_espacial(prog, huella, niveles, niveles_uso):
             "altura_m": alt_nv,
             "usos": usos_nv,
             "gfa_m2": gfa_nv,
-            "nucleo_m2": round(nucleo_m2, 1),
-            "eficiencia_losa_pct": round(100 * (1 - nucleo_m2 / gfa_nv), 1),
+            "nucleo_m2": round(hueco_m2, 1),          # hueco REAL del nucleo
+            "nucleo_solidos_m2": round(nucleo_m2, 1),  # circulacion + servicios
+            "eficiencia_losa_pct": round(100 * (1 - hueco_m2 / gfa_nv), 1),
         })
         z_acum += alt_nv
     return {
@@ -221,9 +277,16 @@ def layout_espacial(prog, huella, niveles, niveles_uso):
         "nucleos": {
             "escaleras": {"cantidad": n_esc, "tipo": esc, "modulo_m2": ESCALERA_M2},
             "ascensores": {"cantidad": asc, "capacidad_personas": 8, "modulo_m2": ASCENSOR_M2,
-                           "criterio": f"poblacion {pob_viv + pob_serv:.0f} pers; 1 asc / ~{UNID_POR_ASCENSOR:.0f} unid"},
+                           "criterio": "poblacion {:.0f} pers; 1 asc / ~{:.0f} unid".format(
+                               pob_viv + pob_serv, UNID_POR_ASCENSOR)},
             "servicios": {"ductos_basuras_cuarto_m2": 8.0},
-            "total_m2_piso": round(nucleo_m2, 1),
+            "total_m2_piso": round(nucleo_m2, 1),     # solidos (compat v06)
+            "circulacion_m2": nucleo_det["circulacion_m2"],
+            "servicios_m2": nucleo_det["servicios_m2"],
+            "hueco_m2_piso": hueco_m2,                # area real del hueco (bloque)
+            "bloque": nucleo_det["bloque"],
+            "disposicion": nucleo_det["disposicion"],
+            "nota": "aire interior del bloque = circulacion interna del nucleo",
         },
         "reparto_vertical": niveles_uso,
         "poblacion_estimada": {"vivienda": round(pob_viv), "servicios": round(pob_serv),
@@ -239,26 +302,44 @@ COLORES = {"Vivienda": "#8FB8DE", "Local comercial": "#F2C14E",
            "Nucleo": "#555555", "Circulacion": "#EEEEEE"}
 
 
-def plano_nivel_svg(nv, huella, nucleo_m2, usos_nv, unidades_uso, escala=2.0):
-    """Planta esquematica SVG: losa + nucleo + unidades por uso (grid simple)."""
+def plano_nivel_svg(nv, huella, nucleo_info, usos_nv, unidades_uso, escala=2.0):
+    """Planta esquematica SVG: losa + bloque del nucleo (cajas de circulacion y
+    servicios separadas) + unidades por uso (grid simple)."""
     w, h = huella * escala, huella * escala
-    nucleo_lado = math.sqrt(nucleo_m2) * escala
+    bloque = nucleo_info.get("bloque", {})
+    bw = bloque.get("ancho_m", 6.0) * escala
+    bl = bloque.get("largo_m", 9.0) * escala
+    bx0 = w - bw - 4
+    by0 = 4
+    nuc_svg = ""
+    for c in nucleo_info.get("disposicion", []):
+        if c["tipo"] == "circulacion":
+            fill, st = "#555555", "#222"
+        else:
+            fill, st = "#999999", "#444"
+        cx = bx0 + bw / 2.0 + c["dx"] * escala
+        cy = by0 + bl / 2.0 + c["dy"] * escala
+        cw = c["ancho_m"] * escala
+        ch = c["largo_m"] * escala
+        nuc_svg += (f"<rect x='{cx - cw / 2:.1f}' y='{cy - ch / 2:.1f}' "
+                    f"width='{cw:.1f}' height='{ch:.1f}' fill='{fill}' stroke='{st}' "
+                    f"stroke-width='1'/>")
     # Grid de unidades: una caja por uso dominante del nivel (representacion)
     filas = ""
     x, y = 0, 0
     for uso, n in unidades_uso.items():
         color = COLORES.get(uso, "#CCCCCC")
-        filas += (f"<rect x='{x + 4}' y='{y + 4}' width='{w - nucleo_lado - 12}' "
-                  f"height='{max(24, (h - nucleo_lado) / max(1, n) - 6)}' fill='{color}' "
+        filas += (f"<rect x='{x + 4}' y='{y + 4}' width='{w - bw - 12}' "
+                  f"height='{max(24, (h - bl - 8) / max(1, n) - 6)}' fill='{color}' "
                   f"stroke='#333' stroke-width='1'/><text x='{x + 10}' y='{y + 22}' "
                   f"font-size='11'>{uso} ({n})</text>")
     return f"""<svg viewBox="0 0 {w} {h}" style="width:100%;max-width:420px">
 <rect x='0' y='0' width='{w}' height='{h}' fill='#FAFAFA' stroke='#333' stroke-width='2'/>
-<rect x='{w - nucleo_lado}' y='{0}' width='{nucleo_lado}' height='{h}' fill='#555555'
-      stroke='#222'/><text x='{w - nucleo_lado + 6}' y='{h / 2}' fill='#fff' font-size='10'
-      transform='rotate(-90 {w - nucleo_lado + 26} {h / 2})'>NUCLEO {nv}</text>
+<rect x='{bx0}' y='{by0}' width='{bw:.1f}' height='{bl:.1f}' fill='#EDEDED' stroke='#222' stroke-width='2'/>
+{nuc_svg}
+<text x='{bx0 + 6}' y='{by0 + bl + 12}' fill='#555' font-size='10'>NUCLEO {nv}</text>
 {filas}
-<text x='6' y='{h - 6}' font-size='10' fill='#666'>Losa {huella:.0f} m² · núcleo {nucleo_m2:.0f} m² · {usos_nv}</text>
+<text x='6' y='{h - 6}' font-size='10' fill='#666'>Losa {huella:.0f} m² · núcleo {nucleo_info.get('hueco_m2_piso', nucleo_info.get('total_m2_piso', 0)):.0f} m² (circ {nucleo_info.get('circulacion_m2', 0):.0f} + serv {nucleo_info.get('servicios_m2', 0):.0f}) · {usos_nv}</text>
 </svg>"""
 
 
@@ -270,9 +351,9 @@ def generar_html(caso_id, prog, matriz, layout):
             if c["uso"] in nv["usos"]:
                 unidades[c["uso"]] = unidades.get(c["uso"], 0) + c["num_unidades"]
         planos += (f"<h4>Nivel {nv['nivel']} — {', '.join(nv['usos'])}</h4>"
-                   f"<p class='mini'>GFA {nv['gfa_m2']:.0f} m² · núcleo {nv['nucleo_m2']:.0f} m² · "
+                   f"<p class='mini'>GFA {nv['gfa_m2']:.0f} m² · núcleo {nv['nucleo_m2']:.0f} m² (hueco, circ {layout['nucleos']['circulacion_m2']:.0f} + serv {layout['nucleos']['servicios_m2']:.0f}) · "
                    f"eficiencia {nv['eficiencia_losa_pct']:.0f}% · altura {nv['altura_m']:.1f} m</p>"
-                   f"{plano_nivel_svg(nv['nivel'], layout['huella_m2'], nv['nucleo_m2'], nv['usos'], unidades)}")
+                   f"{plano_nivel_svg(nv['nivel'], layout['huella_m2'], layout['nucleos'], nv['usos'], unidades)}")
     filas_matriz = ""
     for a in matriz["usos"]:
         filas_matriz += "<tr><td><b>" + a + "</b></td>" + "".join(
@@ -408,10 +489,15 @@ def exportar_programa_areas(carpeta, prog, layout, matriz):
         "programa_pisos": programa,
         "matriz_adyacencia": matriz_v04,
         "nucleo": {"total_m2_piso": round(layout["nucleos"]["total_m2_piso"], 2),
+                    "hueco_m2_piso": round(layout["nucleos"]["hueco_m2_piso"], 2),
+                    "circulacion_m2": round(layout["nucleos"]["circulacion_m2"], 2),
+                    "servicios_m2": round(layout["nucleos"]["servicios_m2"], 2),
+                    "bloque": layout["nucleos"]["bloque"],
+                    "disposicion": layout["nucleos"]["disposicion"],
                     "lado_m": round(math.sqrt(layout["nucleos"]["total_m2_piso"]), 2),
                     "escaleras": layout["nucleos"]["escaleras"],
                     "ascensores": layout["nucleos"]["ascensores"]},
-        "origen": "F3_DISTRIBUCION_v01 (balanceado)",
+        "origen": "F3_DISTRIBUCION_v01 (balanceado; nucleo circulacion/servicios separados)",
     }
     with io.open(os.path.join(carpeta, "programa-areas.json"), "w",
                  encoding="utf-8") as f:

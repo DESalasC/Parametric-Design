@@ -4,6 +4,44 @@ Motor que convierte el programa del escenario **D_MIXTO** (override de uso múlt
 caso F2 en una **distribución espacial** verificable: matriz de adyacencias, layout con
 núcleos de servicios y transporte vertical, planos esquemáticos y masa 3D.
 
+## Generador v07 (2026-08-16): nucleo EXCLUIDO + circulacion/servicios separados
+
+`F3_VOLUM_GENERADOR_v07.py` (IronPython 2.7, componente "Script" clásico) reemplaza al v06
+con las correcciones del operador:
+
+1. **Perímetro = envelope_por_piso de F1_ETAPA2_NORMATIVA_v07** (lista de curvas
+   POR PISO: ocupación escalonada por empates laterales + voladizos frontales
+   en pisos 2+; fallback a `envelope_curve` para compat v06): la masa coincide
+   con la envolvente normativa piso a piso, no con el lote completo.
+2. **Exclusión booleana real del núcleo**: diferencia de curvas secuencial (caja por caja,
+   overload estable curva-curva) con verificación de área (tol 2%); respaldo boolean 3D con
+   verificación de volumen (tol 3%). **Regla: nunca se entrega geometría intersectante** — si
+   la exclusión falla, el piso se omite y el mensaje reporta `huecos excluidos n/N`.
+3. **Circulación vertical SEPARADA de servicios/áreas técnicas**: salidas
+   `volumenes_circulacion` (escaleras + ascensores) y `volumenes_servicios` (ductos/basuras/
+   cuarto técnico), con la disposición real de `nucleo.disposicion` del programa-areas.json
+   (bloque 5,4×9,0 m para el caso A; 2 escaleras 2,7×5,0 + ascensor 2,2×2,2 + servicios 2,0×4,0).
+4. **Destino = ArchiCAD (Live Connection)**: las salidas se cablean a los componentes AC_*
+   que crean **Morphs nativos de ArchiCAD** (no se hornea en Rhino). Los elementos viajan a
+   ArchiCAD y pueden volver modificados por decisiones del operador (GetElements) o por
+   sugerencias de Ladybug (F4) y Wallacei (optimización) dentro de Grasshopper.
+
+### Cableado en el canvas (sesión abierta de Rhino)
+
+| Entrada del GHPython | Conectar desde |
+|---|---|
+| `envelope_por_piso` (PREFERIDA) | Salida `envelope_por_piso` (lista) de `F1_ETAPA2_NORMATIVA_v07` |
+| `envelope_curve` (fallback) | Salida `envelope_curve` de `F1_ETAPA2_NORMATIVA_v07` |
+| `json_path` | Ruta a `src/fase-3-masa/casos/A/programa-areas.json` (absoluta o relativa al proyecto; el script la resuelve y busca el archivo) |
+| `floor_height` | 3,0 (default; se prefiere `altura_z` del JSON) |
+
+| Salida | Destino (Live Connection AC_*) |
+|---|---|
+| `volumenes_principales` | Componente AC de creación de Morph (losas con hueco) |
+| `volumenes_circulacion` | Morph (escaleras + ascensores) |
+| `volumenes_servicios` | Morph (ductos/basuras/cuarto técnico) |
+| `losas` / `etiquetas` / `mensaje` | Paneles / texto del canvas |
+
 ## Prueba real en Rhino 8 (2026-08-14, caso A)
 
 `F3_PRUEBA_MASA_A_rhino.py` ejecuta el cuerpo del `F3_VOLUM_GENERADOR_v06` DENTRO de Rhino 8.33
@@ -53,7 +91,7 @@ El `programa-areas.json` de F3_DISTRIBUCION incluye: `programa_pisos` (piso, `al
 
 | ID | Caso | Escenario F2 | Resultado |
 |---|---|---|---|
-| A | El Prado (Suba) | D_MIXTO (local 20% + vivienda 80%) | 5 niveles, huella 220 m², 1 ascensor, núcleo ~40 m²/piso |
+| A | El Prado (Suba) | D_MIXTO (local 20% + vivienda 80%) | **6 niveles, huella 243,5 m² (real F1 v06), GFA 1.461,1 m² balanceado, núcleo descompuesto: circulación 31,8 m² (2 esc + 1 asc) + servicios 8,0 m², hueco real 48,6 m²/piso (5,4×9,0), disposición para v07** (regenerado 2026-08-16; D_MIXTO ROI 25,6% con CL $800 M) |
 | B | La Candelaria | D_MIXTO (local turístico 30% + vivienda 70%) | 6 niveles, huella 652 m², 2 ascensores, núcleo ~45 m²/piso |
 | B_SALUD | La Candelaria (variante) | D_MIXTO_SALUD (consultorios 25% + vivienda 75%) | 6 niveles; consultorios en N1-2, vivienda N3-6 |
 | C | Muzú (Puente Aranda) | D_MIXTO (local 35% + vivienda VIS 65%) | 5 niveles, huella 250 m², 1 ascensor, núcleo ~40 m²/piso |

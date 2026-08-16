@@ -1,25 +1,26 @@
 {
-  "gfa_total": 1053.0,
+  "gfa_total": 1461.0972,
   "lote_m2": 315.0,
+  "huella_m2": 243.5162,
   "escenario": "D_MIXTO",
   "componentes": [
     {
       "uso": "Local comercial",
       "uso_original": "Local comercial",
       "pct_gfa": 0.2,
-      "gfa_m2": 210.6,
-      "num_unidades": 3,
+      "gfa_m2": 292.22,
+      "num_unidades": 4,
       "unidad_m2": 50.0,
-      "area_vendible_m2": 150.0
+      "area_vendible_m2": 200.0
     },
     {
       "uso": "Vivienda",
       "uso_original": "Vivienda estandar",
       "pct_gfa": 0.8,
-      "gfa_m2": 842.4,
-      "num_unidades": 10,
+      "gfa_m2": 1168.88,
+      "num_unidades": 14,
       "unidad_m2": 65.0,
-      "area_vendible_m2": 650.0
+      "area_vendible_m2": 910.0
     }
   ]
 }

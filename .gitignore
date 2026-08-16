@@ -17,6 +17,7 @@ env/
 *.ghx.bak
 *.3dmbak
 *.lock
+*.lck
 $Recycle.Bin/
 
 # Datos grandes (usar Git LFS o no commitear)
