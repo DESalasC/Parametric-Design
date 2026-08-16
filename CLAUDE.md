@@ -113,6 +113,11 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
 11. Rhinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg).
 12. Entradas JSON a GHPython: `No Type Hint` + `Item Access`.
 13. Entradas geométricas a GHPython: `List Access` + `Flatten`.
+13b. Entradas geométricas desde la Live Connection: **Type hint = Curve** en el
+    input del GHPython (fuerza la conversión a `Rhino.Geometry.Curve` nativa) +
+    `List Access` + `Flatten`. Conectar la salida C del Deconstruct DIRECTO al
+    script; NO reconstruir con Explode/PolyLine (el parámetro Polyline de
+    Params > Geometry produce `Rhino.Geometry.Polyline`, sin ClosestPoint).
 14. Lotes deben ser **polilíneas (LineSegments)**, no NURBS.
 15. No usar APIs online dentro de GHPython; usar `data/` local.
 16. Si una entrada falla, usar valor por defecto y loggear warning.

@@ -50,6 +50,9 @@ ENTRADAS:
   ep_curves (Curve[])          — Zonas verdes (capa 70-50-10)
   vecinos_curves (Curve[])     — Perimetros vecinos (capa 70-20-20)
   andenes_curves (Curve[])     — Andenes (capa 70-30-20_Andenes_preexistentes)
+  tol_colindancia_m (Number, OPCIONAL) — Tolerancia de colindancia [m]
+                              (default 0.5; bajar p.ej. a 0.2 si hay
+                              elementos cercanos que no colindan)
 
 SALIDAS:
   sides_table_json (String) — Clasificacion + vertice_a + vertice_n +
@@ -96,44 +99,80 @@ def safe_list(val):
 
 
 def es_curva(obj):
-    """True si el objeto parece una curva de Rhino (tiene ClosestPoint).
-
-    Filtra Guids (Element ID de la Live Connection Grasshopper-ArchiCAD) y
-    otros objetos no-geometricos que llegan por cables mal conectados.
-    """
+    """True si el objeto parece una curva de Rhino (tiene ClosestPoint)."""
     return obj is not None and hasattr(obj, "ClosestPoint")
 
 
+# Metodos de conversion candidatos para objetos de la Live Connection
+# (p.ej. 'Planar Curve' con arcos) que no exponen ClosestPoint directo.
+METODOS_CONVERSION = ("ToCurve", "ToNurbsCurve", "ToPolylineCurve",
+                      "ToGeometryBase", "AsCurve", "GetGeometry",
+                      "ToCurveWithArcs", "ToPolyline")
+
+
+def convertir_a_curva(obj):
+    """Intenta convertir un objeto de la Live Connection a curva nativa.
+
+    El Deconstruct de la Live Connection emite clases del plugin (p.ej.
+    'Planar Curve' para polilineas con arcos) que pueden no exponer
+    ClosestPoint directamente pero si un metodo de conversion.
+    Retorna la curva nativa o None si no se pudo convertir.
+    """
+    if es_curva(obj):
+        return obj
+    for nombre in METODOS_CONVERSION:
+        fn = getattr(obj, nombre, None)
+        if callable(fn):
+            try:
+                r = fn()
+                if es_curva(r):
+                    return r
+            except Exception:
+                pass
+    return None
+
+
 def filtrar_curvas(items, nombre, avisos):
-    """Se queda con las curvas validas; reporta cuantos items se descartaron.
+    """Filtra/valida curvas; intenta convertir objetos del plugin; reporta.
 
     Los componentes de la Grasshopper-ArchiCAD Live Connection
-    (AC_PolylineDeconstruct, AC_GetElements) emiten el Element ID (Guid) por
-    una salida y la geometria por otra. Si llega un Guid aqui, el cable
-    apunta a la salida equivocada.
+    (AC_PolylineDeconstruct, AC_GetElements) emiten clases propias (p.ej.
+    'Planar Curve' cuando la polilinea trae arcos) que pueden no ser curvas
+    nativas de Rhino. Se intenta la conversion automatica; si falla, se
+    reporta el tipo .NET del primer item descartado.
     """
     ok = []
     descartados = 0
+    tipo_1er = ""
     for it in safe_list(items):
-        if es_curva(it):
-            ok.append(it)
+        c = convertir_a_curva(it)
+        if c is not None:
+            ok.append(c)
         else:
             descartados += 1
+            if not tipo_1er:
+                try:
+                    tipo_1er = it.GetType().Name
+                except Exception:
+                    tipo_1er = type(it).__name__
     if descartados:
         avisos.append(
-            "entrada %s: %d item(s) NO son curvas nativas de Rhino descartados "
-            "(Guid/Element ID, o tipo del plugin de la Live Connection 'Planar "
-            "Curve' = polilinea con ARCOS); normalizar con el componente Curve "
-            "de GH (Params>Geometry>Curve, preserva arcos) o reconstruir con "
-            "Explode -> Polyline antes de conectar"
-            % (nombre, descartados))
+            "entrada %s: %d item(s) NO convertibles a curva nativa; tipo del 1er "
+            "item: %s. Solucion: conectar la salida C del Deconstruct DIRECTO a la "
+            "entrada del script con Type hint = Curve + List Access + Flatten "
+            "(GHPython convierte a Rhino.Geometry.Curve); NO reconstruir con "
+            "Explode/PolyLine (el parametro Polyline de Params produce "
+            "Rhino.Geometry.Polyline sin ClosestPoint)"
+            % (nombre, descartados, tipo_1er))
     return ok
 
 
-def curva_toca_segmento(p1, p2, curva, tol=TOL_COLINDANCIA_M):
+def curva_toca_segmento(p1, p2, curva, tol=None):
     """Verifica si una curva toca el segmento (muestreo denso)."""
     if curva is None:
         return False
+    if tol is None:
+        tol = TOL_COLINDANCIA_M
     long_seg = p1.DistanceTo(p2)
     muestras = max(5, int(long_seg / 0.2) + 1)
     for i in range(muestras):
@@ -169,6 +208,30 @@ def distancia_vertice_a_curvas(vertice, curvas, max_dist):
     return mejor
 
 
+def dist_min_lado_a_curvas(p1, p2, curvas):
+    """Distancia minima del lado a las curvas (mismo muestreo de colindancia).
+
+    -1.0 si no hay curvas en esa categoria. Sirve de diagnostico para saber
+    POR QUE un lado se marca (o no) como colindante.
+    """
+    mejor = None
+    long_seg = p1.DistanceTo(p2)
+    muestras = max(5, int(long_seg / 0.2) + 1)
+    for i in range(muestras):
+        t = float(i) / max(1, muestras - 1)
+        pt = rg.Point3d(p1.X + t * (p2.X - p1.X),
+                        p1.Y + t * (p2.Y - p1.Y), 0)
+        for crv in curvas:
+            if crv is None:
+                continue
+            ok, param = crv.ClosestPoint(pt)
+            if ok:
+                d = pt.DistanceTo(crv.PointAt(param))
+                if mejor is None or d < mejor:
+                    mejor = d
+    return mejor if mejor is not None else -1.0
+
+
 def punto_medio_lado(vertices, i):
     """Punto medio del lado i (vertices en orden, cerrado)."""
     n = len(vertices)
@@ -198,6 +261,23 @@ def distancia_punto_medio_a_recta_lado(vertices, iu, k):
         return pm.DistanceTo(a)
     # distancia perpendicular del punto a la recta: |cruz| / |dir|
     return abs(dx * (a.Y - pm.Y) - dy * (a.X - pm.X)) / L
+
+
+def punto_interseccion(ev):
+    """Punto del evento de interseccion, compatible con Rhino 7 y 8.
+
+    Rhino 8: IntersectionEvent.PointA (y PointB).
+    Rhino 7 / clases legacy: CurveIntersection.IntersectionPoint.
+    Retorna None si no se pudo extraer.
+    """
+    for nombre in ("PointA", "IntersectionPoint"):
+        try:
+            p = getattr(ev, nombre)
+            if p is not None:
+                return p
+        except Exception:
+            pass
+    return None
 
 
 def medir_ancho_via_andenes(lot_vertices, lados, andenes_list, muestras=MUESTRAS_ANCHO):
@@ -263,15 +343,21 @@ def medir_ancho_via_andenes(lot_vertices, lados, andenes_list, muestras=MUESTRAS
             nrm_op = rg.Vector3d(tang.Y, -tang.X, 0)
             dists = []
             for dirv in (nrm, nrm_op):
-                rayo = rg.Ray3d(q1, dirv)
+                # Linea suficientemente larga en la direccion de la normal
+                # (equivalente al rayo, mas robusto en IronPython GH)
+                pt_fin = q1 + dirv * 500.0
+                linea = rg.Line(q1, pt_fin)
                 for crv in andenes_list:
                     if crv is mejor_crv:
                         continue
-                    pts = rg.Intersection.Intersection.RayCurve(rayo, crv, 0.001)
-                    if pts:
-                        d = q1.DistanceTo(pts[0])
-                        if d > MIN_ANCHO_VIA_M:
-                            dists.append(d)
+                    eventos = rg.Intersect.Intersection.CurveLine(
+                        crv, linea, 0.001, 0.001)
+                    if eventos:
+                        pt_int = punto_interseccion(eventos[0])
+                        if pt_int is not None:
+                            d = q1.DistanceTo(pt_int)
+                            if d > MIN_ANCHO_VIA_M:
+                                dists.append(d)
             if dists:
                 anchos_lado.append(min(dists))
 
@@ -293,6 +379,13 @@ vias_raw = globals().get("vias_curves", None)
 ep_raw = globals().get("ep_curves", None)
 vecinos_raw = globals().get("vecinos_curves", None)
 andenes_raw = globals().get("andenes_curves", None)
+
+# Tolerancia de colindancia configurable (entrada opcional; default 0.5 m)
+_tol_in = globals().get("tol_colindancia_m", None)
+try:
+    TOL_COLINDANCIA_M = float(_tol_in) if _tol_in else 0.5
+except Exception:
+    TOL_COLINDANCIA_M = 0.5
 
 lot_vertices = safe_list(lot_vertices_raw)
 
@@ -361,6 +454,11 @@ else:
             toca_ep = lado_colindante(p1, p2, ep_list)
             toca_vecino = lado_colindante(p1, p2, vecinos_list)
 
+            # Diagnostico: distancia minima del lado a cada categoria
+            d_v = dist_min_lado_a_curvas(p1, p2, vias_list)
+            d_e = dist_min_lado_a_curvas(p1, p2, ep_list)
+            d_n = dist_min_lado_a_curvas(p1, p2, vecinos_list)
+
             if toca_via:
                 cat = "Frontal"
             elif toca_ep:
@@ -376,6 +474,9 @@ else:
                 "toca_via": toca_via,
                 "toca_ep": toca_ep,
                 "toca_vecino": toca_vecino,
+                "dist_via_m": round(d_v, 2) if d_v >= 0 else None,
+                "dist_ep_m": round(d_e, 2) if d_e >= 0 else None,
+                "dist_vec_m": round(d_n, 2) if d_n >= 0 else None,
                 "dist_v_m": round(dist_vertices[i], 2),
                 "comparte_a": comparte_a,
                 "comparte_n": comparte_n
@@ -449,6 +550,10 @@ else:
             "vertice_a": vertice_a,
             "vertice_n": vertice_n,
             "distancias_vertices": [round(d, 2) for d in dist_vertices],
+            "distancias_por_lado": [
+                {"id": l["id"], "via_m": l.get("dist_via_m"),
+                 "ep_m": l.get("dist_ep_m"), "vec_m": l.get("dist_vec_m")}
+                for l in lados],
             "es_esquina": es_esquina,
             "ancho_via_m": round(ancho_via_m, 2),
             "regla": "Vertice A/N + colindancia real + Posterior N-1 + ancho entre andenes (v04)"
