@@ -8,26 +8,38 @@ lados, aplica retiros y patios, y genera la envolvente edificable máxima para F
 ### ETAPA 1 — Datos en bruto → ArchiCAD (clasificación manual)
 ```
 fetch-urban-context-v6 (scripts/utilities) → data/pot-cache/<CHIP>-contexto.json
-  → F1_ETAPA1_CONTEXTO_v01.py (GH: geometría + layers ArchiCAD vía Tapir)
+  → F1_ETAPA1_CONTEXTO_v02.py (GH: geometría + layers ArchiCAD vía Live Connection;
+     garantiza el layer 00-00-10_Lote_proyecto, salida layer_lote_ok)
   → MANUAL en ArchiCAD: clasificar vías, ejes, andenes, zonas verdes, vecinos (Morph)
 ```
 
 ### ETAPA 2 — Geometría clasificada → ocupación y patios
 ```
-ArchiCAD (layers) → Tapir GetElements → GH
-  → F1_ETAPA2_LADOS_v02.py      (clasificación de lados: regla 15m + paralelismo)
+ArchiCAD (layers) → Live Connection GetElements → GH
+  → F1_ETAPA2_LADOS_v04.py      (clasificación por colindancia real; Posterior SOLO
+                                 cuando todos los lados menos uno colindan con vecinos;
+                                 ancho de vía medido entre andenes, capa 70-30-20)
   → F1_ETAPA2_PATIO_v02.py      (patios de aislamiento en vértices vecino-vecino)
-  → F1_ETAPA2_NORMATIVA_v04.py  (retiros diferenciados + resta booleana de patio + IO/IC/altura)
+  → F1_ETAPA2_NORMATIVA_v05.py  (retiros por clasificación + tipología Continua/Aislada
+                                 + antejardín por ancho de vía (CU-5.5/regla histórica)
+                                 + posterior tabla Consolidación por pisos + empate
+                                 volumétrico; IO/IC/altura/GFA)
   → envelope_curve → Fase 3 (VOLUM_GENERADOR)
   → F1_OVERRIDE_USO_v01.py      (opcional: override de uso del operador, USO-MULTIPLE)
   → F1_EXPORTAR_GFA_v02.py      (auto-write: data/fase-2-demanda/<CHIP>-gfa-gh.json)
   → Fase 2 (F2_DEMANDA_MOTOR_v03 / F2_RENTA_MOTOR_v03; hook si no llega --gfa)
 ```
 
-**Vigentes:** `F1_ETAPA1_CONTEXTO_v01` · `F1_ETAPA2_LADOS_v02` · `F1_ETAPA2_PATIO_v02` ·
-`F1_ETAPA2_NORMATIVA_v04` · `F1_EXPORTAR_GFA_v02` · `F1_OVERRIDE_USO_v01` (opcional).
+**Vigentes:** `F1_ETAPA1_CONTEXTO_v02` · `F1_ETAPA2_LADOS_v04` · `F1_ETAPA2_PATIO_v02` ·
+`F1_ETAPA2_NORMATIVA_v05` · `F1_LAYERS_XML_v02` (merge defensivo de capas críticas) ·
+`F1_EXPORTAR_GFA_v02` · `F1_OVERRIDE_USO_v01` (opcional).
 El resto del linaje (patios discontinuidad, análisis de vecinos, validador cruzado, desplazar
 origen, vértice cercano) se archivó en `_legacy/` el 2026-08-15; no usar en definiciones nuevas.
+
+**Entradas nuevas de NORMATIVA_v05 (canvas):** `tipologia` (Continua/Aislada, default
+Continua), `ancho_via_m` (medido entre andenes; default → antejardín 3,00m con aviso),
+`antejardin_m` (override con el valor oficial del mapa CU-5.5, Resolución SDP 1631/2023),
+`empate_posterior_pisos` (≥3 activa empate volumétrico, Anexo 5 §5.4.c).
 
 ## Archivo
 

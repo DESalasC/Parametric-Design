@@ -8,7 +8,7 @@
 			<Layer Idx="1" Name="00-00-10_Lote_proyecto">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>FBA09FB8-6F53-4ED3-B663-8799FA8C9664</guid>
+						<guid>4D58100D-5A2A-4A02-B26E-B02BD1589868</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -20,11 +20,11 @@
 				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
 				<ReadOnly>false</ReadOnly>
 				<ConnectionClassId>1</ConnectionClassId>
-			</Layer>
+				</Layer>
 			<Layer Idx="2" Name="00-20-20_Elementos_entorno_urbano">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>6FBC2735-F443-46EF-8FF8-CC4156812577</guid>
+						<guid>B17ADC52-661A-4766-B705-AFE6ED9AE15D</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -36,11 +36,11 @@
 				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
 				<ReadOnly>false</ReadOnly>
 				<ConnectionClassId>1</ConnectionClassId>
-			</Layer>
+				</Layer>
 			<Layer Idx="3" Name="00-20-30_Ejes_vias">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>56210386-2196-4484-BC06-BD52B13961C2</guid>
+						<guid>4A89CD1E-8E20-4388-80BB-2CAA972E216F</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -52,11 +52,11 @@
 				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
 				<ReadOnly>false</ReadOnly>
 				<ConnectionClassId>1</ConnectionClassId>
-			</Layer>
+				</Layer>
 			<Layer Idx="4" Name="70-50-10_Zonas_verdes_publicas">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>EB4A2154-2B1D-4E70-B439-EB7D3715E557</guid>
+						<guid>3904E4F9-5A12-4096-AD6F-11BB1CC82B0F</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -68,11 +68,11 @@
 				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
 				<ReadOnly>false</ReadOnly>
 				<ConnectionClassId>1</ConnectionClassId>
-			</Layer>
+				</Layer>
 			<Layer Idx="5" Name="70-30-20_Andenes_preexistentes">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>354B23FE-E327-4258-B976-763547BFCBAE</guid>
+						<guid>09E918A4-D7C8-4B12-A33C-AE70E3156730</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -84,11 +84,11 @@
 				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
 				<ReadOnly>false</ReadOnly>
 				<ConnectionClassId>1</ConnectionClassId>
-			</Layer>
+				</Layer>
 			<Layer Idx="6" Name="10-20-10_Topografia">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>D80FD4F9-235F-4FA7-BA9C-6814CF264B14</guid>
+						<guid>0A256D5F-F12A-4937-958E-069D012F641A</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -100,11 +100,11 @@
 				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
 				<ReadOnly>false</ReadOnly>
 				<ConnectionClassId>1</ConnectionClassId>
-			</Layer>
+				</Layer>
 			<Layer Idx="7" Name="70-20-20_Perimetros_vecinos">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>52E1684C-5D45-4B90-BD62-A5AB38F00E4D</guid>
+						<guid>B6774DF4-6128-4963-BB98-2F5BB3E45F60</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -116,11 +116,11 @@
 				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
 				<ReadOnly>false</ReadOnly>
 				<ConnectionClassId>1</ConnectionClassId>
-			</Layer>
+				</Layer>
 			<Layer Idx="8" Name="70-20-30_Volumetrias_vecinas">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>51999E57-031F-4C2D-81F5-B45CBE479CAD</guid>
+						<guid>88AF9AA2-1600-4DA1-A8DE-9448CC4EC09E</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -132,11 +132,11 @@
 				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
 				<ReadOnly>false</ReadOnly>
 				<ConnectionClassId>1</ConnectionClassId>
-			</Layer>
+				</Layer>
 			<Layer Idx="9" Name="00-10-20_Elementos_referencia">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>E8725B0A-436B-4798-865C-AD925D0606C0</guid>
+						<guid>1689B6E6-B9AC-4A91-9CEA-A710AB9CEC82</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -148,23 +148,7 @@
 				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
 				<ReadOnly>false</ReadOnly>
 				<ConnectionClassId>1</ConnectionClassId>
-			</Layer>
-			<Layer Idx="10" Name="00-20-20_Foto_Aerea_Referencia">
-				<OdbObj Mv="2" Sv="0">
-					<OdbRef>
-						<guid>48F245EF-E79E-4D90-AE70-46B27C3DAB46</guid>
-					</OdbRef>
-					<CreaTime>23970</CreaTime>
-					<ModiTime>23972</ModiTime>
-				</OdbObj>
-				<Name>00-20-20_Foto_Aerea_Referencia</Name>
-				<Index>10</Index>
-				<Flags/>
-				<ModiTime>1164398284</ModiTime>
-				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
-				<ReadOnly>false</ReadOnly>
-				<ConnectionClassId>1</ConnectionClassId>
-			</Layer>
+				</Layer>
 		</Attributes>
 		<Attributes Type="Composites">
 			<RefID>1129791794</RefID>
