@@ -8,6 +8,21 @@ Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
 
+SUBVERSIONES INTERNAS (v07.x: iteraciones sin cambio de version general):
+  v07.1 (2026-08-16): correccion normativa del operador - el empate
+         volumetrico lateral (Anexo 5, SECCION 1.9.c) aplica UNICAMENTE a
+         predios con lado POSTERIOR (lote interior/fondo). Para predios con
+         dos laterales y al menos una esquina (sin lado posterior) NO aplica:
+         con vecinos construidos rige SIEMPRE el aislamiento sismorresistente
+         (NSR-10 A.6.5, 2% x h). Entrada nueva `aplica_empate_lateral`
+         (Boolean, override) + auto-deteccion por la clasificacion del LADOS
+         (presencia de lado "Posterior"). Sin lado posterior, el retiro
+         lateral = SOLO sismica 2% x h.
+Regla de versionado: la version general (v07 -> v08) SOLO cambia con cambios
+mayores (contrato de entradas/salidas o algoritmo central); las iteraciones
+internas se registran como subversiones v07.x en este encabezado (el mensaje
+del componente reporta la subversion en curso).
+
 CALCULO:
   1. Descontar retiro FRONTAL (antejardin) del lado frontal del lote
   2. NO descontar retiro en lados EspacioPublico (0m)
@@ -503,6 +518,24 @@ if sides_raw is not None:
 
 lados = sides_data.get("lados", []) if sides_data else []
 
+# --- Anexo 5, SECCION 1.9.c (v07.1): el empate volumetrico lateral aplica
+# SOLO a predios con lado POSTERIOR (lote interior/fondo). Para predios con
+# dos laterales y al menos una esquina (sin lado posterior) NO aplica: rige
+# SOLO la separacion sismica NSR-10 A.6.5 (2% x h) con vecinos construidos.
+aplica_empate_raw = globals().get("aplica_empate_lateral", None)
+if aplica_empate_raw is not None and str(unwrap(aplica_empate_raw)).strip() not in ("", "None"):
+    empate_activo = parse_gh_bool(aplica_empate_raw)
+    warnings.append("empate 1.9.c %s por entrada" % ("activo" if empate_activo else "inactivo"))
+else:
+    empate_activo = any(
+        str(lado.get("clasificacion", "")).strip().lower() == "posterior"
+        for lado in lados)
+    if empate_activo:
+        warnings.append("empate 1.9.c activo: predio con lado posterior")
+    else:
+        warnings.append("empate 1.9.c NO aplica: predio sin lado posterior "
+                        "(dos laterales y esquina) -> solo sismica NSR-10 A.6.5")
+
 # --- Tipologia: operador > reglamentacion > Continua ---
 tipologia = normalize_tipologia(tipologia_raw, warnings)
 if tipologia == TIPOLOGIA_DEFAULT:
@@ -680,7 +713,8 @@ retiros_piso_lista = []
 escalonados = []
 for nv in range(1, pisos_finales + 1):
     h_piso = nv * floor_h
-    r_empate = retiro_lateral_empate(h_piso, altura_vecinos_m, empate_lateral_min)
+    r_empate = retiro_lateral_empate(h_piso, altura_vecinos_m, empate_lateral_min) \
+        if empate_activo else 0.0
     r_sismica = separacion_sismica_piso(h_piso, nsr_coef) if pisos_finales > 3 else 0.0
     r_lat = max(r_empate, r_sismica)
     retiros_nv = dict(retiros_base)
@@ -761,20 +795,23 @@ if escalonados:
                              l.get("clasificacion", "Lateral") == "Lateral"] or [0.0])
 
 if valido:
-    mensaje = ("NORMATIVA v07 | OK | Lote: {:.1f}m2 | Ocup: {:.1f}m2 | IO {:.2f} | "
+    empate_txt = "NO aplica (sin lado posterior): solo sismica 2%xh" \
+        if not empate_activo else "activo (lado posterior)"
+    mensaje = ("NORMATIVA v07.1 | OK | Lote: {:.1f}m2 | Ocup: {:.1f}m2 | IO {:.2f} | "
                "IC {:.2f} (+{}) | Alt {:.1f}m | {} pisos | GFA escalonado: {:.1f}m2 "
                "(base {:.1f}m2) | Escalonados: {} pisos (retiro lateral {:.1f}m desde piso {}) | "
+               "Empate 1.9.c: {} | "
                "Voladizo frontal {:.2f}m (piso 2+) | "
                "Patios {:.1f}m2 | Tipo:{} | Antejardin {:.1f}m (via {:.1f}m) | "
                "Lat {:.1f}m | Post {:.1f}m{}").format(
         area_lote, ocupacion_real, io_maximo, ic_real, pisos_extra, altura_total,
         pisos_finales, gfa_total, gfa_base, len(escalonados), retiro_escalonado,
-        escalonados[0] if escalonados else 0, voladizo_frontal,
+        escalonados[0] if escalonados else 0, empate_txt, voladizo_frontal,
         patio_area_total, tipologia, antejardin,
         ancho_via_m, retiro_lateral, retiro_posterior,
         " (empate)" if empate_posterior else "")
 else:
-    mensaje = "NORMATIVA v07 | ERROR DE VALIDACION | Ocupacion ({:.1f}) >= Area bruta ({:.1f})".format(
+    mensaje = "NORMATIVA v07.1 | ERROR DE VALIDACION | Ocupacion ({:.1f}) >= Area bruta ({:.1f})".format(
         ocupacion_real, area_lote)
 
 if altura_vecinos_m <= 0:

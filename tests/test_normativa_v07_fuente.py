@@ -134,3 +134,18 @@ def test_voladizo_en_mensaje_y_json():
     src = _fuente()
     assert "Voladizo frontal" in src
     assert "voladizo_frontal_m" in src
+
+def test_empate_1_9_c_solo_con_lado_posterior():
+    src = _fuente()
+    # Anexo 5 SECCION 1.9.c: empate volumetrico lateral solo con lado POSTERIOR
+    assert "aplica_empate_lateral" in src
+    assert "empate_activo" in src
+    assert "posterior" in src.lower()
+    assert "solo sismica" in src.lower()
+    assert "NORMATIVA v07.1" in src
+
+def test_subversion_interna_en_encabezado():
+    src = _fuente()
+    assert "SUBVERSIONES INTERNAS" in src
+    assert "v07.1" in src
+    assert "Regla de versionado" in src

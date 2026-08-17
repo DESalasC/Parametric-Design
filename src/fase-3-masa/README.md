@@ -7,7 +7,22 @@ núcleos de servicios y transporte vertical, planos esquemáticos y masa 3D.
 ## Generador v07 (2026-08-16): nucleo EXCLUIDO + circulacion/servicios separados
 
 `F3_VOLUM_GENERADOR_v07.py` (IronPython 2.7, componente "Script" clásico) reemplaza al v06
-con las correcciones del operador:
+con las correcciones del operador. **Sub-versiones internas** (la versión general solo cambia
+con cambios mayores de contrato o algoritmo; el mensaje del componente reporta la subversión
+en curso, p. ej. "VOLUM v07.5 |"):
+
+- **v07.1** — hueco = BLOQUE COMPLETO del núcleo (48,6 m²), no la suma de sólidos (39,8 m²):
+  el aire interior del bloque (8,8 m²) rompía la validación en todos los pisos.
+- **v07.2** — núcleo centrado en el centroide de CADA piso (el bloque fijo al piso 1
+  sobresalía en los pisos escalonados).
+- **v07.3** — recorte por INTERSECCIÓN primero (la diferencia directa perfil − caja fallaba
+  en Rhino al rozar el borde: None/multipieza).
+- **v07.4** — diferencia multipieza → tomar la MAYOR pieza validada; respaldo 3D resta la
+  pieza intersección, no la caja completa.
+- **v07.5** — núcleo BUSCA SU POSICIÓN (barrido 3×3, paso 0,75 m alrededor del centroide de
+  cada piso): el centroide de una L cóncava puede caer en el codo y partir la intersección;
+  el barrido ubica el bloque donde cabe completo (≥95%). Diagnóstico numérico (áreas) en el
+  detalle de omitidos.
 
 1. **Perímetro = envelope_por_piso de F1_ETAPA2_NORMATIVA_v07** (lista de curvas
    POR PISO: ocupación escalonada por empates laterales + voladizos frontales
@@ -37,10 +52,13 @@ con las correcciones del operador:
 
 | Salida | Destino (Live Connection AC_*) |
 |---|---|
-| `volumenes_principales` | Componente AC de creación de Morph (losas con hueco) |
-| `volumenes_circulacion` | Morph (escaleras + ascensores) |
-| `volumenes_servicios` | Morph (ductos/basuras/cuarto técnico) |
-| `losas` / `etiquetas` / `mensaje` | Paneles / texto del canvas |
+| `volumenes_principales_mesh` | Componente AC de creación de **Morph** (el Morph de ArchiCAD requiere `Rhino.Geometry.Mesh`, no Brep) |
+| `volumenes_circulacion_mesh` | Morph (escaleras + ascensores) |
+| `volumenes_servicios_mesh` | Morph (ductos/basuras/cuarto técnico) |
+| `volumenes_nucleo_mesh` | Morph (compat: circulación + servicios) |
+| `losas_mesh` | Morph (superficie abierta de la losa con hueco) |
+| `volumenes_*` / `losas` (Brep) | Preview en Rhino / F4 (Ladybug) / otros consumidores |
+| `etiquetas` / `mensaje` | Paneles / texto del canvas |
 
 ## Prueba real en Rhino 8 (2026-08-14, caso A)
 

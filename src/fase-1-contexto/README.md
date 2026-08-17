@@ -22,7 +22,7 @@ ArchiCAD (layers) → Live Connection GetElements → GH
                                  cuando todos los lados menos uno colindan con vecinos;
                                  ancho de vía TOTAL del perfil vial — incluye andenes)
   → F1_ETAPA2_PATIO_v02.py      (patios de aislamiento en vértices vecino-vecino)
-  → F1_ETAPA2_NORMATIVA_v07.py  (retiros por clasificación + tipología Continua/Aislada
+  → F1_ETAPA2_NORMATIVA_v08.py  (retiros por clasificación + tipología Continua/Aislada
                                  + antejardín por ancho de vía (CU-5.5/regla histórica)
                                  + posterior tabla Consolidación por pisos + empate
                                  volumétrico; IO/IC/altura/GFA; ENVOLVENTE ESCALONADA:
@@ -31,6 +31,10 @@ ArchiCAD (layers) → Live Connection GetElements → GH
                                  min configurable 3,0 m; separación sísmica NSR-10 A.6.5 —
                                  2% × h en >3 pisos) solo en lados Lateral (vecino);
                                  Frontales (vía) y EspacioPublico no se escalonan;
+                                 VECINOS CON ALTURAS VARIABLES por lateral (v08: entrada
+                                 vecinos_por_lado_json, retiro por sub-segmento — SECCION
+                                 1.9.c por vecino; recorte por semiplanos robusto en
+                                 cóncavos; sin la entrada = comportamiento v07);
                                  salidas envelope_por_piso + retiros_por_piso)
   → envelope_curve → Fase 3 (VOLUM_GENERADOR)
   → F1_OVERRIDE_USO_v01.py      (opcional: override de uso del operador, USO-MULTIPLE)
@@ -39,21 +43,24 @@ ArchiCAD (layers) → Live Connection GetElements → GH
 ```
 
 **Vigentes:** `F1_ETAPA1_CONTEXTO_v02` · `F1_ETAPA2_LADOS_v06` · `F1_ETAPA2_PATIO_v02` ·
-`F1_ETAPA2_NORMATIVA_v07` · `F1_LAYERS_XML_v02` (merge defensivo de capas críticas) ·
+`F1_ETAPA2_NORMATIVA_v08` · `F1_LAYERS_XML_v02` (merge defensivo de capas críticas) ·
 `F1_EXPORTAR_GFA_v02` · `F1_OVERRIDE_USO_v01` (opcional).
 El resto del linaje (patios discontinuidad, análisis de vecinos, validador cruzado, desplazar
 origen, vértice cercano) se archivó en `_legacy/` el 2026-08-15; no usar en definiciones nuevas.
 
-**Entradas nuevas de NORMATIVA_v07 (canvas):** `tipologia` (Continua/Aislada, default
+**Entradas nuevas de NORMATIVA_v08 (canvas):** `tipologia` (Continua/Aislada, default
 Continua), `ancho_via_m` (medido entre andenes; default → antejardín 3,00m con aviso),
 `antejardin_m` (override con el valor oficial del mapa CU-5.5, Resolución SDP 1631/2023),
 `empate_posterior_pisos` (≥3 activa empate volumétrico, Anexo 5 §5.4.c),
-`altura_vecinos_m` (altura de colindantes; default 0 = sin escalonamiento + aviso),
-`empate_lateral_min_m` (default 3,0), `nsr10_separacion_coef` (default 0,02) y
+`altura_vecinos_m` (altura global de colindantes; default 0 = sin escalonamiento + aviso),
+`empate_lateral_min_m` (default 3,0), `nsr10_separacion_coef` (default 0,02),
 `voladizo_frontal_m` (override del voladizo frontal, SECCION 1.13.b; default auto
 por perfil vial: ≤6 m no se permite; >6-10 → 0,60; >10-15 → 0,80; >15-22 → 1,00;
 >22/arterial → 1,50; aplica en pisos 2+, solo lados Frontal; cuenta en GFA, no en
-ocupación; prohibido sobre parques/EEP y aislamientos laterales).
+ocupación; prohibido sobre parques/EEP y aislamientos laterales) y
+`vecinos_por_lado_json` (v08: vecinos con alturas VARIABLES por lateral —
+`{"<id_lado>": [altura, ...]}` o `{"lados": [{"id": .., "vecinos": [{"altura_m": ..}]}]}`;
+retiro de empate POR SUB-SEGMENTO, SECCION 1.9.c; sin la entrada = v07).
 **Salidas nuevas:** `envelope_por_piso` (curvas por piso, GFA = Σ áreas), `retiros_por_piso`
 (JSON por piso); `envelope_curve` se conserva = envolvente del piso 1 (compat F3).
 Caso A estimado (vecinos 2 pisos): GFA escalonado ≈ 894,5 m² (−38,8% vs. hook 1.461,1);

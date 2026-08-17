@@ -6,15 +6,76 @@ Proyecto: DisenoParametrico / Fase 3
 GH Python Script para Grasshopper (componente "Script", IronPython 2.7)
 ================================================================================
 
+SUBVERSIONES INTERNAS (v07.x: iteraciones sin cambio de version general):
+  v07.1: hueco = BLOQUE COMPLETO del nucleo (48,6 m2) en vez de la suma de
+         solidos (39,8 m2): el aire interior del bloque (8,8 m2) rompia la
+         validacion de area en TODOS los pisos.
+  v07.2: nucleo CENTRADO EN EL CENTROIDE DE CADA PISO (el bloque fijo al
+         piso 1 sobresalia en los pisos escalonados y se omitian 5/6).
+  v07.3: recorte por INTERSECCION primero (la diferencia directa
+         perfil - caja fallaba en Rhino con None/multipieza al rozar el
+         borde: "boolean partio el perfil" en 6/6).
+  v07.4: diferencia multipieza -> tomar la MAYOR pieza validada (tol 2%);
+         respaldo 3D resta la PIEZA interseccion, no la caja completa.
+  v07.5: nucleo BUSCA SU POSICION (barrido 3x3, paso 0,75 m): el centroide
+         de una L concava puede caer en el codo y partir la interseccion;
+         el barrido ubica el bloque donde cabe COMPLETO (>=95%). Diagnostico
+         numerico (areas) en el detalle de omitidos.
+  v07.6: el hueco se construye SIN booleanos: Rhino representa una region
+         con agujero como VARIAS curvas (exterior + agujeros) - "2 piezas"
+         NO era un roce sino el agujero interior legitimo. La losa sale de
+         CreatePlanarBreps([exterior] + agujeros) y el volumen principal es
+         la EXTRUSION de esa losa con hueco; boolean 3D solo como respaldo.
+  v07.7: diagnostico en el mensaje: contadores de salidas REALES generadas
+         (vol/losas/circ/serv) junto a huecos n/N, para distinguir un fallo
+         de generacion de un fallo de contador en el canvas.
+  v07.8: FIX del piso fantasma ("OK | salidas 0/6"): el else de omitidos
+         emparejaba con el if del VOLUMEN, no con el de la LOSA - si la
+         losa-anillo fallaba (agujero tangente al borde -> PlanarBreps None),
+         el piso se saltaba el omitido y llegaba a las etiquetas sin generar
+         nada. Ahora: 3 ifs ok encadenados con UN else final (siempre
+         captura el fallo) + respaldos de losa: agujero ENCOGIDO 2 cm
+         (offset negativo) y perfil de la diferencia (mordisco).
+  v07.9: INTERRUPTOR de salida `salida_morph` (Boolean, default False):
+         True -> las salidas principales (volumenes_principales,
+         circulacion, servicios, nucleo, losas) emiten MESH, listas para
+         cablear directo al componente Morph de ArchiCAD (exige Mesh);
+         False -> Brep en las principales + *_mesh por separado. El mensaje
+         reporta la salida en curso ("salida: MORPH (mesh)").
+  v07.10: respaldo 3D del volumen con la pieza ENCOGIDA 2 cm (offset
+         negativo): si el bloque toca el borde del piso, la extrucion del
+         agujero toca la pared del volumen y CreateBooleanDifference falla
+         (None/multipieza) -> "extrusion + respaldo 3D fallo" en los 6
+         pisos. Encogida, el boolean 3D resta siempre (hueco 2 cm menor,
+         dentro de la tol 3%).
+Regla de versionado: la version general (v07 -> v08) SOLO cambia con
+cambios mayores (contrato de entradas/salidas o algoritmo central); las
+iteraciones internas se registran como subversiones v07.x en este encabezado
+(el mensaje del componente reporta la subversion en curso).
+
 v07 (2026-08-16): correcciones solicitadas por el operador:
   1. PERIMETRO = envelope_por_piso de F1_ETAPA2_NORMATIVA_v07 (curva POR PISO:
      ocupacion escalonada + voladizos en pisos superiores; fallback a
      envelope_curve para compatibilidad v06). El componente recibe SIEMPRE la
      lista de curvas del NORMATIVA (o la curva unica como respaldo).
-  2. EXCLUSION REAL del nucleo: diferencia de curvas secuencial (caja por caja)
-     con verificacion de area; fallback a boolean 3D con verificacion de
-     volumen. Regla: NUNCA se entrega geometria intersectante - si la exclusion
-     falla, ese piso se omite y el mensaje lo reporta (huecos excluidos n/N).
+  2. EXCLUSION REAL del nucleo: la losa se perfora con el BLOQUE COMPLETO
+     del nucleo (nucleo.bloque del programa-areas.json: 5,4x9,0 m = 48,6 m2
+     en el caso A), UBICADO POR BARRIDO 3x3 (paso 0,75 m) alrededor del
+     centroide de cada piso (el centroide de una L concava puede caer en el
+     codo y partir la interseccion; el barrido ubica el bloque donde cabe
+     completo, >=95% del area - posicion indicativa del layout, la
+     definitiva es del diseno arquitectonico). El hueco se construye SIN
+     booleanos: la diferencia de curvas devuelve el contorno EXTERIOR + los
+     AGUJEROS como curvas separadas (representacion de Rhino de una region
+     con hueco); la losa sale de CreatePlanarBreps([exterior] + agujeros)
+     y el volumen principal es la EXTRUSION de esa losa con hueco
+     (verificacion de area tol 2%); boolean 3D (verificacion de volumen
+     tol 3%) solo como respaldo. Los SOLIDOS del nucleo
+     (circulacion + servicios, 39,8 m2) se generan aparte y rellenan parte
+     del hueco; el aire interior del bloque (8,8 m2) queda vacio (circulacion
+     interna del nucleo). Regla: NUNCA se entrega geometria intersectante - si
+     la exclusion falla, ese piso se omite y el mensaje lo reporta (huecos
+     excluidos n/N + detalle por piso).
   3. CIRCULACION VERTICAL (escaleras + ascensores) SEPARADA de SERVICIOS y
      areas tecnicas (ductos/basuras/cuarto tecnico): salidas independientes
      volumenes_circulacion y volumenes_servicios, con la disposicion real de
@@ -41,6 +102,13 @@ ENTRADAS (contrato GH):
                              (se resuelve contra D:\Work\PROJECTS\DiseñoParametrico).
   floor_height (Number)    - Altura de entrepiso [m] (default 3.0; se prefiere
                              la altura_z del JSON por piso)
+  salida_morph (Boolean)   - [v07.9] Interruptor de salida. True: las salidas
+                             principales (volumenes_principales, circulacion,
+                             servicios, nucleo, losas) emiten MESH, listas
+                             para cablear directo al componente Morph de
+                             ArchiCAD (exige Rhino.Geometry.Mesh). False
+                             (default): Brep en las principales + *_mesh
+                             por separado.
 
 SALIDAS:
   volumenes_principales   (List of Brep) - Masa por piso con el hueco del
@@ -51,6 +119,13 @@ SALIDAS:
   losas                   (List of Brep)  - Losas con hueco por piso
   etiquetas               (List of String)- Usos, circulacion y servicios por piso
   mensaje                 (String)         - Diagnostico (huecos n/N, fuente)
+
+SALIDAS MESH (para el componente Morph de la Live Connection de ArchiCAD,
+que requiere Rhino.Geometry.Mesh, no Brep):
+  volumenes_principales_mesh / volumenes_circulacion_mesh /
+  volumenes_servicios_mesh / volumenes_nucleo_mesh / losas_mesh
+  (mismo contenido que las Brep, convertido con Mesh.CreateFromBrep /
+  CreateFromPlanarBreps; las losas salen como superficie abierta).
 
 FUNCIONES INTERNAS:
   _caja_curva(cx, cy, ancho, largo) - Polilinea cerrada de una caja centrada
@@ -110,56 +185,178 @@ def _extruir(curva, h, z):
         return None
 
 
+def _brep_a_mesh(brep):
+    """Convierte un Brep a Mesh para el componente Morph de ArchiCAD (la Live
+    Connection requiere Rhino.Geometry.Mesh). Usa presets estaticos de Rhino;
+    para planos cae a CreateFromPlanarBreps. Devuelve Mesh o None."""
+    if brep is None:
+        return None
+    try:
+        mp = rg.MeshingParameters.Coarse
+    except Exception:
+        mp = None
+    if mp is None:
+        try:
+            mp = rg.MeshingParameters.Default
+        except Exception:
+            mp = None
+    # Superficies planas (losas con hueco): mesh de la region plana
+    try:
+        ms = rg.Mesh.CreateFromPlanarBreps(brep, mp)
+        if ms and len(ms) > 0:
+            m = rg.Mesh()
+            for x in ms:
+                m.Append(x)
+            return m
+    except Exception:
+        pass
+    # Solidos 3D
+    try:
+        ms = rg.Mesh.CreateFromBrep(brep, mp)
+        if ms and len(ms) > 0:
+            m = rg.Mesh()
+            for x in ms:
+                m.Append(x)
+            return m
+    except Exception:
+        pass
+    return None
+
+
 def _recortar_huecos(env_crv, cajas, area_losa, hueco_m2):
-    """Diferencia secuencial curva-curva (overload estable en Rhino 8) con
-    verificacion de area: perfil resultante debe medir area_losa - hueco_m2.
-    Devuelve (perfil, ok)."""
+    """Diferencia curva-curva: Rhino representa una region CON AGUJERO como
+    varias curvas (el contorno exterior + los contornos de los agujeros) -
+    "2 piezas" NO es un roce ni un error. Esta funcion devuelve (perfil, ok)
+    con el contorno EXTERIOR en perfil y los contornos de los AGUJEROS en la
+    global _agujeros_global; la losa con hueco se construye luego con
+    rg.Brep.CreatePlanarBreps([perfil] + agujeros) SIN booleanos."""
+    global _area_perfil_diagnostico, _motivo_fallo, _agujeros_global
+    _area_perfil_diagnostico = 0.0
+    _motivo_fallo = ""
+    _agujeros_global = []
     perfil = env_crv
     for cc in cajas:
         try:
             dif = rg.Curve.CreateBooleanDifference(perfil, cc, 0.01)
-        except Exception:
+        except Exception as ex:
+            _motivo_fallo = "diferencia excepcion: {}".format(str(ex))
             return None, False
-        if dif is None or len(dif) != 1:
+        if dif is None or len(dif) == 0:
+            _motivo_fallo = "diferencia sin resultado"
             return None, False
-        perfil = dif[0]
+        amax = -1.0
+        pmax = dif[0]
+        for d in dif:
+            aa = _area_curva(d)
+            if aa > amax:
+                amax = aa
+                pmax = d
+        perfil = pmax
+        _agujeros_global = [d for d in dif if d is not pmax]
     if perfil is None:
         return None, False
     a = _area_curva(perfil)
+    _area_perfil_diagnostico = a
     if a <= 0.0:
-        return None, False
-    esperado = area_losa - hueco_m2
-    if abs(a - esperado) > 0.02 * area_losa:
+        _motivo_fallo = "area nula"
         return None, False
     return perfil, True
 
 
 def _excluir_3d(env_vol, cajas, h, z, area_losa, hueco_m2):
     """Boolean 3D de respaldo (Rhino 8): resta los solidos del nucleo al
-    volumen del envelope. Verifica el volumen resultante. Devuelve (brep, ok)."""
+    volumen del envelope. Verifica el volumen resultante. Devuelve (brep, ok);
+    el motivo del fallo queda en la global _motivo_3d (v07.11)."""
+    global _motivo_3d
+    _motivo_3d = ""
     try:
+        if env_vol is None:
+            _motivo_3d = "volumen base None"
+            return None, False
         huecos = []
         for cc in cajas:
             v = _extruir(cc, h, z)
             if v is not None:
                 huecos.append(v)
         if not huecos:
+            _motivo_3d = "extrucion del hueco fallo"
             return None, False
-        res = rg.Brep.CreateBooleanDifference(env_vol, huecos, 0.01)
+        try:
+            res = rg.Brep.CreateBooleanDifference(env_vol, huecos, 0.01)
+        except Exception as ex:
+            _motivo_3d = "boolean excepcion: {}".format(str(ex))
+            return None, False
         if res is None or len(res) == 0:
+            _motivo_3d = "boolean sin resultado"
             return None, False
         vol = 0.0
         for r in res:
             vol += r.GetVolume()
         esperado = (area_losa - hueco_m2) * h
         if abs(vol - esperado) > 0.03 * (area_losa * h):
+            _motivo_3d = "volumen {:.1f} vs {:.1f}".format(vol, esperado)
             return None, False
         return res, True
-    except Exception:
+    except Exception as ex:
+        _motivo_3d = "excepcion: {}".format(str(ex))
         return None, False
 
 
 # ------------------------------------------------------------------ MAIN
+
+def _a_curvas(item):
+    """Normaliza una entrada GH a lista de curvas Rhino. Acepta:
+    - curvas Rhino directas (PolylineCurve, Curve)
+    - listas/tuplas (aplanadas recursivamente)
+    - DataTree de Grasshopper (.Branches)
+    - objetos Goo (GH_Curve / GH_ObjectWrapper: .Value / .Curve)
+    Evita el 'Type conversion failed from Goo to Curve'."""
+    if item is None:
+        return []
+    if isinstance(item, (list, tuple)):
+        out = []
+        for x in item:
+            out.extend(_a_curvas(x))
+        return out
+    if isinstance(item, rg.Curve):
+        return [item]
+    branches = getattr(item, "Branches", None)
+    if branches is not None:
+        out = []
+        for br in branches:
+            out.extend(_a_curvas(list(br)))
+        return out
+    v = getattr(item, "Value", None)
+    if v is None:
+        v = getattr(item, "Curve", None)
+    if v is None:
+        return []
+    return _a_curvas(v)
+
+
+def _unir_piezas(piezas):
+    """Une las piezas de un piso (si quedo partido) en una curva; si no se
+    pueden unir, devuelve la pieza de mayor area. Nunca intersectante."""
+    if not piezas:
+        return None
+    if len(piezas) == 1:
+        return piezas[0]
+    try:
+        un = rg.Curve.CreateBooleanUnion(piezas, 0.01)
+        if un and len(un) == 1:
+            return un[0]
+    except:
+        pass
+    mejor = piezas[0]
+    ma = -1.0
+    for c in piezas:
+        ap = rg.AreaMassProperties.Compute(c)
+        a = ap.Area if ap else 0.0
+        if a > ma:
+            ma = a
+            mejor = c
+    return mejor
+
 
 def _resolver_json(ruta):
     """Resuelve la ruta del JSON: absoluta > relativa al proyecto > busqueda
@@ -181,19 +378,41 @@ def _resolver_json(ruta):
 
 
 env_por_piso_raw = globals().get("envelope_por_piso", None)   # v07+ preferida
-env_crv = globals().get("envelope_curve", None)                # fallback v06
+env_crv_raw = globals().get("envelope_curve", None)            # fallback v06
 json_path_raw = globals().get("json_path", None)
 floor_h_raw = globals().get("floor_height", 3.0)
+salida_morph_raw = globals().get("salida_morph", False)        # v07.9
 
 json_path = str(unwrap(json_path_raw)) if json_path_raw else ""
 json_path = _resolver_json(json_path)
 floor_h = float(unwrap(floor_h_raw)) if floor_h_raw else 3.0
 
-# Normaliza la lista de curvas por piso (lista > curva suelta > vacia)
+# v07.9: interruptor de salida. True -> las salidas principales emiten MESH
+# (listas para el componente Morph de ArchiCAD, que exige Mesh);
+# False (default) -> Brep en las salidas principales + *_mesh por separado.
+sm = salida_morph_raw
+if isinstance(sm, bool):
+    salida_morph = sm
+else:
+    txt = str(unwrap(sm)).strip().lower()
+    salida_morph = txt in ("true", "1", "si", "yes")
+
+# Normaliza: env_por_piso = lista de PISOS; cada piso = lista de curvas
+# (piezas). Acepta lista, DataTree, Goo y Curve[] (pisos partidos).
 env_por_piso = []
 if env_por_piso_raw is not None:
-    items = env_por_piso_raw if isinstance(env_por_piso_raw, list) else [env_por_piso_raw]
-    env_por_piso = [c for c in items if c is not None]
+    _branches = getattr(env_por_piso_raw, "Branches", None)
+    if _branches is not None:
+        items = [list(br) for br in _branches]
+    elif isinstance(env_por_piso_raw, (list, tuple)):
+        items = env_por_piso_raw
+    else:
+        items = [env_por_piso_raw]
+    for it in items:
+        cs = _a_curvas(it)
+        if cs:
+            env_por_piso.append(cs)
+env_fb = _a_curvas(env_crv_raw)  # fallback: piezas de la curva unica
 
 volumenes_principales = []
 volumenes_circulacion = []
@@ -201,14 +420,19 @@ volumenes_servicios = []
 volumenes_nucleo = []
 losas = []
 etiquetas = []
+volumenes_principales_mesh = []
+volumenes_circulacion_mesh = []
+volumenes_servicios_mesh = []
+volumenes_nucleo_mesh = []
+losas_mesh = []
 mensaje = ""
 
-if not env_por_piso and env_crv is None:
-    mensaje = ("VOLUM v07 | ERROR: sin curva de envelope. Cablear la salida "
+if not env_por_piso and not env_fb:
+    mensaje = ("VOLUM v07.10 | ERROR: sin curva de envelope. Cablear la salida "
                "envelope_por_piso (lista, PREFERIDA) o envelope_curve de "
                "F1_ETAPA2_NORMATIVA_v07.")
 elif not json_path:
-    mensaje = ("VOLUM v07 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
+    mensaje = ("VOLUM v07.10 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
                "programa-areas.json (absoluta o relativa al proyecto)").format(
         str(unwrap(json_path_raw)) if json_path_raw else "")
 else:
@@ -226,27 +450,62 @@ else:
         # Curva de referencia para el nucleo: PISO 1 (el layout se diseno
         # contra el envelope base; el nucleo sube vertical).
         if env_por_piso:
-            crv_ref = env_por_piso[0]
+            crv_ref = env_por_piso[0][0]
         else:
-            crv_ref = env_crv
+            crv_ref = env_fb[0]
         ap = rg.AreaMassProperties.Compute(crv_ref)
         if ap is None:
-            mensaje = "VOLUM v07 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
+            mensaje = "VOLUM v07.10 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
         else:
             area_losa_ref = ap.Area
             centroide = ap.Centroid if ap.Centroid else rg.Point3d(0, 0, 0)
             cx0, cy0 = centroide.X, centroide.Y
 
+            # Solidos del nucleo (circulacion + servicios): extrusiones que
+            # rellenan el hueco. Se generan aparte; NO se usan para recortar.
             cajas = []
             for c in disp:
                 cajas.append(_caja_curva(cx0 + c.get("dx", 0.0), cy0 + c.get("dy", 0.0),
                                          c.get("ancho_m", 2.0), c.get("largo_m", 4.0)))
 
+            # BLOQUE del nucleo (el hueco REAL de la losa): nucleo.bloque del
+            # JSON (ancho x largo, centrado en el centroide). Si no esta,
+            # se deriva del bounding box de la disposicion. La losa se perfora
+            # con el BLOQUE COMPLETO (incluye el aire interior de 8,76 m2:
+            # circulacion interna del nucleo), no con la suma de solidos
+            # (39,8 m2) — esa inconsistencia hacia fallar la validacion 2%.
+            bloque_info = nucleo_info.get("bloque", {})
+            try:
+                b_ancho = float(bloque_info.get("ancho_m", 0.0) or 0.0)
+                b_largo = float(bloque_info.get("largo_m", 0.0) or 0.0)
+                b_dx = float(bloque_info.get("dx", 0.0) or 0.0)
+                b_dy = float(bloque_info.get("dy", 0.0) or 0.0)
+            except Exception:
+                b_ancho = b_largo = b_dx = b_dy = 0.0
+            if b_ancho <= 0 or b_largo <= 0:
+                xs = []
+                ys = []
+                for c in disp:
+                    xs.append(c.get("dx", 0.0) - c.get("ancho_m", 2.0) / 2.0)
+                    xs.append(c.get("dx", 0.0) + c.get("ancho_m", 2.0) / 2.0)
+                    ys.append(c.get("dy", 0.0) - c.get("largo_m", 4.0) / 2.0)
+                    ys.append(c.get("dy", 0.0) + c.get("largo_m", 4.0) / 2.0)
+                b_ancho = max(xs) - min(xs)
+                b_largo = max(ys) - min(ys)
+            caja_bloque = _caja_curva(cx0 + b_dx, cy0 + b_dy, b_ancho, b_largo)
+            cajas_recorte = [caja_bloque]
+            solidos_m2 = circ_m2 + serv_m2
+            aire_interior = max(0.0, hueco_m2 - solidos_m2)
+
             n_pisos = 0
             n_huecos = 0
             n_omitidos = 0
+            omitidos_detalle = []
+            _area_perfil_diagnostico = 0.0
+            _motivo_fallo = ""
+            _agujeros_global = []
             detalle_bool = "curvas"
-            fuente_env = "por_piso (NORMATIVA_v07, escalonado+voladizos)" if env_por_piso \
+            fuente_env = "por_piso (escalonado+voladizos)" if env_por_piso \
                 else "envelope_curve unica (compat)"
 
             for idx_piso, p in enumerate(programa):
@@ -257,82 +516,236 @@ else:
                 if h_piso <= 0.0:
                     h_piso = floor_h
 
-                # Curva del piso: la i-esima de la lista si alcanza; si no, la
-                # ultima disponible; si no hay lista, la unica (fallback).
+                # Piezas del piso: la i-esima de la lista si alcanza; si no, la
+                # ultima; si no hay lista, el fallback. Union para el perfil.
                 if env_por_piso:
-                    crv_piso = env_por_piso[idx_piso] if idx_piso < len(env_por_piso) \
+                    piezas = env_por_piso[idx_piso] if idx_piso < len(env_por_piso) \
                         else env_por_piso[-1]
                 else:
-                    crv_piso = env_crv
+                    piezas = env_fb
+                crv_piso = _unir_piezas(piezas)
+                if crv_piso is None:
+                    n_omitidos += 1
+                    omitidos_detalle.append("P{} sin curva".format(piso_num))
+                    continue
                 ap_piso = rg.AreaMassProperties.Compute(crv_piso)
                 if ap_piso is None:
                     n_omitidos += 1
+                    omitidos_detalle.append("P{} sin area".format(piso_num))
                     continue
                 area_losa = ap_piso.Area
 
+                # Nucleo: BUSCA SU POSICION dentro del piso (barrido 3x3
+                # alrededor del centroide, paso 0,75 m). El centroide de una
+                # L concava puede caer en el codo y partir la interseccion;
+                # el barrido ubica el bloque donde cabe COMPLETO (>=95%).
+                # Posicion indicativa del layout; la definitiva es del
+                # diseno arquitectonico. Si no cabe -> piso omitido.
+                cxp = ap_piso.Centroid.X if ap_piso.Centroid else cx0
+                cyp = ap_piso.Centroid.Y if ap_piso.Centroid else cy0
+                area_bloque_m2 = b_ancho * b_largo
+                paso = 0.75
+                mejor_pieza = None
+                mejor_area = -1.0
+                mejor_dx = 0.0
+                mejor_dy = 0.0
+                for ix in (-1, 0, 1):
+                    for iy in (-1, 0, 1):
+                        caja_t = _caja_curva(
+                            cxp + b_dx + ix * paso, cyp + b_dy + iy * paso,
+                            b_ancho, b_largo)
+                        try:
+                            inter_t = rg.Curve.CreateBooleanIntersection(
+                                crv_piso, caja_t, 0.01)
+                        except Exception:
+                            inter_t = None
+                        if inter_t is None or len(inter_t) == 0:
+                            continue
+                        aa = 0.0
+                        for it in inter_t:
+                            aa += _area_curva(it)
+                        if aa > mejor_area:
+                            mejor_area = aa
+                            mejor_pieza = inter_t
+                            mejor_dx = ix * paso
+                            mejor_dy = iy * paso
+                if mejor_pieza is None or mejor_area < 0.95 * area_bloque_m2:
+                    n_omitidos += 1
+                    omitidos_detalle.append(
+                        "P{} nucleo no cabe (max interseccion {:.1f} m2 de {:.1f})".format(
+                            piso_num, mejor_area, area_bloque_m2))
+                    continue
+                pieza_nucleo = mejor_pieza[0]
+                if len(mejor_pieza) > 1:
+                    u = rg.Curve.CreateBooleanUnion(mejor_pieza, 0.01)
+                    if u and len(u) > 0:
+                        pieza_nucleo = u[0]
+                    else:
+                        amax = -1.0
+                        for it in mejor_pieza:
+                            aa = _area_curva(it)
+                            if aa > amax:
+                                amax = aa
+                                pieza_nucleo = it
+                cajas_recorte = [pieza_nucleo]
+                cajas_piso = []
+                for c in disp:
+                    cajas_piso.append(_caja_curva(
+                        cxp + c.get("dx", 0.0) + mejor_dx,
+                        cyp + c.get("dy", 0.0) + mejor_dy,
+                        c.get("ancho_m", 2.0), c.get("largo_m", 4.0)))
+
+                # --- Hueco del nucleo SIN booleanos (v07.6) ---
+                # La diferencia devuelve el contorno EXTERIOR + los AGUJEROS
+                # como curvas separadas (la representacion de Rhino de una
+                # region con hueco). La losa se construye con
+                # CreatePlanarBreps([exterior] + agujeros) y el volumen
+                # principal es la EXTRUSION de esa losa con hueco.
                 perfil = None
                 ok = False
-                if len(cajas) > 0:
-                    perfil, ok = _recortar_huecos(crv_piso, cajas, area_losa, hueco_m2)
+                area_perfil = 0.0
+                agujeros = []
+                if cajas_recorte:
+                    perfil, ok = _recortar_huecos(
+                        crv_piso, cajas_recorte, area_losa, hueco_m2)
+                    area_perfil = _area_perfil_diagnostico
+                    agujeros = _agujeros_global
                     if ok:
                         detalle_bool = "curvas"
                 if perfil is None:
                     perfil = crv_piso
 
+                losa_hueco = None
                 if ok:
-                    # Losa con hueco
-                    lb = rg.Brep.CreatePlanarBreps(perfil, 0.01)
-                    losa_hueco = None
-                    if lb and len(lb) > 0:
-                        losa_hueco = lb[0]
-                        if len(lb) > 1:
-                            lu = rg.Brep.CreateBooleanUnion(lb, 0.01)
-                            if lu and len(lu) > 0:
-                                losa_hueco = lu[0]
-                    if losa_hueco is not None:
+                    # Losa con hueco SIN booleanos: contorno + agujeros.
+                    # Si el agujero TOCA el borde (inner loop tangente), Rhino
+                    # puede no crear la superficie: se reintenta con el agujero
+                    # ENCOGIDO 2 cm (offset negativo) y con el perfil de la
+                    # diferencia (que ya trae el mordisco si aplica).
+                    candidatos = [agujeros]
+                    if agujeros:
+                        pieza_encogida = None
+                        try:
+                            pieza_encogida = agujeros[0].Offset(
+                                -0.02, 0.01, rg.CurveOffsetCornerStyle.Sharp)
+                        except Exception:
+                            pieza_encogida = None
+                        if pieza_encogida is not None:
+                            candidatos.append([pieza_encogida])
+                    candidatos.append([])
+                    for ag in candidatos:
+                        try:
+                            lb = rg.Brep.CreatePlanarBreps([perfil] + ag, 0.01)
+                        except Exception:
+                            lb = None
+                        if not lb or len(lb) == 0:
+                            continue
+                        ap_l = rg.AreaMassProperties.Compute(lb[0])
+                        if ap_l is None:
+                            continue
+                        area_losa_h = ap_l.Area
+                        esperado = area_losa - hueco_m2
+                        if abs(area_losa_h - esperado) <= 0.02 * area_losa:
+                            losa_hueco = lb[0]
+                            _motivo_fallo = ""
+                            break
+                        _motivo_fallo = "losa-anillo area {:.1f} vs {:.1f}".format(
+                            area_losa_h, esperado)
+                    if losa_hueco is None:
+                        if not _motivo_fallo:
+                            _motivo_fallo = "losa-anillo no creo superficie"
+                        ok = False
+
+                if ok:
+                    # Volumen principal: extrusion de la losa con hueco
+                    env_vol = None
+                    try:
+                        env_vol = rg.Extrusion.Create(losa_hueco, h_piso)
+                    except Exception:
+                        env_vol = None
+                    if env_vol is not None:
+                        env_vol.Translate(rg.Vector3d(0.0, 0.0, z))
                         losa_hueco.Translate(rg.Vector3d(0.0, 0.0, z))
                         losas.append(losa_hueco)
-                    # Volumen principal perforado
-                    env_vol = _extruir(perfil, h_piso, z)
-                    if env_vol is not None:
+                        m = _brep_a_mesh(losa_hueco)
+                        if m is not None:
+                            losas_mesh.append(m)
                         volumenes_principales.append(env_vol)
+                        m = _brep_a_mesh(env_vol)
+                        if m is not None:
+                            volumenes_principales_mesh.append(m)
                         n_huecos += 1
+                    else:
+                        # Extrusion fallo: respaldo boolean 3D del volumen.
+                        # La pieza se ENCOGE 2 cm (offset negativo): si el
+                        # bloque toca el borde del piso, la extrucion del
+                        # agujero toca la pared del volumen y el boolean 3D
+                        # falla (None/multipieza); encogida, resta siempre
+                        # (el hueco queda 2 cm menor, dentro de la tol).
+                        pieza_resta = None
+                        try:
+                            pieza_resta = pieza_nucleo.Offset(
+                                -0.02, 0.01, rg.CurveOffsetCornerStyle.Sharp)
+                        except Exception:
+                            pieza_resta = None
+                        if pieza_resta is None:
+                            pieza_resta = pieza_nucleo
+                        env_vol = _extruir(perfil, h_piso, z)
+                        res, ok3d = _excluir_3d(env_vol, [pieza_resta], h_piso, z,
+                                                area_losa, hueco_m2)
+                        if ok3d and res:
+                            detalle_bool = "boolean3d"
+                            env_vol = res[0]
+                            for r in res[1:]:
+                                volumenes_principales.append(r)
+                                m = _brep_a_mesh(r)
+                                if m is not None:
+                                    volumenes_principales_mesh.append(m)
+                            volumenes_principales.append(env_vol)
+                            m = _brep_a_mesh(env_vol)
+                            if m is not None:
+                                volumenes_principales_mesh.append(m)
+                            lb2 = rg.Brep.CreatePlanarBreps(env_vol, 0.01)
+                            if lb2 and len(lb2) > 0:
+                                lb2[0].Translate(rg.Vector3d(0.0, 0.0, z))
+                                losas.append(lb2[0])
+                                m2 = _brep_a_mesh(lb2[0])
+                                if m2 is not None:
+                                    losas_mesh.append(m2)
+                            n_huecos += 1
+                        else:
+                            ok = False
+                            if not _motivo_fallo:
+                                _motivo_fallo = "extrusion + respaldo 3D fallo"
+
+                if ok:
                     # Circulacion y servicios (llenan el hueco; no intersectan)
-                    for cc, c in zip(cajas, disp):
+                    for cc, c in zip(cajas_piso, disp):
                         v = _extruir(cc, h_piso, z)
                         if v is None:
                             continue
+                        m = _brep_a_mesh(v)
                         if c.get("tipo", "") == "servicios":
                             volumenes_servicios.append(v)
+                            if m is not None:
+                                volumenes_servicios_mesh.append(m)
                         else:
                             volumenes_circulacion.append(v)
+                            if m is not None:
+                                volumenes_circulacion_mesh.append(m)
                 else:
-                    # Respaldo boolean 3D
-                    env_vol = _extruir(crv_piso, h_piso, z)
-                    res, ok3d = _excluir_3d(env_vol, cajas, h_piso, z,
-                                            area_losa, hueco_m2)
-                    if ok3d and res:
-                        detalle_bool = "boolean3d"
-                        env_vol = res[0]
-                        for r in res[1:]:
-                            volumenes_principales.append(r)
-                        volumenes_principales.append(env_vol)
-                        lb = rg.Brep.CreatePlanarBreps(env_vol, 0.01)
-                        if lb and len(lb) > 0:
-                            lb[0].Translate(rg.Vector3d(0.0, 0.0, z))
-                            losas.append(lb[0])
-                        n_huecos += 1
-                        for cc, c in zip(cajas, disp):
-                            v = _extruir(cc, h_piso, z)
-                            if v is None:
-                                continue
-                            if c.get("tipo", "") == "servicios":
-                                volumenes_servicios.append(v)
-                            else:
-                                volumenes_circulacion.append(v)
+                    # Regla: nunca geometria intersectante -> se omite el piso
+                    n_omitidos += 1
+                    if _motivo_fallo:
+                        omitidos_detalle.append(
+                            "P{} {}".format(piso_num, _motivo_fallo))
+                    elif area_perfil > 0.0:
+                        omitidos_detalle.append(
+                            "P{} area {:.1f} vs {:.1f}".format(
+                                piso_num, area_perfil, area_losa - hueco_m2))
                     else:
-                        # Regla: nunca geometria intersectante -> se omite el piso
-                        n_omitidos += 1
+                        omitidos_detalle.append(
+                            "P{} sin detalle".format(piso_num))
 
                 usos_str = ", ".join(["{}: {:.0f}m2".format(u["uso"], u["area_bruta"])
                                       for u in usos if u["uso"] != "Nucleo"])
@@ -342,18 +755,37 @@ else:
                 n_pisos += 1
 
             volumenes_nucleo = list(volumenes_circulacion) + list(volumenes_servicios)
+            volumenes_nucleo_mesh = (list(volumenes_circulacion_mesh) +
+                                     list(volumenes_servicios_mesh))
 
             if n_omitidos == 0:
-                mensaje = ("VOLUM v07 | OK | {} pisos | envelope: {} | "
-                           "huecos excluidos {}/{} | boolean {} | Circ {:.0f}m2 + Serv {:.0f}m2 "
-                           "= nucleo {:.0f}m2/piso").format(
+                mensaje = ("VOLUM v07.10 | OK | {} pisos | envelope: {} | "
+                           "huecos excluidos {}/{} | boolean {} | "
+                           "salidas: vol {}/{} losas {}/{} circ {}/{} serv {}/{} | "
+                           "Circ {:.0f}m2 + Serv {:.0f}m2 = nucleo {:.0f}m2/piso | "
+                           "salida: {}").format(
                     n_pisos, fuente_env, n_huecos, n_pisos, detalle_bool,
-                    circ_m2, serv_m2, hueco_m2)
+                    len(volumenes_principales), n_pisos, len(losas), n_pisos,
+                    len(volumenes_circulacion), n_pisos, len(volumenes_servicios), n_pisos,
+                    circ_m2, serv_m2, hueco_m2,
+                    "MORPH (mesh)" if salida_morph else "BREP + mesh")
             else:
-                mensaje = ("VOLUM v07 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
+                mensaje = ("VOLUM v07.10 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
                            "nucleo fallo; sin geometria intersectante) | huecos {}/{} | boolean {} | "
-                           "envelope: {}").format(
-                    n_pisos, n_omitidos, n_huecos, n_pisos, detalle_bool, fuente_env)
+                           "envelope: {} | nucleo: bloque {:.0f}m2, solidos {:.0f}m2 "
+                           "(aire interior {:.0f}m2) | omitidos: {} | salida: {}").format(
+                    n_pisos, n_omitidos, n_huecos, n_pisos, detalle_bool, fuente_env,
+                    hueco_m2, solidos_m2, aire_interior, "; ".join(omitidos_detalle),
+                    "MORPH (mesh)" if salida_morph else "BREP + mesh")
+
+            # v07.9: interruptor de salida -> las principales emiten MESH
+            if salida_morph:
+                volumenes_principales = list(volumenes_principales_mesh)
+                volumenes_circulacion = list(volumenes_circulacion_mesh)
+                volumenes_servicios = list(volumenes_servicios_mesh)
+                volumenes_nucleo = list(volumenes_nucleo_mesh)
+                losas = list(losas_mesh)
 
     except Exception as e:
-        mensaje = "VOLUM v07 | ERROR: {}".format(str(e))
+        mensaje = "VOLUM v07.10 | ERROR: {}".format(str(e))
+
