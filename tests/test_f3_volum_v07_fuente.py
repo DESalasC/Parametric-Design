@@ -119,8 +119,8 @@ def test_subversion_en_encabezado():
     # sub-versionado interno: v07.x en el encabezado + mensaje con la
     # subversion en curso (la version general solo cambia con cambios mayores)
     assert "SUBVERSIONES INTERNAS" in src
-    assert "v07.17" in src
-    assert "VOLUM v07.17 |" in src
+    assert "v07.18" in src
+    assert "VOLUM v07.18 |" in src
     assert "Regla de versionado" in src
 
 
@@ -264,7 +264,7 @@ def test_diagnostico_emplazamiento_v0715():
     assert "n_medianeira" in src
     assert "n_medianeira += 1" in src
     assert "medianera NO detectada" in src
-    assert "nucleo: {} {}/{}" in src
+    assert "nucleo[{}]: {} {}/{}" in src
     # acepta CURVA en lote_vertices (lot_simplificado de LADOS_v06)
     assert "_vertices_de_curva" in src
     assert "isinstance(item, rg.Curve)" in src
@@ -283,6 +283,18 @@ def test_rotacion_medianeira_v0716():
     assert "ang_nucleo" in src
     assert "_caja_rotada" in src
     assert "_bbox_curva" not in src
+
+
+def test_selector_alineacion_v0718():
+    src = _fuente()
+    # v07.18: selector de alineacion de 3 estados (preferencia de diseno)
+    # 0=centro, 1=medianera (default), 2=opuesta (contradice 0 y 1)
+    assert "alineacion_nucleo" in src
+    assert "modo_desc" in src
+    assert '"opuesta"' in src
+    assert "modo in (1, 2)" in src
+    assert "best_d = 1e18 if modo == 1 else -1.0" in src
+    assert "nucleo[{}]: {} {}/{}" in src
 
 
 def test_extrusion_siempre_hacia_arriba_v0717():

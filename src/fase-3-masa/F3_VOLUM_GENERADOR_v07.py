@@ -73,6 +73,10 @@ SUBVERSIONES INTERNAS (v07.x: iteraciones sin cambio de version general):
          desplaza el brep a [0,+h] cuando la normal de la curva/cara estaba
          invertida; aplicado a _extruir y al volumen principal (cara de la
          losa con hueco).
+  v07.18: SELECTOR de alineacion del nucleo (entrada `alineacion_nucleo`):
+         0=centro (version actual), 1=medianera (default), 2=opuesta (lado
+         contrario a la medianera, contradice 0 y 1). Por preferencia de
+         diseno.
 Regla de versionado: la version general (v07 -> v08) SOLO cambia con
 cambios mayores (contrato de entradas/salidas o algoritmo central); las
 iteraciones internas se registran como subversiones v07.x en este encabezado
@@ -565,6 +569,7 @@ floor_h_raw = globals().get("floor_height", 3.0)
 salida_morph_raw = globals().get("salida_morph", False)        # v07.9
 sides_json_raw = globals().get("sides_table_json", None)       # v07.14
 lote_vertices_raw = globals().get("lote_vertices", None)       # v07.14
+alineacion_nucleo_raw = globals().get("alineacion_nucleo", 1)  # v07.18
 
 json_path = str(unwrap(json_path_raw)) if json_path_raw else ""
 json_path = _resolver_json(json_path)
@@ -619,6 +624,20 @@ else:
     med_desc = "med ang {:.1f}deg long {:.1f}m".format(
         math.degrees(med_info["ang"]), med_info["long"])
 
+# v07.18: selector de alineacion (preferencia de diseno)
+#   0 = centro (barrido 3x3, version actual)
+#   1 = medianera (Lateral/Posterior, lado corto paralelo) — default
+#   2 = opuesta (lado contrario a la medianera; contradice 0 y 1)
+try:
+    modo = int(unwrap(alineacion_nucleo_raw))
+except Exception:
+    modo = 1
+if modo < 0:
+    modo = 0
+elif modo > 2:
+    modo = 2
+modo_desc = {0: "centro", 1: "medianera", 2: "opuesta"}.get(modo, "centro")
+
 volumenes_principales = []
 volumenes_circulacion = []
 volumenes_servicios = []
@@ -633,11 +652,11 @@ losas_mesh = []
 mensaje = ""
 
 if not env_por_piso and not env_fb:
-    mensaje = ("VOLUM v07.17 | ERROR: sin curva de envelope. Cablear la salida "
+    mensaje = ("VOLUM v07.18 | ERROR: sin curva de envelope. Cablear la salida "
                "envelope_por_piso (lista, PREFERIDA) o envelope_curve de "
                "F1_ETAPA2_NORMATIVA_v07.")
 elif not json_path:
-    mensaje = ("VOLUM v07.17 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
+    mensaje = ("VOLUM v07.18 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
                "programa-areas.json (absoluta o relativa al proyecto)").format(
         str(unwrap(json_path_raw)) if json_path_raw else "")
 else:
@@ -660,7 +679,7 @@ else:
             crv_ref = env_fb[0]
         ap = rg.AreaMassProperties.Compute(crv_ref)
         if ap is None:
-            mensaje = "VOLUM v07.17 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
+            mensaje = "VOLUM v07.18 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
         else:
             area_losa_ref = ap.Area
             centroide = ap.Centroid if ap.Centroid else rg.Point3d(0, 0, 0)
@@ -742,12 +761,12 @@ else:
                     continue
                 area_losa = ap_piso.Area
 
-                # Nucleo: v07.16 se apoya contra la MEDIANERA (Lateral/Posterior,
-                # evitando Frontal y EspacioPublico) con su LADO CORTO paralelo
-                # al borde mediano mas largo (decision del operador 2026-08-17;
-                # patrones Alexander 159/107 + daylighting). ROTACION real del
-                # borde (lotes diagonales). Si no hay medianera o no cabe
-                # (>=95%), barrido 3x3 alrededor del centroide (v07.5).
+                # Nucleo: v07.18 con SELECTOR de alineacion (alineacion_nucleo):
+                #   0 = centro (barrido 3x3, version actual)
+                #   1 = medianera (Lateral/Posterior, lado corto paralelo) — default
+                #   2 = opuesta (lado contrario a la medianera; contradice 0 y 1)
+                # ROTACION real del borde (lotes diagonales). Si no cabe
+                # (>=95%), barrido 3x3 alrededor del centroide como respaldo.
                 cxp = ap_piso.Centroid.X if ap_piso.Centroid else cx0
                 cyp = ap_piso.Centroid.Y if ap_piso.Centroid else cy0
                 area_bloque_m2 = b_ancho * b_largo
@@ -758,19 +777,19 @@ else:
                 mejor_cy = cyp + b_dy
                 ang_nucleo = 0.0
 
-                # candidatos contra la medianera (si hay info)
+                # candidatos contra un borde (medianera u opuesta)
                 cand_med = []
-                if med_info is not None:
+                if modo in (1, 2) and med_info is not None:
                     _ang = med_info["ang"]
                     _nx = med_info["nx"]
                     _ny = med_info["ny"]
                     _mx = med_info["mx"]
                     _my = med_info["my"]
                     fv = _vertices_de_curva(crv_piso)
-                    # borde de la losa paralelo a la medianera y mas cercano
-                    # a ella (es su offset interior por retiro)
+                    # bordes de la losa paralelos a la medianera: modo 1 usa el
+                    # mas cercano a ella, modo 2 el mas lejano (lado opuesto)
                     best_edge = None
-                    best_d = 1e18
+                    best_d = 1e18 if modo == 1 else -1.0
                     for i in range(len(fv)):
                         q1 = fv[i]
                         q2 = fv[(i + 1) % len(fv)]
@@ -786,9 +805,14 @@ else:
                         qmy = (q1.Y + q2.Y) / 2.0
                         dperp = abs((qmx - _mx) * math.sin(_ang)
                                     - (qmy - _my) * math.cos(_ang))
-                        if dperp < best_d:
-                            best_d = dperp
-                            best_edge = (q1, q2)
+                        if modo == 1:
+                            if dperp < best_d:
+                                best_d = dperp
+                                best_edge = (q1, q2)
+                        else:
+                            if dperp > best_d:
+                                best_d = dperp
+                                best_edge = (q1, q2)
                     if best_edge is not None:
                         q1, q2 = best_edge
                         emx = (q1.X + q2.X) / 2.0
@@ -798,9 +822,15 @@ else:
                         eL = math.hypot(edx, edy)
                         if eL < 1e-6:
                             eL = 1.0
+                        if modo == 1:
+                            _ix = _nx
+                            _iy = _ny
+                        else:
+                            _ix = -_nx
+                            _iy = -_ny
                         for _t in (-1, 0, 1):
-                            _cx = emx + (edx / eL) * (_t * paso) + _nx * (b_largo / 2.0)
-                            _cy = emy + (edy / eL) * (_t * paso) + _ny * (b_largo / 2.0)
+                            _cx = emx + (edx / eL) * (_t * paso) + _ix * (b_largo / 2.0)
+                            _cy = emy + (edy / eL) * (_t * paso) + _iy * (b_largo / 2.0)
                             cand_med.append(
                                 (_caja_rotada(_cx, _cy, b_ancho, b_largo, _ang),
                                  _cx, _cy, _ang))
@@ -811,7 +841,7 @@ else:
                         mejor_pieza, mejor_area, mejor_cx, mejor_cy, ang_nucleo = _mejor
                         n_medianeira += 1
 
-                # fallback: barrido 3x3 alrededor del centroide
+                # centro (modo 0) o respaldo: barrido 3x3 alrededor del centroide
                 if mejor_pieza is None or mejor_area < 0.95 * area_bloque_m2:
                     cand_cen = []
                     for ix in (-1, 0, 1):
@@ -1030,26 +1060,26 @@ else:
                                      list(volumenes_servicios_mesh))
 
             if n_omitidos == 0:
-                mensaje = ("VOLUM v07.17 | OK | {} pisos | envelope: {} | "
+                mensaje = ("VOLUM v07.18 | OK | {} pisos | envelope: {} | "
                            "huecos excluidos {}/{} | boolean {} | "
                            "salidas: vol {}/{} losas {}/{} circ {}/{} serv {}/{} | "
                            "Circ {:.0f}m2 + Serv {:.0f}m2 = nucleo {:.0f}m2/piso | "
-                           "nucleo: {} {}/{} | "
+                           "nucleo[{}]: {} {}/{} | "
                            "salida: {}").format(
                     n_pisos, fuente_env, n_huecos, n_pisos, detalle_bool,
                     len(volumenes_principales), n_pisos, len(losas), n_pisos,
                     len(volumenes_circulacion), n_pisos, len(volumenes_servicios), n_pisos,
                     circ_m2, serv_m2, hueco_m2,
-                    med_desc, n_medianeira, n_pisos,
+                    modo_desc, med_desc, n_medianeira, n_pisos,
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
             else:
-                mensaje = ("VOLUM v07.17 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
+                mensaje = ("VOLUM v07.18 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
                            "nucleo fallo; sin geometria intersectante) | huecos {}/{} | boolean {} | "
                            "envelope: {} | nucleo: bloque {:.0f}m2, solidos {:.0f}m2 "
-                           "(aire interior {:.0f}m2) | nucleo: {} {}/{} | omitidos: {} | salida: {}").format(
+                           "(aire interior {:.0f}m2) | nucleo[{}]: {} {}/{} | omitidos: {} | salida: {}").format(
                     n_pisos, n_omitidos, n_huecos, n_pisos, detalle_bool, fuente_env,
                     hueco_m2, solidos_m2, aire_interior,
-                    med_desc, n_medianeira, n_pisos,
+                    modo_desc, med_desc, n_medianeira, n_pisos,
                     "; ".join(omitidos_detalle),
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
 
@@ -1062,5 +1092,5 @@ else:
                 losas = list(losas_mesh)
 
     except Exception as e:
-        mensaje = "VOLUM v07.17 | ERROR: {}".format(str(e))
+        mensaje = "VOLUM v07.18 | ERROR: {}".format(str(e))
 

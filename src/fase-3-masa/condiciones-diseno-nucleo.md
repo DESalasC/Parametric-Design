@@ -79,6 +79,11 @@ Desde v07.16 el bloque se apoya contra el **borde real de la losa** paralelo a l
 medianera, con su rotación exacta (`_medianeira_info` devuelve ángulo + normal
 interior; `_caja_rotada`/`_caja_solido_rot` orientan bloque y sólidos).
 
+**Selector de alineación (v07.18)** — entrada `alineacion_nucleo` (0/1/2):
+- `0` = **centro** (barrido 3×3, la versión anterior).
+- `1` = **medianera** (Lateral/Posterior, lado corto paralelo) — por defecto.
+- `2` = **opuesta** (lado contrario a la medianera; contradice tanto `0` como `1`).
+
 ## 6. Trazabilidad
 
 Cada regla se referencia con su número de patrón (Alexander), su fuente
