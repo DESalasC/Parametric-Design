@@ -79,6 +79,9 @@ SUBVERSIONES INTERNAS (v07.x: iteraciones sin cambio de version general):
          diseno.
   v07.19: diagnostico de medianera ampliado (id + n vertices + n lados) y
          aviso de cableado si lote_vertices no coincide con LADOS_v06.
+  v07.20: diagnostico de la mejor interseccion contra la medianera
+         (medmax m2) en el mensaje, para distinguir 'no cabe por poco' de
+         'colocacion incorrecta'.
 Regla de versionado: la version general (v07 -> v08) SOLO cambia con
 cambios mayores (contrato de entradas/salidas o algoritmo central); las
 iteraciones internas se registran como subversiones v07.x en este encabezado
@@ -661,11 +664,11 @@ losas_mesh = []
 mensaje = ""
 
 if not env_por_piso and not env_fb:
-    mensaje = ("VOLUM v07.19 | ERROR: sin curva de envelope. Cablear la salida "
+    mensaje = ("VOLUM v07.20 | ERROR: sin curva de envelope. Cablear la salida "
                "envelope_por_piso (lista, PREFERIDA) o envelope_curve de "
                "F1_ETAPA2_NORMATIVA_v07.")
 elif not json_path:
-    mensaje = ("VOLUM v07.19 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
+    mensaje = ("VOLUM v07.20 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
                "programa-areas.json (absoluta o relativa al proyecto)").format(
         str(unwrap(json_path_raw)) if json_path_raw else "")
 else:
@@ -688,7 +691,7 @@ else:
             crv_ref = env_fb[0]
         ap = rg.AreaMassProperties.Compute(crv_ref)
         if ap is None:
-            mensaje = "VOLUM v07.19 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
+            mensaje = "VOLUM v07.20 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
         else:
             area_losa_ref = ap.Area
             centroide = ap.Centroid if ap.Centroid else rg.Point3d(0, 0, 0)
@@ -734,6 +737,7 @@ else:
             n_huecos = 0
             n_omitidos = 0
             n_medianeira = 0
+            mejor_area_med = -1.0
             omitidos_detalle = []
             _area_perfil_diagnostico = 0.0
             _motivo_fallo = ""
@@ -846,9 +850,12 @@ else:
 
                 if cand_med:
                     _mejor = _mejor_posicion(crv_piso, cand_med)
-                    if _mejor is not None and _mejor[1] >= 0.95 * area_bloque_m2:
-                        mejor_pieza, mejor_area, mejor_cx, mejor_cy, ang_nucleo = _mejor
-                        n_medianeira += 1
+                    if _mejor is not None:
+                        if _mejor[1] > mejor_area_med:
+                            mejor_area_med = _mejor[1]
+                        if _mejor[1] >= 0.95 * area_bloque_m2:
+                            mejor_pieza, mejor_area, mejor_cx, mejor_cy, ang_nucleo = _mejor
+                            n_medianeira += 1
 
                 # centro (modo 0) o respaldo: barrido 3x3 alrededor del centroide
                 if mejor_pieza is None or mejor_area < 0.95 * area_bloque_m2:
@@ -1069,26 +1076,28 @@ else:
                                      list(volumenes_servicios_mesh))
 
             if n_omitidos == 0:
-                mensaje = ("VOLUM v07.19 | OK | {} pisos | envelope: {} | "
+                mensaje = ("VOLUM v07.20 | OK | {} pisos | envelope: {} | "
                            "huecos excluidos {}/{} | boolean {} | "
                            "salidas: vol {}/{} losas {}/{} circ {}/{} serv {}/{} | "
                            "Circ {:.0f}m2 + Serv {:.0f}m2 = nucleo {:.0f}m2/piso | "
-                           "nucleo[{}]: {} {}/{} | "
+                           "nucleo[{}]: {} {}/{} medmax{:.1f}m2 | "
                            "salida: {}").format(
                     n_pisos, fuente_env, n_huecos, n_pisos, detalle_bool,
                     len(volumenes_principales), n_pisos, len(losas), n_pisos,
                     len(volumenes_circulacion), n_pisos, len(volumenes_servicios), n_pisos,
                     circ_m2, serv_m2, hueco_m2,
                     modo_desc, med_desc, n_medianeira, n_pisos,
+                    mejor_area_med if mejor_area_med >= 0.0 else 0.0,
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
             else:
-                mensaje = ("VOLUM v07.19 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
+                mensaje = ("VOLUM v07.20 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
                            "nucleo fallo; sin geometria intersectante) | huecos {}/{} | boolean {} | "
                            "envelope: {} | nucleo: bloque {:.0f}m2, solidos {:.0f}m2 "
-                           "(aire interior {:.0f}m2) | nucleo[{}]: {} {}/{} | omitidos: {} | salida: {}").format(
+                           "(aire interior {:.0f}m2) | nucleo[{}]: {} {}/{} medmax{:.1f}m2 | omitidos: {} | salida: {}").format(
                     n_pisos, n_omitidos, n_huecos, n_pisos, detalle_bool, fuente_env,
                     hueco_m2, solidos_m2, aire_interior,
                     modo_desc, med_desc, n_medianeira, n_pisos,
+                    mejor_area_med if mejor_area_med >= 0.0 else 0.0,
                     "; ".join(omitidos_detalle),
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
 
@@ -1101,5 +1110,5 @@ else:
                 losas = list(losas_mesh)
 
     except Exception as e:
-        mensaje = "VOLUM v07.19 | ERROR: {}".format(str(e))
+        mensaje = "VOLUM v07.20 | ERROR: {}".format(str(e))
 
