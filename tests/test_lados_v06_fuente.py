@@ -56,7 +56,7 @@ def test_intersection_namespace():
 
 def test_mensaje_v06():
     src = _fuente()
-    assert "LADOS v06 |" in src
+    assert "LADOS v06.1 |" in src
     assert "fr:" in src
     assert "aislamiento_tipo" in src
 
@@ -69,7 +69,24 @@ def test_helper_contacto_definido():
 
 
 def test_prefijo_error_v06():
-    """El prefijo del mensaje de error debe decir v06 (no v04 heredado)."""
+    """El prefijo del mensaje de error debe decir v06.1 (no v04 heredado)."""
     src = _fuente()
     assert "LADOS v04 | ERROR" not in src
-    assert "LADOS v06 | ERROR" in src
+    assert "LADOS v06.1 | ERROR" in src
+
+
+def test_version_v061_encabezado():
+    """v06.1 debe aparecer en el historial de versiones del encabezado."""
+    src = _fuente()
+    assert "v06.1 (2026-08-17)" in src
+    assert "dx/dy/mx/my" in src
+
+
+def test_lado_direccion_v061():
+    """v06.1: cada lado entrega dx/dy/mx/my para F3 (medianera sin depender
+    del orden de lote_vertices)."""
+    src = _fuente()
+    assert '"dx": round(p2.X - p1.X, 4)' in src
+    assert '"dy": round(p2.Y - p1.Y, 4)' in src
+    assert '"mx": round((p1.X + p2.X) / 2.0, 4)' in src
+    assert '"my": round((p1.Y + p2.Y) / 2.0, 4)' in src

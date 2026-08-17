@@ -82,6 +82,14 @@ SUBVERSIONES INTERNAS (v07.x: iteraciones sin cambio de version general):
   v07.20: diagnostico de la mejor interseccion contra la medianera
          (medmax m2) en el mensaje, para distinguir 'no cabe por poco' de
          'colocacion incorrecta'.
+  v07.21: medianera desde dx/dy/mx/my de LADOS_v06.1 (ya NO depende del
+         orden de lote_vertices); FIX nucleo colocado afuera (medmax 0.0).
+  v07.22: colocacion medianera ROBUSTA (rotacion y normal desde el borde de
+         la losa + centroide, no desde el lote) + diagnostico fv/edge/dperp/bc/fc
+         + flag de origen [lados|vertices].
+  v07.23: FIX _vertices_de_curva (fv0/edge0): ToPolyline + fallback
+         TryGetPolyline como en LADOS_v06 (ToPolyline devolvia vacio para la
+         curva del envelope).
 Regla de versionado: la version general (v07 -> v08) SOLO cambia con
 cambios mayores (contrato de entradas/salidas o algoritmo central); las
 iteraciones internas se registran como subversiones v07.x en este encabezado
@@ -365,14 +373,27 @@ def _excluir_3d(env_vol, cajas, h, z, area_losa, hueco_m2):
 
 
 def _vertices_de_curva(crv):
-    """Vertices (Point3d) de una curva plana via ToPolyline."""
+    """Vertices (Point3d) de una curva plana. ToPolyline + fallback
+    TryGetPolyline (mismo patron que LADOS_v06)."""
+    if crv is None:
+        return []
+    pts = []
     try:
         poly = crv.ToPolyline(0.05)
-        if poly is not None and poly.Count > 0:
-            return [poly[i] for i in range(poly.Count)]
+        if poly is not None:
+            for i in range(poly.Count):
+                pts.append(poly[i])
     except Exception:
-        pass
-    return []
+        pts = []
+    if not pts:
+        try:
+            ok, poly = crv.TryGetPolyline()
+            if ok and poly is not None:
+                for i in range(poly.Count):
+                    pts.append(poly[i])
+        except Exception:
+            pts = []
+    return pts
 
 
 def _a_puntos(item):
@@ -404,11 +425,12 @@ def _a_puntos(item):
 
 def _medianeira_info(lote_vertices, lados_info):
     """Medianera mas larga (Lateral/Posterior; evita Frontal y EspacioPublico).
-    Devuelve dict {p1, p2, ang, nx, ny, long, mx, my, id} o None.
+    Usa dx/dy/mx/my del lado (LADOS_v06.1+) para NO depender del orden de
+    lote_vertices; si no estan, cae a lote_vertices[id] (legacy).
+    Devuelve dict {ang, nx, ny, long, mx, my, id} o None.
       ang = angulo del borde (rad)
       (nx, ny) = normal interior (hacia el centroide del lote)
-      (mx, my) = punto medio del borde
-      id = indice del vertice de origen del lado mediano"""
+      (mx, my) = punto medio del borde"""
     n = len(lote_vertices)
     if n < 3:
         return None
@@ -416,38 +438,50 @@ def _medianeira_info(lote_vertices, lados_info):
                   if l.get("clasificacion") in ("Lateral", "Posterior")]
     if not medianeras:
         return None
-    mejor_p1 = None
-    mejor_p2 = None
+    mejor = None
     mejor_long = -1.0
-    mejor_id = -1
     for l in medianeras:
         i = int(l.get("id", -1))
-        if i < 0 or i >= n:
-            continue
-        p1 = lote_vertices[i]
-        p2 = lote_vertices[(i + 1) % n]
-        L = p1.DistanceTo(p2)
+        dx = l.get("dx")
+        dy = l.get("dy")
+        if dx is None or dy is None:
+            if i < 0 or i >= n:
+                continue
+            p1 = lote_vertices[i]
+            p2 = lote_vertices[(i + 1) % n]
+            dx = p2.X - p1.X
+            dy = p2.Y - p1.Y
+            src = "vertices"
+        else:
+            src = "lados"
+        L = math.hypot(dx, dy)
         if L > mejor_long:
             mejor_long = L
-            mejor_p1, mejor_p2 = p1, p2
-            mejor_id = i
-    if mejor_p1 is None:
+            mejor = {"id": i, "dx": dx, "dy": dy,
+                     "mx": l.get("mx"), "my": l.get("my"), "src": src}
+    if mejor is None:
         return None
-    dx = mejor_p2.X - mejor_p1.X
-    dy = mejor_p2.Y - mejor_p1.Y
+    dx = mejor["dx"]
+    dy = mejor["dy"]
     ang = math.atan2(dy, dx)
+    mx = mejor["mx"]
+    my = mejor["my"]
+    if mx is None or my is None:
+        i = mejor["id"]
+        p1 = lote_vertices[i]
+        p2 = lote_vertices[(i + 1) % n]
+        mx = (p1.X + p2.X) / 2.0
+        my = (p1.Y + p2.Y) / 2.0
     cx = sum(v.X for v in lote_vertices) / n
     cy = sum(v.Y for v in lote_vertices) / n
-    mx = (mejor_p1.X + mejor_p2.X) / 2.0
-    my = (mejor_p1.Y + mejor_p2.Y) / 2.0
     nx = -math.sin(ang)
     ny = math.cos(ang)
     if (cx - mx) * nx + (cy - my) * ny < 0.0:
         nx = -nx
         ny = -ny
-    return {"p1": mejor_p1, "p2": mejor_p2, "ang": ang,
-            "nx": nx, "ny": ny, "long": mejor_long, "mx": mx, "my": my,
-            "id": mejor_id}
+    return {"ang": ang, "nx": nx, "ny": ny,
+            "long": mejor_long, "mx": mx, "my": my, "id": mejor["id"],
+            "src": mejor.get("src", "vertices")}
 
 
 def _caja_rotada(cx, cy, ancho, largo, ang):
@@ -630,9 +664,10 @@ if med_info is None:
     else:
         med_desc = "medianera NO detectada (sin lado Lateral/Posterior)"
 else:
-    med_desc = "med ang {:.1f}deg L{:.1f}m id{} n{}/{}".format(
+    med_desc = "med ang {:.1f}deg L{:.1f}m id{} n{}/{} [{}]".format(
         math.degrees(med_info["ang"]), med_info["long"],
-        med_info["id"], len(lote_vertices), len(lados_info))
+        med_info["id"], len(lote_vertices), len(lados_info),
+        med_info.get("src", "vertices"))
     if len(lote_vertices) != len(lados_info):
         med_desc += " [WARN cableado lote_vertices != LADOS_v06]"
 
@@ -649,6 +684,7 @@ if modo < 0:
 elif modo > 2:
     modo = 2
 modo_desc = {0: "centro", 1: "medianera", 2: "opuesta"}.get(modo, "centro")
+med_debug = ""  # diagnostico de colocacion medianera (primer piso)
 
 volumenes_principales = []
 volumenes_circulacion = []
@@ -664,11 +700,11 @@ losas_mesh = []
 mensaje = ""
 
 if not env_por_piso and not env_fb:
-    mensaje = ("VOLUM v07.20 | ERROR: sin curva de envelope. Cablear la salida "
+    mensaje = ("VOLUM v07.23 | ERROR: sin curva de envelope. Cablear la salida "
                "envelope_por_piso (lista, PREFERIDA) o envelope_curve de "
                "F1_ETAPA2_NORMATIVA_v07.")
 elif not json_path:
-    mensaje = ("VOLUM v07.20 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
+    mensaje = ("VOLUM v07.23 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
                "programa-areas.json (absoluta o relativa al proyecto)").format(
         str(unwrap(json_path_raw)) if json_path_raw else "")
 else:
@@ -691,7 +727,7 @@ else:
             crv_ref = env_fb[0]
         ap = rg.AreaMassProperties.Compute(crv_ref)
         if ap is None:
-            mensaje = "VOLUM v07.20 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
+            mensaje = "VOLUM v07.23 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
         else:
             area_losa_ref = ap.Area
             centroide = ap.Centroid if ap.Centroid else rg.Point3d(0, 0, 0)
@@ -835,18 +871,33 @@ else:
                         eL = math.hypot(edx, edy)
                         if eL < 1e-6:
                             eL = 1.0
+                        # v07.22: rotacion y normal desde el BORDE DE LA LOSA
+                        # (no desde la medianera del lote), mas robusto.
+                        ang_edge = math.atan2(edy, edx)
                         if modo == 1:
-                            _ix = _nx
-                            _iy = _ny
+                            _ix = -edy / eL
+                            _iy = edx / eL
                         else:
-                            _ix = -_nx
-                            _iy = -_ny
+                            _ix = edy / eL
+                            _iy = -edx / eL
+                        if (cxp - emx) * _ix + (cyp - emy) * _iy < 0.0:
+                            _ix = -_ix
+                            _iy = -_iy
+                        if not med_debug:
+                            _bcx0 = emx + _ix * (b_largo / 2.0)
+                            _bcy0 = emy + _iy * (b_largo / 2.0)
+                            med_debug = (" | fv{} edge1 dperp{:.2f} "
+                                         "bc({:.1f},{:.1f}) fc({:.1f},{:.1f})").format(
+                                len(fv), best_d, _bcx0, _bcy0, cxp, cyp)
                         for _t in (-1, 0, 1):
                             _cx = emx + (edx / eL) * (_t * paso) + _ix * (b_largo / 2.0)
                             _cy = emy + (edy / eL) * (_t * paso) + _iy * (b_largo / 2.0)
                             cand_med.append(
-                                (_caja_rotada(_cx, _cy, b_ancho, b_largo, _ang),
-                                 _cx, _cy, _ang))
+                                (_caja_rotada(_cx, _cy, b_ancho, b_largo, ang_edge),
+                                 _cx, _cy, ang_edge))
+                    elif not med_debug:
+                        med_debug = " | fv{} edge0 tipo{}".format(
+                            len(fv), type(crv_piso).__name__)
 
                 if cand_med:
                     _mejor = _mejor_posicion(crv_piso, cand_med)
@@ -1074,9 +1125,10 @@ else:
             volumenes_nucleo = list(volumenes_circulacion) + list(volumenes_servicios)
             volumenes_nucleo_mesh = (list(volumenes_circulacion_mesh) +
                                      list(volumenes_servicios_mesh))
+            med_desc = med_desc + med_debug
 
             if n_omitidos == 0:
-                mensaje = ("VOLUM v07.20 | OK | {} pisos | envelope: {} | "
+                mensaje = ("VOLUM v07.23 | OK | {} pisos | envelope: {} | "
                            "huecos excluidos {}/{} | boolean {} | "
                            "salidas: vol {}/{} losas {}/{} circ {}/{} serv {}/{} | "
                            "Circ {:.0f}m2 + Serv {:.0f}m2 = nucleo {:.0f}m2/piso | "
@@ -1090,7 +1142,7 @@ else:
                     mejor_area_med if mejor_area_med >= 0.0 else 0.0,
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
             else:
-                mensaje = ("VOLUM v07.20 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
+                mensaje = ("VOLUM v07.23 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
                            "nucleo fallo; sin geometria intersectante) | huecos {}/{} | boolean {} | "
                            "envelope: {} | nucleo: bloque {:.0f}m2, solidos {:.0f}m2 "
                            "(aire interior {:.0f}m2) | nucleo[{}]: {} {}/{} medmax{:.1f}m2 | omitidos: {} | salida: {}").format(
@@ -1110,5 +1162,5 @@ else:
                 losas = list(losas_mesh)
 
     except Exception as e:
-        mensaje = "VOLUM v07.20 | ERROR: {}".format(str(e))
+        mensaje = "VOLUM v07.23 | ERROR: {}".format(str(e))
 

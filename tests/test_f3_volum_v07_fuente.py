@@ -119,8 +119,8 @@ def test_subversion_en_encabezado():
     # sub-versionado interno: v07.x en el encabezado + mensaje con la
     # subversion en curso (la version general solo cambia con cambios mayores)
     assert "SUBVERSIONES INTERNAS" in src
-    assert "v07.20" in src
-    assert "VOLUM v07.20 |" in src
+    assert "v07.23" in src
+    assert "VOLUM v07.23 |" in src
     assert "Regla de versionado" in src
 
 
@@ -297,13 +297,25 @@ def test_selector_alineacion_v0718():
     assert "nucleo[{}]: {} {}/{}" in src
 
 
-def test_diagnostico_cableado_v0719():
+def test_medianera_robusta_v0722():
     src = _fuente()
-    # v07.19: diagnostico ampliado (id + n vertices + n lados) + aviso de
-    # cableado cuando lote_vertices no coincide con LADOS_v06
-    assert '"id": mejor_id' in src
-    assert "med_info[\"id\"]" in src
+    # v07.22: colocacion robusta desde el borde de la losa + diagnostico
+    assert "l.get(\"dx\")" in src
+    assert "l.get(\"mx\")" in src
+    assert "math.hypot(dx, dy)" in src
     assert "WARN cableado lote_vertices != LADOS_v06" in src
+    assert "ang_edge = math.atan2(edy, edx)" in src
+    assert "med_debug" in src
+    assert "med_info.get(\"src\", \"vertices\")" in src
+
+
+def test_vertices_de_curva_fallback_v0723():
+    """v07.23: _vertices_de_curva usa TryGetPolyline como fallback
+    (ToPolyline devolvia vacio para la curva del envelope -> fv0)."""
+    src = _fuente()
+    assert "ok, poly = crv.TryGetPolyline()" in src
+    assert "for i in range(poly.Count)" in src
+    assert "def _vertices_de_curva(crv):" in src
 
 
 def test_diagnostico_mejor_interseccion_v0720():
