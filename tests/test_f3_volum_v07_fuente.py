@@ -119,8 +119,8 @@ def test_subversion_en_encabezado():
     # sub-versionado interno: v07.x en el encabezado + mensaje con la
     # subversion en curso (la version general solo cambia con cambios mayores)
     assert "SUBVERSIONES INTERNAS" in src
-    assert "v07.16" in src
-    assert "VOLUM v07.16 |" in src
+    assert "v07.17" in src
+    assert "VOLUM v07.17 |" in src
     assert "Regla de versionado" in src
 
 
@@ -283,3 +283,13 @@ def test_rotacion_medianeira_v0716():
     assert "ang_nucleo" in src
     assert "_caja_rotada" in src
     assert "_bbox_curva" not in src
+
+
+def test_extrusion_siempre_hacia_arriba_v0717():
+    src = _fuente()
+    # v07.17: FIX morphs que bajaban (normal -Z) -> extrusion SIEMPRE +Z
+    assert "_subir_si_negativo" in src
+    assert "bb.Min.Z < -1e-9" in src
+    assert "_subir_si_negativo(b)" in src
+    assert "_subir_si_negativo(env_vol)" in src
+    assert "bajan" in src

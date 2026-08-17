@@ -69,6 +69,10 @@ SUBVERSIONES INTERNAS (v07.x: iteraciones sin cambio de version general):
          (angulo + normal interior), _caja_rotada/_caja_solido_rot; el bloque
          se apoya contra el borde real de la losa paralelo a la medianera,
          no contra el bbox axis-aligned (antes fallaba 0/6 en lotes rotados).
+  v07.17: FIX extrusion hacia -Z (morphs bajaban): _subir_si_negativo
+         desplaza el brep a [0,+h] cuando la normal de la curva/cara estaba
+         invertida; aplicado a _extruir y al volumen principal (cara de la
+         losa con hueco).
 Regla de versionado: la version general (v07 -> v08) SOLO cambia con
 cambios mayores (contrato de entradas/salidas o algoritmo central); las
 iteraciones internas se registran como subversiones v07.x en este encabezado
@@ -193,6 +197,19 @@ def _area_curva(curva):
         return 0.0
 
 
+def _subir_si_negativo(brep):
+    """Si la extrusion quedo hacia -Z (normal de la curva/cara invertida),
+    la desplaza a [0, +h] antes de subirla a su nivel. Los morphs SUBEN, no
+    bajan (FIX 2026-08-17: arrancaban en el nivel y terminaban en -altura)."""
+    try:
+        bb = brep.GetBoundingBox(True)
+        if bb is not None and bb.Min.Z < -1e-9:
+            brep.Translate(rg.Vector3d(0.0, 0.0, -bb.Min.Z))
+    except Exception:
+        pass
+    return brep
+
+
 def _extruir(curva, h, z):
     try:
         ext = rg.Extrusion.Create(curva.ToNurbsCurve(), h, True)
@@ -201,6 +218,7 @@ def _extruir(curva, h, z):
         b = ext.ToBrep()
         if b is None:
             return None
+        _subir_si_negativo(b)
         b.Translate(rg.Vector3d(0.0, 0.0, z))
         return b
     except Exception:
@@ -615,11 +633,11 @@ losas_mesh = []
 mensaje = ""
 
 if not env_por_piso and not env_fb:
-    mensaje = ("VOLUM v07.16 | ERROR: sin curva de envelope. Cablear la salida "
+    mensaje = ("VOLUM v07.17 | ERROR: sin curva de envelope. Cablear la salida "
                "envelope_por_piso (lista, PREFERIDA) o envelope_curve de "
                "F1_ETAPA2_NORMATIVA_v07.")
 elif not json_path:
-    mensaje = ("VOLUM v07.16 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
+    mensaje = ("VOLUM v07.17 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
                "programa-areas.json (absoluta o relativa al proyecto)").format(
         str(unwrap(json_path_raw)) if json_path_raw else "")
 else:
@@ -642,7 +660,7 @@ else:
             crv_ref = env_fb[0]
         ap = rg.AreaMassProperties.Compute(crv_ref)
         if ap is None:
-            mensaje = "VOLUM v07.16 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
+            mensaje = "VOLUM v07.17 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
         else:
             area_losa_ref = ap.Area
             centroide = ap.Centroid if ap.Centroid else rg.Point3d(0, 0, 0)
@@ -907,6 +925,8 @@ else:
                             ext = rg.Extrusion.Create(losa_hueco.Faces[0], h_piso, True)
                             if ext is not None:
                                 env_vol = ext.ToBrep()
+                                if env_vol is not None:
+                                    _subir_si_negativo(env_vol)
                         except Exception:
                             env_vol = None
                     if env_vol is not None:
@@ -1010,7 +1030,7 @@ else:
                                      list(volumenes_servicios_mesh))
 
             if n_omitidos == 0:
-                mensaje = ("VOLUM v07.16 | OK | {} pisos | envelope: {} | "
+                mensaje = ("VOLUM v07.17 | OK | {} pisos | envelope: {} | "
                            "huecos excluidos {}/{} | boolean {} | "
                            "salidas: vol {}/{} losas {}/{} circ {}/{} serv {}/{} | "
                            "Circ {:.0f}m2 + Serv {:.0f}m2 = nucleo {:.0f}m2/piso | "
@@ -1023,7 +1043,7 @@ else:
                     med_desc, n_medianeira, n_pisos,
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
             else:
-                mensaje = ("VOLUM v07.16 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
+                mensaje = ("VOLUM v07.17 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
                            "nucleo fallo; sin geometria intersectante) | huecos {}/{} | boolean {} | "
                            "envelope: {} | nucleo: bloque {:.0f}m2, solidos {:.0f}m2 "
                            "(aire interior {:.0f}m2) | nucleo: {} {}/{} | omitidos: {} | salida: {}").format(
@@ -1042,5 +1062,5 @@ else:
                 losas = list(losas_mesh)
 
     except Exception as e:
-        mensaje = "VOLUM v07.16 | ERROR: {}".format(str(e))
+        mensaje = "VOLUM v07.17 | ERROR: {}".format(str(e))
 
