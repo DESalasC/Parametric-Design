@@ -74,8 +74,10 @@ Consecuencias operativas (caso A: bloque de núcleo 5,4 × 9,0 m):
 4. `_caja_orientada()` y `_caja_solido()` reorientan el bloque y los sólidos de
    circulación/servicios según el eje detectado.
 
-Limitación conocida: alineación por **eje dominante** (X/Y) para lotes
-ortogonales; la rotación exacta para lotes diagonales queda como mejora futura.
+**Implementado** en v07.14 (medianera) y v07.16 (rotación para lotes diagonales).
+Desde v07.16 el bloque se apoya contra el **borde real de la losa** paralelo a la
+medianera, con su rotación exacta (`_medianeira_info` devuelve ángulo + normal
+interior; `_caja_rotada`/`_caja_solido_rot` orientan bloque y sólidos).
 
 ## 6. Trazabilidad
 

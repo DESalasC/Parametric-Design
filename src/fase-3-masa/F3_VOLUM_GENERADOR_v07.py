@@ -65,6 +65,10 @@ SUBVERSIONES INTERNAS (v07.x: iteraciones sin cambio de version general):
   v07.15: diagnostico de emplazamiento del nucleo (med_desc + contador
          n_medianeira en el mensaje OK/ADVERTENCIA) y acepta CURVA en
          lote_vertices (lot_simplificado de LADOS_v06), no solo puntos.
+  v07.16: ROTACION real de la medianera (lotes diagonales): _medianeira_info
+         (angulo + normal interior), _caja_rotada/_caja_solido_rot; el bloque
+         se apoya contra el borde real de la losa paralelo a la medianera,
+         no contra el bbox axis-aligned (antes fallaba 0/6 en lotes rotados).
 Regla de versionado: la version general (v07 -> v08) SOLO cambia con
 cambios mayores (contrato de entradas/salidas o algoritmo central); las
 iteraciones internas se registran como subversiones v07.x en este encabezado
@@ -160,6 +164,7 @@ import Rhino.Geometry as rg
 import json
 import os
 import io
+import math
 
 # ------------------------------------------------------------------ helpers
 
@@ -370,28 +375,12 @@ def _a_puntos(item):
     return _a_puntos(v)
 
 
-def _bbox_curva(crv):
-    """Bounding box 2D de una curva plana: (minx, maxx, miny, maxy) o None."""
-    pts = []
-    try:
-        poly = crv.ToPolyline(0.05)
-        if poly is not None:
-            pts = [poly[i] for i in range(poly.Count)]
-    except Exception:
-        pts = []
-    if not pts:
-        return None
-    xs = [p.X for p in pts]
-    ys = [p.Y for p in pts]
-    return (min(xs), max(xs), min(ys), max(ys))
-
-
-def _medianeira_eje(lote_vertices, lados_info):
-    """Lado MEDIANERO mas largo (Lateral/Posterior; evita Frontal y
-    EspacioPublico). Devuelve (eje, signo):
-      eje='X' (medianera aprox E-W): signo -1=sur(minY) / +1=norte(maxY)
-      eje='Y' (medianera aprox N-S): signo -1=oeste(minX) / +1=este(maxX)
-    None si no hay info suficiente."""
+def _medianeira_info(lote_vertices, lados_info):
+    """Medianera mas larga (Lateral/Posterior; evita Frontal y EspacioPublico).
+    Devuelve dict {p1, p2, ang, nx, ny, long, mx, my} o None.
+      ang = angulo del borde (rad)
+      (nx, ny) = normal interior (hacia el centroide del lote)
+      (mx, my) = punto medio del borde"""
     n = len(lote_vertices)
     if n < 3:
         return None
@@ -416,39 +405,51 @@ def _medianeira_eje(lote_vertices, lados_info):
         return None
     dx = mejor_p2.X - mejor_p1.X
     dy = mejor_p2.Y - mejor_p1.Y
+    ang = math.atan2(dy, dx)
     cx = sum(v.X for v in lote_vertices) / n
     cy = sum(v.Y for v in lote_vertices) / n
-    if abs(dx) >= abs(dy):
-        eje = "X"
-        signo = 1 if ((mejor_p1.Y + mejor_p2.Y) / 2.0) >= cy else -1
-    else:
-        eje = "Y"
-        signo = 1 if ((mejor_p1.X + mejor_p2.X) / 2.0) >= cx else -1
-    return (eje, signo)
+    mx = (mejor_p1.X + mejor_p2.X) / 2.0
+    my = (mejor_p1.Y + mejor_p2.Y) / 2.0
+    nx = -math.sin(ang)
+    ny = math.cos(ang)
+    if (cx - mx) * nx + (cy - my) * ny < 0.0:
+        nx = -nx
+        ny = -ny
+    return {"p1": mejor_p1, "p2": mejor_p2, "ang": ang,
+            "nx": nx, "ny": ny, "long": mejor_long, "mx": mx, "my": my}
 
 
-def _caja_orientada(cx, cy, ancho, largo, eje):
-    """Caja con 'ancho' (lado corto) a lo largo del eje ('X' o 'Y')."""
-    if eje == "X":
-        return _caja_curva(cx, cy, ancho, largo)
-    return _caja_curva(cx, cy, largo, ancho)
+def _caja_rotada(cx, cy, ancho, largo, ang):
+    """Rectangulo 2D con 'ancho' (lado corto) paralelo al angulo 'ang' (rad)."""
+    a2 = ancho / 2.0
+    l2 = largo / 2.0
+    cosA = math.cos(ang)
+    sinA = math.sin(ang)
+    base = [(-a2, -l2), (a2, -l2), (a2, l2), (-a2, l2), (-a2, -l2)]
+    pts = []
+    for bx, by in base:
+        rx = bx * cosA - by * sinA
+        ry = bx * sinA + by * cosA
+        pts.append(rg.Point3d(cx + rx, cy + ry, 0.0))
+    return rg.PolylineCurve(pts)
 
 
-def _caja_solido(cx, cy, dx, dy, ancho_m, largo_m, eje):
-    """Solido de la disposicion (dx/dy en el marco del bloque) reorientado
-    segun el eje. En el marco del bloque, local X = lado corto, local Y =
-    lado largo."""
-    if eje == "X":
-        return _caja_curva(cx + dx, cy + dy, ancho_m, largo_m)
-    return _caja_curva(cx + dy, cy + dx, largo_m, ancho_m)
+def _caja_solido_rot(cx, cy, dx, dy, ancho_m, largo_m, ang):
+    """Solido de la disposicion (dx/dy en el marco local del bloque) rotado
+    por 'ang'. En el marco local, local X = lado corto, local Y = lado largo."""
+    cosA = math.cos(ang)
+    sinA = math.sin(ang)
+    wx = cx + dx * cosA - dy * sinA
+    wy = cy + dx * sinA + dy * cosA
+    return _caja_rotada(wx, wy, ancho_m, largo_m, ang)
 
 
 def _mejor_posicion(crv_piso, candidatos):
-    """candidatos: lista de (caja, cx, cy, eje). Devuelve la de mayor area de
-    interseccion: (piezas_interseccion, area, cx, cy, eje) o None."""
+    """candidatos: lista de (caja, cx, cy, ang). Devuelve la de mayor area de
+    interseccion: (piezas_interseccion, area, cx, cy, ang) o None."""
     mejor = None
     mejor_area = -1.0
-    for caja, cx, cy, eje in candidatos:
+    for caja, cx, cy, ang in candidatos:
         try:
             inter = rg.Curve.CreateBooleanIntersection(crv_piso, caja, 0.01)
         except Exception:
@@ -460,7 +461,7 @@ def _mejor_posicion(crv_piso, candidatos):
             aa += _area_curva(it)
         if aa > mejor_area:
             mejor_area = aa
-            mejor = (inter, aa, cx, cy, eje)
+            mejor = (inter, aa, cx, cy, ang)
     return mejor
 
 
@@ -588,8 +589,8 @@ if sides_json_raw:
     except Exception:
         lados_info = []
 lote_vertices = _a_puntos(lote_vertices_raw)
-med_eje = _medianeira_eje(lote_vertices, lados_info)
-if med_eje is None:
+med_info = _medianeira_info(lote_vertices, lados_info)
+if med_info is None:
     if len(lote_vertices) < 3:
         med_desc = "medianera NO detectada (vertices {}<3: revisar List Access)".format(len(lote_vertices))
     elif not lados_info:
@@ -597,7 +598,8 @@ if med_eje is None:
     else:
         med_desc = "medianera NO detectada (sin lado Lateral/Posterior)"
 else:
-    med_desc = "med eje{} s{:+d}".format(med_eje[0], med_eje[1])
+    med_desc = "med ang {:.1f}deg long {:.1f}m".format(
+        math.degrees(med_info["ang"]), med_info["long"])
 
 volumenes_principales = []
 volumenes_circulacion = []
@@ -613,11 +615,11 @@ losas_mesh = []
 mensaje = ""
 
 if not env_por_piso and not env_fb:
-    mensaje = ("VOLUM v07.15 | ERROR: sin curva de envelope. Cablear la salida "
+    mensaje = ("VOLUM v07.16 | ERROR: sin curva de envelope. Cablear la salida "
                "envelope_por_piso (lista, PREFERIDA) o envelope_curve de "
                "F1_ETAPA2_NORMATIVA_v07.")
 elif not json_path:
-    mensaje = ("VOLUM v07.15 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
+    mensaje = ("VOLUM v07.16 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
                "programa-areas.json (absoluta o relativa al proyecto)").format(
         str(unwrap(json_path_raw)) if json_path_raw else "")
 else:
@@ -640,7 +642,7 @@ else:
             crv_ref = env_fb[0]
         ap = rg.AreaMassProperties.Compute(crv_ref)
         if ap is None:
-            mensaje = "VOLUM v07.15 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
+            mensaje = "VOLUM v07.16 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
         else:
             area_losa_ref = ap.Area
             centroide = ap.Centroid if ap.Centroid else rg.Point3d(0, 0, 0)
@@ -722,11 +724,12 @@ else:
                     continue
                 area_losa = ap_piso.Area
 
-                # Nucleo: v07.14 se apoya contra la MEDIANERA (Lateral/Posterior,
+                # Nucleo: v07.16 se apoya contra la MEDIANERA (Lateral/Posterior,
                 # evitando Frontal y EspacioPublico) con su LADO CORTO paralelo
                 # al borde mediano mas largo (decision del operador 2026-08-17;
-                # patrones Alexander 159/107 + daylighting). Si no hay medianera
-                # o no cabe (>=95%), barrido 3x3 alrededor del centroide (v07.5).
+                # patrones Alexander 159/107 + daylighting). ROTACION real del
+                # borde (lotes diagonales). Si no hay medianera o no cabe
+                # (>=95%), barrido 3x3 alrededor del centroide (v07.5).
                 cxp = ap_piso.Centroid.X if ap_piso.Centroid else cx0
                 cyp = ap_piso.Centroid.Y if ap_piso.Centroid else cy0
                 area_bloque_m2 = b_ancho * b_largo
@@ -735,32 +738,59 @@ else:
                 mejor_area = -1.0
                 mejor_cx = cxp + b_dx
                 mejor_cy = cyp + b_dy
-                eje_nucleo = "X"
+                ang_nucleo = 0.0
 
                 # candidatos contra la medianera (si hay info)
                 cand_med = []
-                if med_eje is not None:
-                    _eje, _signo = med_eje
-                    _bb = _bbox_curva(crv_piso)
-                    if _bb is not None:
-                        _minx, _maxx, _miny, _maxy = _bb
+                if med_info is not None:
+                    _ang = med_info["ang"]
+                    _nx = med_info["nx"]
+                    _ny = med_info["ny"]
+                    _mx = med_info["mx"]
+                    _my = med_info["my"]
+                    fv = _vertices_de_curva(crv_piso)
+                    # borde de la losa paralelo a la medianera y mas cercano
+                    # a ella (es su offset interior por retiro)
+                    best_edge = None
+                    best_d = 1e18
+                    for i in range(len(fv)):
+                        q1 = fv[i]
+                        q2 = fv[(i + 1) % len(fv)]
+                        ddx = q2.X - q1.X
+                        ddy = q2.Y - q1.Y
+                        L = math.hypot(ddx, ddy)
+                        if L < 1e-6:
+                            continue
+                        par = abs(ddx * math.cos(_ang) + ddy * math.sin(_ang)) / L
+                        if par < 0.90:
+                            continue
+                        qmx = (q1.X + q2.X) / 2.0
+                        qmy = (q1.Y + q2.Y) / 2.0
+                        dperp = abs((qmx - _mx) * math.sin(_ang)
+                                    - (qmy - _my) * math.cos(_ang))
+                        if dperp < best_d:
+                            best_d = dperp
+                            best_edge = (q1, q2)
+                    if best_edge is not None:
+                        q1, q2 = best_edge
+                        emx = (q1.X + q2.X) / 2.0
+                        emy = (q1.Y + q2.Y) / 2.0
+                        edx = q2.X - q1.X
+                        edy = q2.Y - q1.Y
+                        eL = math.hypot(edx, edy)
+                        if eL < 1e-6:
+                            eL = 1.0
                         for _t in (-1, 0, 1):
-                            if _eje == "X":
-                                _cx = (_minx + _maxx) / 2.0 + _t * paso
-                                _cy = (_miny + b_largo / 2.0) if _signo < 0 \
-                                    else (_maxy - b_largo / 2.0)
-                            else:
-                                _cx = (_minx + b_largo / 2.0) if _signo < 0 \
-                                    else (_maxx - b_largo / 2.0)
-                                _cy = (_miny + _maxy) / 2.0 + _t * paso
+                            _cx = emx + (edx / eL) * (_t * paso) + _nx * (b_largo / 2.0)
+                            _cy = emy + (edy / eL) * (_t * paso) + _ny * (b_largo / 2.0)
                             cand_med.append(
-                                (_caja_orientada(_cx, _cy, b_ancho, b_largo, _eje),
-                                 _cx, _cy, _eje))
+                                (_caja_rotada(_cx, _cy, b_ancho, b_largo, _ang),
+                                 _cx, _cy, _ang))
 
                 if cand_med:
                     _mejor = _mejor_posicion(crv_piso, cand_med)
                     if _mejor is not None and _mejor[1] >= 0.95 * area_bloque_m2:
-                        mejor_pieza, mejor_area, mejor_cx, mejor_cy, eje_nucleo = _mejor
+                        mejor_pieza, mejor_area, mejor_cx, mejor_cy, ang_nucleo = _mejor
                         n_medianeira += 1
 
                 # fallback: barrido 3x3 alrededor del centroide
@@ -772,10 +802,10 @@ else:
                             _cy = cyp + b_dy + iy * paso
                             cand_cen.append(
                                 (_caja_curva(_cx, _cy, b_ancho, b_largo),
-                                 _cx, _cy, "X"))
+                                 _cx, _cy, 0.0))
                     _mejor = _mejor_posicion(crv_piso, cand_cen)
                     if _mejor is not None:
-                        mejor_pieza, mejor_area, mejor_cx, mejor_cy, eje_nucleo = _mejor
+                        mejor_pieza, mejor_area, mejor_cx, mejor_cy, ang_nucleo = _mejor
 
                 if mejor_pieza is None or mejor_area < 0.95 * area_bloque_m2:
                     n_omitidos += 1
@@ -798,11 +828,11 @@ else:
                 cajas_recorte = [pieza_nucleo]
                 cajas_piso = []
                 for c in disp:
-                    cajas_piso.append(_caja_solido(
+                    cajas_piso.append(_caja_solido_rot(
                         mejor_cx, mejor_cy,
                         c.get("dx", 0.0), c.get("dy", 0.0),
                         c.get("ancho_m", 2.0), c.get("largo_m", 4.0),
-                        eje_nucleo))
+                        ang_nucleo))
 
                 # --- Hueco del nucleo SIN booleanos (v07.6) ---
                 # La diferencia devuelve el contorno EXTERIOR + los AGUJEROS
@@ -980,7 +1010,7 @@ else:
                                      list(volumenes_servicios_mesh))
 
             if n_omitidos == 0:
-                mensaje = ("VOLUM v07.15 | OK | {} pisos | envelope: {} | "
+                mensaje = ("VOLUM v07.16 | OK | {} pisos | envelope: {} | "
                            "huecos excluidos {}/{} | boolean {} | "
                            "salidas: vol {}/{} losas {}/{} circ {}/{} serv {}/{} | "
                            "Circ {:.0f}m2 + Serv {:.0f}m2 = nucleo {:.0f}m2/piso | "
@@ -993,7 +1023,7 @@ else:
                     med_desc, n_medianeira, n_pisos,
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
             else:
-                mensaje = ("VOLUM v07.15 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
+                mensaje = ("VOLUM v07.16 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
                            "nucleo fallo; sin geometria intersectante) | huecos {}/{} | boolean {} | "
                            "envelope: {} | nucleo: bloque {:.0f}m2, solidos {:.0f}m2 "
                            "(aire interior {:.0f}m2) | nucleo: {} {}/{} | omitidos: {} | salida: {}").format(
@@ -1012,5 +1042,5 @@ else:
                 losas = list(losas_mesh)
 
     except Exception as e:
-        mensaje = "VOLUM v07.15 | ERROR: {}".format(str(e))
+        mensaje = "VOLUM v07.16 | ERROR: {}".format(str(e))
 

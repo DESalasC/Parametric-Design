@@ -119,8 +119,8 @@ def test_subversion_en_encabezado():
     # sub-versionado interno: v07.x en el encabezado + mensaje con la
     # subversion en curso (la version general solo cambia con cambios mayores)
     assert "SUBVERSIONES INTERNAS" in src
-    assert "v07.15" in src
-    assert "VOLUM v07.15 |" in src
+    assert "v07.16" in src
+    assert "VOLUM v07.16 |" in src
     assert "Regla de versionado" in src
 
 
@@ -240,13 +240,13 @@ def test_nucleo_contra_medianeira_v0714():
     # paralelo al borde mediano mas largo; evita Frontal y EspacioPublico
     assert "sides_table_json" in src
     assert "lote_vertices" in src
-    assert "_medianeira_eje" in src
+    assert "_medianeira_info" in src
     assert '"Lateral", "Posterior"' in src
     assert "EspacioPublico" in src
-    assert "_caja_orientada" in src
-    assert "_caja_solido" in src
+    assert "_caja_rotada" in src
+    assert "_caja_solido_rot" in src
     assert "_mejor_posicion" in src
-    assert "med_eje" in src
+    assert "med_info" in src
 
 
 def test_medianeira_fallback_centroide():
@@ -268,3 +268,18 @@ def test_diagnostico_emplazamiento_v0715():
     # acepta CURVA en lote_vertices (lot_simplificado de LADOS_v06)
     assert "_vertices_de_curva" in src
     assert "isinstance(item, rg.Curve)" in src
+
+
+def test_rotacion_medianeira_v0716():
+    src = _fuente()
+    # v07.16: rotacion real de la medianera (lotes diagonales) — el bloque se
+    # apoya contra el borde real de la losa, no contra el bbox axis-aligned
+    assert "math.atan2" in src
+    assert "math.degrees" in src
+    assert "math.hypot" in src
+    assert '"ang"' in src
+    assert '"nx"' in src
+    assert "best_edge" in src
+    assert "ang_nucleo" in src
+    assert "_caja_rotada" in src
+    assert "_bbox_curva" not in src
