@@ -119,8 +119,8 @@ def test_subversion_en_encabezado():
     # sub-versionado interno: v07.x en el encabezado + mensaje con la
     # subversion en curso (la version general solo cambia con cambios mayores)
     assert "SUBVERSIONES INTERNAS" in src
-    assert "v07.10" in src
-    assert "VOLUM v07.10 |" in src
+    assert "v07.15" in src
+    assert "VOLUM v07.15 |" in src
     assert "Regla de versionado" in src
 
 
@@ -149,7 +149,7 @@ def test_recorte_mayor_pieza_y_respaldo_3d():
     src = _fuente()
     # la mayor pieza = contorno EXTERIOR; los agujeros van aparte; el volumen
     # principal = EXTRUSION de la losa con hueco; boolean 3D solo respaldo
-    assert "Extrusion.Create(losa_hueco, h_piso)" in src
+    assert "Extrusion.Create(losa_hueco.Faces[0], h_piso, True)" in src
     assert "_excluir_3d" in src
     assert "losa-anillo" in src
 
@@ -205,3 +205,66 @@ def test_respaldo_3d_con_pieza_encogida():
     assert "pieza_nucleo.Offset(" in src
     assert "-0.02" in src
     assert "CurveOffsetCornerStyle.Sharp" in src
+
+def test_motivo_3d_en_detalle_omitidos():
+    src = _fuente()
+    # v07.11: el respaldo 3D reporta su motivo especifico (_motivo_3d) en el
+    # detalle de omitidos, no solo el generico "extrusion + respaldo 3D fallo"
+    assert "_motivo_3d" in src
+    assert "_motivo_3d = \"\"" in src
+    assert "if _motivo_3d:" in src
+    assert "respaldo 3D fallo ({})" in src
+
+def test_boolean_3d_resta_hueco_a_hueco():
+    src = _fuente()
+    # v07.12: FIX "expected IEnumerable[Brep], got Brep" — el respaldo 3D resta
+    # los huecos UNO A UNO con la firma (Brep, Brep, tol); la extrusion
+    # primaria extruye la CARA plana (Extrusion.Create con Brep devuelve None)
+    assert "for hh in huecos:" in src
+    assert "CreateBooleanDifference(p, hh" in src
+    assert "losa_hueco.Faces[0]" in src
+    assert "ext.ToBrep()" in src
+
+def test_respaldo_3d_reutiliza_losa_hueco():
+    src = _fuente()
+    # v07.13: la losa del respaldo 3D reutiliza losa_hueco (ya con hueco);
+    # NO se reconstruye con CreatePlanarBreps sobre el volumen (Brep) — esa
+    # firma espera IEnumerable[Curve] -> "expected IEnumerable[Curve], got Brep"
+    assert "CreatePlanarBreps(env_vol" not in src
+    assert "losa_hueco.Translate(rg.Vector3d(0.0, 0.0, z))" in src
+
+
+def test_nucleo_contra_medianeira_v0714():
+    src = _fuente()
+    # v07.14: nucleo contra la MEDIANERA (Lateral/Posterior), lado corto
+    # paralelo al borde mediano mas largo; evita Frontal y EspacioPublico
+    assert "sides_table_json" in src
+    assert "lote_vertices" in src
+    assert "_medianeira_eje" in src
+    assert '"Lateral", "Posterior"' in src
+    assert "EspacioPublico" in src
+    assert "_caja_orientada" in src
+    assert "_caja_solido" in src
+    assert "_mejor_posicion" in src
+    assert "med_eje" in src
+
+
+def test_medianeira_fallback_centroide():
+    src = _fuente()
+    # si no hay medianera o no cabe (>=95%), barrido 3x3 centrado (v07.5)
+    assert "cand_med" in src
+    assert "cand_cen" in src
+    assert "0.95 * area_bloque_m2" in src
+
+
+def test_diagnostico_emplazamiento_v0715():
+    src = _fuente()
+    # v07.15: diagnostico de emplazamiento (med_desc + contador n_medianeira)
+    assert "med_desc" in src
+    assert "n_medianeira" in src
+    assert "n_medianeira += 1" in src
+    assert "medianera NO detectada" in src
+    assert "nucleo: {} {}/{}" in src
+    # acepta CURVA en lote_vertices (lot_simplificado de LADOS_v06)
+    assert "_vertices_de_curva" in src
+    assert "isinstance(item, rg.Curve)" in src

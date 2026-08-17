@@ -48,6 +48,23 @@ SUBVERSIONES INTERNAS (v07.x: iteraciones sin cambio de version general):
          (None/multipieza) -> "extrusion + respaldo 3D fallo" en los 6
          pisos. Encogida, el boolean 3D resta siempre (hueco 2 cm menor,
          dentro de la tol 3%).
+  v07.11: el respaldo 3D reporta SU MOTIVO especifico en el detalle de
+         omitidos (global _motivo_3d: "volumen base None", "boolean sin
+         resultado", "volumen X vs Y", etc.) en lugar del generico
+         "extrusion + respaldo 3D fallo".
+  v07.12: FIX de "expected IEnumerable[Brep], got Brep" en el respaldo 3D
+         (Rhino 8 resuelve mal la sobrecarga al pasar (Brep, [Brep]) a
+         CreateBooleanDifference): ahora resta los huecos UNO A UNO con la
+         firma (Brep, Brep, tol). Ademas, la extrusion primaria extruye la
+         CARA plana del Brep (Extrusion.Create con Brep devolvia None).
+  v07.14: nucleo contra la MEDIANERA (Lateral/Posterior, evitando Frontal
+         y EspacioPublico) con el LADO CORTO paralelo al borde mediano mas
+         largo (decision del operador 2026-08-17; patrones Alexander 159/107
+         + daylighting). Entradas opcionales sides_table_json (LADOS_v06) y
+         lote_vertices. Fallback: barrido 3x3 centrado (v07.5).
+  v07.15: diagnostico de emplazamiento del nucleo (med_desc + contador
+         n_medianeira en el mensaje OK/ADVERTENCIA) y acepta CURVA en
+         lote_vertices (lot_simplificado de LADOS_v06), no solo puntos.
 Regla de versionado: la version general (v07 -> v08) SOLO cambia con
 cambios mayores (contrato de entradas/salidas o algoritmo central); las
 iteraciones internas se registran como subversiones v07.x en este encabezado
@@ -266,7 +283,7 @@ def _recortar_huecos(env_crv, cajas, area_losa, hueco_m2):
 def _excluir_3d(env_vol, cajas, h, z, area_losa, hueco_m2):
     """Boolean 3D de respaldo (Rhino 8): resta los solidos del nucleo al
     volumen del envelope. Verifica el volumen resultante. Devuelve (brep, ok);
-    el motivo del fallo queda en la global _motivo_3d (v07.11)."""
+    el motivo del fallo queda en la global _motivo_3d (v07.12)."""
     global _motivo_3d
     _motivo_3d = ""
     try:
@@ -281,13 +298,26 @@ def _excluir_3d(env_vol, cajas, h, z, area_losa, hueco_m2):
         if not huecos:
             _motivo_3d = "extrucion del hueco fallo"
             return None, False
+        # v07.12: resta los huecos UNO A UNO con la firma (Brep, Brep, tol).
+        # Pasar (Brep, [Brep]) resuelve en Rhino 8 la sobrecarga IEnumerable y
+        # falla con "expected IEnumerable[Brep], got Brep".
+        piezas = [env_vol]
         try:
-            res = rg.Brep.CreateBooleanDifference(env_vol, huecos, 0.01)
+            for hh in huecos:
+                nuevos = []
+                for p in piezas:
+                    d = rg.Brep.CreateBooleanDifference(p, hh, 0.01)
+                    if d is None or len(d) == 0:
+                        _motivo_3d = "boolean sin resultado"
+                        return None, False
+                    nuevos.extend(d)
+                piezas = nuevos
+                if not piezas:
+                    _motivo_3d = "boolean sin resultado"
+                    return None, False
+            res = piezas
         except Exception as ex:
             _motivo_3d = "boolean excepcion: {}".format(str(ex))
-            return None, False
-        if res is None or len(res) == 0:
-            _motivo_3d = "boolean sin resultado"
             return None, False
         vol = 0.0
         for r in res:
@@ -300,6 +330,138 @@ def _excluir_3d(env_vol, cajas, h, z, area_losa, hueco_m2):
     except Exception as ex:
         _motivo_3d = "excepcion: {}".format(str(ex))
         return None, False
+
+
+def _vertices_de_curva(crv):
+    """Vertices (Point3d) de una curva plana via ToPolyline."""
+    try:
+        poly = crv.ToPolyline(0.05)
+        if poly is not None and poly.Count > 0:
+            return [poly[i] for i in range(poly.Count)]
+    except Exception:
+        pass
+    return []
+
+
+def _a_puntos(item):
+    """Normaliza una entrada GH a lista de Point3d (lista/DataTree/Goo/Curve)."""
+    if item is None:
+        return []
+    if isinstance(item, (list, tuple)):
+        out = []
+        for x in item:
+            out.extend(_a_puntos(x))
+        return out
+    if isinstance(item, rg.Point3d):
+        return [item]
+    if isinstance(item, rg.Curve):
+        return _vertices_de_curva(item)
+    branches = getattr(item, "Branches", None)
+    if branches is not None:
+        out = []
+        for br in branches:
+            out.extend(_a_puntos(list(br)))
+        return out
+    v = getattr(item, "Value", None)
+    if v is None:
+        v = getattr(item, "Point", None)
+    if v is None:
+        return []
+    return _a_puntos(v)
+
+
+def _bbox_curva(crv):
+    """Bounding box 2D de una curva plana: (minx, maxx, miny, maxy) o None."""
+    pts = []
+    try:
+        poly = crv.ToPolyline(0.05)
+        if poly is not None:
+            pts = [poly[i] for i in range(poly.Count)]
+    except Exception:
+        pts = []
+    if not pts:
+        return None
+    xs = [p.X for p in pts]
+    ys = [p.Y for p in pts]
+    return (min(xs), max(xs), min(ys), max(ys))
+
+
+def _medianeira_eje(lote_vertices, lados_info):
+    """Lado MEDIANERO mas largo (Lateral/Posterior; evita Frontal y
+    EspacioPublico). Devuelve (eje, signo):
+      eje='X' (medianera aprox E-W): signo -1=sur(minY) / +1=norte(maxY)
+      eje='Y' (medianera aprox N-S): signo -1=oeste(minX) / +1=este(maxX)
+    None si no hay info suficiente."""
+    n = len(lote_vertices)
+    if n < 3:
+        return None
+    medianeras = [l for l in lados_info
+                  if l.get("clasificacion") in ("Lateral", "Posterior")]
+    if not medianeras:
+        return None
+    mejor_p1 = None
+    mejor_p2 = None
+    mejor_long = -1.0
+    for l in medianeras:
+        i = int(l.get("id", -1))
+        if i < 0 or i >= n:
+            continue
+        p1 = lote_vertices[i]
+        p2 = lote_vertices[(i + 1) % n]
+        L = p1.DistanceTo(p2)
+        if L > mejor_long:
+            mejor_long = L
+            mejor_p1, mejor_p2 = p1, p2
+    if mejor_p1 is None:
+        return None
+    dx = mejor_p2.X - mejor_p1.X
+    dy = mejor_p2.Y - mejor_p1.Y
+    cx = sum(v.X for v in lote_vertices) / n
+    cy = sum(v.Y for v in lote_vertices) / n
+    if abs(dx) >= abs(dy):
+        eje = "X"
+        signo = 1 if ((mejor_p1.Y + mejor_p2.Y) / 2.0) >= cy else -1
+    else:
+        eje = "Y"
+        signo = 1 if ((mejor_p1.X + mejor_p2.X) / 2.0) >= cx else -1
+    return (eje, signo)
+
+
+def _caja_orientada(cx, cy, ancho, largo, eje):
+    """Caja con 'ancho' (lado corto) a lo largo del eje ('X' o 'Y')."""
+    if eje == "X":
+        return _caja_curva(cx, cy, ancho, largo)
+    return _caja_curva(cx, cy, largo, ancho)
+
+
+def _caja_solido(cx, cy, dx, dy, ancho_m, largo_m, eje):
+    """Solido de la disposicion (dx/dy en el marco del bloque) reorientado
+    segun el eje. En el marco del bloque, local X = lado corto, local Y =
+    lado largo."""
+    if eje == "X":
+        return _caja_curva(cx + dx, cy + dy, ancho_m, largo_m)
+    return _caja_curva(cx + dy, cy + dx, largo_m, ancho_m)
+
+
+def _mejor_posicion(crv_piso, candidatos):
+    """candidatos: lista de (caja, cx, cy, eje). Devuelve la de mayor area de
+    interseccion: (piezas_interseccion, area, cx, cy, eje) o None."""
+    mejor = None
+    mejor_area = -1.0
+    for caja, cx, cy, eje in candidatos:
+        try:
+            inter = rg.Curve.CreateBooleanIntersection(crv_piso, caja, 0.01)
+        except Exception:
+            inter = None
+        if inter is None or len(inter) == 0:
+            continue
+        aa = 0.0
+        for it in inter:
+            aa += _area_curva(it)
+        if aa > mejor_area:
+            mejor_area = aa
+            mejor = (inter, aa, cx, cy, eje)
+    return mejor
 
 
 # ------------------------------------------------------------------ MAIN
@@ -382,6 +544,8 @@ env_crv_raw = globals().get("envelope_curve", None)            # fallback v06
 json_path_raw = globals().get("json_path", None)
 floor_h_raw = globals().get("floor_height", 3.0)
 salida_morph_raw = globals().get("salida_morph", False)        # v07.9
+sides_json_raw = globals().get("sides_table_json", None)       # v07.14
+lote_vertices_raw = globals().get("lote_vertices", None)       # v07.14
 
 json_path = str(unwrap(json_path_raw)) if json_path_raw else ""
 json_path = _resolver_json(json_path)
@@ -414,6 +578,27 @@ if env_por_piso_raw is not None:
             env_por_piso.append(cs)
 env_fb = _a_curvas(env_crv_raw)  # fallback: piezas de la curva unica
 
+# v07.14: medianera (Lateral/Posterior) desde LADOS_v06 + vertices del lote
+lados_info = []
+if sides_json_raw:
+    try:
+        _sd = json.loads(str(unwrap(sides_json_raw)))
+        if isinstance(_sd, dict):
+            lados_info = _sd.get("lados", [])
+    except Exception:
+        lados_info = []
+lote_vertices = _a_puntos(lote_vertices_raw)
+med_eje = _medianeira_eje(lote_vertices, lados_info)
+if med_eje is None:
+    if len(lote_vertices) < 3:
+        med_desc = "medianera NO detectada (vertices {}<3: revisar List Access)".format(len(lote_vertices))
+    elif not lados_info:
+        med_desc = "medianera NO detectada (sin sides_table_json)"
+    else:
+        med_desc = "medianera NO detectada (sin lado Lateral/Posterior)"
+else:
+    med_desc = "med eje{} s{:+d}".format(med_eje[0], med_eje[1])
+
 volumenes_principales = []
 volumenes_circulacion = []
 volumenes_servicios = []
@@ -428,11 +613,11 @@ losas_mesh = []
 mensaje = ""
 
 if not env_por_piso and not env_fb:
-    mensaje = ("VOLUM v07.10 | ERROR: sin curva de envelope. Cablear la salida "
+    mensaje = ("VOLUM v07.15 | ERROR: sin curva de envelope. Cablear la salida "
                "envelope_por_piso (lista, PREFERIDA) o envelope_curve de "
                "F1_ETAPA2_NORMATIVA_v07.")
 elif not json_path:
-    mensaje = ("VOLUM v07.10 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
+    mensaje = ("VOLUM v07.15 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
                "programa-areas.json (absoluta o relativa al proyecto)").format(
         str(unwrap(json_path_raw)) if json_path_raw else "")
 else:
@@ -455,7 +640,7 @@ else:
             crv_ref = env_fb[0]
         ap = rg.AreaMassProperties.Compute(crv_ref)
         if ap is None:
-            mensaje = "VOLUM v07.10 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
+            mensaje = "VOLUM v07.15 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
         else:
             area_losa_ref = ap.Area
             centroide = ap.Centroid if ap.Centroid else rg.Point3d(0, 0, 0)
@@ -500,9 +685,11 @@ else:
             n_pisos = 0
             n_huecos = 0
             n_omitidos = 0
+            n_medianeira = 0
             omitidos_detalle = []
             _area_perfil_diagnostico = 0.0
             _motivo_fallo = ""
+            _motivo_3d = ""
             _agujeros_global = []
             detalle_bool = "curvas"
             fuente_env = "por_piso (escalonado+voladizos)" if env_por_piso \
@@ -535,40 +722,61 @@ else:
                     continue
                 area_losa = ap_piso.Area
 
-                # Nucleo: BUSCA SU POSICION dentro del piso (barrido 3x3
-                # alrededor del centroide, paso 0,75 m). El centroide de una
-                # L concava puede caer en el codo y partir la interseccion;
-                # el barrido ubica el bloque donde cabe COMPLETO (>=95%).
-                # Posicion indicativa del layout; la definitiva es del
-                # diseno arquitectonico. Si no cabe -> piso omitido.
+                # Nucleo: v07.14 se apoya contra la MEDIANERA (Lateral/Posterior,
+                # evitando Frontal y EspacioPublico) con su LADO CORTO paralelo
+                # al borde mediano mas largo (decision del operador 2026-08-17;
+                # patrones Alexander 159/107 + daylighting). Si no hay medianera
+                # o no cabe (>=95%), barrido 3x3 alrededor del centroide (v07.5).
                 cxp = ap_piso.Centroid.X if ap_piso.Centroid else cx0
                 cyp = ap_piso.Centroid.Y if ap_piso.Centroid else cy0
                 area_bloque_m2 = b_ancho * b_largo
                 paso = 0.75
                 mejor_pieza = None
                 mejor_area = -1.0
-                mejor_dx = 0.0
-                mejor_dy = 0.0
-                for ix in (-1, 0, 1):
-                    for iy in (-1, 0, 1):
-                        caja_t = _caja_curva(
-                            cxp + b_dx + ix * paso, cyp + b_dy + iy * paso,
-                            b_ancho, b_largo)
-                        try:
-                            inter_t = rg.Curve.CreateBooleanIntersection(
-                                crv_piso, caja_t, 0.01)
-                        except Exception:
-                            inter_t = None
-                        if inter_t is None or len(inter_t) == 0:
-                            continue
-                        aa = 0.0
-                        for it in inter_t:
-                            aa += _area_curva(it)
-                        if aa > mejor_area:
-                            mejor_area = aa
-                            mejor_pieza = inter_t
-                            mejor_dx = ix * paso
-                            mejor_dy = iy * paso
+                mejor_cx = cxp + b_dx
+                mejor_cy = cyp + b_dy
+                eje_nucleo = "X"
+
+                # candidatos contra la medianera (si hay info)
+                cand_med = []
+                if med_eje is not None:
+                    _eje, _signo = med_eje
+                    _bb = _bbox_curva(crv_piso)
+                    if _bb is not None:
+                        _minx, _maxx, _miny, _maxy = _bb
+                        for _t in (-1, 0, 1):
+                            if _eje == "X":
+                                _cx = (_minx + _maxx) / 2.0 + _t * paso
+                                _cy = (_miny + b_largo / 2.0) if _signo < 0 \
+                                    else (_maxy - b_largo / 2.0)
+                            else:
+                                _cx = (_minx + b_largo / 2.0) if _signo < 0 \
+                                    else (_maxx - b_largo / 2.0)
+                                _cy = (_miny + _maxy) / 2.0 + _t * paso
+                            cand_med.append(
+                                (_caja_orientada(_cx, _cy, b_ancho, b_largo, _eje),
+                                 _cx, _cy, _eje))
+
+                if cand_med:
+                    _mejor = _mejor_posicion(crv_piso, cand_med)
+                    if _mejor is not None and _mejor[1] >= 0.95 * area_bloque_m2:
+                        mejor_pieza, mejor_area, mejor_cx, mejor_cy, eje_nucleo = _mejor
+                        n_medianeira += 1
+
+                # fallback: barrido 3x3 alrededor del centroide
+                if mejor_pieza is None or mejor_area < 0.95 * area_bloque_m2:
+                    cand_cen = []
+                    for ix in (-1, 0, 1):
+                        for iy in (-1, 0, 1):
+                            _cx = cxp + b_dx + ix * paso
+                            _cy = cyp + b_dy + iy * paso
+                            cand_cen.append(
+                                (_caja_curva(_cx, _cy, b_ancho, b_largo),
+                                 _cx, _cy, "X"))
+                    _mejor = _mejor_posicion(crv_piso, cand_cen)
+                    if _mejor is not None:
+                        mejor_pieza, mejor_area, mejor_cx, mejor_cy, eje_nucleo = _mejor
+
                 if mejor_pieza is None or mejor_area < 0.95 * area_bloque_m2:
                     n_omitidos += 1
                     omitidos_detalle.append(
@@ -590,10 +798,11 @@ else:
                 cajas_recorte = [pieza_nucleo]
                 cajas_piso = []
                 for c in disp:
-                    cajas_piso.append(_caja_curva(
-                        cxp + c.get("dx", 0.0) + mejor_dx,
-                        cyp + c.get("dy", 0.0) + mejor_dy,
-                        c.get("ancho_m", 2.0), c.get("largo_m", 4.0)))
+                    cajas_piso.append(_caja_solido(
+                        mejor_cx, mejor_cy,
+                        c.get("dx", 0.0), c.get("dy", 0.0),
+                        c.get("ancho_m", 2.0), c.get("largo_m", 4.0),
+                        eje_nucleo))
 
                 # --- Hueco del nucleo SIN booleanos (v07.6) ---
                 # La diferencia devuelve el contorno EXTERIOR + los AGUJEROS
@@ -657,12 +866,19 @@ else:
                         ok = False
 
                 if ok:
-                    # Volumen principal: extrusion de la losa con hueco
+                    # Volumen principal: extrusion de la losa con hueco.
+                    # v07.12: Extrusion.Create espera Curve o Surface — pasar
+                    # el Brep (losa_hueco) devuelve None en Rhino 8; se extruye
+                    # la CARA plana (que ya trae el hueco como inner loop) y se
+                    # convierte a Brep.
                     env_vol = None
-                    try:
-                        env_vol = rg.Extrusion.Create(losa_hueco, h_piso)
-                    except Exception:
-                        env_vol = None
+                    if losa_hueco is not None and losa_hueco.Faces.Count > 0:
+                        try:
+                            ext = rg.Extrusion.Create(losa_hueco.Faces[0], h_piso, True)
+                            if ext is not None:
+                                env_vol = ext.ToBrep()
+                        except Exception:
+                            env_vol = None
                     if env_vol is not None:
                         env_vol.Translate(rg.Vector3d(0.0, 0.0, z))
                         losa_hueco.Translate(rg.Vector3d(0.0, 0.0, z))
@@ -705,18 +921,23 @@ else:
                             m = _brep_a_mesh(env_vol)
                             if m is not None:
                                 volumenes_principales_mesh.append(m)
-                            lb2 = rg.Brep.CreatePlanarBreps(env_vol, 0.01)
-                            if lb2 and len(lb2) > 0:
-                                lb2[0].Translate(rg.Vector3d(0.0, 0.0, z))
-                                losas.append(lb2[0])
-                                m2 = _brep_a_mesh(lb2[0])
-                                if m2 is not None:
-                                    losas_mesh.append(m2)
+                            # v07.13: la losa con hueco YA existe (losa_hueco).
+                            # No se reconstruye con CreatePlanarBreps sobre el
+                            # volumen (esa firma espera IEnumerable[Curve], no
+                            # un Brep -> "expected IEnumerable[Curve], got Brep").
+                            losa_hueco.Translate(rg.Vector3d(0.0, 0.0, z))
+                            losas.append(losa_hueco)
+                            m2 = _brep_a_mesh(losa_hueco)
+                            if m2 is not None:
+                                losas_mesh.append(m2)
                             n_huecos += 1
                         else:
                             ok = False
                             if not _motivo_fallo:
-                                _motivo_fallo = "extrusion + respaldo 3D fallo"
+                                if _motivo_3d:
+                                    _motivo_fallo = "extrusion + respaldo 3D fallo ({})".format(_motivo_3d)
+                                else:
+                                    _motivo_fallo = "extrusion + respaldo 3D fallo"
 
                 if ok:
                     # Circulacion y servicios (llenan el hueco; no intersectan)
@@ -759,23 +980,27 @@ else:
                                      list(volumenes_servicios_mesh))
 
             if n_omitidos == 0:
-                mensaje = ("VOLUM v07.10 | OK | {} pisos | envelope: {} | "
+                mensaje = ("VOLUM v07.15 | OK | {} pisos | envelope: {} | "
                            "huecos excluidos {}/{} | boolean {} | "
                            "salidas: vol {}/{} losas {}/{} circ {}/{} serv {}/{} | "
                            "Circ {:.0f}m2 + Serv {:.0f}m2 = nucleo {:.0f}m2/piso | "
+                           "nucleo: {} {}/{} | "
                            "salida: {}").format(
                     n_pisos, fuente_env, n_huecos, n_pisos, detalle_bool,
                     len(volumenes_principales), n_pisos, len(losas), n_pisos,
                     len(volumenes_circulacion), n_pisos, len(volumenes_servicios), n_pisos,
                     circ_m2, serv_m2, hueco_m2,
+                    med_desc, n_medianeira, n_pisos,
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
             else:
-                mensaje = ("VOLUM v07.10 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
+                mensaje = ("VOLUM v07.15 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
                            "nucleo fallo; sin geometria intersectante) | huecos {}/{} | boolean {} | "
                            "envelope: {} | nucleo: bloque {:.0f}m2, solidos {:.0f}m2 "
-                           "(aire interior {:.0f}m2) | omitidos: {} | salida: {}").format(
+                           "(aire interior {:.0f}m2) | nucleo: {} {}/{} | omitidos: {} | salida: {}").format(
                     n_pisos, n_omitidos, n_huecos, n_pisos, detalle_bool, fuente_env,
-                    hueco_m2, solidos_m2, aire_interior, "; ".join(omitidos_detalle),
+                    hueco_m2, solidos_m2, aire_interior,
+                    med_desc, n_medianeira, n_pisos,
+                    "; ".join(omitidos_detalle),
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
 
             # v07.9: interruptor de salida -> las principales emiten MESH
@@ -787,5 +1012,5 @@ else:
                 losas = list(losas_mesh)
 
     except Exception as e:
-        mensaje = "VOLUM v07.10 | ERROR: {}".format(str(e))
+        mensaje = "VOLUM v07.15 | ERROR: {}".format(str(e))
 
