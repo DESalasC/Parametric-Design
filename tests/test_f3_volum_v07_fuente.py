@@ -119,8 +119,8 @@ def test_subversion_en_encabezado():
     # sub-versionado interno: v07.x en el encabezado + mensaje con la
     # subversion en curso (la version general solo cambia con cambios mayores)
     assert "SUBVERSIONES INTERNAS" in src
-    assert "v07.18" in src
-    assert "VOLUM v07.18 |" in src
+    assert "v07.19" in src
+    assert "VOLUM v07.19 |" in src
     assert "Regla de versionado" in src
 
 
@@ -295,6 +295,15 @@ def test_selector_alineacion_v0718():
     assert "modo in (1, 2)" in src
     assert "best_d = 1e18 if modo == 1 else -1.0" in src
     assert "nucleo[{}]: {} {}/{}" in src
+
+
+def test_diagnostico_cableado_v0719():
+    src = _fuente()
+    # v07.19: diagnostico ampliado (id + n vertices + n lados) + aviso de
+    # cableado cuando lote_vertices no coincide con LADOS_v06
+    assert '"id": mejor_id' in src
+    assert "med_info[\"id\"]" in src
+    assert "WARN cableado lote_vertices != LADOS_v06" in src
 
 
 def test_extrusion_siempre_hacia_arriba_v0717():
