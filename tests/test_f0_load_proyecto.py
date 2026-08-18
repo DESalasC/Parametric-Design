@@ -34,6 +34,7 @@ def test_salidas_esperadas_presentes():
     src = _fuente()
     for salida in ("chip", "tipologia", "piso_adicional", "tipo_bonificacion",
                    "floor_height_user", "antejardin_decision", "antejardin_m", "voladizo_frontal_m",
+                   "empate_posterior_entrepiso_m",
                    "empate_posterior_pisos", "empate_posterior_m", "tratamiento",
                    "caso", "alineacion_nucleo", "usos", "modos", "escenarios",
                    "ok", "log"):
@@ -94,8 +95,8 @@ def test_carga_proyecto_ruta_invalida():
     assert g["usos"] == []
 
 
-def test_normalizacion_v0101(tmp_path):
-    """v01.1: normaliza tipo_bonificacion y resuelve empate_posterior_m -> pisos."""
+def test_normalizacion_v0102(tmp_path):
+    """v01.2: normaliza tipo_bonificacion; empate_posterior independiente (sin conversion)."""
     p = tmp_path / "proyecto.json"
     p.write_text(json.dumps({
         "chip": "AAA0127AZPA",
@@ -108,7 +109,25 @@ def test_normalizacion_v0101(tmp_path):
         },
     }, ensure_ascii=False), encoding="utf-8")
     g = _ejecutar(str(p))
-    assert g["tipo_bonificacion"] == "COMUNAL"
-    assert g["empate_posterior_pisos"] == 2
+    assert g["tipo_bonificacion"] == "EQUIPAMIENTO"
+    assert g["empate_posterior_pisos"] == 0
+    assert g["empate_posterior_m"] == 6.0
+    assert g["empate_posterior_entrepiso_m"] == 0.0
     assert g["antejardin_m"] == 5.0
     assert g["voladizo_frontal_m"] == 0.0
+
+
+def test_empate_posterior_entrepiso(tmp_path):
+    """v01.2: entrepiso del vecino posterior = m / pisos cuando se dan ambos."""
+    p = tmp_path / "proyecto.json"
+    p.write_text(json.dumps({
+        "chip": "AAA0127AZPA",
+        "variables": {
+            "empate_posterior_pisos": 8,
+            "empate_posterior_m": 24.0,
+        },
+    }, ensure_ascii=False), encoding="utf-8")
+    g = _ejecutar(str(p))
+    assert g["empate_posterior_pisos"] == 8
+    assert g["empate_posterior_m"] == 24.0
+    assert abs(g["empate_posterior_entrepiso_m"] - 3.0) < 1e-9

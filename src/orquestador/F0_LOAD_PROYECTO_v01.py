@@ -15,6 +15,10 @@
 #   v01.1 (2026-08-18) — normaliza tipo_bonificacion al vocabulario NORMATIVA;
 #       resuelve empate_posterior_pisos desde empate_posterior_m (m -> pisos);
 #       expone antejardin_m y voladizo_frontal_m como overrides numericos.
+#   v01.2 (2026-08-18) — empate_posterior_pisos y _m son independientes
+#       (edificio vecino existente, sin relacion con floor_height_user); se
+#       elimina la conversion m -> pisos; 'Servicios' -> 'EQUIPAMIENTO'; nueva
+#       salida derivada empate_posterior_entrepiso_m (m / pisos).
 #
 # Entradas:
 #   ruta_json    : str (Item) — ruta absoluta al proyecto.json
@@ -23,9 +27,9 @@
 # Salidas:
 #   chip, tipologia, piso_adicional, tipo_bonificacion, floor_height_user,
 #   antejardin_decision, antejardin_m, voladizo_frontal_m,
-#   empate_posterior_pisos, empate_posterior_m, tratamiento, caso,
-#   alineacion_nucleo, usos (list), modos (list), escenarios (list),
-#   ok (bool), log (str)
+#   empate_posterior_pisos, empate_posterior_m, empate_posterior_entrepiso_m,
+#   tratamiento, caso, alineacion_nucleo, usos (list), modos (list),
+#   escenarios (list), ok (bool), log (str)
 #
 # Funciones internas:
 #   _val(d, k, default) — devuelve d[k] o default si falta o es None
@@ -86,7 +90,7 @@ if not isinstance(escenarios, list):
 
 
 # ---- v01.1: normalizacion hacia el vocabulario de F1_ETAPA2_NORMATIVA ----
-_BONIF_MAP = {"Ninguno": "NINGUNO", "Servicios": "COMUNAL", "VIS": "VIS"}
+_BONIF_MAP = {"Ninguno": "NINGUNO", "Servicios": "EQUIPAMIENTO", "VIS": "VIS"}
 _tb = str(tipo_bonificacion).strip() if tipo_bonificacion else ""
 if _tb in _BONIF_MAP:
     tipo_bonificacion = _BONIF_MAP[_tb]
@@ -107,21 +111,17 @@ try:
 except Exception:
     voladizo_frontal_m = 0.0
 
-_ep_pisos = empate_posterior_pisos
-_ep_m = empate_posterior_m
+# empate_posterior: pisos y metros son INDEPENDIENTES (edificio vecino
+# existente, sin relacion con floor_height_user del proyecto actual).
+# Pueden darse uno, otro o ambos; NO se convierten entre si.
+empate_posterior_entrepiso_m = 0.0
 try:
-    _ep_pisos = int(_ep_pisos) if _ep_pisos is not None else 0
+    _n = int(empate_posterior_pisos) if empate_posterior_pisos is not None else 0
 except Exception:
-    _ep_pisos = 0
+    _n = 0
 try:
-    _ep_m = float(_ep_m) if _ep_m is not None else 0.0
+    _h = float(empate_posterior_m) if empate_posterior_m is not None else 0.0
 except Exception:
-    _ep_m = 0.0
-if _ep_pisos <= 0 and _ep_m > 0:
-    try:
-        _fh = float(floor_height_user) if floor_height_user else 3.0
-    except Exception:
-        _fh = 3.0
-    if _fh > 0:
-        _ep_pisos = int(round(_ep_m / _fh))
-empate_posterior_pisos = _ep_pisos
+    _h = 0.0
+if _n > 0 and _h > 0:
+    empate_posterior_entrepiso_m = _h / float(_n)
