@@ -70,3 +70,24 @@ def test_candelaria_multi_vecino_por_lado():
     assert by_card["Sur"]["n_vecinos"] >= 2
     chips = [v["chip"] for v in by_card["Sur"]["vecinos"]]
     assert len(chips) == len(set(chips))
+
+
+def test_a_normativa_vecinos_por_lado():
+    r = _clasificar("AAA0030JKOE")
+    for lado in r["lados"]:
+        if lado["frente"] == "predio":
+            for i, v in enumerate(lado["vecinos"], start=1):
+                v["altura_m"] = float(i * 3)
+    out = vpl.a_normativa_vecinos_por_lado(r)
+    assert out, "debe producir alturas para los lados predio"
+    for k, vals in out.items():
+        assert int(k) >= 0
+        assert isinstance(vals, list) and vals
+        assert all(isinstance(x, float) for x in vals)
+    # La Candelaria: el segmento 9 (esquina Sur) linda con 2 vecinos
+    assert "9" in out and len(out["9"]) == 2
+    # los lados no-predio no generan segmentos
+    for lado in r["lados"]:
+        if lado["frente"] != "predio":
+            for sid in lado["segmentos"]:
+                assert str(sid) not in out

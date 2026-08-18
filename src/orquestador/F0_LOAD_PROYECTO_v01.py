@@ -29,7 +29,7 @@
 #   antejardin_decision, antejardin_m, voladizo_frontal_m,
 #   empate_posterior_pisos, empate_posterior_m, empate_posterior_entrepiso_m,
 #   tratamiento, caso, alineacion_nucleo, usos (list), modos (list),
-#   escenarios (list), ok (bool), log (str)
+#   escenarios (list), vecinos_por_lado_json (str), ok (bool), log (str)
 #
 # Funciones internas:
 #   _val(d, k, default) — devuelve d[k] o default si falta o es None
@@ -42,6 +42,39 @@ import os
 def _val(d, k, default):
     v = d.get(k) if isinstance(d, dict) else None
     return default if v is None else v
+
+
+def _a_normativa_vecinos(clasificacion):
+    """Port de vecinos_por_lado.a_normativa_vecinos_por_lado (sin shapely).
+    Devuelve {str(seg_id): [altura_m, ...]} solo para lados 'predio'."""
+    result = {}
+    lados = clasificacion.get("lados", []) if isinstance(clasificacion, dict) else []
+    for lado in lados:
+        if not isinstance(lado, dict):
+            continue
+        frente = lado.get("frente_override") or lado.get("frente")
+        if frente != "predio":
+            continue
+        altura_por_chip = {}
+        for v in lado.get("vecinos", []):
+            if not isinstance(v, dict):
+                continue
+            h = v.get("altura_m")
+            if h is None:
+                continue
+            try:
+                altura_por_chip[v.get("chip")] = float(h)
+            except Exception:
+                pass
+        if not altura_por_chip:
+            continue
+        seg_vec = lado.get("segmentos_vecinos", {}) or {}
+        for seg_id in lado.get("segmentos", []):
+            chips = seg_vec.get(str(seg_id), [])
+            alturas = [altura_por_chip[c] for c in chips if c in altura_por_chip]
+            if alturas:
+                result[str(seg_id)] = alturas
+    return result
 
 
 ruta_json = globals().get("ruta_json") or ""
@@ -125,3 +158,16 @@ except Exception:
     _h = 0.0
 if _n > 0 and _h > 0:
     empate_posterior_entrepiso_m = _h / float(_n)
+
+# ---- v01.3: vecinos por lado -> vecinos_por_lado_json (NORMATIVA_v08) ----
+# proyecto.json['vecinos_por_lado'] lo escribe el formulario (orquestador);
+# aqui se convierte a {id_lado: [altura_m, ...]} para empate lateral.
+vecinos_por_lado_json = ""
+_vpl = proyecto.get("vecinos_por_lado")
+if isinstance(_vpl, dict):
+    try:
+        _m = _a_normativa_vecinos(_vpl)
+        if _m:
+            vecinos_por_lado_json = json.dumps(_m)
+    except Exception as e:
+        log += " | vecinos_por_lado_json: %s" % e

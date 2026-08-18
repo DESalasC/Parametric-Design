@@ -196,10 +196,14 @@ def clasificar_vecinos_por_lado(contexto: Dict,
 
         # vecinos colindantes por segmento (dedupe por chip)
         colindantes: Dict[str, Dict] = {}
+        seg_vecinos: Dict[int, List[str]] = {}
         for seg in grupo:
             for chip_v, poly in vecinos:
                 frac = _frac_dentro(seg["line"], poly, tol_vecino)
                 if frac >= MIN_FRACCION_VECINO:
+                    seg_vecinos.setdefault(seg["id"], [])
+                    if chip_v not in seg_vecinos[seg["id"]]:
+                        seg_vecinos[seg["id"]].append(chip_v)
                     t = _posicion_media(seg["line"], poly)
                     shared = round(frac * seg["longitud_m"], 2)
                     if chip_v not in colindantes:
@@ -242,6 +246,7 @@ def clasificar_vecinos_por_lado(contexto: Dict,
             "frente_override": None,
             "azimut_grados": round(grupo[0]["azimut_grados"], 1),
             "segmentos": [g["id"] for g in grupo],
+            "segmentos_vecinos": ({str(k): v for k, v in seg_vecinos.items()} if frente == "predio" else {}),
             "longitud_m": round(longitud_total, 2),
             "n_vecinos": len(vecinos_out),
             "vecinos": vecinos_out,
@@ -260,6 +265,34 @@ def clasificar_vecinos_por_lado(contexto: Dict,
                  "(frente_override)."),
         "lados": lados_out,
     }
+
+
+def a_normativa_vecinos_por_lado(clasificacion: Dict) -> Dict:
+    """Convierte la clasificación (con alturas ya llenadas por el operador) al
+    formato vecinos_por_lado_json de F1_ETAPA2_NORMATIVA_v08: {id_lado: [altura_m, ...]}.
+    Solo incluye lados 'predio'; id_lado = índice de segmento del polígono."""
+    result: Dict[str, List[float]] = {}
+    for lado in clasificacion.get("lados", []):
+        if lado.get("frente") != "predio":
+            continue
+        altura_por_chip: Dict[str, float] = {}
+        for v in lado.get("vecinos", []):
+            h = v.get("altura_m")
+            if h is None:
+                continue
+            try:
+                altura_por_chip[v["chip"]] = float(h)
+            except (TypeError, ValueError):
+                pass
+        if not altura_por_chip:
+            continue
+        seg_vec = lado.get("segmentos_vecinos", {})
+        for seg_id in lado.get("segmentos", []):
+            chips = seg_vec.get(str(seg_id), [])
+            alturas = [altura_por_chip[c] for c in chips if c in altura_por_chip]
+            if alturas:
+                result[str(seg_id)] = alturas
+    return result
 
 
 def _load_contexto(chip_or_path: str) -> Tuple[str, Dict]:

@@ -37,6 +37,7 @@ def test_salidas_esperadas_presentes():
                    "empate_posterior_entrepiso_m",
                    "empate_posterior_pisos", "empate_posterior_m", "tratamiento",
                    "caso", "alineacion_nucleo", "usos", "modos", "escenarios",
+                   "vecinos_por_lado_json",
                    "ok", "log"):
         assert salida in src
 
@@ -131,3 +132,27 @@ def test_empate_posterior_entrepiso(tmp_path):
     assert g["empate_posterior_pisos"] == 8
     assert g["empate_posterior_m"] == 24.0
     assert abs(g["empate_posterior_entrepiso_m"] - 3.0) < 1e-9
+
+def test_vecinos_por_lado_json(tmp_path):
+    """v01.3: proyecto.json['vecinos_por_lado'] -> {id_lado: [altura_m, ...]}."""
+    p = tmp_path / "proyecto.json"
+    p.write_text(json.dumps({
+        "chip": "AAA0030JKOE",
+        "variables": {},
+        "vecinos_por_lado": {
+            "lados": [
+                {"cardinal": "Norte", "frente": "via", "segmentos": [0, 1],
+                 "segmentos_vecinos": {}, "vecinos": []},
+                {"cardinal": "Sur", "frente": "predio", "segmentos": [2, 3],
+                 "segmentos_vecinos": {"2": ["A"], "3": ["B"]},
+                 "vecinos": [
+                     {"chip": "A", "nombre": "Sur1", "altura_m": 9.0, "pisos": 3},
+                     {"chip": "B", "nombre": "Sur2", "altura_m": 12.0, "pisos": 4},
+                 ]},
+            ]
+        }
+    }, ensure_ascii=False), encoding="utf-8")
+    g = _ejecutar(str(p))
+    assert g["vecinos_por_lado_json"]
+    parsed = json.loads(g["vecinos_por_lado_json"])
+    assert parsed == {"2": [9.0], "3": [12.0]}

@@ -83,6 +83,8 @@ depender de completar la geobase.
       "frente_fuente": "auto",
       "frente_override": null,
       "segmentos": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+      "segmentos_vecinos": {"9": ["003103035008", "003103035029"],
+                          "10": ["003103035008"]},
       "longitud_m": 51.96,
       "n_vecinos": 5,
       "vecinos": [
@@ -94,8 +96,28 @@ depender de completar la geobase.
 }
 ```
 
-## Pendientes
+## Interfaz y mapeo a NORMATIVA (v08)
 
-1. UI del formulario (index.html): listar lados + `frente` (con override) + vecinos.
-2. Mapeo cardinal → `id_lado` para `vecinos_por_lado_json` de NORMATIVA_v08.
-3. Persistencia de `frente_override` y alturas.
+**Punto 1 — UI (index.html, sección 1b "Vecinos por lado"):** lista cada lado con
+su `frente` editable (select `predio`/`via`/`espacio_publico`/`libre` → escribe
+`frente_override`) y, para lados `predio`, una tabla de vecinos con `altura_m` y
+`pisos`. Al guardar, `recolectar()` escribe `proyecto.json['vecinos_por_lado']`
+(con `frente_override` y alturas del operador).
+
+**Punto 2 — mapeo cardinal → id_lado:** `a_normativa_vecinos_por_lado()` (Python)
+y su port IronPython en `F0_LOAD_PROYECTO_v01` convierten la clasificación a
+`{id_lado: [altura_m, ...]}` (id_lado = índice de segmento). El botón "Generar
+JSON NORMATIVA" muestra el resultado en vivo; el loader lo emite como
+`vecinos_por_lado_json` para cablear directo a `F1_ETAPA2_NORMATIVA_v08`.
+
+Flujo: UI → `proyecto.json['vecinos_por_lado']` → `F0_LOAD_PROYECTO_v01.vecinos_por_lado_json` → NORMATIVA_v08 (lados `Lateral`).
+
+## Estado
+
+- [x] Clasificación `frente` (predio/via/espacio_publico/libre) + sub-índices.
+- [x] `frente_override` manual por lado.
+- [x] UI del formulario (sección 1b) + botón "Generar JSON NORMATIVA".
+- [x] Mapeo cardinal → `id_lado` (`a_normativa_vecinos_por_lado` + salida F0 v01.3).
+- [x] Persistencia en `proyecto.json['vecinos_por_lado']`.
+- [ ] Entrada manual de vecino adicional (para lados `via`→`predio` con dato faltante, p. ej. Muzú occidente).
+- [ ] Cableado manual del canvas en Rhino (F0 → NORMATIVA_v08.vecinos_por_lado_json).

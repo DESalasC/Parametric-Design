@@ -1,11 +1,11 @@
 # CABLEADO — F0_LOAD_PROYECTO_v01 → componentes del canvas
 
-Versión: 2026-08-18 (v01.2) · Fuente: cabeceras ENTRADAS/SALIDAS de los scripts
+Versión: 2026-08-18 (v01.3) · Fuente: cabeceras ENTRADAS/SALIDAS de los scripts
 vigentes (`F1_ETAPA1_CONTEXTO_v02`, `F1_ETAPA2_LADOS_v06`, `F1_ETAPA2_PATIO_v02`,
 `F1_ETAPA2_NORMATIVA_v08`, `F1_OVERRIDE_USO_v01`, `F1_EXPORTAR_GFA_v02`,
 `F3_DISTRIBUCION_v01`, `F3_VOLUM_GENERADOR_v07`, `F3_ACCESOS_INTEGRADOR_v02`).
 
-## 1. Salidas de F0_LOAD_PROYECTO_v01 (v01.2)
+## 1. Salidas de F0_LOAD_PROYECTO_v01 (v01.3)
 
 | Salida | Tipo | Default |
 |---|---|---|
@@ -26,6 +26,7 @@ vigentes (`F1_ETAPA1_CONTEXTO_v02`, `F1_ETAPA2_LADOS_v06`, `F1_ETAPA2_PATIO_v02`
 | `usos` | list | `[]` |
 | `modos` | list | `[]` |
 | `escenarios` | list | `[]` |
+| `vecinos_por_lado_json` | str | `""` (JSON `{id_lado:[altura_m,...]}`) |
 | `ok` | bool | `False` |
 | `log` | str | `""` |
 
@@ -43,6 +44,7 @@ vigentes (`F1_ETAPA1_CONTEXTO_v02`, `F1_ETAPA2_LADOS_v06`, `F1_ETAPA2_PATIO_v02`
 | `voladizo_frontal_m` | F1_ETAPA2_NORMATIVA_v08 | `voladizo_frontal_m` | directo (Number; 0 = deriva) |
 | `empate_posterior_pisos` | F1_ETAPA2_NORMATIVA_v08 | `empate_posterior_pisos` | directo (Number, ≥3 activa empate) |
 | `alineacion_nucleo` | F3_VOLUM_GENERADOR_v07 | `alineacion_nucleo` | directo (0/1/2, default 1) |
+| `vecinos_por_lado_json` | F1_ETAPA2_NORMATIVA_v08 | `vecinos_por_lado_json` | directo (String JSON; empate lateral por lado) |
 
 ## 3. Cableado indirecto / compuesto
 
@@ -86,6 +88,12 @@ vigentes (`F1_ETAPA1_CONTEXTO_v02`, `F1_ETAPA2_LADOS_v06`, `F1_ETAPA2_PATIO_v02`
    queda disponible para validar contra NRS-10.
 3. **`tipo_bonificacion` normalizado** al vocabulario NORMATIVA
    ("Ninguno"→"NINGUNO", "Servicios"→"EQUIPAMIENTO", "VIS"→"VIS").
+4. **Empate lateral por lado (v01.3):** `vecinos_por_lado_json` sale de
+   `proyecto.json['vecinos_por_lado']` (lo llena el formulario del orquestador con
+   la altura de cada vecino colindante por lado). Se convierte al formato
+   NORMATIVA `{id_lado: [altura_m, ...]}` (id_lado = índice de segmento); NORMATIVA
+   lo aplica solo a lados `Lateral`. Lados `via`/`espacio_publico`/`libre` no
+   generan empate.
 
 ## 7. Resumen visual del flujo
 
@@ -105,6 +113,7 @@ F0_LOAD_PROYECTO_v01 (v01.2)
 │                           └► (ruta) F1_EXPORTAR_GFA_v02.json_path
 ├─ caso ───────────────────► (CLI) F3_DISTRIBUCION_v01 <CASO_ID>
 ├─ usos / modos / escenarios► (CLI) F2 + F3_DISTRIBUCION
+└─ vecinos_por_lado_json ── F1_ETAPA2_NORMATIVA_v08.vecinos_por_lado_json
 ├─ empate_posterior_m ─────► (deriva) empate_posterior_entrepiso_m  [NRS-10 futuro]
 └─ antejardin_decision / ok / log ─► UI hint / diagnóstico
 ```
