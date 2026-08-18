@@ -1,36 +1,71 @@
-# VECINOS POR LADO — nomenclatura cardinal y empate lateral
+# VECINOS POR LADO — nomenclatura cardinal y tipo de frente
 
-Clasifica los predios **inmediatamente vecinos** de un lote por lado, para el
-caso en que por uno o varios lados haya **dos o más lotes colindantes, cada uno
-con una altura distinta** (p. ej. La Candelaria).
+Clasifica, para cada lado de un lote, **qué enfrenta ese lado**, distinguiendo:
+
+- `predio` — predio(s) vecino(s) colindante(s) → requieren empate/altura.
+- `via` — calle / vía (NO es predio vecino).
+- `espacio_publico` — zona verde / parque / plaza (NO es predio vecino).
+- `libre` — sin contacto detectado.
+
+Solo los lados `predio` listan vecinos con sub-índice (`Norte1`, `Norte2`, …).
 
 ## Nomenclatura
 
-- **Lado**: `Norte`, `Oriente`, `Sur`, `Occidente` (por el azimut de la normal
-  saliente de cada lado, a partir de `azimuth_norte_grados`).
-- **Sub-segmento** (varios vecinos por el mismo lado): `Norte1`, `Norte2`, …,
-  `Oriente1`, `Oriente2`, … (ordenados a lo largo del lado, en el sentido de la
-  frontera del polígono).
-- Un vecino de **esquina** colinda con dos lados: aparece en ambos con nombre
-  distinto (p. ej. `Norte2` y `Oriente1`).
+- **Lado**: `Norte`, `Oriente`, `Sur`, `Occidente` (azimut de la normal saliente).
+- **Sub-segmento**: `Norte1`, `Norte2`, … (varios vecinos en el mismo lado, ordenados
+  a lo largo de la frontera).
+- Un vecino de **esquina** colinda con dos lados: aparece en ambos (p. ej. `Norte2`
+  y `Oriente1`).
 
-## Resultado real (La Candelaria, `AAA0030JKOE`)
+## Resultado automático vs. realidad (los 3 lotes)
 
-| Lado | Vecinos |
-|---|---|
-| Norte | `Norte1` (003103035020), `Norte2` (003103035021) |
-| Oriente | `Oriente1` (003103035029) |
-| Sur | `Sur1`…`Sur5` (5 lotes colindantes) |
-| Occidente | `Occidente1` (003103035020) |
+| Lote | Lado | Automático | Realidad (operador) | Estado |
+|---|---|---|---|---|
+| El Prado | Norte | `via` | vía | ✓ |
+| El Prado | Oriente | `predio` | predio | ✓ |
+| El Prado | Sur | `predio` | predio | ✓ |
+| El Prado | Occidente | `predio` | zona verde / EP | ✗ (dato) |
+| Muzú | Norte | `predio` (2) | predio | ✓ |
+| Muzú | Oriente | `via` | vía | ✓ |
+| Muzú | Sur | `via` | vía | ✓ |
+| Muzú | Occidente | `via` | predio | ✗ (esquina) |
+| La Candelaria | Norte | `predio` (2) | predio | ✓ |
+| La Candelaria | Sur | `predio` (5) | predio | ✓ |
+| La Candelaria | Oriente | `predio` | vía (aún no construida) | ✗ (dato) |
+| La Candelaria | Occidente | `predio` | vía | ✗ (dato) |
 
-## Archivos
+## Limitaciones conocidas (por qué hay errores)
+
+1. **Vías incompletas.** `vias_oficiales` proviene del Eje_vial del POT, que está
+   **incompleto** (muchas calles no digitalizadas). La Candelaria (centro histórico)
+   es el caso típico: sus vías oriente/occidente no están en el dato → quedan como
+   `predio`.
+2. **Zonas verdes como "vecinos".** Algunas zonas verdes están en `vecinos` (con
+   CHIP de catastro), no en `espacios_publicos`. Sin atributo de uso no se separan
+   de predios edificables (El Prado occidente).
+3. **Vías en esquina.** Una vía que pasa por la esquina puede marcar un lado
+   perpendicular como `via` (Muzú occidente).
+
+## Solución prevista: override manual
+
+La clasificación automática es una **sugerencia**. Cada lado lleva:
+
+```json
+{"cardinal": "Norte", "frente": "via", "frente_fuente": "auto", "frente_override": null}
+```
+
+El operador fija `frente_override` (y el tipo real) en la interfaz; el dato del
+operador manda sobre el automático. Esto resuelve los tres casos anteriores sin
+depender de completar la geobase.
+
+## Archivos y CLI
 
 - Generador (shapely): `src/orquestador/vecinos_por_lado.py`
   ```
   python src/orquestador/vecinos_por_lado.py AAA0030JKOE
   # -> data/pot-cache/AAA0030JKOE-vecinos-por-lado.json
   ```
-- Salida por lote: `data/pot-cache/<CHIP>-vecinos-por-lado.json`
+- Endpoint: `GET /api/vecinos-por-lado?chip=<CHIP>` (servidor.py).
 
 ## Esquema de salida
 
@@ -38,54 +73,29 @@ con una altura distinta** (p. ej. La Candelaria).
 {
   "chip": "AAA0030JKOE",
   "crs": "ESRI:102233",
-  "azimuth_norte_grados": 189.4,
   "n_lados": 4,
-  "n_vecinos_colindantes": 9,
+  "n_predios_colindantes": 9,
+  "nota": "...",
   "lados": [
     {
-      "cardinal": "Norte",
-      "azimut_grados": 36.0,
-      "segmentos": [0, 2, 3, 4, 5, 6, 27, 28, 29],
+      "cardinal": "Sur",
+      "frente": "predio",
+      "frente_fuente": "auto",
+      "frente_override": null,
+      "segmentos": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
       "longitud_m": 51.96,
-      "n_vecinos": 2,
+      "n_vecinos": 5,
       "vecinos": [
-        {"chip": "003103035020", "nombre": "Norte1",
-         "longitud_colindancia_m": 24.16, "altura_m": null, "pisos": null}
+        {"chip": "003103035008", "nombre": "Sur1",
+         "longitud_colindancia_m": 5.54, "altura_m": null, "pisos": null}
       ]
     }
   ]
 }
 ```
 
-- `segmentos`: índices de los segmentos originales del polígono, para mapear a
-  `sides_table_json` (F1_ETAPA2_LADOS) y a `vecinos_por_lado_json`
-  (F1_ETAPA2_NORMATIVA_v08, que usa `id_lado` = índice de segmento).
-- `altura_m` / `pisos`: quedan en `null` para que el operador las complete.
-
-## Convenciones geométricas
-
-- Las coordenadas `vertices_3d_local` son SIRGAS trasladadas **sin rotación**:
-  `+X = Este`, `+Y = Norte`. Azimut desde el norte, sentido horario.
-- Colindancia: un vecino pertenece a un lado si una fracción (≥ 0.25) del lado
-  está a ≤ 0.15 m del polígono del vecino.
-- Los segmentos consecutivos y no consecutivos del **mismo cardinal se fusionan**
-  en un único lado (los polígonos SIG traen vértices colineales que partirían un
-  mismo lado real en varios).
-
-## Integración
-
-- **Interfaz**: endpoint `GET /api/vecinos-por-lado?chip=<CHIP>` (servidor.py)
-  devuelve la clasificación para que el formulario liste los predios por lado y
-  el operador asigne `altura_m` / `pisos` por cada `Norte1`, `Sur3`, etc.
-- **Fase 1 / NORMATIVA**: NORMATIVA_v08 ya consume `vecinos_por_lado_json`
-  (`{id_lado: [altura_m, ...]}`), aplicado a lados `Lateral`. Falta mapear la
-  nomenclatura cardinal → `id_lado` (usando `segmentos`) y propagar los valores
-  que ingrese el operador.
-- **F0_LOAD_PROYECTO**: pendiente exponer la nomenclatura + alturas por lado como
-  salidas del canvas (o un JSON de empate lateral).
-
 ## Pendientes
 
-1. UI del formulario (index.html) para listar vecinos por lado e ingresar alturas.
-2. Mapeo cardinal → `id_lado` para alimentar `vecinos_por_lado_json` de NORMATIVA_v08.
-3. Persistencia de las alturas ingresadas (proyecto.json o contexto.json).
+1. UI del formulario (index.html): listar lados + `frente` (con override) + vecinos.
+2. Mapeo cardinal → `id_lado` para `vecinos_por_lado_json` de NORMATIVA_v08.
+3. Persistencia de `frente_override` y alturas.
