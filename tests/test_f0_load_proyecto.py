@@ -33,7 +33,7 @@ def test_fuente_sin_constructos_prohibidos():
 def test_salidas_esperadas_presentes():
     src = _fuente()
     for salida in ("chip", "tipologia", "piso_adicional", "tipo_bonificacion",
-                   "floor_height_user", "antejardin_decision",
+                   "floor_height_user", "antejardin_decision", "antejardin_m", "voladizo_frontal_m",
                    "empate_posterior_pisos", "empate_posterior_m", "tratamiento",
                    "caso", "alineacion_nucleo", "usos", "modos", "escenarios",
                    "ok", "log"):
@@ -92,3 +92,23 @@ def test_carga_proyecto_ruta_invalida():
     assert g["tipologia"] == "Continua"
     assert g["caso"] == "A"
     assert g["usos"] == []
+
+
+def test_normalizacion_v0101(tmp_path):
+    """v01.1: normaliza tipo_bonificacion y resuelve empate_posterior_m -> pisos."""
+    p = tmp_path / "proyecto.json"
+    p.write_text(json.dumps({
+        "chip": "AAA0127AZPA",
+        "variables": {
+            "tipo_bonificacion": "Servicios",
+            "floor_height_user": 3.0,
+            "empate_posterior_pisos": 0,
+            "empate_posterior_m": 6.0,
+            "antejardin_m": 5.0,
+        },
+    }, ensure_ascii=False), encoding="utf-8")
+    g = _ejecutar(str(p))
+    assert g["tipo_bonificacion"] == "COMUNAL"
+    assert g["empate_posterior_pisos"] == 2
+    assert g["antejardin_m"] == 5.0
+    assert g["voladizo_frontal_m"] == 0.0
