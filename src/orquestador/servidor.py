@@ -15,6 +15,7 @@ Endpoints:
   GET  /api/contexto?chip -> info del predio (lote, topografia/desnivel, POT)
   GET  /api/variables     -> esquema de variables de decision (por seccion)
   GET  /api/usos?chip     -> catalogo de usos (principal/complementario/prohibido)
+  GET  /api/vecinos-por-lado?chip -> vecinos colindantes por lado (nomenclatura cardinal)
   GET  /api/financiero?chip -> variables financieras + fuentes (base de decision)
   GET  /api/resultados?caso -> resultados existentes (programa-areas + accesos)
   GET  /api/proyectos     -> proyectos guardados
@@ -192,6 +193,12 @@ def _contexto(chip):
             "altura_maxima_m": pot.get("altura_maxima_m"),
         },
     }
+
+
+def _vecinos_por_lado(chip):
+    """Vecinos colindantes por lado (nomenclatura cardinal) desde el JSON pre-generado."""
+    data = _json(os.path.join(POT_CACHE, chip + "-vecinos-por-lado.json"))
+    return data if data else None
 
 
 def _usos_por_sector():
@@ -412,6 +419,14 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/usos":
             chip = (q.get("chip") or [""])[0]
             self._send(200, {"ok": True, "usos": _usos(chip)})
+            return
+        if parsed.path == "/api/vecinos-por-lado":
+            chip = (q.get("chip") or [""])[0]
+            info = _vecinos_por_lado(chip)
+            if info is None:
+                self._json_error("sin vecinos-por-lado para el chip '{}'".format(chip), 404)
+            else:
+                self._send(200, {"ok": True, "vecinos_por_lado": info})
             return
         if parsed.path == "/api/financiero":
             chip = (q.get("chip") or [""])[0]
