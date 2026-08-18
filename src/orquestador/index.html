@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formulario de solicitud — DiseñoParametrico</title>
+<style>
+  :root { --ok:#1a7f37; --manual:#b8860b; --falta:#b42318; --azul:#1f2937; --bg:#f6f7f9; --card:#fff; --borde:#e2e5ea; }
+  * { box-sizing: border-box; }
+  body { font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; margin:0; background:var(--bg); color:#1f2328; line-height:1.5; }
+  header { background:var(--azul); color:#fff; padding:20px; }
+  header h1 { margin:0 0 4px; font-size:21px; }
+  header p { margin:0; font-size:13px; opacity:.85; }
+  .wrap { max-width:980px; margin:0 auto; padding:18px 16px 70px; }
+  .card { background:var(--card); border:1px solid var(--borde); border-radius:10px; padding:16px 18px; margin:14px 0; }
+  .card h2 { margin:0 0 4px; font-size:17px; }
+  .card .subtitulo { font-size:12.5px; color:#6b7280; margin:0 0 12px; }
+  .seccion-num { display:inline-block; background:var(--azul); color:#fff; border-radius:6px; padding:1px 8px; font-size:13px; margin-right:8px; }
+  .campo { margin:10px 0; }
+  .campo label { display:block; font-weight:600; font-size:14px; margin-bottom:4px; }
+  .campo .ayuda { font-size:12px; color:#6b7280; margin-top:2px; }
+  .campo input[type=text], .campo input[type=number], .campo select { width:100%; padding:9px 11px; border:1px solid #cbd5e1; border-radius:7px; font-size:14px; background:#fff; }
+  .campo input:focus, .campo select:focus { outline:2px solid #2563eb; border-color:#2563eb; }
+  .fila { display:flex; gap:14px; flex-wrap:wrap; }
+  .fila .campo { flex:1 1 220px; }
+  .checks { display:flex; flex-wrap:wrap; gap:10px; margin:8px 0; }
+  .check-item { flex:1 1 230px; border:1px solid var(--borde); border-radius:8px; padding:10px 12px; background:#f8fafc; }
+  .check-item label { display:flex; gap:8px; align-items:flex-start; cursor:pointer; font-size:14px; }
+  .check-item input[type=checkbox] { margin-top:3px; }
+  .check-item .desc { font-size:12px; color:#6b7280; margin-left:22px; }
+  .cat-principal { border-left:3px solid var(--ok); }
+  .cat-complementario { border-left:3px solid #2563eb; }
+  .cat-prohibido { border-left:3px solid var(--falta); }
+  .cat-tag { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.4px; }
+  .grid-info { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; }
+  .kv { background:#f8fafc; border:1px solid var(--borde); border-radius:8px; padding:10px 12px; }
+  .kv .k { font-size:11px; text-transform:uppercase; color:#6b7280; letter-spacing:.4px; }
+  .kv .v { font-size:15px; font-weight:600; word-break:break-word; }
+  .btn { display:inline-block; padding:10px 18px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
+  .btn.primario { background:#2563eb; color:#fff; }
+  .btn.exito { background:var(--ok); color:#fff; }
+  .btn.secundario { background:#e5e7eb; color:#1f2328; }
+  .btn:hover { opacity:.9; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .aviso { padding:10px 14px; border-radius:8px; font-size:13px; margin:10px 0; }
+  .aviso.error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+  .aviso.ok { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+  .aviso.info { background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }
+  .badge { display:inline-block; font-size:12px; padding:2px 9px; border-radius:20px; color:#fff; background:#64748b; }
+  .badge.desnivel { background:var(--manual); }
+  .fuente { font-size:11.5px; color:#8a9199; margin-top:2px; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th, td { text-align:left; padding:7px 9px; border-bottom:1px solid var(--borde); vertical-align:top; }
+  th { color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:.4px; }
+  .caso-titulo { font-size:13px; color:#374151; background:#f1f5f9; border-radius:6px; padding:6px 10px; margin:6px 0; }
+  .nota { border:1px dashed #cbd5e1; border-radius:10px; padding:16px; background:#fbfcfe; }
+  @media (max-width:560px) { header h1 { font-size:18px; } .fila { flex-direction:column; } .check-item { flex:1 1 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Formulario de solicitud — DiseñoParametrico</h1>
+  <p>Complete los datos. No necesita conocer comandos ni jerga interna.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ===== Proyecto ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">0</span>Proyecto</h2>
+    <div class="subtitulo">Nombre y estructura de trabajo.</div>
+    <div class="campo">
+      <label for="nombre">Nombre del proyecto</label>
+      <input type="text" id="nombre" placeholder="Ej. Edificio_ElPrado_A" value="">
+      <div class="ayuda">Sin nombre se trabaja en el directorio <b>provisional</b> (<code>_provisional</code>).
+        Al presionar <b>Crear estructura</b> con un nombre válido, se crea la carpeta del proyecto
+        y se copia allí el material provisional. Incluye la carpeta <code>Archicad/</code> para el
+        archivo <code>.pln</code>.</div>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn exito" id="btn-crear">Crear estructura</button>
+      <button class="btn primario" id="btn-guardar">Guardar (provisional)</button>
+    </div>
+    <div id="proyecto-aviso"></div>
+  </div>
+
+  <!-- ===== 1. Predio ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">1</span>Predio (CHIP)</h2>
+    <div class="subtitulo">Identificación y datos del lote.</div>
+    <div class="campo">
+      <label for="chip">CHIP del predio</label>
+      <select id="chip"></select>
+    </div>
+    <div id="predio-info" class="aviso info">Seleccione un CHIP para ver la información del predio.</div>
+    <div id="predio-detalle" class="grid-info" style="display:none;"></div>
+  </div>
+
+  <!-- ===== 2. Normativa y GFA ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">2</span>Normativa y generación de GFA</h2>
+    <div class="subtitulo">Parámetros normativos y de ocupación.</div>
+    <div id="vars-normativa"></div>
+    <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Usos del proyecto</h3>
+    <div class="ayuda" style="margin-bottom:8px;">Marque los usos que desea incluir en el modelo. Los usos
+      principales y complementarios los define la reglamentación; los prohibidos se muestran para descartarlos.</div>
+    <div id="usos-info"></div>
+    <div id="usos-checks" class="checks"></div>
+  </div>
+
+  <!-- ===== 3. Financiero ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">3</span>Financiero</h2>
+    <div class="subtitulo">Modelo de negocio, escenarios y variables base de decisión.</div>
+    <h3 style="font-size:14px;color:#374151;margin:8px 0 4px;">Modo de negocio (puede marcar varios)</h3>
+    <div id="modos-checks" class="checks"></div>
+    <h3 style="font-size:14px;color:#374151;margin:12px 0 4px;">Escenarios de mercado (puede marcar varios)</h3>
+    <div class="ayuda">La combinación de usos (oficinas + vivienda, comercio + servicios + vivienda, etc.)
+      se define con las casillas de usos de la sección anterior; aquí se elige el segmento de mercado.</div>
+    <div id="escenarios-checks" class="checks"></div>
+    <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Variables financieras y fuentes (base de decisión)</h3>
+    <div id="financiero-info" class="aviso info">Seleccione un CHIP para ver las variables financieras.</div>
+    <div id="financiero-detalle"></div>
+  </div>
+
+  <!-- ===== 4. Modelado ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">4</span>Modelado (masa)</h2>
+    <div class="subtitulo">Lote de modelado y posición del núcleo.</div>
+    <div id="vars-modelado"></div>
+    <div id="caso-detalle" class="caso-titulo" style="display:none;"></div>
+  </div>
+
+  <!-- ===== Resultados ===== -->
+  <div class="card" id="card-resultados" style="display:none;">
+    <h2><span class="seccion-num">✓</span>Resultados del lote seleccionado</h2>
+    <div id="resultados"></div>
+  </div>
+
+  <!-- ===== Nota técnica ===== -->
+  <div class="card nota">
+    <h2 style="border-left:4px solid #b8860b; padding-left:10px;">Integración siguiente</h2>
+    <p>El cableado del canvas se hará <b>una sola vez</b> (parametrizado por el <code>proyecto.json</code>),
+       de modo que un clic — o una llamada vía <b>Tapir</b> desde ArchiCAD — ejecute el script con estas
+       variables. El <b>round-trip</b>: los cambios del operador en ArchiCAD vuelven por <b>GetElements</b>
+       y alimentan Ladybug.</p>
+  </div>
+
+</div>
+
+<script>
+let VARIABLES = [], CASO_CHIP = {}, CASO_TITULO = {}, MODOS = [], ESCENARIOS = [];
+
+function $(id){ return document.getElementById(id); }
+async function api(path, opts){
+  const r = await fetch(path, opts);
+  return r.json();
+}
+
+// ---------- init ----------
+async function init(){
+  const v = await api('/api/variables');
+  VARIABLES = v.variables || [];
+  CASO_CHIP = v.caso_chip || {};
+  CASO_TITULO = v.caso_titulo || {};
+  MODOS = v.modos || [];
+  ESCENARIOS = v.escenarios || [];
+
+  const lotes = await api('/api/lotes');
+  const sel = $('chip');
+  sel.innerHTML = '<option value="">— seleccione —</option>';
+  (lotes.lotes || []).forEach(c => {
+    const o = document.createElement('option'); o.value = c; o.textContent = c;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change', () => { cargarPredio(); cargarUsos(); cargarFinanciero(); });
+
+  renderSeccion('normativa', $('vars-normativa'));
+  renderSeccion('modelado', $('vars-modelado'));
+  renderModos();
+  renderEscenarios();
+  bindCaso();
+}
+
+function opcionValor(op){ return (op && typeof op === 'object') ? op.v : op; }
+function opcionLabel(op){ return (op && typeof op === 'object') ? op.label : String(op); }
+
+function renderSeccion(seccion, cont){
+  cont.innerHTML = '';
+  const campos = VARIABLES.filter(v => v.seccion === seccion);
+  const fila = document.createElement('div'); fila.className = 'fila';
+  campos.forEach(v => {
+    const div = document.createElement('div'); div.className = 'campo';
+    const lab = document.createElement('label'); lab.textContent = v.label; lab.htmlFor = 'var_' + v.id;
+    let input;
+    if (v.tipo === 'bool') {
+      input = document.createElement('select');
+      const on = document.createElement('option'); on.value='true'; on.textContent='Sí';
+      const off = document.createElement('option'); off.value='false'; off.textContent='No';
+      input.appendChild(off); input.appendChild(on);
+      input.value = String(!!v.default);
+    } else if (v.tipo === 'select') {
+      input = document.createElement('select');
+      (v.opciones || []).forEach(op => {
+        const o = document.createElement('option'); o.value = opcionValor(op); o.textContent = opcionLabel(op);
+        input.appendChild(o);
+      });
+      input.value = opcionValor(v.default);
+    } else {
+      input = document.createElement('input');
+      input.type = (v.tipo === 'number' || v.tipo === 'int') ? 'number' : 'text';
+      if (v.tipo === 'int') input.step = '1';
+      input.value = (v.default === null || v.default === undefined) ? '' : v.default;
+    }
+    input.id = 'var_' + v.id;
+    div.appendChild(lab); div.appendChild(input);
+    if (v.ayuda) { const a = document.createElement('div'); a.className='ayuda'; a.textContent = v.ayuda; div.appendChild(a); }
+    fila.appendChild(div);
+  });
+  cont.appendChild(fila);
+}
+
+function checkItem(id, label, desc, cat){
+  const div = document.createElement('div');
+  div.className = 'check-item' + (cat ? ' cat-' + cat : '');
+  const lab = document.createElement('label');
+  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = id; cb.id = 'chk_' + id;
+  const span = document.createElement('span'); span.textContent = label;
+  lab.appendChild(cb); lab.appendChild(span);
+  div.appendChild(lab);
+  if (desc) { const d = document.createElement('div'); d.className='desc'; d.textContent = desc; div.appendChild(d); }
+  return div;
+}
+
+function renderModos(){
+  const cont = $('modos-checks'); cont.innerHTML = '';
+  MODOS.forEach(m => cont.appendChild(checkItem('modo_' + m.id, m.label, m.descripcion)));
+}
+function renderEscenarios(){
+  const cont = $('escenarios-checks'); cont.innerHTML = '';
+  ESCENARIOS.forEach(e => cont.appendChild(checkItem('esc_' + e.id, e.label, e.descripcion)));
+}
+
+function renderUsos(usos){
+  const info = $('usos-info'); info.innerHTML = '';
+  if(usos.upz || usos.tratamiento){
+    info.innerHTML = '<div class="ayuda">UPZ: <b>'+(usos.upz||'—')+'</b> · Tratamiento: <b>'+(usos.tratamiento||'—')+'</b></div>';
+  }
+  const nota = document.createElement('div');
+  nota.className = 'aviso info';
+  nota.textContent = usos.nota || '';
+  info.appendChild(nota);
+  const cont = $('usos-checks'); cont.innerHTML = '';
+  const catLabel = {principal:'Principales', complementario:'Complementarios', prohibido:'No permitidos'};
+  // agrupar por categoría en orden
+  ['principal','complementario','prohibido'].forEach(cat => {
+    const deEsta = (usos.catalogo || []).filter(u => u.categoria === cat);
+    if(!deEsta.length) return;
+    const h = document.createElement('div'); h.style.cssText='width:100%;margin:4px 0 0;';
+    const tag = document.createElement('span'); tag.className='cat-tag'; tag.style.color = cat==='prohibido' ? 'var(--falta)' : (cat==='principal' ? 'var(--ok)' : '#2563eb');
+    tag.textContent = catLabel[cat] || cat;
+    h.appendChild(tag);
+    cont.appendChild(h);
+    deEsta.forEach(u => cont.appendChild(checkItem('uso_' + u.nombre, u.nombre, u.descripcion, cat)));
+  });
+}
+
+async function cargarUsos(){
+  const chip = $('chip').value;
+  if(!chip){ $('usos-checks').innerHTML=''; $('usos-info').innerHTML=''; return; }
+  const r = await api('/api/usos?chip=' + encodeURIComponent(chip));
+  if(r.ok) renderUsos(r.usos);
+}
+
+async function cargarFinanciero(){
+  const chip = $('chip').value;
+  const info = $('financiero-info');
+  const det = $('financiero-detalle');
+  if(!chip){ info.className='aviso info'; info.textContent='Seleccione un CHIP para ver las variables financieras.'; det.innerHTML=''; return; }
+  info.className='aviso info'; info.textContent='Cargando variables financieras…';
+  const r = await api('/api/financiero?chip=' + encodeURIComponent(chip));
+  if(!r.ok || !r.financiero.disponible){ info.className='aviso error'; info.textContent = (r.financiero && r.financiero.nota) || 'sin datos'; det.innerHTML=''; return; }
+  info.style.display='none';
+  const f = r.financiero;
+  let html = '';
+  // lote
+  html += '<h3 style="font-size:13.5px;color:#374151;margin:10px 0 4px;">Lote</h3><div class="grid-info">';
+  const loteKvs = [
+    ['Área lote (m²)', f.lote.area_m2], ['Precio suelo ($/m²)', f.lote.precio_suelo_m2],
+    ['Impuestos escritura (%)', f.lote.impuestos_escritura_pct], ['Costo lote total (COP)', f.lote.costo_lote_total_cop],
+  ];
+  loteKvs.forEach(([k,v]) => { html += '<div class="kv"><div class="k">'+k+'</div><div class="v">'+(v!=null?v:'—')+'</div></div>'; });
+  html += '</div>';
+  if(f.lote.fuente) html += '<div class="fuente">Fuente lote: ' + f.lote.fuente + '</div>';
+  // financiero
+  html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Costos y supuestos</h3><div class="grid-info">';
+  const finKvs = [
+    ['Costos blandos (%)', f.financiero.costos_blandos_pct], ['Marketing/ventas (%)', f.financiero.marketing_ventas_pct],
+  ];
+  finKvs.forEach(([k,v]) => { html += '<div class="kv"><div class="k">'+k+'</div><div class="v">'+(v!=null?v+' %':'—')+'</div></div>'; });
+  html += '</div>';
+  if(f.financiero.nota_costos_blandos) html += '<div class="fuente">' + f.financiero.nota_costos_blandos + '</div>';
+  // escenarios
+  if(f.escenarios && f.escenarios.length){
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Escenarios (valores de referencia)</h3><table><tr><th>Escenario</th><th>Acabado</th><th>Venta $/m²</th><th>Costo $/m²</th></tr>';
+    f.escenarios.forEach(e => {
+      html += '<tr><td>'+e.nombre+'</td><td>'+ (e.nivel_acabados||'—') +'</td><td>'+(e.precio_venta_m2!=null?e.precio_venta_m2:'—')+'</td><td>'+(e.costo_construccion_m2!=null?e.costo_construccion_m2:'—')+'</td></tr>';
+      if(e.fuente_precio) html += '<tr><td colspan="4" class="fuente">Fuente: '+e.fuente_precio+'</td></tr>';
+    });
+    html += '</table>';
+  }
+  det.innerHTML = html;
+}
+
+// ---------- predio ----------
+async function cargarPredio(){
+  const chip = $('chip').value;
+  const info = $('predio-info'), det = $('predio-detalle');
+  if(!chip){ info.className='aviso info'; info.textContent='Seleccione un CHIP para ver la información del predio.'; det.style.display='none'; return; }
+  info.className='aviso info'; info.textContent='Cargando información del predio ' + chip + ' …';
+  const r = await api('/api/contexto?chip=' + encodeURIComponent(chip));
+  if(!r.ok){ info.className='aviso error'; info.textContent = r.error || 'sin datos'; det.style.display='none'; return; }
+  info.style.display='none';
+  const c = r.contexto;
+  const kvs = [
+    ['Área lote (m²)', c.lote.area_m2 != null ? c.lote.area_m2 : '—'],
+    ['Perímetro (m)', c.lote.perimetro_m != null ? c.lote.perimetro_m : '—'],
+    ['Vértices', c.lote.n_vertices],
+    ['Vías', c.conteos.vias], ['Vecinos', c.conteos.vecinos], ['Espacios públicos', c.conteos.espacios_publicos],
+    ['Topografía', c.topografia.estado || '—'],
+    ['Desnivel (m)', c.topografia.desnivel_m != null ? c.topografia.desnivel_m : '—'],
+    ['UPZ', c.pot.upz || '—'], ['Tratamiento', c.pot.tratamiento || '—'],
+    ['Rango edificabilidad', c.pot.rango_edificabilidad || '—'],
+    ['Altura máxima (m)', c.pot.altura_maxima_m != null ? c.pot.altura_maxima_m : '—'],
+  ];
+  det.innerHTML = kvs.map(x => {
+    let extra = '';
+    if(x[0]==='Desnivel (m)' && parseFloat(x[1])>1) extra = ' <span class="badge desnivel">terreno con desnivel</span>';
+    return '<div class="kv"><div class="k">'+x[0]+'</div><div class="v">'+x[1]+extra+'</div></div>';
+  }).join('');
+  det.style.display='grid';
+}
+
+// ---------- caso ----------
+function bindCaso(){
+  const sel = $('var_caso');
+  if(!sel) return;
+  const update = () => {
+    const c = sel.value;
+    const det = $('caso-detalle');
+    if(c && CASO_TITULO[c]){
+      det.style.display='block';
+      det.innerHTML = '<b>'+CASO_TITULO[c]+'</b> · CHIP: '+(CASO_CHIP[c]||'—');
+      verResultados(c);
+    } else { det.style.display='none'; }
+  };
+  sel.addEventListener('change', update);
+  update();
+}
+
+// ---------- guardar / crear ----------
+function recolectar(){
+  const nombre = $('nombre').value.trim();
+  const chip = $('chip').value;
+  const variables = {};
+  VARIABLES.forEach(v => {
+    const el = $('var_' + v.id);
+    let val = el ? el.value : null;
+    if(v.tipo === 'bool') val = (val === 'true');
+    else if(v.tipo === 'number' || v.tipo === 'int') val = (val === '' ? null : parseFloat(val));
+    variables[v.id] = val;
+  });
+  const usos = [...document.querySelectorAll('#usos-checks input:checked')].map(x => x.value.replace('uso_',''));
+  const modos = [...document.querySelectorAll('#modos-checks input:checked')].map(x => x.value.replace('modo_',''));
+  const escenarios = [...document.querySelectorAll('#escenarios-checks input:checked')].map(x => x.value.replace('esc_',''));
+  return { nombre, chip, variables, usos, modos, escenarios };
+}
+
+async function guardar(crear){
+  const aviso = $('proyecto-aviso');
+  const data = recolectar();
+  data.crear_estructura = !!crear;
+  if(crear && !data.nombre){ aviso.className='aviso error'; aviso.textContent='Para crear la estructura escriba un nombre de proyecto.'; return; }
+  if(!data.nombre){ aviso.className='aviso info'; aviso.textContent='Guardando en el directorio provisional (_provisional)…'; }
+  const r = await api('/api/proyecto', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  if(r.ok){
+    if(r.estructura_creada){
+      aviso.className='aviso ok';
+      aviso.textContent = 'Estructura creada en ' + r.estructura_creada + ' (incluye Archicad/ para el .pln).';
+    } else {
+      aviso.className='aviso ok';
+      aviso.textContent = 'Guardado en ' + r.destino + (data.nombre ? '' : ' (provisional)');
+    }
+  } else { aviso.className='aviso error'; aviso.textContent = r.error || 'error'; }
+}
+
+// ---------- resultados ----------
+async function verResultados(caso){
+  const c = caso || ($('var_caso') ? $('var_caso').value : 'A');
+  const r = await api('/api/resultados?caso=' + encodeURIComponent(c));
+  const card = $('card-resultados'), cont = $('resultados');
+  if(!r.ok){ return; }
+  const res = r.resultados;
+  let html = '<div class="grid-info">';
+  const kvs = [
+    ['Lote/caso', res.titulo || res.caso], ['CHIP', res.chip],
+    ['GFA total (m²)', res.gfa_total], ['Pisos', res.pisos], ['Área/piso (m²)', res.area_por_piso],
+    ['Usos', (res.usos||[]).join(', ') || '—'],
+    ['Núcleo hueco (m²/piso)', res.nucleo.hueco_m2_piso],
+    ['Circulación (m²)', res.nucleo.circulacion_m2],
+    ['Servicios (m²)', res.nucleo.servicios_m2],
+  ];
+  kvs.forEach(([k,v]) => { html += '<div class="kv"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; });
+  html += '</div>';
+  if(res.reparto_vertical && Object.keys(res.reparto_vertical).length){
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:14px 0 6px;">Reparto vertical</h3><table><tr><th>Uso</th><th>Pisos</th></tr>';
+    Object.keys(res.reparto_vertical).forEach(u => { html += '<tr><td>'+u+'</td><td>'+(res.reparto_vertical[u]||[]).join(', ')+'</td></tr>'; });
+    html += '</table>';
+  }
+  if(res.accesos && Object.keys(res.accesos).length){
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:14px 0 6px;">Accesos</h3><table>';
+    ['total_usos','usos_publicos','usos_privados','total_accesos','pares_incompatibles'].forEach(k => {
+      if(res.accesos[k] != null) html += '<tr><th>'+k+'</th><td>'+res.accesos[k]+'</td></tr>';
+    });
+    html += '</table>';
+  }
+  cont.innerHTML = html;
+  card.style.display='block';
+}
+
+$('btn-crear').addEventListener('click', () => guardar(true));
+$('btn-guardar').addEventListener('click', () => guardar(false));
+init();
+</script>
+</body>
+</html>

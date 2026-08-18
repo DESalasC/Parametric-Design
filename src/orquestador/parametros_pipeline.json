@@ -1,0 +1,11 @@
+{
+  "_schema": "parametros_pipeline_v01",
+  "chip": "AAA0127AZPA",
+  "caso": "A",
+  "modo": "mixto",
+  "gfa_m2": null,
+  "costo_lote_cop": null,
+  "parametros_f2_venta": "src/fase-2-demanda/F2_Modelo_Financiero/parametros_AAA0127AZPA_mercado2026.json",
+  "parametros_f2_renta": "src/fase-2-demanda/F2_Modelo_Renta/parametros_AAA0127AZPA_renta.json",
+  "notas": "gfa_m2/costo_lote_cop en null => se usan los defaults del motor F2 y el GFA exportado por F1 (data/fase-2-demanda/<chip>-gfa-gh.json). El caso determina el chip si no se pasa --chip (A=AAA0127AZPA, B/B_SALUD=AAA0030JKOE, C=AAA0039KRMR)."
+}

@@ -1,0 +1,420 @@
+# -*- coding: utf-8 -*-
+"""
+================================================================================
+servidor.py — Formulario de solicitud interactivo (DiseñoParametrico)
+Parte 1: F1 -> F3. Servidor local con stdlib (sin dependencias nuevas).
+================================================================================
+
+El operador NO ve comandos: abre el navegador, llena un formulario y ve los
+resultados. Secciones claramente separadas: Predio, Normativa/GFA, Financiero,
+Modelado.
+
+Endpoints:
+  GET  /                  -> formulario (index.html)
+  GET  /api/lotes         -> CHIPs disponibles
+  GET  /api/contexto?chip -> info del predio (lote, topografia/desnivel, POT)
+  GET  /api/variables     -> esquema de variables de decision (por seccion)
+  GET  /api/usos?chip     -> catalogo de usos (principal/complementario/prohibido)
+  GET  /api/financiero?chip -> variables financieras + fuentes (base de decision)
+  GET  /api/resultados?caso -> resultados existentes (programa-areas + accesos)
+  GET  /api/proyectos     -> proyectos guardados
+  POST /api/proyecto      -> guarda (nombre opcional -> _provisional) o crea estructura
+
+USO:
+  .\\.venv\\Scripts\\python.exe src\\orquestador\\servidor.py [--puerto 8900]
+  Abrir http://127.0.0.1:8900
+================================================================================
+"""
+
+import argparse
+import io
+import json
+import os
+import shutil
+import sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import parse_qs, urlparse
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+ORQ_DIR = os.path.dirname(os.path.abspath(__file__))
+POT_CACHE = os.path.join(ROOT, "data", "pot-cache")
+F3_CASOS = os.path.join(ROOT, "src", "fase-3-masa", "casos")
+F2_VENTA_DIR = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Financiero")
+F2_RENTA_DIR = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Renta")
+PROYECTOS = os.path.join(ORQ_DIR, "proyectos")
+PROVISIONAL = os.path.join(PROYECTOS, "_provisional")
+
+CASO_CHIP = {"A": "AAA0127AZPA", "B": "AAA0030JKOE", "B_SALUD": "AAA0030JKOE", "C": "AAA0039KRMR"}
+CASO_TITULO = {
+    "A": "A — El Prado (Suba): local + vivienda",
+    "B": "B — La Candelaria: local turístico + vivienda",
+    "B_SALUD": "B_SALUD — La Candelaria: consultorios + vivienda",
+    "C": "C — Muzú (Puente Aranda): local + vivienda VIS",
+}
+
+# Catálogo base de usos (NSR-10 A.2.5 + POT 555). La clasificación principal/
+# complementario/prohibido depende del sector; aquí es un punto de partida
+# que debe validarse con la reglamentación de la UPZ.
+USOS_CATALOGO = [
+    {"nombre": "Vivienda", "categoria": "principal", "descripcion": "Residencial (VIS, VIP, no VIS)."},
+    {"nombre": "Comercio", "categoria": "principal", "descripcion": "Locales y retail de escala zonal/vecinal."},
+    {"nombre": "Oficinas", "categoria": "complementario", "descripcion": "Uso empresarial/oficinas."},
+    {"nombre": "Salud", "categoria": "complementario", "descripcion": "Consultorios y centros de salud."},
+    {"nombre": "Servicios", "categoria": "complementario", "descripcion": "Servicios personales, técnicos y alimentarios."},
+    {"nombre": "Educación", "categoria": "complementario", "descripcion": "Educación formal y no formal."},
+    {"nombre": "Institucional", "categoria": "prohibido", "descripcion": "Institucional de escala metropolitana."},
+    {"nombre": "Industrial", "categoria": "prohibido", "descripcion": "Industrial (no en sectores residenciales)."},
+]
+
+# Variables de decisión por sección (sin jerga interna). Las de tipo "check" se
+# renderizan como casillas múltiples; las de tipo select/number/bool como control.
+VARIABLES = [
+    # ---- Sección 1: Normativa y GFA
+    {"id": "tipologia", "label": "Tipología de implantación", "tipo": "select",
+     "opciones": ["Continua", "Aislada"], "default": "Continua", "seccion": "normativa",
+     "ayuda": "Continua = sin aislamiento lateral; Aislada = aislamiento 3 m."},
+    {"id": "piso_adicional", "label": "Habilitar piso adicional (servicios o VIS)", "tipo": "bool",
+     "default": False, "seccion": "normativa",
+     "ayuda": "Permite un piso extra por servicios o por uso VIS."},
+    {"id": "tipo_bonificacion", "label": "Tipo de bonificación", "tipo": "select",
+     "opciones": ["Ninguno", "Servicios", "VIS"], "default": "Ninguno", "seccion": "normativa",
+     "ayuda": "Bonificación que habilita el piso adicional."},
+    {"id": "floor_height_user", "label": "Altura de placa (m)", "tipo": "number",
+     "default": 3.0, "seccion": "normativa", "ayuda": "Altura libre de entrepiso (primer piso suele 3.6)."},
+    {"id": "antejardin_decision", "label": "Antejardín / voladizo", "tipo": "select",
+     "opciones": ["Según reglamentación", "Aumentar antejardín", "Disminuir voladizo"],
+     "default": "Según reglamentación", "seccion": "normativa",
+     "ayuda": "Ambos los fija la reglamentación; aquí solo se indica si se ajusta al alza el antejardín o a la baja el voladizo."},
+    {"id": "empate_posterior_pisos", "label": "Nº de pisos en el lado posterior del predio", "tipo": "int",
+     "default": 0, "seccion": "normativa",
+     "ayuda": "Valor entero = número de pisos de empate volumétrico contra el posterior."},
+    {"id": "empate_posterior_m", "label": "Altura en metros en el lado posterior", "tipo": "number",
+     "default": None, "seccion": "normativa",
+     "ayuda": "Valor decimal = altura en metros (alternativa a la casilla de pisos)."},
+    {"id": "tratamiento", "label": "Tratamiento urbanístico", "tipo": "select",
+     "opciones": ["Consolidación", "Renovación urbana", "Desarrollo", "Mejoramiento integral"],
+     "default": "Consolidación", "seccion": "normativa",
+     "ayuda": "Tratamiento POT del predio (condiciona ocupación y edificabilidad)."},
+    # ---- Sección 3: Modelado
+    {"id": "caso", "label": "Lote / caso", "tipo": "select",
+     "opciones": ["A", "B", "B_SALUD", "C"], "default": "A", "seccion": "modelado",
+     "ayuda": "Lote sobre el que se modela la masa (determina el CHIP)."},
+    {"id": "alineacion_nucleo", "label": "Posición del núcleo de servicios", "tipo": "select",
+     "opciones": [{"v": 0, "label": "Centro"}, {"v": 1, "label": "Contra medianera"}, {"v": 2, "label": "Lado opuesto"}],
+     "default": 1, "seccion": "modelado",
+     "ayuda": "El 'switch' de posición del núcleo (escaleras + ascensor + servicios)."},
+]
+
+MODOS_FINANCIEROS = [
+    {"id": "venta", "label": "Venta", "descripcion": "El proyecto se vende (unidades VIS/estándar/lujo)."},
+    {"id": "renta", "label": "Renta (Build-to-Rent)", "descripcion": "Se construye para arrendar (corto/largo plazo)."},
+]
+
+ESCENARIOS_FINANCIEROS = [
+    {"id": "A_VIS", "label": "VIS / VIP", "descripcion": "Vivienda de interés social (acabado básico, precio tope VIS)."},
+    {"id": "B_ESTANDAR", "label": "Estándar", "descripcion": "Segmento medio (acabado estándar)."},
+    {"id": "C_LUJO", "label": "Lujo", "descripcion": "Segmento alto (acabado premium)."},
+]
+
+
+def _json(ruta):
+    if not os.path.exists(ruta):
+        return {}
+    try:
+        with io.open(ruta, "r", encoding="utf-8") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+
+def _lotes():
+    chips = []
+    if os.path.isdir(POT_CACHE):
+        for nombre in sorted(os.listdir(POT_CACHE)):
+            if nombre.endswith("-contexto.json"):
+                chips.append(nombre[:-len("-contexto.json")])
+    return chips
+
+
+def _contexto(chip):
+    raw = _json(os.path.join(POT_CACHE, chip + "-contexto.json"))
+    if not raw:
+        return None
+    lote = raw.get("lote_objetivo", {})
+    topo = raw.get("topografia", {})
+    pot = raw.get("pot_data", {})
+    desnivel = None
+    if isinstance(topo, dict):
+        try:
+            cmin = float(topo.get("cota_min") or topo.get("min") or 0)
+            cmax = float(topo.get("cota_max") or topo.get("max") or 0)
+            desnivel = round(cmax - cmin, 2)
+        except Exception:
+            desnivel = None
+
+    def _area_lote():
+        for k in ("area_m2", "area", "area_m"):
+            if lote.get(k) is not None:
+                return lote[k]
+        return None
+
+    return {
+        "chip": chip,
+        "lote": {
+            "area_m2": _area_lote(),
+            "perimetro_m": lote.get("perimetro_m") or lote.get("perimetro"),
+            "n_vertices": len(lote.get("vertices", []) or lote.get("poligono", []) or []),
+        },
+        "topografia": {
+            "estado": topo.get("estado", "ESTIMADA") if isinstance(topo, dict) else None,
+            "desnivel_m": desnivel,
+        },
+        "conteos": {
+            "vias": len(raw.get("vias_oficiales", [])),
+            "vecinos": len(raw.get("vecinos", [])),
+            "espacios_publicos": len(raw.get("espacios_publicos", [])),
+        },
+        "pot": {
+            "upz": pot.get("upz"),
+            "tratamiento": pot.get("tratamiento"),
+            "sector_normativo": pot.get("sector_normativo"),
+            "rango_edificabilidad": pot.get("rango_edificabilidad"),
+            "altura_maxima_m": pot.get("altura_maxima_m"),
+        },
+    }
+
+
+def _usos(chip):
+    ctx = _contexto(chip)
+    return {
+        "chip": chip,
+        "upz": ctx["pot"]["upz"] if ctx else None,
+        "tratamiento": ctx["pot"]["tratamiento"] if ctx else None,
+        "catalogo": USOS_CATALOGO,
+        "nota": "Catálogo base NSR-10 A.2.5 + POT 555. Los usos permitidos/prohibidos "
+                "definitivos dependen de la reglamentación del sector/UPZ y deben validarse.",
+    }
+
+
+def _financiero(chip):
+    """Variables financieras + fuentes (base de decisión del operador)."""
+    ruta = None
+    for cand in (os.path.join(F2_VENTA_DIR, "parametros_{}_mercado2026.json".format(chip)),
+                 os.path.join(F2_VENTA_DIR, "parametros_{}.json".format(chip))):
+        if os.path.exists(cand):
+            ruta = cand
+            break
+    if not ruta:
+        return {"chip": chip, "disponible": False, "nota": "sin parametros F2 para este chip"}
+    d = _json(ruta)
+    lote = d.get("lote", {})
+    fin = d.get("financiero", {})
+    esc = d.get("escenarios", {})
+    escenarios = []
+    for eid, ev in esc.items():
+        escenarios.append({
+            "id": eid,
+            "nombre": ev.get("nombre", eid),
+            "nivel_acabados": ev.get("nivel_acabados"),
+            "precio_venta_m2": ev.get("precio_venta_m2"),
+            "costo_construccion_m2": ev.get("costo_construccion_m2"),
+            "fuente_precio": ev.get("fuente_precio"),
+        })
+    return {
+        "chip": chip,
+        "disponible": True,
+        "ruta_parametros": ruta,
+        "lote": {
+            "area_m2": lote.get("area_m2"),
+            "precio_suelo_m2": lote.get("precio_suelo_m2"),
+            "impuestos_escritura_pct": lote.get("impuestos_escritura_pct"),
+            "costo_lote_total_cop": lote.get("costo_lote_total_cop"),
+            "fuente": lote.get("fuente"),
+            "fuente_url": lote.get("fuente_url"),
+        },
+        "financiero": {
+            "costos_blandos_pct": fin.get("costos_blandos_pct"),
+            "marketing_ventas_pct": fin.get("marketing_ventas_pct"),
+            "nota_costos_blandos": fin.get("nota_costos_blandos"),
+            "nota_marketing": fin.get("nota_marketing"),
+        },
+        "escenarios": escenarios,
+    }
+
+
+def _resultados(caso):
+    base = os.path.join(F3_CASOS, caso)
+    pa = _json(os.path.join(base, "programa-areas.json"))
+    ac = _json(os.path.join(base, "accesos.json"))
+    lay = _json(os.path.join(base, "layout_espacial.json"))
+    usos = sorted({u.get("uso") for p in pa.get("programa_pisos", [])
+                   for u in p.get("usos", []) if u.get("uso") != "Nucleo"})
+    return {
+        "caso": caso,
+        "titulo": CASO_TITULO.get(caso),
+        "chip": CASO_CHIP.get(caso),
+        "gfa_total": pa.get("gfa_total"),
+        "pisos": pa.get("pisos"),
+        "area_por_piso": pa.get("area_por_piso"),
+        "usos": usos,
+        "nucleo": {
+            "hueco_m2_piso": pa.get("nucleo", {}).get("hueco_m2_piso"),
+            "circulacion_m2": pa.get("nucleo", {}).get("circulacion_m2"),
+            "servicios_m2": pa.get("nucleo", {}).get("servicios_m2"),
+        },
+        "accesos": ac.get("resumen", {}),
+        "reparto_vertical": lay.get("reparto_vertical", {}),
+        "poblacion": lay.get("poblacion_estimada", {}),
+    }
+
+
+def _proyectos():
+    if not os.path.isdir(PROYECTOS):
+        return []
+    return sorted([n for n in os.listdir(PROYECTOS)
+                   if os.path.isdir(os.path.join(PROYECTOS, n)) and not n.startswith("_")])
+
+
+def _guardar_proyecto(nombre, data):
+    destino = PROVISIONAL if not nombre else os.path.join(PROYECTOS, nombre)
+    if not os.path.isdir(destino):
+        os.makedirs(destino)
+    ruta = os.path.join(destino, "proyecto.json")
+    with io.open(ruta, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    return ruta, destino
+
+
+def _crear_estructura(nombre):
+    """Crea la estructura del proyecto y copia el material provisional."""
+    if not nombre:
+        return False, "nombre vacío"
+    carpeta = os.path.join(PROYECTOS, nombre)
+    if not os.path.isdir(carpeta):
+        os.makedirs(carpeta)
+    for sub in ("Normativa", "Financiero", "Modelado", "Archicad"):
+        d = os.path.join(carpeta, sub)
+        if not os.path.isdir(d):
+            os.makedirs(d)
+    # copiar material provisional (si existe) al proyecto nombrado
+    if os.path.isdir(PROVISIONAL):
+        for nombre_archivo in os.listdir(PROVISIONAL):
+            origen = os.path.join(PROVISIONAL, nombre_archivo)
+            destino = os.path.join(carpeta, nombre_archivo)
+            if os.path.isfile(origen) and not os.path.exists(destino):
+                shutil.copy2(origen, destino)
+    return True, carpeta
+
+
+class Handler(BaseHTTPRequestHandler):
+    def _send(self, code, body, ctype="application/json; charset=utf-8"):
+        if isinstance(body, (dict, list)):
+            body = json.dumps(body, ensure_ascii=False)
+        data = body.encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(data)
+
+    def _json_error(self, msg, code=400):
+        self._send(code, {"ok": False, "error": msg})
+
+    def do_GET(self):
+        parsed = urlparse(self.path)
+        q = parse_qs(parsed.query)
+        if parsed.path in ("/", "/index.html"):
+            ruta = os.path.join(ORQ_DIR, "index.html")
+            if os.path.exists(ruta):
+                with io.open(ruta, "r", encoding="utf-8") as f:
+                    self._send(200, f.read(), "text/html; charset=utf-8")
+            else:
+                self._json_error("index.html no encontrado", 404)
+            return
+        if parsed.path == "/api/lotes":
+            self._send(200, {"ok": True, "lotes": _lotes()})
+            return
+        if parsed.path == "/api/variables":
+            self._send(200, {"ok": True, "variables": VARIABLES,
+                             "caso_chip": CASO_CHIP, "caso_titulo": CASO_TITULO,
+                             "modos": MODOS_FINANCIEROS, "escenarios": ESCENARIOS_FINANCIEROS})
+            return
+        if parsed.path == "/api/proyectos":
+            self._send(200, {"ok": True, "proyectos": _proyectos()})
+            return
+        if parsed.path == "/api/contexto":
+            chip = (q.get("chip") or [""])[0]
+            info = _contexto(chip)
+            if info is None:
+                self._json_error("sin contexto para el chip '{}'".format(chip), 404)
+            else:
+                self._send(200, {"ok": True, "contexto": info})
+            return
+        if parsed.path == "/api/usos":
+            chip = (q.get("chip") or [""])[0]
+            self._send(200, {"ok": True, "usos": _usos(chip)})
+            return
+        if parsed.path == "/api/financiero":
+            chip = (q.get("chip") or [""])[0]
+            self._send(200, {"ok": True, "financiero": _financiero(chip)})
+            return
+        if parsed.path == "/api/resultados":
+            caso = (q.get("caso") or ["A"])[0]
+            self._send(200, {"ok": True, "resultados": _resultados(caso)})
+            return
+        self._json_error("ruta no encontrada", 404)
+
+    def do_POST(self):
+        parsed = urlparse(self.path)
+        if parsed.path != "/api/proyecto":
+            self._json_error("ruta no encontrada", 404)
+            return
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length).decode("utf-8", errors="replace")
+        try:
+            data = json.loads(body) if body else {}
+        except Exception:
+            self._json_error("JSON inválido")
+            return
+        nombre = data.get("nombre", "").strip()
+        crear = bool(data.get("crear_estructura", False))
+        if crear and not nombre:
+            self._json_error("Para crear la estructura escriba un nombre de proyecto.")
+            return
+        ruta, destino = _guardar_proyecto(nombre, data)
+        creado = None
+        if crear:
+            ok, carpeta = _crear_estructura(nombre)
+            if ok:
+                creado = carpeta
+        self._send(200, {"ok": True, "ruta": ruta, "destino": destino, "estructura_creada": creado})
+
+    def log_message(self, fmt, *args):
+        sys.stderr.write("[servidor] " + (fmt % args) + "\n")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Formulario interactivo DiseñoParametrico")
+    parser.add_argument("--puerto", type=int, default=8900)
+    args = parser.parse_args()
+    if not os.path.isdir(PROYECTOS):
+        os.makedirs(PROYECTOS)
+    if not os.path.isdir(PROVISIONAL):
+        os.makedirs(PROVISIONAL)
+    server = HTTPServer(("127.0.0.1", args.puerto), Handler)
+    print("=" * 64)
+    print("Formulario DiseñoParametrico (Parte 1: F1 -> F3)")
+    print("Abre en el navegador: http://127.0.0.1:{}".format(args.puerto))
+    print("Ctrl+C para detener.")
+    print("=" * 64)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nDetenido.")
+        server.server_close()
+
+
+if __name__ == "__main__":
+    main()

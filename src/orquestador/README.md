@@ -1,0 +1,70 @@
+# Orquestador + Checklist — DiseñoParametrico (Parte 1: F1 → F3)
+
+Punto de entrada único para reducir errores en las ejecuciones manuales.
+Recoge las variables una vez, ejecuta lo automatizable validando cada salida,
+guía los pasos manuales (Rhino/Grasshopper/ArchiCAD) y genera un checklist HTML.
+
+## Requisitos
+
+- Entorno de Python del proyecto: `.venv` (creado con `entorno_python.ps1`).
+- Ejecutar desde la raíz del proyecto `D:\Work\PROJECTS\DiseñoParametrico`.
+
+## Cómo usar
+
+```powershell
+# 1) Ver el estado sin ejecutar nada (seguro)
+.\.venv\Scripts\python.exe src\orquestador\run_pipeline_v01.py --status
+
+# 2) Ejecutar el flujo guiado (interactivo, pide confirmaciones)
+.\.venv\Scripts\python.exe src\orquestador\run_pipeline_v01.py --run
+
+# 3) Ejecutar sin preguntar (no interactivo, para automatización)
+.\.venv\Scripts\python.exe src\orquestador\run_pipeline_v01.py --run --chip AAA0127AZPA --caso A --modo mixto --yes
+
+# 4) Generar el checklist HTML visual
+.\.venv\Scripts\python.exe src\orquestador\run_pipeline_v01.py --checklist
+```
+
+El checklist se genera en `src\orquestador\checklist.html` y se abre con doble clic.
+
+## Variables (fuente única: `parametros_pipeline.json`)
+
+| Variable | Significado | Default |
+|---|---|---|
+| `chip` | CHIP del predio | `AAA0127AZPA` |
+| `caso` | Caso F3 (`A`/`B`/`B_SALUD`/`C`) | `A` |
+| `modo` | `venta` / `renta` / `mixto` | `mixto` |
+| `gfa_m2` | Override de GFA (null = usa export F1) | `null` |
+| `costo_lote_cop` | Override costo de lote (null = default F2) | `null` |
+
+**Mapa caso → chip:** `A=AAA0127AZPA`, `B/B_SALUD=AAA0030JKOE`, `C=AAA0039KRMR`.
+
+## Pasos que cubre (Parte 1)
+
+| # | Paso | Tipo | Script |
+|---|---|---|---|
+| 1.1 | Fetch contexto normativo | auto | `scripts/utilities/fetch-urban-context-v6.py` |
+| 1.2 | Exportar GFA | manual (Rhino) | `F1_EXPORTAR_GFA_v02` |
+| 2.1 | Modelo financiero venta | auto | `F2_DEMANDA_MOTOR_v03.py` |
+| 2.2 | Modelo Build-to-Rent | auto | `F2_RENTA_MOTOR_v03.py` |
+| 3.1 | Distribución espacial | auto | `F3_DISTRIBUCION_v01.py` |
+| 3.2 | Accesos por uso | auto | `F3_ACCESOS_INTEGRADOR_v02.py` |
+| 3.3 | Masa en Rhino + Morphs | manual (Rhino/ArchiCAD) | `F3_VOLUM_GENERADOR_v07.py` |
+
+## Límite honesto
+
+Los pasos **manuales** (exportar GFA en Rhino, masa + Morphs en ArchiCAD) **no se
+pueden automatizar headless** (necesitan la sesión abierta de Rhino y la Live
+Connection de ArchiCAD). El orquestador los convierte en checklist guiado con
+verificación del artefacto, en vez de pasos a ciegas.
+
+## Parte 2 (F4 → F5)
+
+Se desarrollará aparte, bajo los mismos estándares. Incluirá F4 (Ladybug + EPW
+Bogotá) y F5 (inyección BIM vía Tapir). El enlace está en el checklist HTML.
+
+## Tests
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests\test_orquestador.py -q
+```

@@ -78,3 +78,7 @@ gh-definitions/_test_replace.ghx
 gh-definitions/_test_replace.json
 gh-definitions/test_panel.ghx
 gh-definitions/test_panel.json
+
+# Orquestador (runtime y generado)
+src/orquestador/proyectos/
+src/orquestador/checklist.html
