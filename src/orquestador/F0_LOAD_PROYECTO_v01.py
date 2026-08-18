@@ -46,6 +46,7 @@ def _val(d, k, default):
 
 def _a_normativa_vecinos(clasificacion):
     """Port de vecinos_por_lado.a_normativa_vecinos_por_lado (sin shapely).
+    Respeta frente_override, confirmacion, 'corresponde' y vecinos_manuales.
     Devuelve {str(seg_id): [altura_m, ...]} solo para lados 'predio'."""
     result = {}
     lados = clasificacion.get("lados", []) if isinstance(clasificacion, dict) else []
@@ -55,9 +56,13 @@ def _a_normativa_vecinos(clasificacion):
         frente = lado.get("frente_override") or lado.get("frente")
         if frente != "predio":
             continue
+        if lado.get("confirmacion") == "no_es_predio":
+            continue
         altura_por_chip = {}
         for v in lado.get("vecinos", []):
             if not isinstance(v, dict):
+                continue
+            if v.get("corresponde") is False:
                 continue
             h = v.get("altura_m")
             if h is None:
@@ -66,12 +71,26 @@ def _a_normativa_vecinos(clasificacion):
                 altura_por_chip[v.get("chip")] = float(h)
             except Exception:
                 pass
-        if not altura_por_chip:
+        manuales = []
+        for v in lado.get("vecinos_manuales", []):
+            if not isinstance(v, dict):
+                continue
+            h = v.get("altura_m")
+            if h is None:
+                continue
+            try:
+                manuales.append(float(h))
+            except Exception:
+                pass
+        if not altura_por_chip and not manuales:
             continue
         seg_vec = lado.get("segmentos_vecinos", {}) or {}
-        for seg_id in lado.get("segmentos", []):
+        segmentos = lado.get("segmentos", [])
+        for seg_id in segmentos:
             chips = seg_vec.get(str(seg_id), [])
             alturas = [altura_por_chip[c] for c in chips if c in altura_por_chip]
+            if segmentos and seg_id == segmentos[0]:
+                alturas.extend(manuales)
             if alturas:
                 result[str(seg_id)] = alturas
     return result

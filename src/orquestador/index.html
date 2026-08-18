@@ -329,6 +329,13 @@ async function cargarFinanciero(){
 
 // ---------- vecinos por lado ----------
 const FRENTES = ['predio', 'via', 'espacio_publico', 'libre'];
+const CONFIRMACIONES = [
+  {v:'pendiente',   l:'— Confirme si los vecinos detectados corresponden a la realidad —'},
+  {v:'confirmado',  l:'Sí, corresponden'},
+  {v:'faltan',      l:'No, faltan vecinos'},
+  {v:'sobran',      l:'No, sobran / algunos no corresponden'},
+  {v:'no_es_predio',l:'Este lado no es predio (es vía / espacio público / libre)'},
+];
 
 async function cargarVecinos(){
   const chip = $('chip').value;
@@ -363,66 +370,151 @@ function renderVecinos(data){
     head.style.cssText = 'display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;';
     const tit = document.createElement('b'); tit.textContent = lado.cardinal; tit.style.cssText='font-size:15px; min-width:90px;';
     head.appendChild(tit);
-    const sel = document.createElement('select');
-    sel.className = 'frente-sel'; sel.dataset.lado = String(li); sel.title = 'Frente del lado (corríjalo si el automático es incorrecto)';
-    FRENTES.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; sel.appendChild(o); });
-    sel.value = lado.frente_override || lado.frente;
-    head.appendChild(sel);
     const badge = document.createElement('span');
     badge.className = 'badge';
     const over = !!lado.frente_override;
-    badge.textContent = over ? 'override' : (lado.frente_fuente || 'auto');
+    badge.textContent = (over ? 'override' : (lado.frente_fuente || 'auto')) + ' · ' + (lado.frente || '');
     badge.style.background = over ? 'var(--manual)' : '#64748b';
     head.appendChild(badge);
     block.appendChild(head);
-    const frenteEfectivo = lado.frente_override || lado.frente;
-    if(frenteEfectivo === 'predio'){
-      const vecinos = lado.vecinos || [];
-      if(!vecinos.length){
-        const p = document.createElement('div'); p.className='ayuda'; p.textContent='Sin predios colindantes detectados.'; block.appendChild(p);
-      } else {
-        const t = document.createElement('table');
-        const thead = document.createElement('thead');
-        thead.innerHTML = '<tr><th>Vecino</th><th>CHIP</th><th>Altura (m)</th><th>Pisos</th></tr>';
-        t.appendChild(thead);
-        const tb = document.createElement('tbody');
-        vecinos.forEach(v => {
-          const tr = document.createElement('tr');
-          const tdNom = document.createElement('td'); tdNom.textContent = v.nombre || v.chip; tr.appendChild(tdNom);
-          const tdChip = document.createElement('td'); tdChip.textContent = v.chip; tdChip.style.cssText='font-family:monospace;font-size:12px;'; tr.appendChild(tdChip);
-          const tdH = document.createElement('td');
-          const ih = document.createElement('input'); ih.type='number'; ih.step='0.1'; ih.min='0'; ih.className='vec-altura'; ih.dataset.lado=String(li); ih.dataset.chip=v.chip; ih.placeholder='altura_m'; ih.value = (v.altura_m!=null?v.altura_m:''); ih.style.cssText='width:110px;'; tdH.appendChild(ih); tr.appendChild(tdH);
-          const tdP = document.createElement('td');
-          const ip = document.createElement('input'); ip.type='number'; ip.step='1'; ip.min='1'; ip.className='vec-pisos'; ip.dataset.lado=String(li); ip.dataset.chip=v.chip; ip.placeholder='pisos'; ip.value = (v.pisos!=null?v.pisos:''); ip.style.cssText='width:80px;'; tdP.appendChild(ip); tr.appendChild(tdP);
-          tb.appendChild(tr);
-        });
-        t.appendChild(tb);
-        block.appendChild(t);
-      }
-    } else {
-      const p = document.createElement('div'); p.className='ayuda';
-      p.textContent = frenteEfectivo === 'via' ? 'Lado sobre vía — sin empate lateral.'
-        : (frenteEfectivo === 'espacio_publico' ? 'Lado sobre espacio público — sin empate lateral.'
-        : 'Lado libre — sin empate lateral.');
-      block.appendChild(p);
-    }
+    const conf = document.createElement('select');
+    conf.className = 'conf-sel'; conf.dataset.lado = String(li);
+    CONFIRMACIONES.forEach(o => { const op = document.createElement('option'); op.value = o.v; op.textContent = o.l; conf.appendChild(op); });
+    conf.value = lado.confirmacion || 'pendiente';
+    block.appendChild(conf);
+    const zona = document.createElement('div');
+    zona.className = 'zona-conf'; zona.dataset.lado = String(li); zona.style.cssText='margin-top:6px;';
+    block.appendChild(zona);
     det.appendChild(block);
+    pintarZona(lado, li);
+    conf.addEventListener('change', () => pintarZona(lado, li));
   });
   $('vecinos-acciones').style.display = 'block';
+}
+
+function pintarZona(lado, li){
+  const zona = document.querySelector('.zona-conf[data-lado="'+li+'"]');
+  const confSel = document.querySelector('.conf-sel[data-lado="'+li+'"]');
+  const conf = confSel ? confSel.value : (lado.confirmacion || 'pendiente');
+  zona.innerHTML = '';
+  const n = (lado.vecinos || []).length;
+  const resumen = document.createElement('div');
+  resumen.className = 'ayuda';
+  resumen.textContent = 'Detectados: ' + n + ' predio(s) colindante(s).';
+  zona.appendChild(resumen);
+  if(conf === 'pendiente'){
+    const p = document.createElement('div'); p.className = 'aviso info';
+    p.textContent = 'Confirme arriba si el número de vecinos corresponde a la realidad.';
+    zona.appendChild(p);
+    return;
+  }
+  if(conf === 'no_es_predio'){
+    const lbl = document.createElement('div'); lbl.className = 'ayuda'; lbl.style.cssText = 'margin-top:6px;';
+    lbl.textContent = 'Re-clasificar el frente del lado:';
+    zona.appendChild(lbl);
+    const sel = document.createElement('select');
+    sel.className = 'frente-sel'; sel.dataset.lado = String(li);
+    FRENTES.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; sel.appendChild(o); });
+    const actual = lado.frente_override || lado.frente;
+    sel.value = (actual === 'predio') ? 'via' : actual;
+    zona.appendChild(sel);
+    return;
+  }
+  const mostrarCorresponde = (conf === 'sobran');
+  const vecinos = lado.vecinos || [];
+  if(!vecinos.length){
+    const p = document.createElement('div'); p.className = 'ayuda'; p.textContent = 'Sin predios colindantes detectados.'; zona.appendChild(p);
+  } else {
+    const t = document.createElement('table');
+    let ths = '<tr>';
+    if(mostrarCorresponde) ths += '<th>¿Corresponde?</th>';
+    ths += '<th>Vecino</th><th>CHIP</th><th>Altura (m)</th><th>Pisos</th></tr>';
+    t.innerHTML = '<thead>'+ths+'</thead>';
+    const tb = document.createElement('tbody');
+    vecinos.forEach(v => {
+      const tr = document.createElement('tr');
+      if(mostrarCorresponde){
+        const tdC = document.createElement('td');
+        const cb = document.createElement('input'); cb.type = 'checkbox'; cb.className = 'vec-corresponde'; cb.dataset.lado = String(li); cb.dataset.chip = v.chip;
+        cb.checked = v.corresponde !== false;
+        tdC.appendChild(cb); tr.appendChild(tdC);
+      }
+      const tdNom = document.createElement('td'); tdNom.textContent = v.nombre || v.chip; tr.appendChild(tdNom);
+      const tdChip = document.createElement('td'); tdChip.textContent = v.chip; tdChip.style.cssText='font-family:monospace;font-size:12px;'; tr.appendChild(tdChip);
+      const tdH = document.createElement('td');
+      const ih = document.createElement('input'); ih.type='number'; ih.step='0.1'; ih.min='0'; ih.className='vec-altura'; ih.dataset.lado=String(li); ih.dataset.chip=v.chip; ih.placeholder='altura_m'; ih.value=(v.altura_m!=null?v.altura_m:''); ih.style.cssText='width:110px;'; tdH.appendChild(ih); tr.appendChild(tdH);
+      const tdP = document.createElement('td');
+      const ip = document.createElement('input'); ip.type='number'; ip.step='1'; ip.min='1'; ip.className='vec-pisos'; ip.dataset.lado=String(li); ip.dataset.chip=v.chip; ip.placeholder='pisos'; ip.value=(v.pisos!=null?v.pisos:''); ip.style.cssText='width:80px;'; tdP.appendChild(ip); tr.appendChild(tdP);
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    zona.appendChild(t);
+  }
+  if(conf === 'faltan'){
+    const btn = document.createElement('button'); btn.type='button'; btn.className='btn secundario'; btn.textContent='+ Agregar vecino'; btn.style.cssText='margin-top:8px;';
+    btn.addEventListener('click', () => { agregarVecinoManual(lado, li); });
+    zona.appendChild(btn);
+    const cont = document.createElement('div'); cont.className='manuales-cont'; cont.dataset.lado=String(li);
+    zona.appendChild(cont);
+    (lado.vecinos_manuales || []).forEach((mv, mi) => agregarFilaManual(cont, li, lado, mv, mi));
+  }
+}
+
+function agregarVecinoManual(lado, li){
+  if(!lado.vecinos_manuales) lado.vecinos_manuales = [];
+  const idx = lado.vecinos_manuales.length;
+  const mv = {nombre: lado.cardinal + '_extra' + (idx + 1), chip: '', altura_m: null, pisos: null};
+  lado.vecinos_manuales.push(mv);
+  const cont = document.querySelector('.manuales-cont[data-lado="'+li+'"]');
+  if(cont) agregarFilaManual(cont, li, lado, mv, idx);
+}
+
+function agregarFilaManual(cont, li, lado, mv, idx){
+  const fila = document.createElement('div');
+  fila.style.cssText = 'display:flex; gap:8px; align-items:center; margin-top:6px; flex-wrap:wrap;';
+  const iNombre = document.createElement('input'); iNombre.type='text'; iNombre.className='man-nombre'; iNombre.dataset.lado=String(li); iNombre.dataset.idx=String(idx); iNombre.value = mv.nombre || ''; iNombre.placeholder='nombre'; iNombre.style.cssText='width:110px;';
+  const iChip = document.createElement('input'); iChip.type='text'; iChip.className='man-chip'; iChip.dataset.lado=String(li); iChip.dataset.idx=String(idx); iChip.value = mv.chip || ''; iChip.placeholder='chip'; iChip.style.cssText='width:130px;';
+  const iH = document.createElement('input'); iH.type='number'; iH.step='0.1'; iH.min='0'; iH.className='man-altura'; iH.dataset.lado=String(li); iH.dataset.idx=String(idx); iH.value = (mv.altura_m != null ? mv.altura_m : ''); iH.placeholder='altura_m'; iH.style.cssText='width:100px;';
+  const iP = document.createElement('input'); iP.type='number'; iP.step='1'; iP.min='1'; iP.className='man-pisos'; iP.dataset.lado=String(li); iP.dataset.idx=String(idx); iP.value = (mv.pisos != null ? mv.pisos : ''); iP.placeholder='pisos'; iP.style.cssText='width:80px;';
+  const bQ = document.createElement('button'); bQ.type='button'; bQ.className='btn secundario'; bQ.textContent='×'; bQ.title='Quitar'; bQ.style.cssText='padding:4px 10px;';
+  bQ.addEventListener('click', () => { lado.vecinos_manuales.splice(idx, 1); pintarZona(lado, li); });
+  [iNombre, iChip, iH, iP, bQ].forEach(el => fila.appendChild(el));
+  cont.appendChild(fila);
 }
 
 function recolectarVecinos(){
   if(!VECINOS) return null;
   const clon = JSON.parse(JSON.stringify(VECINOS));
   (clon.lados || []).forEach((lado, li) => {
-    const sel = document.querySelector('.frente-sel[data-lado="'+li+'"]');
-    if(sel && sel.value !== lado.frente) lado.frente_override = sel.value;
+    const confSel = document.querySelector('.conf-sel[data-lado="'+li+'"]');
+    if(confSel) lado.confirmacion = confSel.value;
+    const frenteSel = document.querySelector('.frente-sel[data-lado="'+li+'"]');
+    if(frenteSel && frenteSel.value !== lado.frente) lado.frente_override = frenteSel.value;
+    document.querySelectorAll('.vec-corresponde[data-lado="'+li+'"]').forEach(cb => {
+      const v = (lado.vecinos || []).find(x => x.chip === cb.dataset.chip);
+      if(v) v.corresponde = cb.checked;
+    });
     (lado.vecinos || []).forEach(v => {
       const ih = document.querySelector('.vec-altura[data-lado="'+li+'"][data-chip="'+v.chip+'"]');
       const ip = document.querySelector('.vec-pisos[data-lado="'+li+'"][data-chip="'+v.chip+'"]');
       if(ih) v.altura_m = ih.value === '' ? null : parseFloat(ih.value);
       if(ip) v.pisos = ip.value === '' ? null : parseInt(ip.value, 10);
     });
+    const manuales = [];
+    document.querySelectorAll('.man-nombre[data-lado="'+li+'"]').forEach(el => {
+      const idx = el.dataset.idx;
+      const nombre = document.querySelector('.man-nombre[data-lado="'+li+'"][data-idx="'+idx+'"]');
+      const chip = document.querySelector('.man-chip[data-lado="'+li+'"][data-idx="'+idx+'"]');
+      const ih = document.querySelector('.man-altura[data-lado="'+li+'"][data-idx="'+idx+'"]');
+      const ip = document.querySelector('.man-pisos[data-lado="'+li+'"][data-idx="'+idx+'"]');
+      manuales.push({
+        nombre: nombre ? nombre.value : '',
+        chip: chip ? chip.value : '',
+        altura_m: ih && ih.value !== '' ? parseFloat(ih.value) : null,
+        pisos: ip && ip.value !== '' ? parseInt(ip.value, 10) : null,
+      });
+    });
+    lado.vecinos_manuales = manuales;
   });
   return clon;
 }
@@ -434,16 +526,25 @@ function generarNormativa(){
   (clon.lados || []).forEach(lado => {
     const frente = lado.frente_override || lado.frente;
     if(frente !== 'predio') return;
+    if(lado.confirmacion === 'no_es_predio') return;
     const alturaPorChip = {};
     (lado.vecinos || []).forEach(v => {
+      if(v.corresponde === false) return;
       const h = v.altura_m;
       if(h !== null && h !== undefined && h !== '' && !isNaN(parseFloat(h))) alturaPorChip[v.chip] = parseFloat(h);
     });
-    if(!Object.keys(alturaPorChip).length) return;
+    const manuales = [];
+    (lado.vecinos_manuales || []).forEach(v => {
+      const h = v.altura_m;
+      if(h !== null && h !== undefined && h !== '' && !isNaN(parseFloat(h))) manuales.push(parseFloat(h));
+    });
+    if(!Object.keys(alturaPorChip).length && !manuales.length) return;
     const segVec = lado.segmentos_vecinos || {};
-    (lado.segmentos || []).forEach(sid => {
+    const segmentos = lado.segmentos || [];
+    segmentos.forEach(sid => {
       const chips = segVec[String(sid)] || [];
       const alturas = chips.filter(c => c in alturaPorChip).map(c => alturaPorChip[c]);
+      if(segmentos.length && sid === segmentos[0]) alturas.push.apply(alturas, manuales);
       if(alturas.length) out[String(sid)] = alturas;
     });
   });

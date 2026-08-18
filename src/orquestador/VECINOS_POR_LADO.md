@@ -112,6 +112,29 @@ JSON NORMATIVA" muestra el resultado en vivo; el loader lo emite como
 
 Flujo: UI → `proyecto.json['vecinos_por_lado']` → `F0_LOAD_PROYECTO_v01.vecinos_por_lado_json` → NORMATIVA_v08 (lados `Lateral`).
 
+## Confirmación del operador (plantilla dinámica)
+
+El formulario pide al operador confirmar, por lado, si el número de vecinos
+detectados corresponde a la realidad. Según la respuesta, la plantilla varía:
+
+| Confirmación | Qué muestra la plantilla |
+|---|---|
+| `pendiente` (default) | Solo el conteo detectado + aviso de confirmar. |
+| `confirmado` | Tabla de vecinos con `altura_m`/`pisos` (todos activos). |
+| `faltan` | Tabla + botón "+ Agregar vecino" (filas manuales). |
+| `sobran` | Tabla con checkbox `corresponde` por vecino (desmarcar = excluir). |
+| `no_es_predio` | Select para re-clasificar el frente; oculta la tabla. |
+
+Modelo de datos (por lado, en `proyecto.json['vecinos_por_lado']['lados'][i]`):
+- `confirmacion`: `pendiente|confirmado|faltan|sobran|no_es_predio`.
+- por vecino detectado: `corresponde` (bool, default `true`).
+- `vecinos_manuales`: filas agregadas a mano (nombre/chip/altura_m/pisos).
+
+El mapeo a NORMATIVA respeta `frente_override`, `confirmacion`, `corresponde` e
+incluye los `vecinos_manuales` (asignados al primer segmento del lado, suposición
+documentada). La lógica coincide en los tres lugares: `vecinos_por_lado.py`,
+`F0_LOAD_PROYECTO_v01.py` (IronPython) y el JS del formulario.
+
 ## Estado
 
 - [x] Clasificación `frente` (predio/via/espacio_publico/libre) + sub-índices.
@@ -119,5 +142,5 @@ Flujo: UI → `proyecto.json['vecinos_por_lado']` → `F0_LOAD_PROYECTO_v01.veci
 - [x] UI del formulario (sección 1b) + botón "Generar JSON NORMATIVA".
 - [x] Mapeo cardinal → `id_lado` (`a_normativa_vecinos_por_lado` + salida F0 v01.3).
 - [x] Persistencia en `proyecto.json['vecinos_por_lado']`.
-- [ ] Entrada manual de vecino adicional (para lados `via`→`predio` con dato faltante, p. ej. Muzú occidente).
+- [x] Confirmación del operador con plantilla dinámica (pendiente/confirmado/faltan/sobran/no_es_predio) + vecinos manuales.
 - [ ] Cableado manual del canvas en Rhino (F0 → NORMATIVA_v08.vecinos_por_lado_json).

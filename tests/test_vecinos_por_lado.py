@@ -91,3 +91,36 @@ def test_a_normativa_vecinos_por_lado():
         if lado["frente"] != "predio":
             for sid in lado["segmentos"]:
                 assert str(sid) not in out
+
+
+def test_a_normativa_respeta_confirmacion():
+    clasif = {
+        "lados": [
+            {"cardinal": "Sur", "frente": "predio", "frente_override": None,
+             "confirmacion": "sobran", "segmentos": [2, 3],
+             "segmentos_vecinos": {"2": ["A"], "3": ["B"]},
+             "vecinos": [
+                 {"chip": "A", "nombre": "Sur1", "altura_m": 9.0, "corresponde": True},
+                 {"chip": "B", "nombre": "Sur2", "altura_m": 12.0, "corresponde": False},
+             ],
+             "vecinos_manuales": [
+                 {"nombre": "Sur_extra1", "chip": "", "altura_m": 6.0},
+             ]},
+            {"cardinal": "Norte", "frente": "via", "frente_override": None,
+             "segmentos": [0], "segmentos_vecinos": {}, "vecinos": [],
+             "vecinos_manuales": []},
+            {"cardinal": "Oriente", "frente": "predio", "frente_override": None,
+             "confirmacion": "no_es_predio", "segmentos": [1],
+             "segmentos_vecinos": {"1": ["C"]},
+             "vecinos": [{"chip": "C", "nombre": "Oriente1", "altura_m": 10.0,
+                          "corresponde": True}],
+             "vecinos_manuales": []},
+        ]
+    }
+    out = vpl.a_normativa_vecinos_por_lado(clasif)
+    # Sur: A incluido (9.0) + manual (6.0) en el primer segmento "2"; B excluido
+    assert out["2"] == [9.0, 6.0]
+    assert "3" not in out
+    # Norte (via) y Oriente (no_es_predio) no generan
+    assert "0" not in out
+    assert "1" not in out

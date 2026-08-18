@@ -268,28 +268,52 @@ def clasificar_vecinos_por_lado(contexto: Dict,
 
 
 def a_normativa_vecinos_por_lado(clasificacion: Dict) -> Dict:
-    """Convierte la clasificación (con alturas ya llenadas por el operador) al
+    """Convierte la clasificación (con confirmación + alturas del operador) al
     formato vecinos_por_lado_json de F1_ETAPA2_NORMATIVA_v08: {id_lado: [altura_m, ...]}.
-    Solo incluye lados 'predio'; id_lado = índice de segmento del polígono."""
+    Respeta: frente efectivo (override), confirmacion, flag 'corresponde' por vecino
+    y vecinos_manuales (asignados al primer segmento del lado)."""
     result: Dict[str, List[float]] = {}
     for lado in clasificacion.get("lados", []):
-        if lado.get("frente") != "predio":
+        if not isinstance(lado, dict):
+            continue
+        frente = lado.get("frente_override") or lado.get("frente")
+        if frente != "predio":
+            continue
+        if lado.get("confirmacion") == "no_es_predio":
             continue
         altura_por_chip: Dict[str, float] = {}
         for v in lado.get("vecinos", []):
+            if not isinstance(v, dict):
+                continue
+            if v.get("corresponde") is False:
+                continue
             h = v.get("altura_m")
             if h is None:
                 continue
             try:
-                altura_por_chip[v["chip"]] = float(h)
+                altura_por_chip[v.get("chip")] = float(h)
             except (TypeError, ValueError):
                 pass
-        if not altura_por_chip:
+        manuales: List[float] = []
+        for v in lado.get("vecinos_manuales", []):
+            if not isinstance(v, dict):
+                continue
+            h = v.get("altura_m")
+            if h is None:
+                continue
+            try:
+                manuales.append(float(h))
+            except (TypeError, ValueError):
+                pass
+        if not altura_por_chip and not manuales:
             continue
-        seg_vec = lado.get("segmentos_vecinos", {})
-        for seg_id in lado.get("segmentos", []):
+        seg_vec = lado.get("segmentos_vecinos", {}) or {}
+        segmentos = lado.get("segmentos", [])
+        for seg_id in segmentos:
             chips = seg_vec.get(str(seg_id), [])
             alturas = [altura_por_chip[c] for c in chips if c in altura_por_chip]
+            if segmentos and seg_id == segmentos[0]:
+                alturas.extend(manuales)
             if alturas:
                 result[str(seg_id)] = alturas
     return result
