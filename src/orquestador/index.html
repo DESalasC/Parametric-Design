@@ -544,12 +544,13 @@ function generarNormativa(){
     segmentos.forEach(sid => {
       const chips = segVec[String(sid)] || [];
       const alturas = chips.filter(c => c in alturaPorChip).map(c => alturaPorChip[c]);
-      if(segmentos.length && sid === segmentos[0]) alturas.push.apply(alturas, manuales);
+      if(manuales.length) alturas.push.apply(alturas, manuales);
       if(alturas.length) out[String(sid)] = alturas;
     });
   });
+  const pendientes = (clon.lados || []).filter(l => (l.frente_override || l.frente) === 'predio' && (l.confirmacion || 'pendiente') === 'pendiente').length;
   const pre = $('vecinos-normativa');
-  pre.textContent = JSON.stringify(out, null, 2);
+  pre.textContent = (pendientes ? '// ⚠ ' + pendientes + ' lado(s) predio sin confirmar (se excluyen del empate).\n' : '') + JSON.stringify(out, null, 2);
   pre.style.display = 'block';
   $('btn-normativa-copiar').style.display = 'inline-block';
   return out;

@@ -120,7 +120,7 @@ def test_a_normativa_respeta_confirmacion():
     out = vpl.a_normativa_vecinos_por_lado(clasif)
     # Sur: A incluido (9.0) + manual (6.0) en el primer segmento "2"; B excluido
     assert out["2"] == [9.0, 6.0]
-    assert "3" not in out
+    assert out["3"] == [6.0]  # manual en todos los segmentos del lado
     # Norte (via) y Oriente (no_es_predio) no generan
     assert "0" not in out
     assert "1" not in out

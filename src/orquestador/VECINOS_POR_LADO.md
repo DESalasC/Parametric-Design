@@ -131,9 +131,24 @@ Modelo de datos (por lado, en `proyecto.json['vecinos_por_lado']['lados'][i]`):
 - `vecinos_manuales`: filas agregadas a mano (nombre/chip/altura_m/pisos).
 
 El mapeo a NORMATIVA respeta `frente_override`, `confirmacion`, `corresponde` e
-incluye los `vecinos_manuales` (asignados al primer segmento del lado, suposición
-documentada). La lógica coincide en los tres lugares: `vecinos_por_lado.py`,
+incluye los `vecinos_manuales` (asignados a **todos** los segmentos del lado,
+porque un lado puede agrupar varios segmentos y el vecino manual no tiene posición
+exacta; suposición documentada). La lógica coincide en los tres lugares: `vecinos_por_lado.py`,
 `F0_LOAD_PROYECTO_v01.py` (IronPython) y el JS del formulario.
+
+## Notas de revisión (casos límite)
+
+- **Vecino de esquina en dos lados.** El mismo predio puede aparecer como `Norte2`
+  y `Occidente1`. La confirmación es **por lado e independiente**: desmarcar
+  `corresponde` en un lado no afecta al otro. El operador debe revisar ambos.
+- **`sobran` vs `no_es_predio`.** Si el "vecino" detectado es en realidad una vía o
+  zona verde, la corrección correcta es `no_es_predio` (re-clasifica el frente), no
+  desmarcar `corresponde` (que solo quita la altura y deja el lado como predio).
+- **Lado sin confirmar.** Al generar el JSON, un lado `predio` con `confirmacion`
+  en `pendiente` se excluye y se muestra un aviso "⚠ N lado(s) sin confirmar".
+- **Estabilidad de `id_lado`.** Los índices de segmento dependen del polígono del
+  lote (fijo por proyecto); una re-detección con geometría distinta podría
+  desplazarlos. Mientras no cambie el lote, los índices son estables.
 
 ## Estado
 

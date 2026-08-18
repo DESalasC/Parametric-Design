@@ -312,7 +312,7 @@ def a_normativa_vecinos_por_lado(clasificacion: Dict) -> Dict:
         for seg_id in segmentos:
             chips = seg_vec.get(str(seg_id), [])
             alturas = [altura_por_chip[c] for c in chips if c in altura_por_chip]
-            if segmentos and seg_id == segmentos[0]:
+            if manuales:
                 alturas.extend(manuales)
             if alturas:
                 result[str(seg_id)] = alturas
