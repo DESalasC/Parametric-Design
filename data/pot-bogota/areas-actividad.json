@@ -1,0 +1,36 @@
+{
+  "_schema": "areas-actividad_v01",
+  "fuente": "D:\\Work\\LIBRARIES\\POT_Bogota\\POT_Decreto_555_2021_Bogota_D_C.gdb (capa AreaActividad)",
+  "crs": "PCS_CarMAGBOG (MAGNA-SIRGAS Origen Bogotá, ESRI:102233)",
+  "nota": "El área de actividad es el determinante de los usos del suelo (Decreto 555/2021 Art. 233). Los usos permitidos/complementarios/prohibidos por área de actividad están en el cuadro normativo del Decreto 555 (Art. 233 y ss.), no en esta capa; esta capa solo asigna cada polígono a un área de actividad.",
+  "taxonomia": {
+    "3-301": "Zona de equipamientos colectivos",
+    "3-302": "Zona de servicios urbanos básicos",
+    "3-303": "Zonas de equipamiento deportivo y recreativo",
+    "4-401": "Zona de servicios empresariales",
+    "4-405": "Zona de comercio cualificado",
+    "6-601": "Área urbana integral - Zona residencial",
+    "6-603": "Área urbana integral - Industrial y servicios",
+    "8-801": "Sistema Áreas Protegidas",
+    "AAERAE": "Área de Actividad Estructurante - Receptora de actividades económicas",
+    "AAERVIS": "Área de Actividad Estructurante - Receptora de vivienda de interés social",
+    "AAGSM": "Área de Actividad Grandes Servicios Metropolitanos",
+    "AAPGSU": "Área de Actividad de Proximidad - Generadora de soportes urbanos",
+    "AAPRSU": "Área de Actividad de Proximidad - Receptora de soportes urbanos",
+    "PEMP": "Plan Especial de Manejo y Protección (BIC Nacional)"
+  },
+  "lotes": {
+    "AAA0127AZPA": {
+      "area_actividad": "AAPGSU",
+      "nombre": "Área de Actividad de Proximidad - Generadora de soportes urbanos"
+    },
+    "AAA0030JKOE": {
+      "area_actividad": "PEMP",
+      "nombre": "Plan Especial de Manejo y Protección (BIC Nacional)"
+    },
+    "AAA0039KRMR": {
+      "area_actividad": "AAERVIS",
+      "nombre": "Área de Actividad Estructurante - Receptora de vivienda de interés social"
+    }
+  }
+}
