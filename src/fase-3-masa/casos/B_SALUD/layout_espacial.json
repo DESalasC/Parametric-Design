@@ -16,7 +16,57 @@
     "servicios": {
       "ductos_basuras_cuarto_m2": 8.0
     },
-    "total_m2_piso": 44.6
+    "total_m2_piso": 44.6,
+    "circulacion_m2": 36.6,
+    "servicios_m2": 8.0,
+    "hueco_m2_piso": 57.6,
+    "bloque": {
+      "ancho_m": 6.4,
+      "largo_m": 9.0
+    },
+    "disposicion": [
+      {
+        "tipo": "circulacion",
+        "componente": "Escalera 1",
+        "ancho_m": 2.7,
+        "largo_m": 5.0,
+        "dx": -1.35,
+        "dy": -2.0
+      },
+      {
+        "tipo": "circulacion",
+        "componente": "Escalera 2",
+        "ancho_m": 2.7,
+        "largo_m": 5.0,
+        "dx": 1.35,
+        "dy": -2.0
+      },
+      {
+        "tipo": "circulacion",
+        "componente": "Ascensor 1",
+        "ancho_m": 2.2,
+        "largo_m": 2.2,
+        "dx": -2.1,
+        "dy": 2.5
+      },
+      {
+        "tipo": "circulacion",
+        "componente": "Ascensor 2",
+        "ancho_m": 2.2,
+        "largo_m": 2.2,
+        "dx": 0.1,
+        "dy": 2.5
+      },
+      {
+        "tipo": "servicios",
+        "componente": "Servicios/tecnicos",
+        "ancho_m": 2.0,
+        "largo_m": 4.0,
+        "dx": 2.2,
+        "dy": 2.5
+      }
+    ],
+    "nota": "aire interior del bloque = circulacion interna del nucleo"
   },
   "reparto_vertical": {
     "Consultorios": [
@@ -44,8 +94,9 @@
         "Consultorios"
       ],
       "gfa_m2": 651.7,
-      "nucleo_m2": 44.6,
-      "eficiencia_losa_pct": 93.2
+      "nucleo_m2": 57.6,
+      "nucleo_solidos_m2": 44.6,
+      "eficiencia_losa_pct": 91.2
     },
     {
       "nivel": 2,
@@ -55,8 +106,9 @@
         "Consultorios"
       ],
       "gfa_m2": 651.7,
-      "nucleo_m2": 44.6,
-      "eficiencia_losa_pct": 93.2
+      "nucleo_m2": 57.6,
+      "nucleo_solidos_m2": 44.6,
+      "eficiencia_losa_pct": 91.2
     },
     {
       "nivel": 3,
@@ -66,8 +118,9 @@
         "Vivienda"
       ],
       "gfa_m2": 651.7,
-      "nucleo_m2": 44.6,
-      "eficiencia_losa_pct": 93.2
+      "nucleo_m2": 57.6,
+      "nucleo_solidos_m2": 44.6,
+      "eficiencia_losa_pct": 91.2
     },
     {
       "nivel": 4,
@@ -77,8 +130,9 @@
         "Vivienda"
       ],
       "gfa_m2": 651.7,
-      "nucleo_m2": 44.6,
-      "eficiencia_losa_pct": 93.2
+      "nucleo_m2": 57.6,
+      "nucleo_solidos_m2": 44.6,
+      "eficiencia_losa_pct": 91.2
     },
     {
       "nivel": 5,
@@ -88,8 +142,9 @@
         "Vivienda"
       ],
       "gfa_m2": 651.7,
-      "nucleo_m2": 44.6,
-      "eficiencia_losa_pct": 93.2
+      "nucleo_m2": 57.6,
+      "nucleo_solidos_m2": 44.6,
+      "eficiencia_losa_pct": 91.2
     },
     {
       "nivel": 6,
@@ -99,8 +154,9 @@
         "Vivienda"
       ],
       "gfa_m2": 54.1,
-      "nucleo_m2": 44.6,
-      "eficiencia_losa_pct": 17.6
+      "nucleo_m2": 57.6,
+      "nucleo_solidos_m2": 44.6,
+      "eficiencia_losa_pct": -6.5
     }
   ]
 }

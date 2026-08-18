@@ -1,6 +1,7 @@
 {
   "gfa_total": 1100.0,
   "lote_m2": 356.96,
+  "huella_m2": null,
   "escenario": "D_MIXTO",
   "componentes": [
     {

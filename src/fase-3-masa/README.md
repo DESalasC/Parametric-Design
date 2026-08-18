@@ -4,7 +4,7 @@ Motor que convierte el programa del escenario **D_MIXTO** (override de uso múlt
 caso F2 en una **distribución espacial** verificable: matriz de adyacencias, layout con
 núcleos de servicios y transporte vertical, planos esquemáticos y masa 3D.
 
-## Generador v07 (2026-08-16): nucleo EXCLUIDO + circulacion/servicios separados
+## Generador v07 (2026-08-16, v07.24 2026-08-17): nucleo EXCLUIDO + circulacion/servicios separados + volumetria por uso
 
 `F3_VOLUM_GENERADOR_v07.py` (IronPython 2.7, componente "Script" clásico) reemplaza al v06
 con las correcciones del operador. **Sub-versiones internas** (la versión general solo cambia
@@ -126,5 +126,6 @@ El `programa-areas.json` de F3_DISTRIBUCION incluye: `programa_pisos` (piso, `al
 
 ## Siguientes pasos (F3 completo)
 
-- Volumetría detallada por uso en Grasshopper (VOLUM_GENERADOR) consumiendo `layout_espacial.json`.
+- ✅ Volumetría por uso en Grasshopper (v07.24: `volumenes_por_uso` + `usos_etiquetas`).
+- ✅ Accesos por uso + segregación de flujos (`F3_ACCESOS_INTEGRADOR_v02`).
 - F4 ambiental (Ladybug) y F5 inyección BIM (ArchiCAD live connection, puerto 19723).

@@ -84,6 +84,11 @@ interior; `_caja_rotada`/`_caja_solido_rot` orientan bloque y sólidos).
 - `1` = **medianera** (Lateral/Posterior, lado corto paralelo) — por defecto.
 - `2` = **opuesta** (lado contrario a la medianera; contradice tanto `0` como `1`).
 
+**Volumetría por uso (v07.24)** — no afecta la posición del núcleo: añade las
+salidas `volumenes_por_uso` + `usos_etiquetas` para distinguir los volúmenes por
+uso en el flujo posterior (F4 Ladybug por zona, F5 capas ArchiCAD por uso,
+Wallacei). El núcleo sigue excluido del volumen principal piso a piso.
+
 ## 6. Trazabilidad
 
 Cada regla se referencia con su número de patrón (Alexander), su fuente

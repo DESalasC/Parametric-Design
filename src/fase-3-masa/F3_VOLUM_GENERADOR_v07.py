@@ -90,6 +90,13 @@ SUBVERSIONES INTERNAS (v07.x: iteraciones sin cambio de version general):
   v07.23: FIX _vertices_de_curva (fv0/edge0): ToPolyline + fallback
          TryGetPolyline como en LADOS_v06 (ToPolyline devolvia vacio para la
          curva del envelope).
+  v07.24: VOLUMETRIA POR USO (decision del operador 2026-08-17): distingue
+         los volumenes por USO para el flujo posterior (F4 Ladybug por zona,
+         F5 capas ArchiCAD por uso, Wallacei). Salidas nuevas volumenes_por_uso
+         + usos_etiquetas (paralelas). Piso simple -> el volumen principal (con
+         hueco) se etiqueta con su uso; piso mixto -> _repartir_usos corta la
+         huella por area_bruta a lo largo del eje dominante del bbox. Resumen
+         por uso en el mensaje (usos: ...).
 Regla de versionado: la version general (v07 -> v08) SOLO cambia con
 cambios mayores (contrato de entradas/salidas o algoritmo central); las
 iteraciones internas se registran como subversiones v07.x en este encabezado
@@ -160,6 +167,11 @@ SALIDAS:
   volumenes_nucleo        (List of Brep) - Compat v06: circulacion + servicios
   losas                   (List of Brep)  - Losas con hueco por piso
   etiquetas               (List of String)- Usos, circulacion y servicios por piso
+  volumenes_por_uso       (List of Brep)  - [v07.24] Masa POR USO, paralela a
+                             usos_etiquetas: piso simple = el volumen principal
+                             etiquetado; piso mixto = sub-volumenes por uso.
+  usos_etiquetas          (List of String)- [v07.24] Nombre del uso de cada
+                             volumen en volumenes_por_uso (paralelo 1:1).
   mensaje                 (String)         - Diagnostico (huecos n/N, fuente)
 
 SALIDAS MESH (para el componente Morph de la Live Connection de ArchiCAD,
@@ -532,6 +544,80 @@ def _mejor_posicion(crv_piso, candidatos):
 
 # ------------------------------------------------------------------ MAIN
 
+def _usos_no_nucleo(usos):
+    """Usos de un piso SIN el pseudo-uso 'Nucleo' (dicts con 'uso' y
+    'area_bruta'). El Nucleo es circulacion/servicios, no un uso de area."""
+    out = []
+    for u in usos:
+        if u.get("uso", "") != "Nucleo":
+            out.append(u)
+    return out
+
+
+def _rect_curva(x0, y0, x1, y1):
+    """Polilinea cerrada de un rectangulo (x0,y0)-(x1,y1) en Z=0, para
+    recortes booleanos. Se evita rg.Rectangle3d (no expuesto al namespace
+    Python de Rhino 8, igual que rg.Rectangle)."""
+    pts = [rg.Point3d(x0, y0, 0.0), rg.Point3d(x1, y0, 0.0),
+           rg.Point3d(x1, y1, 0.0), rg.Point3d(x0, y1, 0.0),
+           rg.Point3d(x0, y0, 0.0)]
+    return rg.PolylineCurve(pts)
+
+
+def _repartir_usos(crv_piso, usos_ok, area_losa):
+    """Reparte la huella de un piso mixto en sub-regiones por uso, cortando a
+    lo largo del eje dominante del bounding box (proporcional al area_bruta).
+    Devuelve lista de (uso, curva_pieza). Best-effort: si un recorte falla, la
+    pieza restante va al uso siguiente (nunca deja geometria duplicada)."""
+    total = 0.0
+    for u in usos_ok:
+        total += float(u.get("area_bruta", 0.0) or 0.0)
+    if total <= 0.0:
+        return [(u.get("uso", ""), crv_piso) for u in usos_ok]
+    usos_ord = sorted(usos_ok,
+                      key=lambda u: -float(u.get("area_bruta", 0.0) or 0.0))
+    bbox = crv_piso.GetBoundingBox(True)
+    minx, miny = bbox.Min.X, bbox.Min.Y
+    maxx, maxy = bbox.Max.X, bbox.Max.Y
+    dx = maxx - minx
+    dy = maxy - miny
+    eje_x = (dx >= dy)
+    lo = minx if eje_x else miny
+    span = dx if eje_x else dy
+    if span <= 1e-9:
+        return [(usos_ord[0].get("uso", ""), crv_piso)]
+    resultado = []
+    acum = 0.0
+    resto = crv_piso
+    for i, u in enumerate(usos_ord[:-1]):
+        acum += float(u.get("area_bruta", 0.0) or 0.0)
+        corte = lo + span * (acum / total)
+        if eje_x:
+            clip = _rect_curva(minx, miny, corte, maxy)
+        else:
+            clip = _rect_curva(minx, miny, maxx, corte)
+        pieza = None
+        try:
+            inter = rg.Curve.CreateBooleanIntersection(resto, clip, 0.01)
+        except Exception:
+            inter = None
+        if inter and len(inter) > 0:
+            pieza = _unir_piezas(inter)
+        if pieza is None:
+            pieza = resto
+        resultado.append((u.get("uso", ""), pieza))
+        try:
+            dif = rg.Curve.CreateBooleanDifference(resto, clip, 0.01)
+        except Exception:
+            dif = None
+        if dif and len(dif) > 0:
+            resto = _unir_piezas(dif)
+        else:
+            resto = pieza
+    resultado.append((usos_ord[-1].get("uso", ""), resto))
+    return resultado
+
+
 def _a_curvas(item):
     """Normaliza una entrada GH a lista de curvas Rhino. Acepta:
     - curvas Rhino directas (PolylineCurve, Curve)
@@ -697,14 +783,17 @@ volumenes_circulacion_mesh = []
 volumenes_servicios_mesh = []
 volumenes_nucleo_mesh = []
 losas_mesh = []
+volumenes_por_uso = []
+usos_etiquetas = []
+volumenes_por_uso_mesh = []
 mensaje = ""
 
 if not env_por_piso and not env_fb:
-    mensaje = ("VOLUM v07.23 | ERROR: sin curva de envelope. Cablear la salida "
+    mensaje = ("VOLUM v07.24 | ERROR: sin curva de envelope. Cablear la salida "
                "envelope_por_piso (lista, PREFERIDA) o envelope_curve de "
                "F1_ETAPA2_NORMATIVA_v07.")
 elif not json_path:
-    mensaje = ("VOLUM v07.23 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
+    mensaje = ("VOLUM v07.24 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
                "programa-areas.json (absoluta o relativa al proyecto)").format(
         str(unwrap(json_path_raw)) if json_path_raw else "")
 else:
@@ -727,7 +816,7 @@ else:
             crv_ref = env_fb[0]
         ap = rg.AreaMassProperties.Compute(crv_ref)
         if ap is None:
-            mensaje = "VOLUM v07.23 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
+            mensaje = "VOLUM v07.24 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
         else:
             area_losa_ref = ap.Area
             centroide = ap.Centroid if ap.Centroid else rg.Point3d(0, 0, 0)
@@ -1101,6 +1190,59 @@ else:
                             volumenes_circulacion.append(v)
                             if m is not None:
                                 volumenes_circulacion_mesh.append(m)
+
+                    # --- Volumetria por uso (v07.24) ---
+                    usos_ok = _usos_no_nucleo(usos)
+                    if len(usos_ok) == 1:
+                        nombre_uso = usos_ok[0].get("uso", "")
+                        volumenes_por_uso.append(env_vol)
+                        usos_etiquetas.append(nombre_uso)
+                        m_uso = _brep_a_mesh(env_vol)
+                        if m_uso is not None:
+                            volumenes_por_uso_mesh.append(m_uso)
+                    elif len(usos_ok) > 1:
+                        partes = _repartir_usos(crv_piso, usos_ok, area_losa)
+                        for _nombre, _curva in partes:
+                            _perfil_u = _curva
+                            _aguj_u = []
+                            if pieza_nucleo is not None:
+                                try:
+                                    _perfil_u, _ok_u = _recortar_huecos(
+                                        _curva, [pieza_nucleo], area_losa, hueco_m2)
+                                    if _perfil_u is None:
+                                        _perfil_u = _curva
+                                        _aguj_u = []
+                                    else:
+                                        _aguj_u = _agujeros_global
+                                except Exception:
+                                    _perfil_u = _curva
+                                    _aguj_u = []
+                            _vol_u = None
+                            try:
+                                _lb = rg.Brep.CreatePlanarBreps(
+                                    [_perfil_u] + _aguj_u, 0.01)
+                                if _lb and len(_lb) > 0 and _lb[0].Faces.Count > 0:
+                                    _ext2 = rg.Extrusion.Create(
+                                        _lb[0].Faces[0], h_piso, True)
+                                    if _ext2 is not None:
+                                        _vol_u = _ext2.ToBrep()
+                            except Exception:
+                                _vol_u = None
+                            if _vol_u is not None:
+                                _subir_si_negativo(_vol_u)
+                                _vol_u.Translate(rg.Vector3d(0.0, 0.0, z))
+                            else:
+                                _vol_u = _extruir(_perfil_u, h_piso, z)
+                            if _vol_u is None:
+                                continue
+                            volumenes_por_uso.append(_vol_u)
+                            usos_etiquetas.append(_nombre)
+                            _m_u = _brep_a_mesh(_vol_u)
+                            if _m_u is not None:
+                                volumenes_por_uso_mesh.append(_m_u)
+                    else:
+                        volumenes_por_uso.append(env_vol)
+                        usos_etiquetas.append("")
                 else:
                     # Regla: nunca geometria intersectante -> se omite el piso
                     n_omitidos += 1
@@ -1122,27 +1264,37 @@ else:
                         piso_num, usos_str, circ_m2, serv_m2, hueco_m2))
                 n_pisos += 1
 
+            conteo_usos = {}
+            for _u in usos_etiquetas:
+                if _u:
+                    conteo_usos[_u] = conteo_usos.get(_u, 0) + 1
+            usos_resumen = ", ".join(["{}:{}".format(k, v)
+                                      for k, v in conteo_usos.items()])
+            if not usos_resumen:
+                usos_resumen = "sin-usos"
+
             volumenes_nucleo = list(volumenes_circulacion) + list(volumenes_servicios)
             volumenes_nucleo_mesh = (list(volumenes_circulacion_mesh) +
                                      list(volumenes_servicios_mesh))
             med_desc = med_desc + med_debug
 
             if n_omitidos == 0:
-                mensaje = ("VOLUM v07.23 | OK | {} pisos | envelope: {} | "
+                mensaje = ("VOLUM v07.24 | OK | {} pisos | envelope: {} | "
                            "huecos excluidos {}/{} | boolean {} | "
                            "salidas: vol {}/{} losas {}/{} circ {}/{} serv {}/{} | "
                            "Circ {:.0f}m2 + Serv {:.0f}m2 = nucleo {:.0f}m2/piso | "
                            "nucleo[{}]: {} {}/{} medmax{:.1f}m2 | "
-                           "salida: {}").format(
+                           "usos: {} | salida: {}").format(
                     n_pisos, fuente_env, n_huecos, n_pisos, detalle_bool,
                     len(volumenes_principales), n_pisos, len(losas), n_pisos,
                     len(volumenes_circulacion), n_pisos, len(volumenes_servicios), n_pisos,
                     circ_m2, serv_m2, hueco_m2,
                     modo_desc, med_desc, n_medianeira, n_pisos,
                     mejor_area_med if mejor_area_med >= 0.0 else 0.0,
+                    usos_resumen,
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
             else:
-                mensaje = ("VOLUM v07.23 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
+                mensaje = ("VOLUM v07.24 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
                            "nucleo fallo; sin geometria intersectante) | huecos {}/{} | boolean {} | "
                            "envelope: {} | nucleo: bloque {:.0f}m2, solidos {:.0f}m2 "
                            "(aire interior {:.0f}m2) | nucleo[{}]: {} {}/{} medmax{:.1f}m2 | omitidos: {} | salida: {}").format(
@@ -1160,7 +1312,8 @@ else:
                 volumenes_servicios = list(volumenes_servicios_mesh)
                 volumenes_nucleo = list(volumenes_nucleo_mesh)
                 losas = list(losas_mesh)
+                volumenes_por_uso = list(volumenes_por_uso_mesh)
 
     except Exception as e:
-        mensaje = "VOLUM v07.23 | ERROR: {}".format(str(e))
+        mensaje = "VOLUM v07.24 | ERROR: {}".format(str(e))
 

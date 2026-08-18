@@ -119,8 +119,8 @@ def test_subversion_en_encabezado():
     # sub-versionado interno: v07.x en el encabezado + mensaje con la
     # subversion en curso (la version general solo cambia con cambios mayores)
     assert "SUBVERSIONES INTERNAS" in src
-    assert "v07.23" in src
-    assert "VOLUM v07.23 |" in src
+    assert "v07.24" in src
+    assert "VOLUM v07.24 |" in src
     assert "Regla de versionado" in src
 
 
@@ -324,6 +324,38 @@ def test_diagnostico_mejor_interseccion_v0720():
     assert "mejor_area_med" in src
     assert "mejor_area_med = -1.0" in src
     assert "medmax{:.1f}m2" in src
+
+
+def test_volumetria_por_uso_v0724():
+    src = _fuente()
+    # v07.24: distingue los volumenes POR USO para el flujo posterior
+    # (F4 Ladybug por zona, F5 capas ArchiCAD por uso, Wallacei)
+    assert "volumenes_por_uso" in src
+    assert "usos_etiquetas" in src
+    assert "volumenes_por_uso_mesh" in src
+    assert "_usos_no_nucleo" in src
+    assert "_repartir_usos" in src
+    assert "_rect_curva" in src
+    assert "usos_resumen" in src
+    assert "usos: {} | salida: {}" in src
+    assert "volumenes_por_uso = list(volumenes_por_uso_mesh)" in src
+
+
+def test_repartir_usos_eje_dominante():
+    src = _fuente()
+    # _repartir_usos corta la huella por area_bruta a lo largo del eje
+    # dominante del bbox; el recorte usa booleanos de curvas (best-effort)
+    assert "def _repartir_usos(crv_piso, usos_ok, area_losa):" in src
+    assert "CreateBooleanIntersection" in src
+    assert "GetBoundingBox(True)" in src
+    assert "area_bruta" in src
+
+
+def test_usos_no_nucleo_excluye_pseudo_uso():
+    src = _fuente()
+    # el Nucleo no es un uso de area: se excluye del reparto por uso
+    assert 'u.get("uso", "") != "Nucleo"' in src
+    assert "def _usos_no_nucleo(usos):" in src
 
 
 def test_extrusion_siempre_hacia_arriba_v0717():

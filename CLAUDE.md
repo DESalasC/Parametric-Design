@@ -189,7 +189,7 @@ DiseñoParametrico/
 ├── src/                       # Código por fase
 │   ├── fase-1-contexto/       # Modular ETAPA1/ETAPA2 vigente + _legacy\
 │   ├── fase-2-demanda/        # Pipeline + F2_Modelo_Financiero\ (motor v3.0) + F2_Modelo_Renta\ (motor v3.0) — hook GFA desde F1
-│   ├── fase-3-masa/           # VOLUM_GENERADOR v03, ACCESOS, PREP_LADYBUG
+│   ├── fase-3-masa/           # VOLUM_GENERADOR v07 (volumetría por uso), ACCESOS_INTEGRADOR v02, PREP_LADYBUG
 │   ├── fase-4-ambiental/      # F4_LADYBUG_ANALISIS v02
 │   ├── fase-5-bim/            # Pendiente
 │   ├── interfases-archicad/   # F1_Layers_Proyecto_v01.xml (único)
@@ -217,7 +217,7 @@ DiseñoParametrico/
 - [x] **Fase 0**: Setup BIM (capas ArchiCAD)
 - [x] **Fase 1**: Contexto POT + retiros + vecinos (clasificación híbrida ADR-008, pipeline modular v26)
 - [x] **Fase 2**: Motor de demanda + modelo financiero de prefactibilidad (`F2_Modelo_Financiero`, v3.0: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja, hook GFA desde F1) + **modelo Build-to-Rent** (`F2_Modelo_Renta`, v3.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable, hook GFA desde F1)
-- [~] **Fase 3**: Generación de masa (`VOLUM_GENERADOR`, `ACCESOS_INTEGRADOR`, `PREP_LADYBUG`)
+- [~] **Fase 3**: Generación de masa (`VOLUM_GENERADOR` v07.24 con volumetría por uso, `ACCESOS_INTEGRADOR` v02, `PREP_LADYBUG`)
 - [~] **Fase 4**: Análisis ambiental (Ladybug + EPW Bogotá)
 - [ ] **Fase 5**: Inyección BIM nativa (ArchiCAD API / protocolo Tapir → ArchiCAD)
 
