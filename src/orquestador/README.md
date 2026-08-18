@@ -68,3 +68,59 @@ Bogotá) y F5 (inyección BIM vía Tapir). El enlace está en el checklist HTML.
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests\test_orquestador.py -q
 ```
+
+
+## Canvas parametrizado (carga de `proyecto.json`)
+
+El canvas de Grasshopper hoy usa ~12 inputs sueltos (tipología, piso adicional,
+bonificación, altura de placa, antejardín/voladizo, empate posterior, tratamiento,
+caso, alineación del núcleo, usos, modos, escenarios). Para reducirlos a un único
+punto de entrada se agregó:
+
+- **`F0_LOAD_PROYECTO_v01.py`** — componente GHPython (IronPython 2.7) que lee un
+  `proyecto.json` y expone todas esas variables como salidas. Validación:
+
+  ```powershell
+  .\.venv\Scripts\python.exe -m pytest tests\test_f0_load_proyecto.py -q
+  ```
+
+- **Esquema canónico** de `proyecto.json` (el mismo que guarda el formulario
+  `POST /api/proyecto`):
+
+  ```json
+  {
+    "nombre": "proyecto-01",
+    "chip": "AAA0127AZPA",
+    "variables": {
+      "tipologia": "Continua",
+      "piso_adicional": false,
+      "tipo_bonificacion": "Ninguno",
+      "floor_height_user": 3.0,
+      "antejardin_decision": "Según reglamentación",
+      "empate_posterior_pisos": 0,
+      "empate_posterior_m": null,
+      "tratamiento": "Consolidación",
+      "caso": "A",
+      "alineacion_nucleo": 1
+    },
+    "usos": ["Vivienda", "Comercio"],
+    "modos": ["venta"],
+    "escenarios": ["A_VIS", "B_ESTANDAR", "C_LUJO"]
+  }
+  ```
+
+### Cableado (paso manual en Rhino)
+
+El loader reemplaza los inputs sueltos, pero el cableado del canvas es **manual**
+(requiere sesión de Rhino/Grasshopper abierta):
+
+1. Crear el componente **"Script"** (clásico, NO "Python 3 Script") y pegar el
+   contenido de `F0_LOAD_PROYECTO_v01.py`; seleccionar **IronPython 2.7**.
+2. Añadir dos inputs: `ruta_json` (string, Item Access) y `caso_default` (string,
+   Item Access).
+3. Conectar `ruta_json` a un panel con la ruta del `proyecto.json` generado por el
+   formulario (`src/orquestador/proyectos/<nombre>/proyecto.json`).
+4. Conectar las salidas (`tipologia`, `caso`, `usos`, etc.) a los componentes que
+   antes recibían los inputs sueltos (F1_LADOS, F1_NORMATIVA, F3_VOLUM, F3_ACCESOS).
+5. Ejecución **por clic o Tapir**: se re-escribe el `proyecto.json` (formulario o
+   Tapir) y se dispara la solución; no hay que re-cablear nada.

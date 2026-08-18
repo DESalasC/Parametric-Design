@@ -122,8 +122,14 @@ _DEFAULT_PARAMS = {
         "nota": "Escenario D: el dueno del lote lo aporta al proyecto y participa en las utilidades finales "
                  "(no recibe el precio de venta por adelantado). Se calcula la ventana de negociacion: "
                  "pct maximo que deja ROI del desarrollador >= minimo, y pct minimo para que el dueno "
-                 "reciba al menos el valor del suelo soportable por el mercado (CL que daria ROI 22%).",
+                 "reciba al menos el valor del suelo soportable por el mercado (CL que daria ROI 22%). "
+                 "fraccion_aporte_pct es la parte del lote cedida EN ESPECIE: 100 = aporte total; "
+                 "0 < f < 100 = aporte parcial (el desarrollador compra el resto al precio pedido). "
+                 "pago_parcial_pct es el inverso: % del CL pagado en efectivo al dueno (pago parcial "
+                 "+ participacion); prima sobre fraccion_aporte_pct.",
         "pct_socio": None,
+        "fraccion_aporte_pct": 100.0,
+        "pago_parcial_pct": None,
         "renta_anual_dueno_pct": 8.0
     },
     "arriendo_lote": {
@@ -551,6 +557,21 @@ def exportar_csv_sensibilidad(sens: dict, ruta: str) -> None:
         w.writerows(filas)
 
 
+def _fraccion_aporte(cfg: dict) -> float:
+    """Fraccion del lote aportada en especie (0..1).
+
+    pago_parcial_pct (si viene) prima sobre fraccion_aporte_pct:
+    fraccion_aporte = 1 - pago_parcial_pct/100. Equivalencias:
+      aporte total (100% en especie)          = pago_parcial 0%
+      pago parcial + participacion (50/50)    = pago_parcial 50% -> fraccion 50%
+    """
+    cfg = cfg or {}
+    pago = cfg.get("pago_parcial_pct")
+    if pago is not None:
+        return 1.0 - min(100.0, max(0.0, float(pago))) / 100.0
+    return min(100.0, max(0.0, float(cfg.get("fraccion_aporte_pct", 100.0)))) / 100.0
+
+
 def analizar_aporte_suelo(resultados: list, params: dict) -> dict:
     """Escenario D: el dueno del lote lo aporta y participa en las utilidades finales.
 
@@ -567,6 +588,9 @@ def analizar_aporte_suelo(resultados: list, params: dict) -> dict:
     cl_pedido = costo_lote_total(params["lote"])
     cfg = params.get("aporte_suelo") or {}
     pct_cfg = cfg.get("pct_socio")
+    f_aporte = _fraccion_aporte(cfg)
+    cl_aportado = cl_pedido * f_aporte
+    cl_compra = cl_pedido * (1.0 - f_aporte)
 
     filas = []
     for r in resultados:
@@ -582,16 +606,22 @@ def analizar_aporte_suelo(resultados: list, params: dict) -> dict:
         denom = 1.0 + reglas["roi_minimo_pct"] / 100.0
         cl_soportable = max(0.0, it / denom - ctd_nl)
 
-        if ub_nl > 0 and ctd_nl > 0:
-            roi_max_dev = ub_nl / ctd_nl * 100.0
-            pct_max = 100.0 * (1.0 - (reglas["roi_minimo_pct"] / 100.0) * ctd_nl / ub_nl)
+        # Con aporte parcial el desarrollador compra el resto del lote al precio pedido;
+        # el pie a repartir (ub_equity) y su capital invertido (ctd_full) se ajustan.
+        ub_equity = ub_nl - cl_compra
+        ctd_full = ctd_nl + cl_compra
+        cl_ap_bench = cl_soportable * f_aporte
+
+        if ub_equity > 0 and ctd_full > 0:
+            roi_max_dev = ub_equity / ctd_full * 100.0
+            pct_max = 100.0 * (1.0 - (reglas["roi_minimo_pct"] / 100.0) * ctd_full / ub_equity)
         else:
             roi_max_dev = 0.0
             pct_max = None
 
         pct_min = None
-        if ub_nl > 0 and cl_soportable > 0:
-            pct_min = cl_soportable / ub_nl * 100.0
+        if ub_equity > 0 and cl_ap_bench > 0:
+            pct_min = cl_ap_bench / ub_equity * 100.0
 
         ventana = None
         pct_rec = None
@@ -608,8 +638,13 @@ def analizar_aporte_suelo(resultados: list, params: dict) -> dict:
 
         fila = {
             "escenario_id": esc_id,
+            "fraccion_aporte_pct": round(f_aporte * 100.0, 1),
+            "pago_parcial_pct": round((1.0 - f_aporte) * 100.0, 1),
             "ub_sin_suelo_cop": ub_nl,
+            "ub_equity_cop": ub_equity,
             "ctd_sin_suelo_cop": ctd_nl,
+            "ctd_full_cop": ctd_full,
+            "cl_compra_cop": cl_compra,
             "roi_max_dev_pct": roi_max_dev,
             "cl_soportable_cop": cl_soportable,
             "pct_socio_min_pct": pct_min,
@@ -617,10 +652,10 @@ def analizar_aporte_suelo(resultados: list, params: dict) -> dict:
             "ventana_posible": ventana is not None,
             "pct_socio_recomendado_pct": round(pct_rec, 1) if pct_rec is not None else None,
         }
-        if pct_rec is not None and ub_nl > 0:
-            dev_ub = ub_nl * (1.0 - pct_rec / 100.0)
-            dev_roi = dev_ub / ctd_nl * 100.0
-            socio_recibe = ub_nl * pct_rec / 100.0
+        if pct_rec is not None and ub_equity > 0:
+            dev_ub = ub_equity * (1.0 - pct_rec / 100.0)
+            dev_roi = dev_ub / ctd_full * 100.0
+            socio_recibe = ub_equity * pct_rec / 100.0
             fila.update({
                 "dev_ub_cop": dev_ub,
                 "dev_roi_pct": dev_roi,
@@ -638,6 +673,10 @@ def analizar_aporte_suelo(resultados: list, params: dict) -> dict:
         "descripcion": ("Escenario D: el dueno del lote lo aporta al proyecto y participa "
                         "en las utilidades finales en lugar de recibir el precio de venta por adelantado."),
         "cl_pedido_cop": cl_pedido,
+        "fraccion_aporte_pct": round(f_aporte * 100.0, 1),
+        "pago_parcial_pct": round((1.0 - f_aporte) * 100.0, 1),
+        "cl_aportado_cop": cl_aportado,
+        "cl_compra_cop": cl_compra,
         "roi_minimo_pct": reglas["roi_minimo_pct"],
         "pct_socio_manual": pct_cfg,
         "escenarios": filas,
@@ -738,7 +777,11 @@ def flujo_caja_estimado(res: dict, params: dict, pct_socio: float, modalidad: st
     cl = res["costo_lote_cop"]
     ub = res["utilidad_bruta_cop"]
     ub_nl = ub + cl
-    reparto = max(ub_nl, 0.0) * pct_socio / 100.0 if modalidad == "aporte" else 0.0
+    cfg_ap = params.get("aporte_suelo") or {}
+    f_aporte = _fraccion_aporte(cfg_ap)
+    cl_compra = cl * (1.0 - f_aporte)
+    ub_equity = ub_nl - cl_compra
+    reparto = max(ub_equity, 0.0) * pct_socio / 100.0 if modalidad == "aporte" else 0.0
     if modalidad == "arriendo" and canon_total is None:
         cfg_ar = params.get("arriendo_lote") or {}
         canon_total = cl * float(cfg_ar.get("mensual_pct_cl", 0.75)) / 100.0 * int(cfg_ar.get("meses", 24))
@@ -746,7 +789,12 @@ def flujo_caja_estimado(res: dict, params: dict, pct_socio: float, modalidad: st
     filas = []
     acum = 0.0
     for t in range(n):
-        cl_t = cl * cl_pct[t] if modalidad == "compra" else 0.0
+        if modalidad == "compra":
+            cl_t = cl * cl_pct[t]
+        elif modalidad == "aporte":
+            cl_t = cl_compra * cl_pct[t]
+        else:
+            cl_t = 0.0
         canon_t = (canon_total or 0.0) * canon_pct[t] if modalidad == "arriendo" else 0.0
         rep_t = reparto if (modalidad == "aporte" and t == rep_trim) else 0.0
         neto = (it * ing_pct[t]) - (cd * cd_pct[t]) - (cb * cb_pct[t]) - (cmv * cmv_pct[t]) - cl_t - canon_t - rep_t
@@ -767,7 +815,7 @@ def flujo_caja_estimado(res: dict, params: dict, pct_socio: float, modalidad: st
     if modalidad == "compra":
         esperado = ub
     elif modalidad == "aporte":
-        esperado = ub_nl - reparto
+        esperado = ub_equity - reparto
     else:
         esperado = ub + cl - (canon_total or 0.0)
     consistente = abs(acum - esperado) <= max(1.0, abs(esperado) * 1e-9)
@@ -775,11 +823,15 @@ def flujo_caja_estimado(res: dict, params: dict, pct_socio: float, modalidad: st
         "escenario_id": res["escenario_id"],
         "modalidad": modalidad,
         "pct_socio_pct": pct_socio if modalidad == "aporte" else None,
+        "fraccion_aporte_pct": round(f_aporte * 100.0, 1) if modalidad == "aporte" else None,
+        "pago_parcial_pct": round((1.0 - f_aporte) * 100.0, 1) if modalidad == "aporte" else None,
+        "cl_compra_cop": cl_compra if modalidad == "aporte" else None,
         "canon_total_cop": canon_total if modalidad == "arriendo" else None,
         "filas": filas,
         "totales": {
             "ingresos_cop": it,
-            "costos_cop": cd + cb + cmv + (cl if modalidad == "compra" else 0.0)
+            "costos_cop": cd + cb + cmv
+                          + (cl if modalidad == "compra" else (cl_compra if modalidad == "aporte" else 0.0))
                           + (canon_total or 0.0 if modalidad == "arriendo" else 0.0) + reparto,
             "reparto_dueno_cop": reparto,
             "flujo_neto_total_cop": acum,
@@ -1305,6 +1357,9 @@ def main() -> int:
     parser.add_argument("--pct-socio", type=float, default=None,
                         help="Porcentaje de utilidades para el dueno del lote en el escenario D "
                              "(opcional; default: punto medio de la ventana de negociacion)")
+    parser.add_argument("--pago-parcial", type=float, default=None,
+                        help="% del costo del lote pagado en efectivo al dueno (pago parcial + "
+                             "participacion; opcional, prima sobre fraccion_aporte_pct)")
     parser.add_argument("--outdir", default="resultados",
                         help="Carpeta de salida relativa al script (default: resultados)")
     args = parser.parse_args()
@@ -1371,6 +1426,8 @@ def main() -> int:
     # 4.5) Escenario D (aporte del dueno del lote) y flujo de caja de la mejor alternativa
     if args.pct_socio is not None:
         params.setdefault("aporte_suelo", {})["pct_socio"] = args.pct_socio
+    if args.pago_parcial is not None:
+        params.setdefault("aporte_suelo", {})["pago_parcial_pct"] = args.pago_parcial
     aporte = analizar_aporte_suelo(resultados, params)
     arriendo = analizar_arriendo(resultados, params)
     esc_flujo = recomendacion.get("recomendado") or max(resultados, key=lambda r: r["ROI_pct"])

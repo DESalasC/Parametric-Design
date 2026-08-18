@@ -66,6 +66,9 @@ USOS_CATALOGO = [
     {"nombre": "Industrial", "categoria": "prohibido", "descripcion": "Industrial (no en sectores residenciales)."},
 ]
 
+USOS_DESC = {u["nombre"]: u["descripcion"] for u in USOS_CATALOGO}
+USOS_SECTOR_RUTA = os.path.join(ROOT, "data", "pot-bogota", "usos-por-sector.json")
+
 # Variables de decisión por sección (sin jerga interna). Las de tipo "check" se
 # renderizan como casillas múltiples; las de tipo select/number/bool como control.
 VARIABLES = [
@@ -185,15 +188,63 @@ def _contexto(chip):
     }
 
 
+def _usos_por_sector():
+    """Carga data/pot-bogota/usos-por-sector.json (base + overrides por UPZ/sector)."""
+    return _json(USOS_SECTOR_RUTA)
+
+
+def _normalizar_upz(upz):
+    if not upz:
+        return None
+    return " ".join(str(upz).strip().split()).upper()
+
+
+def _catalogo_usos(base_cats, sector):
+    """Arma el catalogo de usos: sector si trae listas, si no base. Cada item
+    lleva 'fuente' para trazabilidad (base vs sector)."""
+    if sector and (sector.get("principal") or sector.get("complementario") or sector.get("prohibido")):
+        cats = {c: sector.get(c, []) for c in ("principal", "complementario", "prohibido")}
+        fuente = "sector"
+    else:
+        cats = {c: base_cats.get(c, []) for c in ("principal", "complementario", "prohibido")}
+        fuente = "base"
+    catalogo = []
+    for categoria in ("principal", "complementario", "prohibido"):
+        for nombre in cats.get(categoria, []):
+            catalogo.append({
+                "nombre": nombre,
+                "categoria": categoria,
+                "descripcion": USOS_DESC.get(nombre, ""),
+                "fuente": fuente,
+            })
+    return catalogo, fuente
+
+
 def _usos(chip):
     ctx = _contexto(chip)
+    upz = ctx["pot"]["upz"] if ctx else None
+    tratamiento = ctx["pot"]["tratamiento"] if ctx else None
+    data = _usos_por_sector()
+    base_cats = data.get("base") or {
+        "principal": [u["nombre"] for u in USOS_CATALOGO if u["categoria"] == "principal"],
+        "complementario": [u["nombre"] for u in USOS_CATALOGO if u["categoria"] == "complementario"],
+        "prohibido": [u["nombre"] for u in USOS_CATALOGO if u["categoria"] == "prohibido"],
+    }
+    sectores = data.get("sectores") or {}
+    key = _normalizar_upz(upz)
+    sector = sectores.get(key) if key else None
+    catalogo, fuente = _catalogo_usos(base_cats, sector)
     return {
         "chip": chip,
-        "upz": ctx["pot"]["upz"] if ctx else None,
-        "tratamiento": ctx["pot"]["tratamiento"] if ctx else None,
-        "catalogo": USOS_CATALOGO,
-        "nota": "Catálogo base NSR-10 A.2.5 + POT 555. Los usos permitidos/prohibidos "
-                "definitivos dependen de la reglamentación del sector/UPZ y deben validarse.",
+        "upz": upz,
+        "tratamiento": tratamiento,
+        "catalogo": catalogo,
+        "fuente": fuente,
+        "sector_clave": key,
+        "sector_estado": (sector or {}).get("estado"),
+        "pendiente_usos_sector": bool(sector and sector.get("estado") == "pendiente-usos"),
+        "nota": data.get("nota") or ("Catálogo base NSR-10 A.2.5 + POT 555. Los usos permitidos/prohibidos "
+                "definitivos dependen de la reglamentación del sector/UPZ y deben validarse."),
     }
 
 

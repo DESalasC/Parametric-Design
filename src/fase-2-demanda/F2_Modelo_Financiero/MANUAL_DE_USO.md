@@ -133,6 +133,8 @@ Los campos que más le interesarán:
 | `financiero.marketing_ventas_pct` | Comercialización (%), sobre los ingresos | Práctica de mercado: 3–4% |
 | `escenarios.*.eficiencia_ntg_pct` | Porcentaje del GFA que se puede vender (el resto son zonas comunes) | Diseño preliminar: 0,68–0,80 |
 | `reglas_decision` | Los umbrales de decisión (MUB 18–25%, ROI 22%, CL/IT 25–30%) | Reglas internas del estudio; se pueden ajustar aquí |
+| `aporte_suelo.pago_parcial_pct` | Inverso de lo anterior: % del costo del lote pagado en EFECTIVO al dueño (pago parcial + participación). `40` = el dueño recibe 40% del CL en efectivo y aporta el 60% restante en especie. Prima sobre `fraccion_aporte_pct`. Default `null` (no se usa) | Negociación |
+| `aporte_suelo.fraccion_aporte_pct` | Parte del lote que el dueño cede EN ESPECIE (%). `100` = aporte total (todo el lote sale del flujo del desarrollador); `0 < f < 100` = aporte parcial (el desarrollador compra el resto al precio pedido). Default `100` | Negociación |
 | `aporte_suelo.pct_socio` | Porcentaje de utilidades para el dueño del lote (escenario D). Si lo deja en `null`, el modelo propone el punto medio de la ventana de negociación | Negociación |
 | `arriendo_lote.mensual_pct_cl` / `meses` | Canon de arriendo del lote: % mensual del valor y duración en meses (escenario E) | Contrato de arrendamiento / negociación |
 | `flujo_caja.*` | El programa de ingresos y costos por trimestre (avanzado; los valores por defecto son razonables) | Solo si quiere afinar |

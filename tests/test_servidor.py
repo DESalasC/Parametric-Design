@@ -127,3 +127,24 @@ def test_http_smoke():
     finally:
         srv.shutdown()
         srv.server_close()
+
+
+def test_usos_sector_fuente_base_y_pendiente():
+    u = sv._usos("AAA0127AZPA")
+    cats = {x["categoria"] for x in u["catalogo"]}
+    assert cats == {"principal", "complementario", "prohibido"}
+    assert u["fuente"] == "base"
+    assert u["sector_clave"] == "EL PRADO"
+    assert u["pendiente_usos_sector"] is True
+    # cada item trazable (fuente base vs sector)
+    assert all("fuente" in x for x in u["catalogo"])
+
+
+def test_catalogo_usos_override_sector():
+    base = {"principal": ["Vivienda"], "complementario": [], "prohibido": ["Industrial"]}
+    sector = {"principal": ["Vivienda", "Comercio"], "complementario": ["Salud"], "prohibido": []}
+    catalogo, fuente = sv._catalogo_usos(base, sector)
+    assert fuente == "sector"
+    assert {x["categoria"] for x in catalogo} == {"principal", "complementario"}
+    principales = {x["nombre"] for x in catalogo if x["categoria"] == "principal"}
+    assert principales == {"Vivienda", "Comercio"}

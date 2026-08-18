@@ -1,0 +1,26 @@
+{
+  "_schema": "usos-por-sector_v01",
+  "nota": "Usos permitidos/complementarios/prohibidos por UPZ o sector normativo. La regla POT 555 (Decreto 555/2021, Art. 233) define los usos por AREA DE ACTIVIDAD y rango de tamaño (escala Tipo 1-4), no directamente por UPZ. La clasificacion DEFINITIVA por predio requiere consulta geografica (Sinupot / Concepto de uso) sobre la sectorizacion CU-5.4.2 a CU-5.4.33. Mientras no este cargada, aplica 'base' (NSR-10 A.2.5 + POT 555). Ver vault: 30-referencia/usos-suelo-pot555-marco.md.",
+  "fuentes": [
+    "https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=119582",
+    "https://www.sdp.gov.co/content/consulta-pot",
+    "https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=170937"
+  ],
+  "base": {
+    "principal": ["Vivienda", "Comercio"],
+    "complementario": ["Oficinas", "Salud", "Servicios", "Educación"],
+    "prohibido": ["Institucional", "Industrial"]
+  },
+  "sectores": {
+    "EL PRADO": {
+      "upz": "UPZ 19 El Prado",
+      "area_actividad": "Residencial (por confirmar en Sinupot)",
+      "fuente": "Decreto 299/2002 + resolucion 1673/2010 (normativa-upz.json); Decreto 555/2021 Art. 233",
+      "estado": "pendiente-usos",
+      "nota": "IC/IO y sectores normativos ya definidos en normativa-upz.json. La lista definitiva de usos permitidos/complementarios/prohibidos requiere la consulta en Sinupot / concepto de uso sobre la sectorizacion CU-5.4.x.",
+      "principal": [],
+      "complementario": [],
+      "prohibido": []
+    }
+  }
+}

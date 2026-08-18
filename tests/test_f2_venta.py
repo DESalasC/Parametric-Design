@@ -78,3 +78,90 @@ def test_normalizar_mix_campos_agregados(params_caso_a):
     assert mix["precio_venta_m2"] == pytest.approx(5_770_000_000.0 / 800.0, rel=1e-6)
     # los escenarios puros no se tocan
     assert "_es_mixto" not in escenarios["A_VIS"]
+
+
+# ---------------------------------------------------------------
+# Aporte parcial/total (fraccion_aporte_pct)
+# ---------------------------------------------------------------
+
+def _resultados_aporte():
+    import copy
+    params = copy.deepcopy(motor.cargar_parametros(
+        str(FIN_DIR / "parametros_AAA0127AZPA_venta_gfa1053_cl550.json")))
+    fin = params["financiero"]
+    gfa = params.get("gfa_max_m2", 1053.0)
+    cl = motor.costo_lote_total(params["lote"])
+    resultados = []
+    for eid, esc in params["escenarios"].items():
+        e = dict(esc)
+        e["id"] = eid
+        resultados.append(motor.run_scenario(gfa, cl, e, fin))
+    return params, resultados, cl
+
+
+def test_aporte_total_regresion():
+    """fraccion 100 (default): comportamiento identico al aporte total previo."""
+    params, resultados, cl = _resultados_aporte()
+    if not isinstance(params.get("aporte_suelo"), dict):
+        params["aporte_suelo"] = {}
+    params["aporte_suelo"]["fraccion_aporte_pct"] = 100.0
+    a = motor.analizar_aporte_suelo(resultados, params)
+    assert a["fraccion_aporte_pct"] == 100.0
+    assert a["cl_compra_cop"] == pytest.approx(0.0)
+    assert a["cl_aportado_cop"] == pytest.approx(cl)
+    for f in a["escenarios"]:
+        assert f["ub_equity_cop"] == pytest.approx(f["ub_sin_suelo_cop"])
+        assert f["ctd_full_cop"] == pytest.approx(f["ctd_sin_suelo_cop"])
+        assert f["cl_compra_cop"] == pytest.approx(0.0)
+
+
+def test_aporte_parcial_consistente():
+    """fraccion 50: el desarrollador compra la mitad; el flujo de caja queda consistente."""
+    params, resultados, cl = _resultados_aporte()
+    if not isinstance(params.get("aporte_suelo"), dict):
+        params["aporte_suelo"] = {}
+    params["aporte_suelo"]["fraccion_aporte_pct"] = 50.0
+    params["aporte_suelo"]["pct_socio"] = None
+    a = motor.analizar_aporte_suelo(resultados, params)
+    assert a["fraccion_aporte_pct"] == 50.0
+    assert a["cl_compra_cop"] == pytest.approx(cl * 0.5)
+    for f in a["escenarios"]:
+        assert f["cl_compra_cop"] == pytest.approx(cl * 0.5)
+        assert f["ub_equity_cop"] == pytest.approx(f["ub_sin_suelo_cop"] - cl * 0.5)
+
+    esc = max(resultados, key=lambda r: r["ROI_pct"])
+    fila = next(f for f in a["escenarios"] if f["escenario_id"] == esc["escenario_id"])
+    pct = fila["pct_socio_recomendado_pct"] or 0.0
+    flujo = motor.flujo_caja_estimado(esc, params, pct, "aporte")
+    assert flujo["consistente"] is True
+    assert flujo["fraccion_aporte_pct"] == 50.0
+    assert flujo["cl_compra_cop"] == pytest.approx(cl * 0.5)
+    ub_nl = esc["utilidad_bruta_cop"] + esc["costo_lote_cop"]
+    ub_equity = ub_nl - cl * 0.5
+    reparto = max(ub_equity, 0.0) * pct / 100.0
+    assert flujo["ub_esperada_cop"] == pytest.approx(ub_equity - reparto)
+
+
+def test_aporte_pago_parcial():
+    """pago_parcial_pct = 40%: el dueno recibe 40% del CL en efectivo y participa del resto."""
+    params, resultados, cl = _resultados_aporte()
+    if not isinstance(params.get("aporte_suelo"), dict):
+        params["aporte_suelo"] = {}
+    params["aporte_suelo"]["pago_parcial_pct"] = 40.0
+    params["aporte_suelo"]["fraccion_aporte_pct"] = 100.0  # debe ser ignorado (prima pago_parcial)
+    params["aporte_suelo"]["pct_socio"] = None
+    a = motor.analizar_aporte_suelo(resultados, params)
+    assert a["pago_parcial_pct"] == 40.0
+    assert a["fraccion_aporte_pct"] == 60.0
+    assert a["cl_compra_cop"] == pytest.approx(cl * 0.4)
+    assert a["cl_aportado_cop"] == pytest.approx(cl * 0.6)
+
+    esc = max(resultados, key=lambda r: r["ROI_pct"])
+    fila = next(f for f in a["escenarios"] if f["escenario_id"] == esc["escenario_id"])
+    assert fila["pago_parcial_pct"] == 40.0
+    pct = fila["pct_socio_recomendado_pct"] or 0.0
+    flujo = motor.flujo_caja_estimado(esc, params, pct, "aporte")
+    assert flujo["consistente"] is True
+    assert flujo["pago_parcial_pct"] == 40.0
+    assert flujo["fraccion_aporte_pct"] == 60.0
+    assert flujo["cl_compra_cop"] == pytest.approx(cl * 0.4)
