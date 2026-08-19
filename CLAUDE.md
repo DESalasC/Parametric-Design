@@ -95,13 +95,13 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
 
 ### Grasshopper / GHPython
 9. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm).
-10. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v06.py` + `F1_ETAPA2_LADOS_v06.py` (pipeline modular v26, regla híbrida 15m, regla Posterior N-1, Anexo 5 POT actualizado por Decreto 466/2024, ancho de vía TOTAL del perfil vial — incluye andenes; v06: laterales por vértices coincidentes + contacto mínimo + esquina real; ancho con respaldo desde LADOS_v06 → antejardín por tabla CU-5.5).
+10. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v08.py` + `F1_ETAPA2_LADOS_v06.py` (pipeline modular v26, regla híbrida 15m, regla Posterior N-1, Anexo 5 POT actualizado por Decreto 466/2024, ancho de vía TOTAL del perfil vial — incluye andenes; v06: laterales por vértices coincidentes + contacto mínimo + esquina real; ancho con respaldo desde LADOS_v06 → antejardín por tabla CU-5.5).
     El linaje legacy (`F1_NORMATIVA_APLICAR_*`, `F1_CONTEXTO_POT_*`, `F1_LADOS_CONFIGURAR_*`,
     `F1_LADOS_CLASIFICAR_*`, patios viejos, `F1_PATIO_DISCONTINUIDAD_*`, `F1_VECINOS_ANALISIS_*`,
     `F1_VALIDADOR_CRUZADO_v01`, `F1_DESPLAZAR_ORIGEN_v01`, `F1_VERTICE_CERCANO_v01`) está
     archivado en `src/fase-1-contexto/_legacy/` (2026-08-15).
     Pipeline Fase 1: `F1_ETAPA1_CONTEXTO_v02` → `F1_ETAPA2_LADOS_v06` → `F1_ETAPA2_PATIO_v02`
-    → `F1_ETAPA2_NORMATIVA_v06` → (`F1_OVERRIDE_USO_v01` opcional) → `F1_EXPORTAR_GFA_v02`
+    → `F1_ETAPA2_NORMATIVA_v08` → (`F1_OVERRIDE_USO_v01` opcional) → `F1_EXPORTAR_GFA_v02`
     → `data/fase-2-demanda/<CHIP>-gfa-gh.json` → motores F2 v03 (hook `--gfa` opcional).
     v05: retiros por clasificación + tipología (Continua/Aislada) + antejardín por ancho de
     vía (mapa CU-5.5 / regla histórica, override `antejardin_m`) + posterior tabla
@@ -184,7 +184,7 @@ DiseñoParametrico/
 │   ├── pot-bogota/ nsr-10/    # Normativa estructurada
 │   ├── ghx-samples/           # Corpus GHX (regenerable, gitignored)
 │   └── lotes-ejemplo/ clima/ ideca-cache/ neighbors/ pot-geojson/
-├── gh-definitions/            # F1_Contexto_Base-Editado_v01 (maestro) + referencias; _archive\
+├── gh-definitions/            # F1_Contexto_Base-Editado_v02 (maestro) + referencias; _archive\
 ├── scripts/                   # rhino-compute/ + utilities/
 ├── src/                       # Código por fase
 │   ├── fase-1-contexto/       # Modular ETAPA1/ETAPA2 vigente + _legacy\
@@ -272,7 +272,7 @@ vecinos, NO a frentes de calle o espacio público. La calle ya provee ventilaci�
      si todos los lados menos uno colindan con vecinos, y mide el ancho de vía
      TOTAL del perfil vial (incluye andenes; v06, 2026-08-16)
    - `F1_ETAPA2_PATIO_v02` detecta vértices vecino-vecino y genera rectángulos
-   - `F1_ETAPA2_NORMATIVA_v06` aplica retiros diferenciados (tipología + antejardín
+   - `F1_ETAPA2_NORMATIVA_v08` aplica retiros diferenciados (tipología + antejardín
      por ancho de vía + posterior tabla Consolidación) y resta todos los patios
 
 ## Cuándo preguntar al usuario

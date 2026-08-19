@@ -1,6 +1,6 @@
 # DiseñoParametrico — Ecosistema BIM-GIS-AI para diseño arquitectónico paramétrico en Bogotá
 
-**Última actualización:** 2026-08-14 · **Hardware:** i5-12600K · 64 GB RAM · RTX 4070 Ti · Win 11 Pro
+**Última actualización:** 2026-08-18 · **Hardware:** i5-12600K · 64 GB RAM · RTX 4070 Ti · Win 11 Pro
 
 Sistema que automatiza el flujo completo de prefactibilidad arquitectónica: contexto normativo
 POT/NSR-10 desde geodatos oficiales, análisis de demanda y modelo financiero, generación de masa,
@@ -29,7 +29,7 @@ DiseñoParametrico/
 │   ├── pot-bogota/ nsr-10/      # Normativa estructurada (JSON)
 │   ├── ghx-samples/             # Corpus de muestras GHX (ladybug, tapir, archicad) — regenerable
 │   ├── lotes-ejemplo/ clima/ ideca-cache/ neighbors/ pot-geojson/
-├── gh-definitions/              # Canvas Grasshopper: F1_Contexto_Base-Editado_v01 (maestro) +
+├── gh-definitions/              # Canvas Grasshopper: F1_Contexto_Base-Editado_v02 (maestro) +
 │                                # referencias de conexión/componentes; versiones viejas en _archive\
 ├── scripts/                     # rhino-compute/ (start-stop-health) + utilities/
 ├── src/                         # Código por fase (ver tabla arriba); tests en tests/ raíz
@@ -65,6 +65,10 @@ python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta.json
 python F2_RENTA_MOTOR_v03.py --parametros parametros_AAA0127AZPA_renta_gfa1054.json  # alternativa curaduría
 # (sin --gfa: los motores leen data\fase-2-demanda\<CHIP>-gfa-gh.json, generado por F1_EXPORTAR_GFA_v02)
 
+# Orquestador (formulario web: pipeline F1->F2->F3 en un boton)
+python src\orquestador\servidor.py --puerto 8900   # abrir http://127.0.0.1:8900
+python src\orquestador\run_pipeline_v01.py --status
+
 # Rhino.Compute
 powershell scripts\rhino-compute\start-compute.ps1
 ```
@@ -80,7 +84,7 @@ referencia normativa y de mercado (`30-referencia\`), lecciones (`50-lecciones\`
 Ver `CLAUDE.md` (reglas de GHPython/IronPython, capas ArchiCAD, normativa POT/NSR-10, coordenadas
 MAGNA-SIRGAS, clasificación híbrida ADR-008, estructura de datos). Resumen crítico:
 - GHPython: componente "Script" clásico (IronPython 2.7), nunca "Python 3 Script" (bug Rhino 8).
-- Pipeline Fase 1 vigente: modular ETAPA1/ETAPA2 (v26); normativa: `F1_ETAPA2_NORMATIVA_v04` +
+- Pipeline Fase 1 vigente: modular ETAPA1/ETAPA2 (v26); normativa: `F1_ETAPA2_NORMATIVA_v08` +
   exportador `F1_EXPORTAR_GFA_v02` (puente automático `<CHIP>-gfa-gh.json` → motores F2 v03).
 - Lotes como polilíneas, coordenadas locales (0,0,0), JSON del fetch como única entrada de Fase 1.
 - Git: commitear al final de cada sesión (ver historial de consolidaciones 2026-08-13).
