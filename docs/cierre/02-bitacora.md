@@ -47,3 +47,24 @@ Cierre de fase **F1–F3** · **2026-08-18** · 85 commits · suite **234 passed
 - **2026-08-17/18** — Orquestador: formulario, servidor, F0 load, vecinos por lado.
 - **2026-08-18** — Área de actividad (geobase) + cableado del canvas commiteado.
 - **2026-08-18 (tarde)** — Sector de uso por UPL (geobase) extraído e integrado + validación `pago_parcial_pct` 70/30 con AAA0127AZPA.
+
+
+## Sesión 2026-08-18 (tarde) — Interfaz + F2/F3 ejecutables desde el formulario
+
+### Cambios
+- **Interfaz**: `caso` → "Escenario de modelado" atado al CHIP (sección 4 ya no cambia de lote).
+- **Aporte del lote (venta)**: variables `aporte_lote` + `pago_parcial_pct`; helper `_aporte_a_pago_parcial()`.
+- **F2 desde el form**: `POST /api/calcular-f2` (corre F2 con `--pago-parcial`) + botón.
+- **F3 para cualquier CHIP**: `F3_DISTRIBUCION_v01.py` acepta `--chip`/`--escenario` (`buscar_resultados`, `leer_programa_chip`, fallback `mix_usos`); `POST /api/generar-f3` + botón.
+- **Pipeline**: `POST /api/pipeline` (F1→F2→F3) + botón "Ejecutar pipeline"; `_calcular_f2` escribe `resultados_<CHIP>.json` canónico.
+- **Suite**: 234 → 239 passed.
+
+### Decisiones
+- `aporte_lote` → `pago_parcial_pct`: venta_completa=100, participacion=% (default 30), aporte_completo=0 (inverso de `fraccion_aporte_pct`).
+- El selector de escenario no re-selecciona el CHIP: `syncCasoConChip()` filtra por `CASO_CHIP`.
+- F3 con error claro + fallback a escenario `mix_usos` cuando falta D_MIXTO.
+
+### Pendientes
+- F1 GFA manual en Rhino (verificar GFA 826.58 vs 1186.87 tras regeneración del operador).
+- Listas definitivas de usos por sector (Sinupot / CU-5.4.x).
+- F3 masa Rhino → Morphs ArchiCAD (manual). F4/F5 pendientes.
