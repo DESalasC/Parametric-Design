@@ -1,0 +1,41 @@
+{
+  "_schema": "sectores-uso-lotes_v01",
+  "fuente": "geobase POT 555 (POT_Decreto_555_2021_Bogota_D_C.gdb) - cruce espacial local",
+  "crs": "ESRI:102233",
+  "nota": "Clasificacion de uso por sector extraida de las capas del Decreto 555/2021 (Sector_uso_residencial, Sector_incompatible_uso_resid, Unidad_planeamiento_local). Complementa areas-actividad.json. El cuadro de usos por area de actividad (Art. 243) no esta en los extractos locales; la lista definitiva por predio sigue requiriendo Sinupot / concepto de uso.",
+  "lotes": {
+    "AAA0127AZPA": {
+      "chip": "AAA0127AZPA",
+      "sector_uso_residencial": null,
+      "sector_incompatible_residencial": null,
+      "unidad_planeamiento_local": {
+        "CODIGO_UPL": "UPL27",
+        "NOMBRE": "Niza",
+        "VOCACION": "Urbano",
+        "SECTOR": "Sector Norte"
+      }
+    },
+    "AAA0030JKOE": {
+      "chip": "AAA0030JKOE",
+      "sector_uso_residencial": null,
+      "sector_incompatible_residencial": null,
+      "unidad_planeamiento_local": {
+        "CODIGO_UPL": "UPL23",
+        "NOMBRE": "Centro Histórico",
+        "VOCACION": "Urbano",
+        "SECTOR": "Sector Centro Ampliado"
+      }
+    },
+    "AAA0039KRMR": {
+      "chip": "AAA0039KRMR",
+      "sector_uso_residencial": null,
+      "sector_incompatible_residencial": null,
+      "unidad_planeamiento_local": {
+        "CODIGO_UPL": "UPL31",
+        "NOMBRE": "Puente Aranda",
+        "VOCACION": "Urbano",
+        "SECTOR": "Sector Centro Ampliado"
+      }
+    }
+  }
+}

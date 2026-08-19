@@ -152,6 +152,16 @@ def test_usos_area_actividad_geobase():
     assert u["pendiente_cuadro_uso"] is True
 
 
+def test_usos_sector_geobase():
+    """sectores-uso-lotes.json (cruce espacial Decreto 555) integrado al endpoint."""
+    u = sv._usos("AAA0127AZPA")
+    s = u["sector_uso_geobase"]
+    assert s is not None
+    upl = s["unidad_planeamiento_local"]
+    assert upl["CODIGO_UPL"] == "UPL27"
+    assert upl["NOMBRE"] == "Niza"
+
+
 def test_catalogo_usos_override_sector():
     base = {"principal": ["Vivienda"], "complementario": [], "prohibido": ["Industrial"]}
     sector = {"principal": ["Vivienda", "Comercio"], "complementario": ["Salud"], "prohibido": []}
