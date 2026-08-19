@@ -129,6 +129,8 @@
     <div class="subtitulo">Modelo de negocio, escenarios y variables base de decisión.</div>
     <h3 style="font-size:14px;color:#374151;margin:8px 0 4px;">Modo de negocio (puede marcar varios)</h3>
     <div id="modos-checks" class="checks"></div>
+    <h3 style="font-size:14px;color:#374151;margin:12px 0 4px;">Aporte del lote (modo de vinculación)</h3>
+    <div id="vars-aporte"></div>
     <h3 style="font-size:14px;color:#374151;margin:12px 0 4px;">Escenarios de mercado (puede marcar varios)</h3>
     <div class="ayuda">La combinación de usos (oficinas + vivienda, comercio + servicios + vivienda, etc.)
       se define con las casillas de usos de la sección anterior; aquí se elige el segmento de mercado.</div>
@@ -141,7 +143,7 @@
   <!-- ===== 4. Modelado ===== -->
   <div class="card">
     <h2><span class="seccion-num">4</span>Modelado (masa)</h2>
-    <div class="subtitulo">Lote de modelado y posición del núcleo.</div>
+    <div class="subtitulo">Escenario de modelado y posición del núcleo. El modelado se hace únicamente sobre el CHIP seleccionado en la sección 1.</div>
     <div id="vars-modelado"></div>
     <div id="caso-detalle" class="caso-titulo" style="display:none;"></div>
   </div>
@@ -188,10 +190,11 @@ async function init(){
     const o = document.createElement('option'); o.value = c; o.textContent = c;
     sel.appendChild(o);
   });
-  sel.addEventListener('change', () => { cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); });
+  sel.addEventListener('change', () => { cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); syncCasoConChip(); });
 
   renderSeccion('normativa', $('vars-normativa'));
   renderSeccion('modelado', $('vars-modelado'));
+  renderSeccion('aporte', $('vars-aporte'));
   renderModos();
   renderEscenarios();
   bindCaso();
@@ -585,21 +588,51 @@ async function cargarPredio(){
   det.style.display='grid';
 }
 
-// ---------- caso ----------
+// ---------- caso (escenario de modelado, atado al CHIP seleccionado) ----------
+function casosParaChip(chip){
+  return Object.keys(CASO_CHIP).filter(c => CASO_CHIP[c] === chip);
+}
+function updateCaso(){
+  const sel = $('var_caso');
+  const c = sel ? sel.value : '';
+  const det = $('caso-detalle');
+  const card = $('card-resultados');
+  if(c && CASO_TITULO[c]){
+    det.style.display='block';
+    det.innerHTML = '<b>'+CASO_TITULO[c]+'</b>';
+    verResultados(c);
+  } else {
+    det.style.display='none';
+    if(card) card.style.display='none';
+  }
+}
+function syncCasoConChip(){
+  const chip = $('chip').value;
+  const sel = $('var_caso');
+  if(!sel) return;
+  const casos = chip ? casosParaChip(chip) : [];
+  const prev = sel.value;
+  sel.innerHTML = '';
+  if(!casos.length){
+    const o = document.createElement('option'); o.value=''; o.textContent='— sin escenario pre-generado para este CHIP —';
+    sel.appendChild(o);
+    sel.value = '';
+    updateCaso();
+    return;
+  }
+  casos.forEach(c => {
+    const o = document.createElement('option'); o.value = c;
+    o.textContent = c + ' · ' + (CASO_TITULO[c]||c);
+    sel.appendChild(o);
+  });
+  sel.value = (casos.indexOf(prev) >= 0) ? prev : casos[0];
+  updateCaso();
+}
 function bindCaso(){
   const sel = $('var_caso');
   if(!sel) return;
-  const update = () => {
-    const c = sel.value;
-    const det = $('caso-detalle');
-    if(c && CASO_TITULO[c]){
-      det.style.display='block';
-      det.innerHTML = '<b>'+CASO_TITULO[c]+'</b> · CHIP: '+(CASO_CHIP[c]||'—');
-      verResultados(c);
-    } else { det.style.display='none'; }
-  };
-  sel.addEventListener('change', update);
-  update();
+  sel.addEventListener('change', updateCaso);
+  syncCasoConChip();
 }
 
 // ---------- guardar / crear ----------

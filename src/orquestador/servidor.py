@@ -108,13 +108,22 @@ VARIABLES = [
      "default": "Consolidación", "seccion": "normativa",
      "ayuda": "Tratamiento POT del predio (condiciona ocupación y edificabilidad)."},
     # ---- Sección 3: Modelado
-    {"id": "caso", "label": "Lote / caso", "tipo": "select",
+    {"id": "caso", "label": "Escenario de modelado", "tipo": "select",
      "opciones": ["A", "B", "B_SALUD", "C"], "default": "A", "seccion": "modelado",
-     "ayuda": "Lote sobre el que se modela la masa (determina el CHIP)."},
+     "ayuda": "Escenario de distribución de masa. Se modela únicamente sobre el CHIP seleccionado en la sección 1 (Predio)."},
     {"id": "alineacion_nucleo", "label": "Posición del núcleo de servicios", "tipo": "select",
      "opciones": [{"v": 0, "label": "Centro"}, {"v": 1, "label": "Contra medianera"}, {"v": 2, "label": "Lado opuesto"}],
      "default": 1, "seccion": "modelado",
      "ayuda": "El 'switch' de posición del núcleo (escaleras + ascensor + servicios)."},
+    # ---- Sección 3: Financiero (aporte del lote)
+    {"id": "aporte_lote", "label": "Aporte del lote (vinculación al negocio)", "tipo": "select",
+     "opciones": [
+         {"v": "venta_completa", "label": "Venta completa del lote"},
+         {"v": "participacion", "label": "Participación por porcentajes"},
+         {"v": "aporte_completo", "label": "Aporte completo (especie)"},
+     ],
+     "default": "participacion", "seccion": "aporte",
+     "ayuda": "Cómo se vincula el lote al negocio (aplica al modo Venta): venta total (pago 100% efectivo), participación porcentual (parte efectivo + parte en especie) o aporte completo en especie. Alimenta pago_parcial_pct / fraccion_aporte del motor F2."},
 ]
 
 MODOS_FINANCIEROS = [

@@ -170,3 +170,14 @@ def test_catalogo_usos_override_sector():
     assert {x["categoria"] for x in catalogo} == {"principal", "complementario"}
     principales = {x["nombre"] for x in catalogo if x["categoria"] == "principal"}
     assert principales == {"Vivienda", "Comercio"}
+
+
+def test_aporte_lote_variable():
+    """Aporte del lote (vinculacion al negocio) expuesto como variable de decision."""
+    v = {x["id"]: x for x in sv.VARIABLES}["aporte_lote"]
+    assert v["tipo"] == "select"
+    assert v["seccion"] == "aporte"
+    assert {o["v"] for o in v["opciones"]} == {"venta_completa", "participacion", "aporte_completo"}
+    # sin jerga interna a nivel de interfaz (pago_parcial / fraccion_aporte viven en F2)
+    assert "pago_parcial" not in {x["id"] for x in sv.VARIABLES}
+    assert "fraccion_aporte" not in {x["id"] for x in sv.VARIABLES}
