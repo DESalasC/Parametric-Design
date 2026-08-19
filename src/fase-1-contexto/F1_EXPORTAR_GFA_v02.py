@@ -7,7 +7,7 @@ GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
 
 PROPOSITO:
-  Toma las salidas de F1_ETAPA2_NORMATIVA_v04 (gfa_total, pisos_finales,
+  Toma las salidas de F1_ETAPA2_NORMATIVA_v08 (gfa_total, pisos_finales,
   indices, envelope) y escribe <CHIP>-gfa-gh.json en data/fase-2-demanda/
   para alimentar F2 (F2_DEMANDA_MOTOR_v03 y F2_RENTA_MOTOR_v03 leen este
   archivo automaticamente cuando no se les pasa --gfa).
@@ -23,7 +23,7 @@ AUTOMATIZACION (v02):
 
 NORMATIVA APLICABLE:
   Decreto 555 de 2021 (rangos de edificabilidad, piso adicional) - los valores
-  ya vienen calculados por F1_ETAPA2_NORMATIVA_v04; aqui solo se serializan.
+  ya vienen calculados por F1_ETAPA2_NORMATIVA_v08; aqui solo se serializan.
 
 ENTRADAS:
   json_path (String)       - Ruta al JSON de contexto de Fase 1
@@ -31,7 +31,7 @@ ENTRADAS:
                              deriva el CHIP; si falta, NO se escribe (estado
                              ERROR).
   area_envelope (Number)   - Huella fisica con retiros y patio restado [m2]
-                             (Area de envelope_curve, NORMATIVA v04).
+                             (Area de envelope_curve, NORMATIVA v08).
   gfa_total (Number)       - Area Bruta Construida TOTAL incl. piso extra [m2].
   ocupacion_real (Number)  - Indice de ocupacion real.
   io_maximo (Number)       - IO normativo (o override de usuario).
@@ -40,7 +40,7 @@ ENTRADAS:
   altura_total (Number)    - Altura total [m].
   pisos_finales (Number)   - Pisos aplicados.
   valido (Boolean)         - Validez del calculo normativo. Si False no escribe.
-  mensaje (String)         - Diagnostico de NORMATIVA v04.
+  mensaje (String)         - Diagnostico de NORMATIVA v08.
   flag_pipeline (String)   - [opcional] Salida de F1_OVERRIDE_USO_v01
                              ("USO_NORMA:<uso>" o "USO_OVERRIDE:<uso>;<nota>").
   output_path (String)     - [opcional] Carpeta destino. Default:
@@ -61,17 +61,25 @@ FUNCIONES INTERNAS:
   derivar_chip(ruta)   - Extrae el CHIP del nombre del JSON de contexto.
   parse_flag_pipeline(flag) - Convierte el token del OVERRIDE a dict.
 
-VERSIONES:
+VERSIONES (general; la subversion interna se detalla abajo):
   v02 (2026-08-15) - Escritura automatica (sin toggle): valido=True + cambio
                      de contenido; CHIP derivado de json_path; integra
                      flag_pipeline del OVERRIDE como override_uso.
   v01 (2026-08-15) - Exportador manual con toggle ejecutar y CHIP tipeado.
 
-INTEGRACION EN CANVAS (F1_Contexto_Base-Editado_v00):
-  1. Colocar aguas abajo de F1_ETAPA2_NORMATIVA_v04 (grupo DIBUJO 2: OCUPACION).
+SUBVERSIONES INTERNAS (v02.x: iteraciones sin cambio de version general ni de
+contrato de entradas/salidas; la version general v02 -> v03 SOLO cambia con
+cambios mayores):
+  v02.1 (2026-08-18) - Cadena 'fuente' apunta al canvas vigente
+      F1_Contexto_Base-Editado_v02 (antes v00); referencias de NORMATIVA en
+      encabezado/comentarios actualizadas a v08 (antes v04). Sin cambio de
+      logica ni de contrato de entradas/salidas.
+
+INTEGRACION EN CANVAS (F1_Contexto_Base-Editado_v02):
+  1. Colocar aguas abajo de F1_ETAPA2_NORMATIVA_v08 (grupo DIBUJO 2: OCUPACION).
   2. Conectar "json_path" al MISMO panel que alimenta F1_ETAPA1_CONTEXTO_v01.
   3. Conectar "area_envelope" al Area de envelope_curve, y el resto de
-     entradas a las salidas de NORMATIVA v04 (gfa_total, ocupacion_real,
+     entradas a las salidas de NORMATIVA v08 (gfa_total, ocupacion_real,
      io_maximo, ic_real, ic_maximo, altura_total, pisos_finales, valido,
      mensaje).
   4. [opcional] Conectar "flag_pipeline" a la salida del OVERRIDE_USO_v01.
@@ -206,7 +214,7 @@ def parse_flag_pipeline(flag):
 
 # ------------------------------------------------------------------ entradas
 # GHPython: una entrada NO conectada no define la variable (NameError).
-# Se leen con globals().get() como en F1_ETAPA2_NORMATIVA_v04.
+# Se leen con globals().get() como en F1_ETAPA2_NORMATIVA_v08.
 json_path = globals().get("json_path", None)
 area_envelope = globals().get("area_envelope", None)
 gfa_total = globals().get("gfa_total", None)
@@ -233,7 +241,7 @@ def build_payload():
     data = {
         "chip": chip_str,
         "tipo": "resultados-f1-grasshopper",
-        "fuente": "F1_Contexto_Base-Editado_v00 (F1_EXPORTAR_GFA_v02)",
+        "fuente": "F1_Contexto_Base-Editado_v02 (F1_EXPORTAR_GFA_v02)",
         "generado": date.today().isoformat(),
         "area_envelope_m2": round(to_float(area_envelope, 0.0, warnings), REDONDEO),
         "gfa_total_m2": round(to_float(gfa_total, 0.0, warnings), REDONDEO),

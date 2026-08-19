@@ -75,7 +75,10 @@ def test_financiero_con_fuentes():
     assert f["disponible"] is True
     assert f["lote"]["costo_lote_total_cop"] is not None
     assert f["lote"].get("fuente")
-    assert len(f["escenarios"]) == 3
+    # 3 escenarios base + D_MIXTO (override de uso multiple, mejora menor)
+    ids = {e["id"] for e in f["escenarios"]}
+    assert {"A_VIS", "B_ESTANDAR", "C_LUJO"} <= ids
+    assert "D_MIXTO" in ids
 
 
 def test_guardar_provisional_y_crear_estructura():

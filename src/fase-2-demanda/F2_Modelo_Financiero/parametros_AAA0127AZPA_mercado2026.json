@@ -80,6 +80,36 @@
             "fuente_costo": "Konstruing (07-ago-2026) y Aliados de Obras (2026): rango Bogota hasta $3,8 M/m2; acabados premium elevan a $4,3 M/m2 (supuesto tecnico documentado).",
             "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
             "nota": "Caso comparativo mercado 2026."
+        },
+        "D_MIXTO": {
+            "nombre": "D - Mixto (override usuario)",
+            "nivel_acabados": "Mixto",
+            "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion (hipotesis de validacion/prefactibilidad). Mix 20% local comercial + 80% vivienda estandar (El Prado / Suba). Vivienda con precios validados 2026-08-12 (B_ESTANDAR); local supuesto de ejercicio.",
+            "override_uso": true,
+            "mix_usos": [
+                {
+                    "uso": "Local comercial",
+                    "pct_gfa": 0.2,
+                    "unidad_m2": 50.0,
+                    "eficiencia_nga": 0.85,
+                    "precio_venta_m2": 9000000,
+                    "costo_construccion_m2": 3600000,
+                    "absorcion_unid_mes": 0.5,
+                    "fuente": "Locales El Prado/Suba: $9,0 M/m2 (supuesto de ejercicio; rango $8-12 M)."
+                },
+                {
+                    "uso": "Vivienda estandar",
+                    "pct_gfa": 0.8,
+                    "unidad_m2": 85.0,
+                    "eficiencia_nga": 0.75,
+                    "precio_venta_m2": 7200000,
+                    "costo_construccion_m2": 3000000,
+                    "absorcion_unid_mes": 2.5,
+                    "fuente": "Vivienda estandar 2026-08-12: $7,2 M/m2 (igual a B_ESTANDAR)."
+                }
+            ],
+            "fuente_precio": "Supuestos de ejercicio 2026-08-18 (mix uso multiple: local $9,0 M/m2 + vivienda validada $7,2 M/m2).",
+            "fuente_costo": "Supuestos de ejercicio 2026-08-18 (local $3,6 M/m2, vivienda $3,0 M/m2)."
         }
     }
 }

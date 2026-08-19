@@ -163,6 +163,7 @@ def _aporte_a_pago_parcial(aporte, pago_parcial_pct=None):
 
 def _ruta_parametros_f2_venta(chip):
     for cand in (os.path.join(F2_VENTA_DIR, "parametros_{}_mercado2026.json".format(chip)),
+                 os.path.join(F2_VENTA_DIR, "parametros_{}_venta.json".format(chip)),
                  os.path.join(F2_VENTA_DIR, "parametros_{}.json".format(chip))):
         if os.path.exists(cand):
             return cand
@@ -436,6 +437,7 @@ def _financiero(chip):
     """Variables financieras + fuentes (base de decisión del operador)."""
     ruta = None
     for cand in (os.path.join(F2_VENTA_DIR, "parametros_{}_mercado2026.json".format(chip)),
+                 os.path.join(F2_VENTA_DIR, "parametros_{}_venta.json".format(chip)),
                  os.path.join(F2_VENTA_DIR, "parametros_{}.json".format(chip))):
         if os.path.exists(cand):
             ruta = cand
