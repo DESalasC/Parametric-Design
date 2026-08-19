@@ -32,6 +32,7 @@ import io
 import json
 import os
 import shutil
+import subprocess
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -42,6 +43,10 @@ POT_CACHE = os.path.join(ROOT, "data", "pot-cache")
 F3_CASOS = os.path.join(ROOT, "src", "fase-3-masa", "casos")
 F2_VENTA_DIR = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Financiero")
 F2_RENTA_DIR = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Renta")
+F3_DIR = os.path.join(ROOT, "src", "fase-3-masa")
+F2_VENTA_SCRIPT = os.path.join(F2_VENTA_DIR, "F2_DEMANDA_MOTOR_v03.py")
+F3_DIST_SCRIPT = os.path.join(F3_DIR, "F3_DISTRIBUCION_v01.py")
+F3_ACCESOS_SCRIPT = os.path.join(F3_DIR, "F3_ACCESOS_INTEGRADOR_v02.py")
 PROYECTOS = os.path.join(ORQ_DIR, "proyectos")
 PROVISIONAL = os.path.join(PROYECTOS, "_provisional")
 
@@ -124,6 +129,9 @@ VARIABLES = [
      ],
      "default": "participacion", "seccion": "aporte",
      "ayuda": "Cómo se vincula el lote al negocio (aplica al modo Venta): venta total (pago 100% efectivo), participación porcentual (parte efectivo + parte en especie) o aporte completo en especie. Alimenta pago_parcial_pct / fraccion_aporte del motor F2."},
+    {"id": "pago_parcial_pct", "label": "Pago parcial en efectivo (%)", "tipo": "number",
+     "default": 30.0, "seccion": "aporte",
+     "ayuda": "Solo aplica en 'Participación por porcentajes': % del costo del lote pagado en efectivo al dueño (el resto en especie). Venta completa = 100%, aporte completo = 0%."},
 ]
 
 MODOS_FINANCIEROS = [
@@ -136,6 +144,87 @@ ESCENARIOS_FINANCIEROS = [
     {"id": "B_ESTANDAR", "label": "Estándar", "descripcion": "Segmento medio (acabado estándar)."},
     {"id": "C_LUJO", "label": "Lujo", "descripcion": "Segmento alto (acabado premium)."},
 ]
+
+
+def _aporte_a_pago_parcial(aporte, pago_parcial_pct=None):
+    """Traduce aporte_lote -> pago_parcial_pct del motor F2 (venta_completa=100,
+    aporte_completo=0, participacion=% indicado, default 30)."""
+    if aporte == "venta_completa":
+        return 100.0
+    if aporte == "aporte_completo":
+        return 0.0
+    try:
+        p = float(pago_parcial_pct) if pago_parcial_pct not in (None, "") else 30.0
+    except (TypeError, ValueError):
+        p = 30.0
+    return round(min(100.0, max(0.0, p)), 1)
+
+
+def _ruta_parametros_f2_venta(chip):
+    for cand in (os.path.join(F2_VENTA_DIR, "parametros_{}_mercado2026.json".format(chip)),
+                 os.path.join(F2_VENTA_DIR, "parametros_{}.json".format(chip))):
+        if os.path.exists(cand):
+            return cand
+    return os.path.join(F2_VENTA_DIR, "parametros_entrada.json")
+
+
+def _calcular_f2(chip, aporte_lote, pago_parcial_pct, gfa_m2=None, costo_lote_cop=None):
+    """Ejecuta F2 (venta) con el pago_parcial derivado del aporte del lote."""
+    pago = _aporte_a_pago_parcial(aporte_lote, pago_parcial_pct)
+    parametros = _ruta_parametros_f2_venta(chip)
+    cmd = [sys.executable, F2_VENTA_SCRIPT, "--parametros", parametros, "--chip", chip,
+           "--pago-parcial", str(pago)]
+    if gfa_m2:
+        cmd += ["--gfa", str(gfa_m2)]
+    if costo_lote_cop:
+        cmd += ["--costo-lote", str(costo_lote_cop)]
+    try:
+        proc = subprocess.run(cmd, cwd=F2_VENTA_DIR, capture_output=True, text=True,
+                              encoding="utf-8", errors="replace", timeout=180)
+        ok = proc.returncode == 0
+        salida = ((proc.stdout or "") + (proc.stderr or "")).strip()
+    except Exception as ex:
+        ok, salida = False, "ERROR: " + str(ex)
+    resumen = None
+    ruta_res = os.path.join(F2_VENTA_DIR, "resultados", "resultados_completos.json")
+    if ok and os.path.exists(ruta_res):
+        d = _json(ruta_res)
+        resumen = {
+            "chip": (d.get("meta") or {}).get("chip", chip),
+            "gfa_max_m2": d.get("gfa_max_m2"),
+            "recomendado": (d.get("recomendacion") or {}).get("recomendado"),
+            "veredicto": (d.get("recomendacion") or {}).get("veredicto_textual"),
+        }
+    return {
+        "ok": ok,
+        "aporte_lote": aporte_lote,
+        "pago_parcial_pct": pago,
+        "fraccion_aporte_pct": round(100.0 - pago, 1),
+        "resumen": resumen,
+        "salida": salida[-1500:],
+    }
+
+
+def _generar_f3(chip, escenario="D_MIXTO"):
+    """Ejecuta F3 (distribución + accesos) para un CHIP y devuelve el resumen."""
+    cmd = [sys.executable, F3_DIST_SCRIPT, "--chip", chip, "--escenario", escenario]
+    try:
+        proc = subprocess.run(cmd, cwd=F3_DIR, capture_output=True, text=True,
+                              encoding="utf-8", errors="replace", timeout=180)
+        ok = proc.returncode == 0
+        salida = ((proc.stdout or "") + (proc.stderr or "")).strip()
+    except Exception as ex:
+        ok, salida = False, "ERROR: " + str(ex)
+    if ok:
+        try:
+            subprocess.run([sys.executable, F3_ACCESOS_SCRIPT, "--caso", chip],
+                           cwd=F3_DIR, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=120)
+        except Exception:
+            pass
+    res = _resultados(chip)
+    res["chip"] = chip
+    return {"ok": ok, "chip": chip, "salida": salida[-1500:], "resultados": res}
 
 
 def _json(ruta):
@@ -354,7 +443,7 @@ def _resultados(caso):
     return {
         "caso": caso,
         "titulo": CASO_TITULO.get(caso),
-        "chip": CASO_CHIP.get(caso),
+        "chip": CASO_CHIP.get(caso) or caso,
         "gfa_total": pa.get("gfa_total"),
         "pisos": pa.get("pisos"),
         "area_por_piso": pa.get("area_por_piso"),
@@ -477,9 +566,6 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urlparse(self.path)
-        if parsed.path != "/api/proyecto":
-            self._json_error("ruta no encontrada", 404)
-            return
         length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(length).decode("utf-8", errors="replace")
         try:
@@ -487,18 +573,43 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:
             self._json_error("JSON inválido")
             return
-        nombre = data.get("nombre", "").strip()
-        crear = bool(data.get("crear_estructura", False))
-        if crear and not nombre:
-            self._json_error("Para crear la estructura escriba un nombre de proyecto.")
+
+        if parsed.path == "/api/proyecto":
+            nombre = data.get("nombre", "").strip()
+            crear = bool(data.get("crear_estructura", False))
+            if crear and not nombre:
+                self._json_error("Para crear la estructura escriba un nombre de proyecto.")
+                return
+            ruta, destino = _guardar_proyecto(nombre, data)
+            creado = None
+            if crear:
+                ok, carpeta = _crear_estructura(nombre)
+                if ok:
+                    creado = carpeta
+            self._send(200, {"ok": True, "ruta": ruta, "destino": destino, "estructura_creada": creado})
             return
-        ruta, destino = _guardar_proyecto(nombre, data)
-        creado = None
-        if crear:
-            ok, carpeta = _crear_estructura(nombre)
-            if ok:
-                creado = carpeta
-        self._send(200, {"ok": True, "ruta": ruta, "destino": destino, "estructura_creada": creado})
+
+        if parsed.path == "/api/calcular-f2":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            res = _calcular_f2(chip, data.get("aporte_lote", "participacion"),
+                               data.get("pago_parcial_pct"), data.get("gfa_m2"),
+                               data.get("costo_lote_cop"))
+            self._send(200, {"ok": True, "f2": res})
+            return
+
+        if parsed.path == "/api/generar-f3":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            res = _generar_f3(chip, data.get("escenario", "D_MIXTO"))
+            self._send(200, {"ok": True, "f3": res})
+            return
+
+        self._json_error("ruta no encontrada", 404)
 
     def log_message(self, fmt, *args):
         sys.stderr.write("[servidor] " + (fmt % args) + "\n")

@@ -178,6 +178,16 @@ def test_aporte_lote_variable():
     assert v["tipo"] == "select"
     assert v["seccion"] == "aporte"
     assert {o["v"] for o in v["opciones"]} == {"venta_completa", "participacion", "aporte_completo"}
-    # sin jerga interna a nivel de interfaz (pago_parcial / fraccion_aporte viven en F2)
-    assert "pago_parcial" not in {x["id"] for x in sv.VARIABLES}
-    assert "fraccion_aporte" not in {x["id"] for x in sv.VARIABLES}
+    # pago_parcial_pct acompaña como variable numerica (solo aplica en participacion)
+    p = {x["id"]: x for x in sv.VARIABLES}["pago_parcial_pct"]
+    assert p["tipo"] == "number" and p["seccion"] == "aporte"
+
+
+def test_aporte_a_pago_parcial():
+    """Traduccion aporte_lote -> pago_parcial_pct del motor F2."""
+    assert sv._aporte_a_pago_parcial("venta_completa") == 100.0
+    assert sv._aporte_a_pago_parcial("aporte_completo") == 0.0
+    assert sv._aporte_a_pago_parcial("participacion", None) == 30.0
+    assert sv._aporte_a_pago_parcial("participacion", 50) == 50.0
+    assert sv._aporte_a_pago_parcial("participacion", 150) == 100.0
+    assert sv._aporte_a_pago_parcial("participacion", -5) == 0.0

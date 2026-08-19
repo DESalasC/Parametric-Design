@@ -23,6 +23,7 @@ SALIDAS en src/fase-3-masa/casos/<id>/ :
   planos_<id>.html, F3_<id>.3dm
 ================================================================================
 """
+import argparse
 import io
 import json
 import math
@@ -135,11 +136,10 @@ CASOS = {
 }
 
 
-def leer_programa(caso_id):
-    cfg = CASOS[caso_id]
-    with io.open(os.path.join(FIN, cfg["resultados"]), encoding="utf-8") as f:
+def _cargar_programa(resultados_file, escenario, gfa=None, lote_m2=None, huella_m2=None):
+    with io.open(os.path.join(FIN, resultados_file), encoding="utf-8") as f:
         paquete = json.load(f)
-    esc = next(x for x in paquete["escenarios"] if x["escenario_id"] == cfg["escenario"])
+    esc = next(x for x in paquete["escenarios"] if x["escenario_id"] == escenario)
     det = esc.get("mix_usos_detalle") or []
     comps = []
     for c in det:
@@ -153,9 +153,41 @@ def leer_programa(caso_id):
                          if c["num_unidades"] else 0.0,
             "area_vendible_m2": c["area_vendible_m2"],
         })
-    return {"gfa_total": cfg["gfa"], "lote_m2": cfg["lote_m2"],
-            "huella_m2": cfg.get("huella_m2"),
-            "escenario": cfg["escenario"], "componentes": comps}
+    gfa_total = gfa if gfa is not None else paquete.get("gfa_max_m2")
+    lote = lote_m2 if lote_m2 is not None else (paquete.get("lote") or {}).get("area_m2")
+    return {"gfa_total": gfa_total, "lote_m2": lote,
+            "huella_m2": huella_m2, "escenario": escenario, "componentes": comps}
+
+
+def leer_programa(caso_id):
+    cfg = CASOS[caso_id]
+    return _cargar_programa(cfg["resultados"], cfg["escenario"],
+                            cfg.get("gfa"), cfg.get("lote_m2"), cfg.get("huella_m2"))
+
+
+def buscar_resultados(chip):
+    """Localiza el JSON de resultados F2 de un CHIP (resultados_<CHIP>.json o
+    resultados_<CHIP>_*.json). Devuelve el nombre del archivo o None."""
+    if not chip:
+        return None
+    candidatos = [n for n in os.listdir(FIN)
+                  if n.endswith(".json") and (n == "resultados_" + chip + ".json"
+                                              or n.startswith("resultados_" + chip + "_"))]
+    if not candidatos:
+        return None
+    candidatos.sort(key=lambda n: os.path.getmtime(os.path.join(FIN, n)), reverse=True)
+    return candidatos[0]
+
+
+def leer_programa_chip(chip, escenario="D_MIXTO"):
+    nombre = buscar_resultados(chip)
+    if not nombre:
+        raise ValueError("Sin resultados F2 para el CHIP " + str(chip))
+    return _cargar_programa(nombre, escenario)
+
+
+def _titulo(caso_id):
+    return (CASOS.get(caso_id) or {}).get("titulo", str(caso_id))
 
 
 def distribuir_niveles(prog):
@@ -372,7 +404,7 @@ th,td{{border:1px solid #ccc;padding:5px 8px;text-align:left}}th{{background:#1F
 .num{{text-align:center}}.leyenda span{{display:inline-block;padding:2px 8px;margin:2px;border-radius:4px;font-size:11px}}
 .badge{{background:#1F3A5F;color:#fff;padding:2px 10px;border-radius:12px;font-size:12px}}</style></head>
 <body><div class="wrap">
-<h1>F3 — Distribución espacial <span class="badge">{CASOS[caso_id]['titulo']}</span></h1>
+<h1>F3 — Distribución espacial <span class="badge">{_titulo(caso_id)}</span></h1>
 <p class="mini">Escenario {prog['escenario']} · GFA {prog['gfa_total']:.0f} m² · lote {prog['lote_m2']:.0f} m² ·
 huella {layout['huella_m2']:.0f} m² · {layout['niveles_total']} niveles · población est. {layout['poblacion_estimada']['total']}</p>
 <h3>1. Programa</h3>
@@ -507,15 +539,34 @@ def exportar_programa_areas(carpeta, prog, layout, matriz):
 
 # ------------------------------------------------------------------ main
 def main():
-    caso_id = sys.argv[1] if len(sys.argv) > 1 else "A"
-    if caso_id not in CASOS:
-        print("CASO_ID invalido:", caso_id, "| opciones:", list(CASOS))
-        return
+    parser = argparse.ArgumentParser(description="F3 distribución espacial (masa)")
+    parser.add_argument("caso_id", nargs="?", default=None,
+                        help="Caso pre-generado: A | B | B_SALUD | C")
+    parser.add_argument("--chip", default=None,
+                        help="CHIP del lote (genera el caso desde resultados F2)")
+    parser.add_argument("--escenario", default="D_MIXTO",
+                        help="Escenario F2 a distribuir (default D_MIXTO)")
+    args = parser.parse_args()
+
+    if args.chip:
+        try:
+            prog = leer_programa_chip(args.chip, args.escenario)
+        except ValueError as ex:
+            print("ERROR:", ex)
+            return
+        carpeta_id = args.chip
+    else:
+        caso_id = args.caso_id or "A"
+        if caso_id not in CASOS:
+            print("CASO_ID invalido:", caso_id, "| opciones:", list(CASOS))
+            return
+        prog = leer_programa(caso_id)
+        carpeta_id = caso_id
+
     os.makedirs(OUT, exist_ok=True)
-    carpeta = os.path.join(OUT, caso_id)
+    carpeta = os.path.join(OUT, carpeta_id)
     os.makedirs(carpeta, exist_ok=True)
 
-    prog = leer_programa(caso_id)
     huella, niveles, niveles_uso = distribuir_niveles(prog)
     usos = sorted(set(c["uso"] for c in prog["componentes"]))
     matriz = matriz_adyacencias(usos)
@@ -531,12 +582,12 @@ def main():
           round(sum(p["usos"][0]["area_bruta"] for p in pa["programa_pisos"]) + 0, 1),
           "(huella por piso)")
 
-    html = generar_html(caso_id, prog, matriz, layout)
-    with io.open(os.path.join(carpeta, f"planos_{caso_id}.html"), "w", encoding="utf-8") as f:
+    html = generar_html(carpeta_id, prog, matriz, layout)
+    with io.open(os.path.join(carpeta, f"planos_{carpeta_id}.html"), "w", encoding="utf-8") as f:
         f.write(html)
 
-    exportar_3dm(caso_id, prog, layout, os.path.join(carpeta, f"F3_{caso_id}.3dm"))
-    print(f"OK {caso_id}: {niveles} niveles, huella {huella:.0f} m², "
+    exportar_3dm(carpeta_id, prog, layout, os.path.join(carpeta, f"F3_{carpeta_id}.3dm"))
+    print(f"OK {carpeta_id}: {niveles} niveles, huella {huella:.0f} m², "
           f"ascensores {layout['nucleos']['ascensores']['cantidad']}, "
           f"nucleo {layout['nucleos']['total_m2_piso']:.0f} m²/piso")
 

@@ -138,6 +138,10 @@
     <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Variables financieras y fuentes (base de decisión)</h3>
     <div id="financiero-info" class="aviso info">Seleccione un CHIP para ver las variables financieras.</div>
     <div id="financiero-detalle"></div>
+    <div style="margin-top:14px;">
+      <button class="btn primario" id="btn-calcular-f2" type="button">Calcular F2 (con aporte del lote)</button>
+    </div>
+    <div id="f2-resultado" class="aviso info" style="display:none;"></div>
   </div>
 
   <!-- ===== 4. Modelado ===== -->
@@ -146,6 +150,10 @@
     <div class="subtitulo">Escenario de modelado y posición del núcleo. El modelado se hace únicamente sobre el CHIP seleccionado en la sección 1.</div>
     <div id="vars-modelado"></div>
     <div id="caso-detalle" class="caso-titulo" style="display:none;"></div>
+    <div style="margin-top:14px;">
+      <button class="btn primario" id="btn-generar-f3" type="button">Generar masa (F3) para este CHIP</button>
+    </div>
+    <div id="f3-resultado" class="aviso info" style="display:none;"></div>
   </div>
 
   <!-- ===== Resultados ===== -->
@@ -671,6 +679,38 @@ async function guardar(crear){
   } else { aviso.className='aviso error'; aviso.textContent = r.error || 'error'; }
 }
 
+// ---------- calcular F2 / generar F3 ----------
+async function calcularF2(){
+  const chip = $('chip').value;
+  if(!chip){ alert('Seleccione un CHIP primero.'); return; }
+  const aporte = $('var_aporte_lote') ? $('var_aporte_lote').value : 'participacion';
+  const pago = $('var_pago_parcial_pct') ? $('var_pago_parcial_pct').value : null;
+  const out = $('f2-resultado');
+  out.style.display='block'; out.className='aviso info'; out.textContent='Ejecutando F2...';
+  const r = await api('/api/calcular-f2', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, aporte_lote:aporte, pago_parcial_pct:pago}) });
+  if(!r.ok || !r.f2 || !r.f2.ok){ out.className='aviso error'; out.textContent = (r.f2 && r.f2.salida) || r.error || 'error'; return; }
+  const f = r.f2;
+  let html = '<b>F2 calculado</b> · pago parcial <b>' + f.pago_parcial_pct + '%</b> (aporte en especie ' + f.fraccion_aporte_pct + '%)';
+  if(f.resumen){
+    html += '<br>GFA máx: ' + (f.resumen.gfa_max_m2!=null ? f.resumen.gfa_max_m2 : '—') + ' m² · Recomendado: <b>' + (f.resumen.recomendado||'—') + '</b>';
+    if(f.resumen.veredicto) html += '<br>' + f.resumen.veredicto;
+  }
+  out.className='aviso ok'; out.innerHTML = html;
+}
+
+async function generarF3(){
+  const chip = $('chip').value;
+  if(!chip){ alert('Seleccione un CHIP primero.'); return; }
+  const out = $('f3-resultado');
+  out.style.display='block'; out.className='aviso info'; out.textContent='Generando masa (F3)...';
+  const r = await api('/api/generar-f3', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, escenario:'D_MIXTO'}) });
+  if(!r.ok || !r.f3 || !r.f3.ok){ out.className='aviso error'; out.textContent = (r.f3 && r.f3.salida) || r.error || 'error'; return; }
+  const res = r.f3.resultados || {};
+  out.className='aviso ok';
+  out.innerHTML = '<b>Masa generada para ' + chip + '</b> · GFA ' + (res.gfa_total!=null ? res.gfa_total : '—') + ' m² · pisos ' + (res.pisos||'—');
+  verResultados(chip);
+}
+
 // ---------- resultados ----------
 async function verResultados(caso){
   const c = caso || ($('var_caso') ? $('var_caso').value : 'A');
@@ -707,6 +747,8 @@ async function verResultados(caso){
 
 $('btn-crear').addEventListener('click', () => guardar(true));
 $('btn-guardar').addEventListener('click', () => guardar(false));
+$('btn-calcular-f2').addEventListener('click', () => calcularF2());
+$('btn-generar-f3').addEventListener('click', () => generarF3());
 $('btn-normativa').addEventListener('click', () => generarNormativa());
 $('btn-normativa-copiar').addEventListener('click', () => {
   const pre = $('vecinos-normativa');
