@@ -154,6 +154,10 @@
       <button class="btn primario" id="btn-generar-f3" type="button">Generar masa (F3) para este CHIP</button>
     </div>
     <div id="f3-resultado" class="aviso info" style="display:none;"></div>
+    <div style="margin-top:14px;">
+      <button class="btn primario" id="btn-pipeline" type="button">Ejecutar pipeline completo (F1→F2→F3)</button>
+    </div>
+    <div id="pipeline-resultado" class="aviso info" style="display:none;"></div>
   </div>
 
   <!-- ===== Resultados ===== -->
@@ -711,6 +715,25 @@ async function generarF3(){
   verResultados(chip);
 }
 
+async function ejecutarPipeline(){
+  const chip = $('chip').value;
+  if(!chip){ alert('Seleccione un CHIP primero.'); return; }
+  const aporte = $('var_aporte_lote') ? $('var_aporte_lote').value : 'participacion';
+  const pago = $('var_pago_parcial_pct') ? $('var_pago_parcial_pct').value : null;
+  const out = $('pipeline-resultado');
+  out.style.display='block'; out.className='aviso info'; out.textContent='Ejecutando F1→F2→F3...';
+  const r = await api('/api/pipeline', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, aporte_lote:aporte, pago_parcial_pct:pago, escenario:'D_MIXTO'}) });
+  const p = r.pipeline;
+  if(!r.ok || !p){ out.className='aviso error'; out.textContent = r.error || 'error'; return; }
+  const pasos = (p.pasos||[]).map(function(s){ return (s.ok?'✓':'✗') + ' ' + s.paso; }).join(' · ');
+  let html = '<b>' + (p.completado ? 'Pipeline completado' : 'Pipeline con fallos') + '</b> para ' + chip + '<br>' + pasos;
+  if(p.f2 && p.f2.resumen) html += '<br>F2: pago ' + p.f2.pago_parcial_pct + '% / aporte ' + p.f2.fraccion_aporte_pct + '% · GFA ' + (p.f2.resumen.gfa_max_m2||'—') + ' m²';
+  if(p.f3 && p.f3.resultados) html += '<br>F3: ' + (p.f3.resultados.pisos||'—') + ' pisos, GFA ' + (p.f3.resultados.gfa_total||'—') + ' m²';
+  out.className = p.completado ? 'aviso ok' : 'aviso error';
+  out.innerHTML = html;
+  if(p.completado) verResultados(chip);
+}
+
 // ---------- resultados ----------
 async function verResultados(caso){
   const c = caso || ($('var_caso') ? $('var_caso').value : 'A');
@@ -749,6 +772,7 @@ $('btn-crear').addEventListener('click', () => guardar(true));
 $('btn-guardar').addEventListener('click', () => guardar(false));
 $('btn-calcular-f2').addEventListener('click', () => calcularF2());
 $('btn-generar-f3').addEventListener('click', () => generarF3());
+$('btn-pipeline').addEventListener('click', () => ejecutarPipeline());
 $('btn-normativa').addEventListener('click', () => generarNormativa());
 $('btn-normativa-copiar').addEventListener('click', () => {
   const pre = $('vecinos-normativa');

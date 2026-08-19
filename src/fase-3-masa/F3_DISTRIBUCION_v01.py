@@ -139,7 +139,15 @@ CASOS = {
 def _cargar_programa(resultados_file, escenario, gfa=None, lote_m2=None, huella_m2=None):
     with io.open(os.path.join(FIN, resultados_file), encoding="utf-8") as f:
         paquete = json.load(f)
-    esc = next(x for x in paquete["escenarios"] if x["escenario_id"] == escenario)
+    esc = next((x for x in paquete["escenarios"] if x["escenario_id"] == escenario), None)
+    if esc is None:
+        for x in paquete["escenarios"]:
+            if x.get("mix_usos_detalle"):
+                esc = x
+                escenario = x["escenario_id"]
+                break
+    if esc is None:
+        raise ValueError("Sin escenario de uso mixto (D_MIXTO*) en " + str(resultados_file))
     det = esc.get("mix_usos_detalle") or []
     comps = []
     for c in det:
@@ -166,13 +174,15 @@ def leer_programa(caso_id):
 
 
 def buscar_resultados(chip):
-    """Localiza el JSON de resultados F2 de un CHIP (resultados_<CHIP>.json o
-    resultados_<CHIP>_*.json). Devuelve el nombre del archivo o None."""
+    """Localiza el JSON de resultados F2 de un CHIP. Prefiere el canonico
+    resultados_<CHIP>.json (ultima corrida); si no, el mas reciente resultados_<CHIP>_*."""
     if not chip:
         return None
+    canonico = "resultados_" + chip + ".json"
+    if os.path.exists(os.path.join(FIN, canonico)):
+        return canonico
     candidatos = [n for n in os.listdir(FIN)
-                  if n.endswith(".json") and (n == "resultados_" + chip + ".json"
-                                              or n.startswith("resultados_" + chip + "_"))]
+                  if n.endswith(".json") and n.startswith("resultados_" + chip + "_")]
     if not candidatos:
         return None
     candidatos.sort(key=lambda n: os.path.getmtime(os.path.join(FIN, n)), reverse=True)

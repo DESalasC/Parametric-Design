@@ -47,6 +47,7 @@ F3_DIR = os.path.join(ROOT, "src", "fase-3-masa")
 F2_VENTA_SCRIPT = os.path.join(F2_VENTA_DIR, "F2_DEMANDA_MOTOR_v03.py")
 F3_DIST_SCRIPT = os.path.join(F3_DIR, "F3_DISTRIBUCION_v01.py")
 F3_ACCESOS_SCRIPT = os.path.join(F3_DIR, "F3_ACCESOS_INTEGRADOR_v02.py")
+F1_FETCH_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-urban-context-v6.py")
 PROYECTOS = os.path.join(ORQ_DIR, "proyectos")
 PROVISIONAL = os.path.join(PROYECTOS, "_provisional")
 
@@ -195,6 +196,12 @@ def _calcular_f2(chip, aporte_lote, pago_parcial_pct, gfa_m2=None, costo_lote_co
             "recomendado": (d.get("recomendacion") or {}).get("recomendado"),
             "veredicto": (d.get("recomendacion") or {}).get("veredicto_textual"),
         }
+        # canonico resultados_<CHIP>.json para que F3 lo localice
+        try:
+            shutil.copy2(ruta_res, os.path.join(F2_VENTA_DIR, "resultados",
+                                                "resultados_" + chip + ".json"))
+        except Exception:
+            pass
     return {
         "ok": ok,
         "aporte_lote": aporte_lote,
@@ -225,6 +232,44 @@ def _generar_f3(chip, escenario="D_MIXTO"):
     res = _resultados(chip)
     res["chip"] = chip
     return {"ok": ok, "chip": chip, "salida": salida[-1500:], "resultados": res}
+
+
+def _pipeline(chip, aporte_lote, pago_parcial_pct, escenario="D_MIXTO"):
+    """Flujo completo F1 (contexto, si falta) -> F2 (venta con aporte) -> F3 (masa)."""
+    pasos = []
+    ctx = os.path.join(POT_CACHE, chip + "-contexto.json")
+    if os.path.exists(ctx):
+        pasos.append({"paso": "f1_contexto", "ok": True, "salida": "contexto ya existente"})
+    else:
+        try:
+            proc = subprocess.run([sys.executable, F1_FETCH_SCRIPT, "--chip", chip],
+                                  cwd=ROOT, capture_output=True, text=True,
+                                  encoding="utf-8", errors="replace", timeout=300)
+            ok1 = proc.returncode == 0 and os.path.exists(ctx)
+            sal1 = ((proc.stdout or "") + (proc.stderr or "")).strip()
+        except Exception as ex:
+            ok1, sal1 = False, "ERROR: " + str(ex)
+        pasos.append({"paso": "f1_contexto", "ok": ok1, "salida": sal1[-800:]})
+
+    f2 = _calcular_f2(chip, aporte_lote, pago_parcial_pct)
+    pasos.append({"paso": "f2_venta", "ok": f2["ok"], "salida": f2["salida"][-800:]})
+
+    f3 = None
+    if f2["ok"]:
+        f3 = _generar_f3(chip, escenario)
+        pasos.append({"paso": "f3_distribucion", "ok": f3["ok"], "salida": f3["salida"][-800:]})
+    else:
+        pasos.append({"paso": "f3_distribucion", "ok": False, "salida": "omitido: F2 falló"})
+
+    return {
+        "chip": chip,
+        "completado": all(p["ok"] for p in pasos),
+        "pasos": pasos,
+        "f2": {"pago_parcial_pct": f2["pago_parcial_pct"],
+               "fraccion_aporte_pct": f2["fraccion_aporte_pct"],
+               "resumen": f2["resumen"]},
+        "f3": ({"resultados": f3["resultados"]} if f3 and f3["ok"] else None),
+    }
 
 
 def _json(ruta):
@@ -607,6 +652,16 @@ class Handler(BaseHTTPRequestHandler):
                 return
             res = _generar_f3(chip, data.get("escenario", "D_MIXTO"))
             self._send(200, {"ok": True, "f3": res})
+            return
+
+        if parsed.path == "/api/pipeline":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            res = _pipeline(chip, data.get("aporte_lote", "participacion"),
+                            data.get("pago_parcial_pct"), data.get("escenario", "D_MIXTO"))
+            self._send(200, {"ok": True, "pipeline": res})
             return
 
         self._json_error("ruta no encontrada", 404)
