@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informe final — DiseñoParametrico · Cierre 2026-08-18</title>
+<style>
+  :root{
+    --ink:#111111;
+    --paper:#ffffff;
+    --paper2:#f4f4f2;
+    --accent:#e2001a;
+    --rule:#111111;
+    --muted:#5a5a5a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:16px;}
+  body{
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{max-width:960px;margin:0 auto;padding:48px 32px 96px;}
+  .masthead{border-bottom:3px solid var(--ink);padding-bottom:24px;margin-bottom:48px;}
+  .masthead .kicker{
+    font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:12px;
+  }
+  h1{font-size:44px;line-height:1.05;letter-spacing:-.01em;font-weight:700;max-width:18ch;}
+  h1 .accent{color:var(--accent);}
+  .meta{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px;
+    border-top:1px solid var(--ink);padding-top:16px;}
+  .meta .cell{font-size:12px;}
+  .meta .cell .lbl{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:10px;margin-bottom:4px;}
+  .meta .cell .val{font-size:15px;font-weight:700;}
+  section{margin-bottom:56px;}
+  h2{font-size:13px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+    border-top:2px solid var(--ink);padding-top:10px;margin-bottom:20px;}
+  h2 .num{color:var(--accent);margin-right:8px;}
+  p.lead{font-size:19px;line-height:1.45;max-width:52ch;margin-bottom:24px;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+    border-bottom:2px solid var(--ink);padding:8px 10px 8px 0;}
+  td{border-bottom:1px solid #d6d6d2;padding:10px 10px 10px 0;vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  .ok{color:var(--ink);font-weight:700;}
+  .warn{color:var(--accent);font-weight:700;}
+  .todo{color:var(--muted);}
+  .num-col{text-align:right;font-variant-numeric:tabular-nums;}
+  .big-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+    border-top:2px solid var(--ink);}
+  .fact{border-bottom:2px solid var(--ink);padding:20px 16px 20px 0;}
+  .fact .n{font-size:40px;font-weight:700;line-height:1;letter-spacing:-.01em;}
+  .fact .n small{font-size:16px;font-weight:400;color:var(--muted);}
+  .fact .t{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:6px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+  ul.clean{list-style:none;}
+  ul.clean li{padding:8px 0 8px 0;border-bottom:1px solid #e2e2de;font-size:14px;}
+  ul.clean li::before{content:"— ";color:var(--accent);}
+  .tag{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;
+    border:1px solid var(--ink);padding:2px 6px;margin-right:4px;}
+  .signoff{border:1px solid var(--ink);padding:28px;margin-top:32px;}
+  .signoff .row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:20px;}
+  .signoff .line{border-top:1px solid var(--ink);padding-top:8px;font-size:12px;color:var(--muted);}
+  .foot{margin-top:64px;font-size:11px;color:var(--muted);border-top:1px solid #d6d6d2;padding-top:12px;}
+  @media(max-width:720px){
+    .meta{grid-template-columns:1fr 1fr;}
+    .big-facts{grid-template-columns:1fr;}
+    .grid2{grid-template-columns:1fr;}
+    h1{font-size:34px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="kicker">Diseño paramétrico · BIM-GIS-AI · Bogotá</div>
+    <h1>Informe final<br><span class="accent">DiseñoParametrico</span></h1>
+    <div class="meta">
+      <div class="cell"><span class="lbl">Fecha de cierre</span><span class="val">2026-08-18</span></div>
+      <div class="cell"><span class="lbl">Versión</span><span class="val">v1.0</span></div>
+      <div class="cell"><span class="lbl">Commits</span><span class="val">83</span></div>
+      <div class="cell"><span class="lbl">Pruebas</span><span class="val">233 passed</span></div>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="num">01</span>Resumen ejecutivo</h2>
+    <p class="lead">Ecosistema paramétrico que, desde un lote (CHIP), extrae contexto urbano y normativo POT 555, calcula la envolvente edificable, evalúa la demanda financiera y genera la masa volumétrica por uso.</p>
+    <div class="big-facts">
+      <div class="fact"><div class="n">5<small> fases</small></div><div class="t">F0–F5 cubiertas</div></div>
+      <div class="fact"><div class="n">3<small> casos</small></div><div class="t">El Prado · La Candelaria · Muzú</div></div>
+      <div class="fact"><div class="n">233<small> tests</small></div><div class="t">suite verde</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span>Estado por fase</h2>
+    <table>
+      <tr><th>Fase</th><th>Responsabilidad</th><th>Estado</th></tr>
+      <tr><td>F0</td><td>Orquestación: carga proyecto.json y expone variables del canvas</td><td class="ok">Estable v01.3</td></tr>
+      <tr><td>F1</td><td>Contexto normativo y lote (fetch, lados, patio, normativa, GFA)</td><td class="ok">Estable v08</td></tr>
+      <tr><td>F2</td><td>Demanda y modelo financiero (venta + Build-to-Rent)</td><td class="ok">Estable v03</td></tr>
+      <tr><td>F3</td><td>Generación de masa (distribución, volumen, accesos)</td><td class="warn">Auto OK · Rhino manual</td></tr>
+      <tr><td>F4</td><td>Análisis ambiental (Ladybug/EPW)</td><td class="todo">Scripts v02 · sin corrida</td></tr>
+      <tr><td>F5</td><td>Integración BIM (ArchiCAD)</td><td class="todo">Documentación</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span>Resultados de los tres casos</h2>
+    <table>
+      <tr><th>Caso</th><th>CHIP</th><th>Localidad</th><th>Área actividad</th><th class="num-col">F2 GFA / costo</th><th class="num-col">F3 niveles / huella</th></tr>
+      <tr><td><strong>A</strong></td><td>AAA0127AZPA</td><td>El Prado (Suba)</td><td>AAPGSU</td><td class="num-col">315 m² · lote</td><td class="num-col">6 · 244 m²</td></tr>
+      <tr><td><strong>B</strong></td><td>AAA0030JKOE</td><td>La Candelaria</td><td>PEMP</td><td class="num-col">3 313 m² · $1 420 M</td><td class="num-col">6 · 652 m²</td></tr>
+      <tr><td><strong>C</strong></td><td>AAA0039KRMR</td><td>Muzú (Puente Aranda)</td><td>AAERVIS</td><td class="num-col">1 100 m² · $700 M</td><td class="num-col">5 · 250 m²</td></tr>
+    </table>
+    <p style="margin-top:12px;font-size:12px;color:var(--muted);">Área de actividad extraída de la geobase POT 555 (capa <em>AreaActividad</em>). F2 = motor de venta v03 (GFA máximo + costo del lote por parámetros). F3 = distribución espacial v01 (niveles + huella por piso).</p>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span>Validación de calidad</h2>
+    <div class="grid2">
+      <div>
+        <p class="lead" style="font-size:15px;">Cobertura de pruebas</p>
+        <ul class="clean">
+          <li>F0 — carga de proyecto.json (fuente + funcional)</li>
+          <li>F1 — fetch, lados v04/v05/v06, normativa v06/v07/v08, patio</li>
+          <li>F2 — venta (regresión total/parcial) y renta</li>
+          <li>F3 — distribución/núcleo, volumen v07, accesos v02</li>
+          <li>Orquestador, servidor y vecinos por lado</li>
+        </ul>
+      </div>
+      <div>
+        <p class="lead" style="font-size:15px;">Casos límite probados</p>
+        <ul class="clean">
+          <li>Vecino <em>via</em> vs <em>predio</em> (Muzú occidente)</li>
+          <li>Empate posterior independiente (m y pisos)</li>
+          <li>Aporte parcial <em>pago_parcial_pct</em></li>
+          <li>Usos base vs sector · alineación de núcleo</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">05</span>Pendientes al cierre</h2>
+    <table>
+      <tr><th>#</th><th>Pendiente</th><th>Naturaleza</th></tr>
+      <tr><td>1</td><td>Masa final en Rhino → Morphs ArchiCAD</td><td class="warn">Manual (operador)</td></tr>
+      <tr><td>2</td><td>Confirmación dinámica de vecinos en navegador</td><td class="todo">Diferido</td></tr>
+      <tr><td>3</td><td>Usos por sector definitivo (Sinupot / CU-5.4.x / Art. 243)</td><td class="warn">Dato externo</td></tr>
+      <tr><td>4</td><td>Validar <em>pago_parcial_pct</em> contra caso real</td><td class="warn">Dato externo</td></tr>
+      <tr><td>5</td><td>F4 ambiental y F5 BIM en ejecución</td><td class="todo">Siguiente fase</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2><span class="num">06</span>Lecciones aprendidas</h2>
+    <ul class="clean">
+      <li>La geobase POT es imperfecta; la clasificación automática es sugerencia, no verdad — el override del operador es la solución.</li>
+      <li>La lógica de mapeo vive en 3 lugares (Python + IronPython + JS): exige tests unitarios para no divergir.</li>
+      <li>IronPython 2.7 (GHPython) no admite f-strings, pathlib, type hints ni walrus.</li>
+      <li>Los derivados (<em>data/pot-cache/*</em>, <em>resultados/*</em>, <em>.3dm</em>) se regeneran y no son fuente de verdad.</li>
+    </ul>
+  </section>
+
+  <section class="signoff">
+    <h2 style="border:none;padding:0;margin:0;"><span class="num">07</span>Cierre y aprobación</h2>
+    <p style="margin-top:16px;font-size:14px;">El responsable confirma el cumplimiento del alcance definido en <em>01-estado-y-alcance.md</em> y registra la evidencia de cierre.</p>
+    <div class="row">
+      <div class="line">Firma del responsable</div>
+      <div class="line">Fecha de aprobación</div>
+    </div>
+    <div class="row">
+      <div class="line">Versión aprobada: v1.0</div>
+      <div class="line">Entregables: estado, bitácora, informe, paquete</div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    DiseñoParametrico · repositorio <code>D:\Work\PROJECTS\DiseñoParametrico</code> · 83 commits · suite 233 passed · informe generado 2026-08-18.
+  </footer>
+
+</div>
+</body>
+</html>
