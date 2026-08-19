@@ -1,4 +1,4 @@
-# Paquete de entrega — DiseñoParametrico (cierre 2026-08-18)
+# Paquete de entrega — cierre de fase F1–F3 (2026-08-18)
 
 Contenido del paquete de cierre:
 
@@ -6,7 +6,7 @@ Contenido del paquete de cierre:
 |---|---|
 | `01-estado-y-alcance.md` | Alcance, qué está completo, qué falta, qué se considera terminado |
 | `02-bitacora.md` | Versiones, decisiones (ADR) y pruebas |
-| `03-informe-final.html` | Informe final consolidado (Precisión suiza) |
+| `03-informe-final.html` | Informe de cierre de fase F1–F3 (Precisión suiza) |
 | `README.md` | Índice + instrucciones de uso y transferencia (este archivo) |
 
 ## Cómo abrir, operar y mantener
@@ -45,6 +45,7 @@ Contenido del paquete de cierre:
 |---|---|
 | Variables de decisión del lote | `proyectos/_provisional/proyecto.json` |
 | Usos permitidos por sector | `data/pot-bogota/usos-por-sector.json` |
+| Clasificación de uso por lote (sector UPL, #3) | `data/pot-bogota/sectores-uso-lotes.json` |
 | Área de actividad por lote | `data/pot-bogota/areas-actividad.json` |
 | Parámetros financieros por chip | `src/fase-2-demanda/F2_Modelo_Financiero/parametros_<CHIP>_venta.json` |
 | Catálogo base de usos | `src/orquestador/servidor.py` (constante `USOS_CATALOGO`) |
@@ -52,4 +53,4 @@ Contenido del paquete de cierre:
 
 ### Transferencia
 
-El repositorio es la fuente de verdad y está versionado en git (83 commits). Para transferir a otro equipo: clonar el repo, recrear el entorno con `entorno_python.ps1`, y copiar la geobase `POT_Decreto_555_2021_Bogota_D_C.gdb` (no versionada, en `D:\Work\LIBRARIES\POT_Bogota\`) porque los `data/pot-cache/*-contexto.json` se regeneran desde ella.
+El repositorio es la fuente de verdad y está versionado en git (85 commits). Para transferir a otro equipo: clonar el repo, recrear el entorno con `entorno_python.ps1`, y copiar la geobase `POT_Decreto_555_2021_Bogota_D_C.gdb` (no versionada, en `D:\Work\LIBRARIES\POT_Bogota\`) porque los `data/pot-cache/*-contexto.json` se regeneran desde ella.

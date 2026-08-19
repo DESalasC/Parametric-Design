@@ -1,6 +1,6 @@
 # Bitácora de versiones, decisiones y pruebas — DiseñoParametrico
 
-Cierre **2026-08-18** · 85 commits (2026-07-31 → 2026-08-18) · suite **234 passed**.
+Cierre de fase **F1–F3** · **2026-08-18** · 85 commits · suite **234 passed**.
 
 ## 1. Versiones vigentes por fase
 

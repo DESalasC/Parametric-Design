@@ -1,6 +1,8 @@
 # Documento de estado y alcance — DiseñoParametrico
 
-Fecha de corte: **2026-08-18** · Versión de cierre: **v1.0** · Repositorio: `D:\Work\PROJECTS\DiseñoParametrico`
+Fecha de corte: **2026-08-18** · Cierre de fase: **F1–F3 (v1.0)** · Repositorio: `D:\Work\PROJECTS\DiseñoParametrico`
+
+> **Alcance del cierre**: este documento registra el cierre de la fase **F1→F3** (contexto normativo → demanda → masa). El proyecto tiene **6 fases (F0–F5)**; F4 (ambiental) y F5 (BIM) son fases posteriores y quedan fuera de este cierre.
 
 ## 1. Qué abarca el proyecto
 
@@ -23,21 +25,20 @@ Pipeline por fases:
 - **F2**: motor de venta v03 (escenarios A_VIS/B_ESTANDAR/C_LUJO/D_MIXTO, sensibilidad, aporte parcial `pago_parcial_pct`) y motor de renta v03 (CP/LP).
 - **F3**: distribución espacial por uso, generador volumétrico v07 (escalonado, núcleo contra medianera) y accesos por uso. Prueba real de masa en Rhino 8 (caso A: 15 objetos `.3dm`).
 - **Orquestador**: formulario interactivo + servidor local (F1→F3), `F0_LOAD_PROYECTO_v01`, clasificación de vecinos por lado, integración de área de actividad.
-- **Validación**: suite pytest **233 passed** (22 archivos).
+- **Validación**: suite pytest **234 passed** (22 archivos).
 
 ## 3. Qué falta (pendientes al cierre)
 
 1. **F3 masa en Rhino**: cableado del canvas ya commiteado; falta la ejecución manual final de Morphs en ArchiCAD.
-2. **Usos por sector (definitivo)**: requiere consulta Sinupot / CU-5.4.x o estructurar el cuadro del Decreto 555 Art. 243. Hoy aplica catálogo `base` + área de actividad.
-3. **`pago_parcial_pct` (F2)**: validar semántica financiera contra un caso real.
-4. **F4 ambiental**: ejecutar Ladybug/EPW en Rhino (scripts listos, sin corrida validada).
-5. **F5 BIM**: materializar la integración ArchiCAD (capas y story-sync preparados).
+2. **Usos por sector (definitivo)**: sector UPL extraído de la geobase (`sectores-uso-lotes.json`); la lista final predio a predio requiere Sinupot / CU-5.4.x o el cuadro del Decreto 555 Art. 243.
+3. **F4 ambiental**: ejecutar Ladybug/EPW en Rhino (scripts listos, sin corrida validada).
+4. **F5 BIM**: materializar la integración ArchiCAD (capas y story-sync preparados).
 
 ## 4. Qué se considera "terminado"
 
-- **Terminado (automatizable)**: F0, F1, F2 y F3 — reproducibles por CLI con salidas deterministas y 233 tests verdes.
+- **Terminado (automatizable)**: F0, F1, F2 y F3 — reproducibles por CLI con salidas deterministas y 234 tests verdes.
 - **Terminado (manual, requiere Rhino)**: cableado del canvas y generación de masa; validación visual del operador.
-- **No terminado**: usos por sector definitivo (dato externo), validación `pago_parcial_pct`, F4/F5 en ejecución.
+- **No terminado**: usos por sector definitivo (Sinupot / CU-5.4.x), F4/F5 en ejecución.
 
 ## 5. Supuestos
 
