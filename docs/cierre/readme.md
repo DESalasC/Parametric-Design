@@ -7,6 +7,7 @@ Contenido del paquete de cierre:
 | `01-estado-y-alcance.md` | Alcance, qué está completo, qué falta, qué se considera terminado |
 | `02-bitacora.md` | Versiones, decisiones (ADR) y pruebas |
 | `03-informe-final.html` | Informe de cierre de fase F1–F3 (Precisión suiza) |
+| `04-proxima-sesion.md` | Handoff: versiones vigentes, terminado, pendiente y reglas de entorno |
 | `README.md` | Índice + instrucciones de uso y transferencia (este archivo) |
 
 ## Cómo abrir, operar y mantener

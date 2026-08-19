@@ -17,10 +17,10 @@ PROPOSITO:
       atributos (nivel + capa) a cada Morph ya creado.
 
   Mecanismo completo (3 pasos):
-    Paso 1 (pendiente en F3_VOLUM_GENERADOR_v07): emitir, paralela a
-      `volumenes_por_uso`/`usos_etiquetas`, la lista `usos_pisos` (numero de
-      piso por volumen). Hoy F3 solo etiqueta por uso, no por piso; esa lista
-      es el unico insumo faltante para el cableado que sigue.
+    Paso 1 (implementado en F3_VOLUM_GENERADOR_v07.25): F3 ya emite, paralela
+      a `volumenes_por_uso`/`usos_etiquetas`, la lista `usos_pisos` (numero de
+      piso por volumen). Cablear `usos_pisos` de F3 a la entrada `pisos` de
+      este componente.
     Paso 2 (este componente): mapear uso->capa (GuBIMclass) y piso->nivel;
       emitir `layer_names`/`story_names` + el manifest en disco.
     Paso 3 (Tapir / Live Connection): cablear `layer_names` y `story_names` al

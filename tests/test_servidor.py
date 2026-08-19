@@ -67,7 +67,13 @@ def test_modos_y_escenarios():
 def test_usos_catalogo():
     u = sv._usos("AAA0127AZPA")
     cats = {x["categoria"] for x in u["catalogo"]}
-    assert "principal" in cats and "complementario" in cats and "prohibido" in cats
+    # Proximidad (AAPGSU): principal + restringido + prohibido (sin complementario)
+    assert "principal" in cats and "restringido" in cats and "prohibido" in cats
+    assert "complementario" not in cats
+    principales = {x["nombre"] for x in u["catalogo"] if x["categoria"] == "principal"}
+    assert any("Vivienda" in n for n in principales)
+    prohibidos = {x["nombre"] for x in u["catalogo"] if x["categoria"] == "prohibido"}
+    assert any("alto impacto" in n for n in prohibidos)
 
 
 def test_financiero_con_fuentes():
@@ -132,14 +138,14 @@ def test_http_smoke():
         srv.server_close()
 
 
-def test_usos_sector_fuente_base_y_pendiente():
+def test_usos_area_actividad_fuente():
     u = sv._usos("AAA0127AZPA")
     cats = {x["categoria"] for x in u["catalogo"]}
-    assert cats == {"principal", "complementario", "prohibido"}
-    assert u["fuente"] == "base"
+    assert cats == {"principal", "restringido", "prohibido"}
+    assert u["fuente"] == "area_actividad"
+    assert u["categoria_area_actividad"] == "Proximidad"
     assert u["sector_clave"] == "EL PRADO"
-    assert u["pendiente_usos_sector"] is True
-    # cada item trazable (fuente base vs sector)
+    assert u["pendiente_usos_sector"] is False  # resuelto por area de actividad
     assert all("fuente" in x for x in u["catalogo"])
 
 
@@ -153,6 +159,7 @@ def test_usos_area_actividad_geobase():
     assert u["area_actividad"]["codigo"] == "AAPGSU"
     assert u["area_actividad"]["nombre"]
     assert u["pendiente_cuadro_uso"] is True
+    assert u["categoria_area_actividad"] == "Proximidad"
 
 
 def test_usos_sector_geobase():
@@ -165,14 +172,28 @@ def test_usos_sector_geobase():
     assert upl["NOMBRE"] == "Niza"
 
 
-def test_catalogo_usos_override_sector():
-    base = {"principal": ["Vivienda"], "complementario": [], "prohibido": ["Industrial"]}
-    sector = {"principal": ["Vivienda", "Comercio"], "complementario": ["Salud"], "prohibido": []}
-    catalogo, fuente = sv._catalogo_usos(base, sector)
-    assert fuente == "sector"
-    assert {x["categoria"] for x in catalogo} == {"principal", "complementario"}
+def test_catalogo_usos_cuatro_categorias():
+    cats = {"principal": ["Vivienda", "Comercio"], "complementario": ["Salud"],
+            "restringido": ["Industria BIA"], "prohibido": ["Industria AIA"]}
+    catalogo = sv._catalogo_usos(cats, "area_actividad")
+    assert {x["categoria"] for x in catalogo} == {"principal", "complementario", "restringido", "prohibido"}
     principales = {x["nombre"] for x in catalogo if x["categoria"] == "principal"}
     assert principales == {"Vivienda", "Comercio"}
+    assert all(x["fuente"] == "area_actividad" for x in catalogo)
+
+
+def test_usos_area_actividad_estructurante_y_pemp():
+    # AAERVIS -> Estructurante (todo complementario, sin principal)
+    u = sv._usos("AAA0039KRMR")
+    assert u["categoria_area_actividad"] == "Estructurante"
+    assert u["fuente"] == "area_actividad"
+    cats = {x["categoria"] for x in u["catalogo"]}
+    assert "complementario" in cats and "principal" not in cats
+    # PEMP (BIC) -> sin categoria en el cuadro AA -> fallback base
+    p = sv._usos("AAA0030JKOE")
+    assert p["categoria_area_actividad"] is None
+    assert p["fuente"] == "base"
+    assert p["area_actividad"]["codigo"] == "PEMP"
 
 
 def test_aporte_lote_variable():

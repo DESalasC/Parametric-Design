@@ -379,25 +379,27 @@ def _normalizar_upz(upz):
     return " ".join(str(upz).strip().split()).upper()
 
 
-def _catalogo_usos(base_cats, sector):
-    """Arma el catalogo de usos: sector si trae listas, si no base. Cada item
-    lleva 'fuente' para trazabilidad (base vs sector)."""
-    if sector and (sector.get("principal") or sector.get("complementario") or sector.get("prohibido")):
-        cats = {c: sector.get(c, []) for c in ("principal", "complementario", "prohibido")}
-        fuente = "sector"
-    else:
-        cats = {c: base_cats.get(c, []) for c in ("principal", "complementario", "prohibido")}
-        fuente = "base"
+def _categoria_aa(codigo):
+    """Mapea el codigo de area de actividad (AreaActividad) a la categoria del
+    cuadro de usos (Proximidad / Estructurante / Grandes_Servicios_Metropolitanos)."""
+    data = _usos_por_sector()
+    taxo = data.get("aa_taxonomia") or {}
+    return taxo.get(codigo)
+
+
+def _catalogo_usos(cats, fuente):
+    """Arma el catalogo de usos (principal/complementario/restringido/prohibido)
+    con trazabilidad por item. `cats` trae esas 4 claves."""
     catalogo = []
-    for categoria in ("principal", "complementario", "prohibido"):
-        for nombre in cats.get(categoria, []):
+    for categoria in ("principal", "complementario", "restringido", "prohibido"):
+        for nombre in (cats or {}).get(categoria, []):
             catalogo.append({
                 "nombre": nombre,
                 "categoria": categoria,
                 "descripcion": USOS_DESC.get(nombre, ""),
                 "fuente": fuente,
             })
-    return catalogo, fuente
+    return catalogo
 
 
 def _usos(chip):
@@ -410,12 +412,34 @@ def _usos(chip):
     base_cats = data.get("base") or {
         "principal": [u["nombre"] for u in USOS_CATALOGO if u["categoria"] == "principal"],
         "complementario": [u["nombre"] for u in USOS_CATALOGO if u["categoria"] == "complementario"],
+        "restringido": [],
         "prohibido": [u["nombre"] for u in USOS_CATALOGO if u["categoria"] == "prohibido"],
     }
     sectores = data.get("sectores") or {}
+    areas_actividad = data.get("areas_actividad") or {}
     key = _normalizar_upz(upz)
     sector = sectores.get(key) if key else None
-    catalogo, fuente = _catalogo_usos(base_cats, sector)
+
+    # 1) Resolucion normativa por AREA DE ACTIVIDAD (Art. 233-243 + Anexo 5)
+    categoria_aa = None
+    cats = None
+    fuente = "base"
+    if area_actividad:
+        categoria_aa = _categoria_aa(area_actividad.get("codigo"))
+        if categoria_aa and categoria_aa in areas_actividad:
+            cats = areas_actividad[categoria_aa]
+            fuente = "area_actividad"
+    # 2) Fallback: sector UPZ (legacy)
+    if cats is None:
+        if sector and (sector.get("principal") or sector.get("complementario")
+                       or sector.get("restringido") or sector.get("prohibido")):
+            cats = sector
+            fuente = "sector"
+        else:
+            cats = base_cats
+            fuente = "base"
+
+    catalogo = _catalogo_usos(cats, fuente)
     return {
         "chip": chip,
         "upz": upz,
@@ -426,10 +450,12 @@ def _usos(chip):
         "sector_estado": (sector or {}).get("estado"),
         "pendiente_usos_sector": bool(sector and sector.get("estado") == "pendiente-usos"),
         "area_actividad": area_actividad,
+        "categoria_area_actividad": categoria_aa,
         "pendiente_cuadro_uso": area_actividad is not None,
         "sector_uso_geobase": sector_uso_geobase,
-        "nota": data.get("nota") or ("Catálogo base NSR-10 A.2.5 + POT 555. Los usos permitidos/prohibidos "
-                "definitivos dependen de la reglamentación del sector/UPZ y deben validarse."),
+        "nota": data.get("nota") or ("Cuadro de usos segun area de actividad (Decreto 555/2021 "
+                "Art. 233-243 + Anexo 5). P=principal, C=complementario, R=restringido; "
+                "lo no listado esta prohibido en esa area de actividad."),
     }
 
 

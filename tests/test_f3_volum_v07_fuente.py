@@ -119,9 +119,12 @@ def test_subversion_en_encabezado():
     # sub-versionado interno: v07.x en el encabezado + mensaje con la
     # subversion en curso (la version general solo cambia con cambios mayores)
     assert "SUBVERSIONES INTERNAS" in src
-    assert "v07.24" in src
-    assert "VOLUM v07.24 |" in src
+    assert "v07.25" in src
+    assert "VOLUM v07.25 |" in src
     assert "Regla de versionado" in src
+    # v07.25: salida usos_pisos paralela a volumenes_por_uso/usos_etiquetas
+    assert "usos_pisos = []" in src
+    assert "usos_pisos.append(piso_num)" in src
 
 
 def test_recortar_huecos_firma_estable():

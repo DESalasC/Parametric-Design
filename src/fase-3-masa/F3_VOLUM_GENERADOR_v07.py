@@ -97,6 +97,10 @@ SUBVERSIONES INTERNAS (v07.x: iteraciones sin cambio de version general):
          hueco) se etiqueta con su uso; piso mixto -> _repartir_usos corta la
          huella por area_bruta a lo largo del eje dominante del bbox. Resumen
          por uso en el mensaje (usos: ...).
+  v07.25: salida `usos_pisos` (numero de piso por volumen en volumenes_por_uso),
+         paralela 1:1 a volumenes_por_uso/usos_etiquetas, para que
+         F3_MORPH_ATRIBUTOS_v01 asigne el Story (nivel) de ArchiCAD a cada
+         Morph. Sin cambio de algoritmo de masa ni de contrato previo.
 Regla de versionado: la version general (v07 -> v08) SOLO cambia con
 cambios mayores (contrato de entradas/salidas o algoritmo central); las
 iteraciones internas se registran como subversiones v07.x en este encabezado
@@ -172,6 +176,9 @@ SALIDAS:
                              etiquetado; piso mixto = sub-volumenes por uso.
   usos_etiquetas          (List of String)- [v07.24] Nombre del uso de cada
                              volumen en volumenes_por_uso (paralelo 1:1).
+  usos_pisos              (List of int)    - [v07.25] Numero de piso de cada
+                             volumen en volumenes_por_uso (paralelo 1:1), para
+                             asignar el Story (nivel) en ArchiCAD.
   mensaje                 (String)         - Diagnostico (huecos n/N, fuente)
 
 SALIDAS MESH (para el componente Morph de la Live Connection de ArchiCAD,
@@ -785,15 +792,16 @@ volumenes_nucleo_mesh = []
 losas_mesh = []
 volumenes_por_uso = []
 usos_etiquetas = []
+usos_pisos = []
 volumenes_por_uso_mesh = []
 mensaje = ""
 
 if not env_por_piso and not env_fb:
-    mensaje = ("VOLUM v07.24 | ERROR: sin curva de envelope. Cablear la salida "
+    mensaje = ("VOLUM v07.25 | ERROR: sin curva de envelope. Cablear la salida "
                "envelope_por_piso (lista, PREFERIDA) o envelope_curve de "
                "F1_ETAPA2_NORMATIVA_v07.")
 elif not json_path:
-    mensaje = ("VOLUM v07.24 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
+    mensaje = ("VOLUM v07.25 | ERROR: json_path invalido ('{}'). Cablear la ruta al "
                "programa-areas.json (absoluta o relativa al proyecto)").format(
         str(unwrap(json_path_raw)) if json_path_raw else "")
 else:
@@ -816,7 +824,7 @@ else:
             crv_ref = env_fb[0]
         ap = rg.AreaMassProperties.Compute(crv_ref)
         if ap is None:
-            mensaje = "VOLUM v07.24 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
+            mensaje = "VOLUM v07.25 | ERROR: curva de envelope sin area (revisar NORMATIVA_v07)."
         else:
             area_losa_ref = ap.Area
             centroide = ap.Centroid if ap.Centroid else rg.Point3d(0, 0, 0)
@@ -1197,6 +1205,7 @@ else:
                         nombre_uso = usos_ok[0].get("uso", "")
                         volumenes_por_uso.append(env_vol)
                         usos_etiquetas.append(nombre_uso)
+                        usos_pisos.append(piso_num)
                         m_uso = _brep_a_mesh(env_vol)
                         if m_uso is not None:
                             volumenes_por_uso_mesh.append(m_uso)
@@ -1237,12 +1246,14 @@ else:
                                 continue
                             volumenes_por_uso.append(_vol_u)
                             usos_etiquetas.append(_nombre)
+                            usos_pisos.append(piso_num)
                             _m_u = _brep_a_mesh(_vol_u)
                             if _m_u is not None:
                                 volumenes_por_uso_mesh.append(_m_u)
                     else:
                         volumenes_por_uso.append(env_vol)
                         usos_etiquetas.append("")
+                        usos_pisos.append(piso_num)
                 else:
                     # Regla: nunca geometria intersectante -> se omite el piso
                     n_omitidos += 1
@@ -1279,7 +1290,7 @@ else:
             med_desc = med_desc + med_debug
 
             if n_omitidos == 0:
-                mensaje = ("VOLUM v07.24 | OK | {} pisos | envelope: {} | "
+                mensaje = ("VOLUM v07.25 | OK | {} pisos | envelope: {} | "
                            "huecos excluidos {}/{} | boolean {} | "
                            "salidas: vol {}/{} losas {}/{} circ {}/{} serv {}/{} | "
                            "Circ {:.0f}m2 + Serv {:.0f}m2 = nucleo {:.0f}m2/piso | "
@@ -1294,7 +1305,7 @@ else:
                     usos_resumen,
                     "MORPH (mesh)" if salida_morph else "BREP + mesh")
             else:
-                mensaje = ("VOLUM v07.24 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
+                mensaje = ("VOLUM v07.25 | ADVERTENCIA | {} pisos, {} omitidos (exclusion del "
                            "nucleo fallo; sin geometria intersectante) | huecos {}/{} | boolean {} | "
                            "envelope: {} | nucleo: bloque {:.0f}m2, solidos {:.0f}m2 "
                            "(aire interior {:.0f}m2) | nucleo[{}]: {} {}/{} medmax{:.1f}m2 | omitidos: {} | salida: {}").format(
@@ -1315,5 +1326,5 @@ else:
                 volumenes_por_uso = list(volumenes_por_uso_mesh)
 
     except Exception as e:
-        mensaje = "VOLUM v07.24 | ERROR: {}".format(str(e))
+        mensaje = "VOLUM v07.25 | ERROR: {}".format(str(e))
 

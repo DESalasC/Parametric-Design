@@ -58,3 +58,53 @@ del operador y mapeo a NORMATIVA) en DiseñoParametrico.
    (caso real Muzú occidente: lado `via` que en realidad es `predio`).
 3. (Persistente) Cargar listas definitivas de usos por sector (Sinupot / CU-5.4.x).
 4. (Persistente) Validar `pago_parcial_pct` de F2 contra un caso real.
+
+## Resumen de sesión — 2026-08-18 (cierre: usos por área de actividad + F3 v07.25 + follow-ups)
+
+### Errores encontrados
+1. **Anexo 5 ≠ cuadro de usos.** El PDF `anexo_no._5_manual_comunes_tramientos_urbanisticos_.pdf`
+   (86 págs) es el "Manual de Normas Comunes para Tratamientos Urbanísticos"; NO trae la
+   tabla principal/complementario/prohibido. Esa tabla está en el cuerpo del Decreto 555
+   (Art. 233–243) y se leyó de `LIBRARIES/POT_Bogota/Marco normativo (Art. 233-243).md`.
+2. **Resolver usos por UPZ era un aproximado.** La clave normativa es el ÁREA DE ACTIVIDAD
+   (P/C/R/prohibido), no la UPZ. Por eso EL PRADO estaba `pendiente-usos`.
+3. **3 categorías insuficientes.** El cuadro tiene 4 niveles (principal/complementario/
+   restringido/prohibido); el modelo viejo confundía "restringido" con "prohibido".
+4. **`servidor.py` NO calcula GFA.** Cadena real: forma → `proyecto.json` → `F0_LOAD_PROYECTO`
+   → canvas `NORMATIVA_v08` → `F1_EXPORTAR_GFA_v02` → `gfa-gh.json` → `_calcular_f2`.
+   GFA actual 826.58 m² (antes 1186.87); anomalías: "0 lados/0 vecinos", antejardín default 3.0 m, sin lado posterior.
+5. **Fuente/docstring desactualizados en `F1_EXPORTAR_GFA_v02`** (`v00`→`v02`, refs `v04`→`v08`).
+
+### Modificaciones solicitadas
+1. Actualizar usos por sector desde fuente oficial (cuadro de usos del suelo).
+2. Corregir fuente/docstring de `F1_EXPORTAR_GFA_v02`.
+3. Habilitar ejecución del canvas "Tapir" (3 vías: auto-solve / Rhino.Compute-Hops / Tapir-ArchiCAD API).
+4. Mecanismo Morph → Story(Layer) con GuBIMclass y niveles reales (sin v07.25 falso).
+5. `mejora menor`: escenario `mix_usos` (D_MIXTO).
+6. Desarrollar `F3_VOLUM_GENERADOR` v07.25 con salida `usos_pisos`.
+
+### Lecciones aprendidas
+1. Usos = Área de Actividad + 4 categorías (P/C/R/prohibido); PEMP (BIC) cae a fallback base (régimen propio).
+2. Verificar la fuente real antes de asumir: el Anexo 5 es el Manual de Normas Comunes, no el cuadro de usos.
+3. IronPython 2.7 (GHPython): sin f-strings/pathlib; capas con estándar GuBIMclass; niveles con nombres reales de ArchiCAD.
+4. Derivados (`anexo5_pdf_extract.txt`, `gfa-gh.json`, resultados F2/F3) no se commitean.
+
+### Soluciones entregadas
+- `data/pot-bogota/usos-por-sector.json` v02: `areas_actividad` (Proximidad/Estructurante/GSM
+  → principal/complementario/restringido/prohibido) + `aa_taxonomia` + `base` 4 categorías.
+- `servidor.py`: `_categoria_aa()` + `_catalogo_usos()` 4 categorías + `_usos()` por AA (→sector→base),
+  campo `categoria_area_actividad`.
+- `index.html`: categoría "Restringidos".
+- `F3_VOLUM_GENERADOR_v07.25`: salida `usos_pisos` (1:1 con `volumenes_por_uso`).
+- `F3_MORPH_ATRIBUTOS_v01.py`: Morph → Layer GuBIMclass + Story (nivel) → `morph-manifest.json`.
+- `EJECUCION_TAPIR.md`: 3 vías de disparo del canvas.
+- `F1_EXPORTAR_GFA_v02.py`: fuente v02 + SUBVERSIONES INTERNAS v02.1.
+- Suite: **240 passed**.
+
+### Pendientes de esta sesión
+1. Cablear `usos_pisos` (F3) → entrada `pisos` de `F3_MORPH_ATRIBUTOS_v01`; completar Paso 3
+   (Story/Layer en ArchiCAD vía Tapir/Live Connection — verificar si `archicad` ac29 soporta
+   Modify; `F3_StorySync_v01` es read-only).
+2. Validar `pago_parcial_pct` F2 contra un caso real.
+3. Regenerar GFA en Rhino (826.58 vs 1186.87) y revisar las anomalías de vecinos/antejardín.
+4. F4 Ladybug (ambiental) y F5 BIM (inyección) — fases posteriores.

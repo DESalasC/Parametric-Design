@@ -1,25 +1,125 @@
 {
-  "_schema": "usos-por-sector_v01",
-  "nota": "Usos permitidos/complementarios/prohibidos por UPZ o sector normativo. La regla POT 555 (Decreto 555/2021, Art. 233) define los usos por AREA DE ACTIVIDAD y rango de tamaño (escala Tipo 1-4), no directamente por UPZ. La clasificacion DEFINITIVA por predio requiere consulta geografica (Sinupot / Concepto de uso) sobre la sectorizacion CU-5.4.2 a CU-5.4.33. Mientras no este cargada, aplica 'base' (NSR-10 A.2.5 + POT 555). Ver vault: 30-referencia/usos-suelo-pot555-marco.md.",
+  "_schema": "usos-por-sector_v02",
+  "nota": "Cuadro de usos del suelo por Área de Actividad (Decreto 555/2021, Art. 233-243 + Anexo 5). Cada uso se clasifica P (principal), C (complementario), R (restringido) o prohibido (ausente de la lista, o '—' en la norma). La resolución normativa por predio es por ÁREA DE ACTIVIDAD (areas-actividad.json), no por UPZ; el sector UPZ queda como fallback/legacy. Fuente local: LIBRARIES/POT_Bogota/Marco normativo (Art. 233-243).md.",
   "fuentes": [
     "https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=119582",
-    "https://www.sdp.gov.co/content/consulta-pot",
-    "https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=170937"
+    "https://compilacionjuridica.shd.gov.co/compilacion/docs/d_alcabog_0555_2021.htm",
+    "https://www.sdp.gov.co/micrositios/consulta-pot/libro3",
+    "https://bogota.gov.co/bog/pot-2022-2035/Decreto_555_de_2021.pdf"
   ],
   "base": {
     "principal": ["Vivienda", "Comercio"],
     "complementario": ["Oficinas", "Salud", "Servicios", "Educación"],
+    "restringido": [],
     "prohibido": ["Institucional", "Industrial"]
+  },
+  "aa_taxonomia": {
+    "AAPGSU": "Proximidad",
+    "AAPRSU": "Proximidad",
+    "AAERAE": "Estructurante",
+    "AAERVIS": "Estructurante",
+    "AAGSM": "Grandes_Servicios_Metropolitanos"
+  },
+  "areas_actividad": {
+    "Proximidad": {
+      "principal": [
+        "Vivienda (unifamiliar, bifamiliar, multifamiliar, colectiva)",
+        "Educación",
+        "Salud",
+        "Cultura",
+        "Deporte y recreación",
+        "Administración y justicia",
+        "Comercio al por menor (pequeña superficie)",
+        "Servicios financieros",
+        "Servicios profesionales",
+        "Servicios de alojamiento",
+        "Servicios de alimentación",
+        "Servicios públicos",
+        "Espacio público",
+        "Sistema Ecológico Principal (EEP)"
+      ],
+      "complementario": [],
+      "restringido": [
+        "Comercio al por menor (mediana y gran superficie)",
+        "Comercio al por mayor",
+        "Industria de bajo impacto ambiental (BIA)",
+        "Almacenamiento y bodegas",
+        "Infraestructura de transporte",
+        "Infraestructura de gestión de residuos"
+      ],
+      "prohibido": [
+        "Industria de alto impacto ambiental (AIA)"
+      ]
+    },
+    "Estructurante": {
+      "principal": [],
+      "complementario": [
+        "Vivienda (unifamiliar, bifamiliar, multifamiliar, colectiva)",
+        "Educación",
+        "Salud",
+        "Cultura",
+        "Deporte y recreación",
+        "Administración y justicia",
+        "Comercio al por menor (pequeña superficie)",
+        "Comercio al por menor (mediana y gran superficie)",
+        "Comercio al por mayor",
+        "Servicios financieros",
+        "Servicios profesionales",
+        "Servicios de alojamiento",
+        "Servicios de alimentación",
+        "Industria de bajo impacto ambiental (BIA)",
+        "Almacenamiento y bodegas",
+        "Servicios públicos",
+        "Infraestructura de transporte",
+        "Infraestructura de gestión de residuos",
+        "Espacio público",
+        "Sistema Ecológico Principal (EEP)"
+      ],
+      "restringido": [
+        "Industria de alto impacto ambiental (AIA)"
+      ],
+      "prohibido": []
+    },
+    "Grandes_Servicios_Metropolitanos": {
+      "principal": [
+        "Comercio al por menor (mediana y gran superficie)",
+        "Comercio al por mayor",
+        "Industria de bajo impacto ambiental (BIA)",
+        "Industria de alto impacto ambiental (AIA)",
+        "Almacenamiento y bodegas",
+        "Infraestructura de transporte",
+        "Infraestructura de gestión de residuos"
+      ],
+      "complementario": [],
+      "restringido": [
+        "Vivienda (unifamiliar, bifamiliar, multifamiliar, colectiva)",
+        "Educación",
+        "Salud",
+        "Cultura",
+        "Deporte y recreación",
+        "Administración y justicia",
+        "Comercio al por menor (pequeña superficie)",
+        "Servicios financieros",
+        "Servicios profesionales",
+        "Servicios de alojamiento",
+        "Servicios de alimentación",
+        "Servicios públicos",
+        "Espacio público",
+        "Sistema Ecológico Principal (EEP)"
+      ],
+      "prohibido": []
+    }
   },
   "sectores": {
     "EL PRADO": {
       "upz": "UPZ 19 El Prado",
-      "area_actividad": "Residencial (por confirmar en Sinupot)",
-      "fuente": "Decreto 299/2002 + resolucion 1673/2010 (normativa-upz.json); Decreto 555/2021 Art. 233",
-      "estado": "pendiente-usos",
-      "nota": "IC/IO y sectores normativos ya definidos en normativa-upz.json. La lista definitiva de usos permitidos/complementarios/prohibidos requiere la consulta en Sinupot / concepto de uso sobre la sectorizacion CU-5.4.x.",
+      "area_actividad": "Proximidad (AAPGSU)",
+      "fuente": "areas-actividad.json + Marco normativo (Art. 233-243).md",
+      "estado": "resuelto-area-actividad",
+      "nota": "Resuelto por Área de Actividad Proximidad (AAPGSU). El cuadro de usos ya no queda pendiente.",
       "principal": [],
       "complementario": [],
+      "restringido": [],
       "prohibido": []
     }
   }
