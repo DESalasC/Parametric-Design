@@ -1,6 +1,6 @@
 # Bitácora de versiones, decisiones y pruebas — DiseñoParametrico
 
-Cierre **2026-08-18** · 83 commits (2026-07-31 → 2026-08-18) · suite **233 passed**.
+Cierre **2026-08-18** · 85 commits (2026-07-31 → 2026-08-18) · suite **234 passed**.
 
 ## 1. Versiones vigentes por fase
 
@@ -34,7 +34,7 @@ Cierre **2026-08-18** · 83 commits (2026-07-31 → 2026-08-18) · suite **233 p
 
 ## 3. Pruebas
 
-- **Suite pytest: 233 passed**, última ejecución 2026-08-18.
+- **Suite pytest: 234 passed**, última ejecución 2026-08-18.
 - Archivos de test (22): F0 load, F1 (fetch, lados v04/v05/v06, normativa v06/v07/v08, patio), F2 (venta, renta), F3 (distribución/núcleo, volumen v07, accesos v02), orquestador, servidor, vecinos por lado.
 - **Casos límite cubiertos**: vecino `via` vs `predio` (Muzú occidente), empate posterior independiente, aporte parcial (`pago_parcial_pct`), usos base vs sector, alineación de núcleo.
 
@@ -46,3 +46,4 @@ Cierre **2026-08-18** · 83 commits (2026-07-31 → 2026-08-18) · suite **233 p
 - **2026-08-14/17** — Fase 3: distribución, volumen, accesos, prueba real de masa en Rhino 8.
 - **2026-08-17/18** — Orquestador: formulario, servidor, F0 load, vecinos por lado.
 - **2026-08-18** — Área de actividad (geobase) + cableado del canvas commiteado.
+- **2026-08-18 (tarde)** — Sector de uso por UPL (geobase) extraído e integrado + validación `pago_parcial_pct` 70/30 con AAA0127AZPA.
