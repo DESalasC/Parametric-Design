@@ -140,6 +140,18 @@ def test_usos_sector_fuente_base_y_pendiente():
     assert all("fuente" in x for x in u["catalogo"])
 
 
+def test_usos_area_actividad_geobase():
+    """areas-actividad.json (capa AreaActividad POT 555) integrado al endpoint."""
+    assert sv._area_actividad("AAA0127AZPA")["codigo"] == "AAPGSU"
+    assert sv._area_actividad("AAA0030JKOE")["codigo"] == "PEMP"
+    assert sv._area_actividad("AAA0039KRMR")["codigo"] == "AAERVIS"
+    assert sv._area_actividad("ZZZ00000000") is None
+    u = sv._usos("AAA0127AZPA")
+    assert u["area_actividad"]["codigo"] == "AAPGSU"
+    assert u["area_actividad"]["nombre"]
+    assert u["pendiente_cuadro_uso"] is True
+
+
 def test_catalogo_usos_override_sector():
     base = {"principal": ["Vivienda"], "complementario": [], "prohibido": ["Industrial"]}
     sector = {"principal": ["Vivienda", "Comercio"], "complementario": ["Salud"], "prohibido": []}

@@ -69,6 +69,7 @@ USOS_CATALOGO = [
 
 USOS_DESC = {u["nombre"]: u["descripcion"] for u in USOS_CATALOGO}
 USOS_SECTOR_RUTA = os.path.join(ROOT, "data", "pot-bogota", "usos-por-sector.json")
+AREAS_ACTIVIDAD_RUTA = os.path.join(ROOT, "data", "pot-bogota", "areas-actividad.json")
 
 # Variables de decisión por sección (sin jerga interna). Las de tipo "check" se
 # renderizan como casillas múltiples; las de tipo select/number/bool como control.
@@ -206,6 +207,20 @@ def _usos_por_sector():
     return _json(USOS_SECTOR_RUTA)
 
 
+def _area_actividad(chip):
+    """Area de actividad del lote desde data/pot-bogota/areas-actividad.json
+    (capa AreaActividad de la geobase POT 555). Devuelve dict o None."""
+    data = _json(AREAS_ACTIVIDAD_RUTA)
+    lote = (data.get("lotes") or {}).get(chip)
+    if not lote:
+        return None
+    return {
+        "codigo": lote.get("area_actividad"),
+        "nombre": lote.get("nombre"),
+        "fuente": data.get("fuente"),
+    }
+
+
 def _normalizar_upz(upz):
     if not upz:
         return None
@@ -237,6 +252,7 @@ def _usos(chip):
     ctx = _contexto(chip)
     upz = ctx["pot"]["upz"] if ctx else None
     tratamiento = ctx["pot"]["tratamiento"] if ctx else None
+    area_actividad = _area_actividad(chip)
     data = _usos_por_sector()
     base_cats = data.get("base") or {
         "principal": [u["nombre"] for u in USOS_CATALOGO if u["categoria"] == "principal"],
@@ -256,6 +272,8 @@ def _usos(chip):
         "sector_clave": key,
         "sector_estado": (sector or {}).get("estado"),
         "pendiente_usos_sector": bool(sector and sector.get("estado") == "pendiente-usos"),
+        "area_actividad": area_actividad,
+        "pendiente_cuadro_uso": area_actividad is not None,
         "nota": data.get("nota") or ("Catálogo base NSR-10 A.2.5 + POT 555. Los usos permitidos/prohibidos "
                 "definitivos dependen de la reglamentación del sector/UPZ y deben validarse."),
     }
