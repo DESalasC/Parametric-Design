@@ -1,0 +1,427 @@
+{
+  "chip": "chip", 
+  "generado": "2026-08-20", 
+  "morphs": [
+    {
+      "index": 0, 
+      "layer": "00-10-20_Elementos_referencia", 
+      "piso": 1, 
+      "story": "Nivel 1", 
+      "uso": "Local comercial"
+    }, 
+    {
+      "index": 1, 
+      "layer": "00-10-20_Elementos_referencia", 
+      "piso": 2, 
+      "story": "Nivel 2", 
+      "uso": "Local comercial"
+    }, 
+    {
+      "index": 2, 
+      "layer": "30-10-10_Fachadas", 
+      "piso": 3, 
+      "story": "Nivel 3", 
+      "uso": "Vivienda"
+    }, 
+    {
+      "index": 3, 
+      "layer": "30-10-10_Fachadas", 
+      "piso": 4, 
+      "story": "Nivel 4", 
+      "uso": "Vivienda"
+    }, 
+    {
+      "index": 4, 
+      "layer": "30-10-10_Fachadas", 
+      "piso": 5, 
+      "story": "Nivel 5", 
+      "uso": "Vivienda"
+    }, 
+    {
+      "index": 5, 
+      "layer": "30-10-10_Fachadas", 
+      "piso": 6, 
+      "story": "Nivel 6", 
+      "uso": "Vivienda"
+    }, 
+    {
+      "index": 6, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 7, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 8, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 9, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 10, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 11, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 12, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 13, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 14, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 15, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 16, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 17, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 18, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 19, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 20, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 21, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 22, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 23, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 24, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 25, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 26, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 27, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 28, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 29, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 30, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 31, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 32, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 33, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 34, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 35, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 36, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 37, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 38, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 39, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 40, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 41, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 42, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 43, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 44, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 45, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 46, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 47, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 48, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 49, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 50, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 51, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 52, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 53, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 54, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 55, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 56, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 57, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 58, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }, 
+    {
+      "index": 59, 
+      "layer": "20-20-20-10_Forjados", 
+      "piso": 0, 
+      "story": "Nivel 0", 
+      "uso": ""
+    }
+  ], 
+  "total_morphs": 60
+}

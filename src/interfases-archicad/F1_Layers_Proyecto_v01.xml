@@ -8,7 +8,7 @@
 			<Layer Idx="1" Name="00-00-10_Lote_proyecto">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>6AF18588-652C-4D03-B6F2-F689C8CA855C</guid>
+						<guid>04682593-A8EE-4588-99BB-588CCE887346</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -24,7 +24,7 @@
 			<Layer Idx="2" Name="00-20-20_Elementos_entorno_urbano">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>9E727ACB-8C2A-40A6-8853-F0C47753155B</guid>
+						<guid>154CBFE3-EE92-4DE1-B9BF-83279257DECF</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -40,7 +40,7 @@
 			<Layer Idx="3" Name="00-20-30_Ejes_vias">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>FB9E7C9D-C734-441D-BC20-BC5720DFFBCD</guid>
+						<guid>7C29F8B1-EB51-44C5-A7E4-1C6083CF8E77</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -56,7 +56,7 @@
 			<Layer Idx="4" Name="70-50-10_Zonas_verdes_publicas">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>C9B39FA8-C484-48B4-81B3-BB55842F3D3B</guid>
+						<guid>A7F293A6-DFF0-4DB4-BB5A-F1782882362F</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -72,7 +72,7 @@
 			<Layer Idx="5" Name="70-30-20_Andenes_preexistentes">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>826E75E1-621E-4E35-815B-BA540229DBF2</guid>
+						<guid>417EFAC4-F30D-4019-9161-DAEB389E323A</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -88,7 +88,7 @@
 			<Layer Idx="6" Name="10-20-10_Topografia">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>91B52D21-3879-4DF9-A5E1-CDCF0DE147F2</guid>
+						<guid>0B921935-D1D8-4109-8960-D40F66076BE8</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -104,7 +104,7 @@
 			<Layer Idx="7" Name="70-20-20_Perimetros_vecinos">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>DD3376CE-C0A7-4FDF-978E-AB6A4ECCC2A6</guid>
+						<guid>1A26F345-3FA2-41CD-85D2-289178D98710</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -120,7 +120,7 @@
 			<Layer Idx="8" Name="70-20-30_Volumetrias_vecinas">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>5AE08851-1155-406C-8367-A01B7766F0C8</guid>
+						<guid>2F4AEA99-6659-4576-80BB-55490A356FBC</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
@@ -136,7 +136,7 @@
 			<Layer Idx="9" Name="00-10-20_Elementos_referencia">
 				<OdbObj Mv="2" Sv="0">
 					<OdbRef>
-						<guid>BB84A38D-FD92-4EB9-AC05-6685DFB81749</guid>
+						<guid>37542AE3-C18C-45EA-8ACB-4C4E65F7EA2E</guid>
 					</OdbRef>
 					<CreaTime>23970</CreaTime>
 					<ModiTime>23972</ModiTime>
