@@ -34,6 +34,9 @@ NORMATIVA APLICABLE:
   Ninguna (script de atributos BIM; no calcula retiros, GFA ni normativa).
 
 HISTORIAL:
+  v01.1 (2026-08-20) - Atributos BIM por morph (id, building_material,
+                     structural_function, position, renovation_status) y
+                     salida layers_json (capas distintas para F1_LAYERS_XML).
   v01 (2026-08-18) - Propuesta inicial: mapeo uso->capa (GuBIMclass),
                      piso->nivel (Story) y manifest.
 
@@ -48,10 +51,15 @@ ENTRADAS (listas paralelas; las de tipo "Item" son unicas):
   chip            : String (Item)        - CHIP del predio (para el manifest).
   salida_path     : String (Item)        - Carpeta destino del manifest.
                                            Default: data/fase-3-masa/casos/<chip>/.
+  building_material   : String (Item/List) - Material por morph (ArchiCAD).
+  structural_function : int   (Item/List) - 0=Load-Bearing, 1=Non-Load-Bearing, 2=Undefined.
+  position            : int   (Item/List) - 0=Exterior, 1=Interior, 2=Undefined.
+  renovation_status   : int   (Item/List) - 0=Existing, 1=To Be Demolished, 2=New.
 
 SALIDAS:
   layer_names  : String (List) - Capa por morph (paralela a morphs).
   story_names  : String (List) - Nivel por morph (paralela a morphs).
+  layers_json  : String        - JSON de capas DISTINTAS (nombre/color/visible).
   manifest_json: String        - Ruta del manifest escrito ("" si falla).
   estado       : String        - Estado/resumen.
 
@@ -138,6 +146,26 @@ def _story_de(piso, nombres):
     return NIVEL_PREFIX + str(n) if n >= 1 else NIVEL_PREFIX + "0"
 
 
+# ------------------------------------------------------------------ helpers 2
+def _enum_int(val, default):
+    """Entero de enumeracion (0/1/2) a prueba de fallos; invalido -> default."""
+    try:
+        if val is None or val == "":
+            return default
+        return int(round(float(val)))
+    except Exception:
+        return default
+
+
+def _valor_lista(vals, i, default):
+    """Valor por indice: lista paralela a morphs o Item broadcast."""
+    if vals is None:
+        return default
+    if isinstance(vals, list):
+        return vals[i] if i < len(vals) else default
+    return vals
+
+
 # ------------------------------------------------------------------ entradas
 morphs = globals().get("morphs", None)
 pisos = globals().get("pisos", None)
@@ -145,6 +173,10 @@ usos = globals().get("usos", None)
 nombres_niveles = globals().get("nombres_niveles", None)
 chip = globals().get("chip", None)
 salida_path = globals().get("salida_path", None)
+building_material = globals().get("building_material", None)
+structural_function = globals().get("structural_function", None)
+position = globals().get("position", None)
+renovation_status = globals().get("renovation_status", None)
 
 _morphs = _unwrap(morphs)
 _pisos = _unwrap(pisos)
@@ -160,15 +192,36 @@ for i in range(n):
     uso = _usos[i] if i < len(_usos) else ""
     layer = _layer_de(uso)
     story = _story_de(piso, _niveles)
+    mat = str(_valor_lista(building_material, i, "") or "").strip()
+    sf = _enum_int(_valor_lista(structural_function, i, 2), 2)
+    pos = _enum_int(_valor_lista(position, i, 2), 2)
+    rn = _enum_int(_valor_lista(renovation_status, i, 2), 2)
     layer_names.append(layer)
     story_names.append(story)
     registros.append({
+        "id": i + 1,
         "index": i,
         "piso": _piso_int(piso),
         "uso": str(uso or "").strip(),
         "layer": layer,
         "story": story,
+        "building_material": mat,
+        "structural_function": sf,
+        "position": pos,
+        "renovation_status": rn,
     })
+
+# Capas DISTINTAS usadas por los morphs (para F1_LAYERS_XML_v02): se exportan
+# como [{"nombre","color","visible"}] e importables en ArchiCAD ANTES de
+# generar los morphs.
+_vistos = []
+for r in registros:
+    if r["layer"] not in _vistos:
+        _vistos.append(r["layer"])
+layers_unicos = []
+for k, nombre in enumerate(_vistos):
+    layers_unicos.append({"nombre": nombre, "color": 20 + k, "visible": True})
+layers_json = json.dumps(layers_unicos, ensure_ascii=False)
 
 manifest_json = ""
 estado = "OK: {0} morphs etiquetados".format(n)
@@ -186,6 +239,12 @@ if n > 0:
             "chip": chip_str,
             "generado": date.today().isoformat(),
             "total_morphs": n,
+            "_enums": {
+                "structural_function": {"0": "Load-Bearing", "1": "Non-Load-Bearing", "2": "Undefined"},
+                "position": {"0": "Exterior", "1": "Interior", "2": "Undefined"},
+                "renovation_status": {"0": "Existing", "1": "To Be Demolished", "2": "New"},
+            },
+            "layers": layers_unicos,
             "morphs": registros,
         }
         with open(ruta, "w") as f:

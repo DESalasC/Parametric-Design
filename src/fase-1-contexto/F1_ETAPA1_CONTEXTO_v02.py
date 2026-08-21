@@ -206,8 +206,15 @@ if not json_path or not os.path.exists(json_path):
     mensaje = "ETAPA1 | ERROR: No se encontro el JSON: {}".format(json_path)
 else:
     try:
-        with io.open(json_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        # Lectura tolerante: utf-8 primero, latin-1/cp1252 como respaldo
+        # (evita "'unknown' codec can't decode byte 0xf3" cuando el JSON fue
+        #  escrito con la codepage de Windows en lugar de utf-8).
+        with open(json_path, 'rb') as f:
+            raw_bytes = f.read()
+        try:
+            data = json.loads(raw_bytes.decode('utf-8'))
+        except Exception:
+            data = json.loads(raw_bytes.decode('latin-1'))
 
         # --- Anclaje: vertice SE del lote (min Y, max X) ---
         lote_verts = data.get("lote_objetivo", {}).get("vertices_3d_local", [])
