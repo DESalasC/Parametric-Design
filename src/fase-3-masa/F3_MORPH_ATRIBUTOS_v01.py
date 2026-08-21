@@ -7,7 +7,7 @@ GH Python Script para Grasshopper (componente "Script", IronPython 2.7)
 ================================================================================
 
 PROPOSITO:
-  Los Morphs que F3_VOLUM_GENERADOR_v07 (v07.24 vigente) envia a ArchiCAD via
+  Los Morphs que F3_VOLUM_GENERADOR_v08 envia a ArchiCAD via
   Live Connection se crean SIN nivel (Story) ni capa asignados. Este componente
   toma la geometria (morphs) con dos listas PARALELAS (piso y uso) y genera:
     - layer_names  : nombre de capa por morph (codigo GuBIMclass segun uso)
@@ -17,7 +17,7 @@ PROPOSITO:
       atributos (nivel + capa) a cada Morph ya creado.
 
   Mecanismo completo (3 pasos):
-    Paso 1 (implementado en F3_VOLUM_GENERADOR_v07.25): F3 ya emite, paralela
+    Paso 1 (implementado en F3_VOLUM_GENERADOR_v08): F3 ya emite, paralela
       a `volumenes_por_uso`/`usos_etiquetas`, la lista `usos_pisos` (numero de
       piso por volumen). Cablear `usos_pisos` de F3 a la entrada `pisos` de
       este componente.

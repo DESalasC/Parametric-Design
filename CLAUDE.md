@@ -1,4 +1,4 @@
-﻿# CLAUDE.md — Proyecto DiseñoParametrico
+﻿﻿﻿﻿﻿# CLAUDE.md — Proyecto DiseñoParametrico
 
 > **Nota:** Este archivo debe ir en `D:\WORK\PROJECTS\DiseñoParametrico\CLAUDE.md`
 > Es generado automáticamente por `init-project.ps1`. Esta es la plantilla maestra.
@@ -189,7 +189,7 @@ DiseñoParametrico/
 ├── src/                       # Código por fase
 │   ├── fase-1-contexto/       # Modular ETAPA1/ETAPA2 vigente + _legacy\
 │   ├── fase-2-demanda/        # Pipeline + F2_Modelo_Financiero\ (motor v3.0) + F2_Modelo_Renta\ (motor v3.0) — hook GFA desde F1
-│   ├── fase-3-masa/           # VOLUM_GENERADOR v07 (volumetría por uso), ACCESOS_INTEGRADOR v02, PREP_LADYBUG
+│   ├── fase-3-masa/           # VOLUM_GENERADOR v08 (volumetría por uso), ACCESOS_INTEGRADOR v02, PREP_LADYBUG
 │   ├── fase-4-ambiental/      # F4_LADYBUG_ANALISIS v02
 │   ├── fase-5-bim/            # Pendiente
 │   ├── interfases-archicad/   # F1_Layers_Proyecto_v01.xml (único)
@@ -200,8 +200,8 @@ DiseñoParametrico/
 ```
 
 > **Documentación:** la única fuente de documentación es el vault de Obsidian
-> `D:\Work\NOTES\obsidian-vault\` (índice: `00-index\mapa-conocimiento.md`). Ya no existe `docs/`
-> en el proyecto; todo se migró al vault el 2026-08-13. El nombre oficial del proyecto es
+> `D:\Work\NOTES\obsidian-vault\` (índice: `00-index\mapa-conocimiento.md`). `docs/` solo conserva los resúmenes de cierre y de sesión
+> (`docs/cierre/`, `docs/sesiones/`); la documentación detallada vive en el vault. El nombre oficial del proyecto es
 > `DiseñoParametrico` (con ñ); usarlo consistentemente en toda la documentación.
 
 ## Limitaciones conocidas
@@ -217,7 +217,7 @@ DiseñoParametrico/
 - [x] **Fase 0**: Setup BIM (capas ArchiCAD)
 - [x] **Fase 1**: Contexto POT + retiros + vecinos (clasificación híbrida ADR-008, pipeline modular v26)
 - [x] **Fase 2**: Motor de demanda + modelo financiero de prefactibilidad (`F2_Modelo_Financiero`, v3.0: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja, hook GFA desde F1) + **modelo Build-to-Rent** (`F2_Modelo_Renta`, v3.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable, hook GFA desde F1)
-- [~] **Fase 3**: Generación de masa (`VOLUM_GENERADOR` v07.24 con volumetría por uso, `ACCESOS_INTEGRADOR` v02, `PREP_LADYBUG`)
+- [~] **Fase 3**: Generación de masa (`VOLUM_GENERADOR` v08 con volumetría por uso, `ACCESOS_INTEGRADOR` v02, `PREP_LADYBUG`)
 - [~] **Fase 4**: Análisis ambiental (Ladybug + EPW Bogotá)
 - [ ] **Fase 5**: Inyección BIM nativa (ArchiCAD API / protocolo Tapir → ArchiCAD)
 

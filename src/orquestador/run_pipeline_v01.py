@@ -326,8 +326,8 @@ def _modo_run(args):
          "F1_EXPORTAR_GFA_v02 y ejecuta para escribir data/fase-2-demanda/{}-gfa-gh.json.".format(chip),
          "data/fase-2-demanda/{}-gfa-gh.json".format(chip)),
         ("f3_masa_rhino", "F3 Masa en Rhino + Morphs ArchiCAD",
-         "Carga F3_VOLUM_GENERADOR_v07.py en el componente GHPython, cablea "
-         "envelope_por_piso <- NORMATIVA_v07 y json_path <- casos/{}/programa-areas.json; "
+         "Carga F3_VOLUM_GENERADOR_v08.py en el componente GHPython, cablea "
+         "envelope_por_piso <- NORMATIVA_v08 y json_path <- casos/{}/programa-areas.json; "
          "cablea las salidas *_mesh a los AC_* de Live Connection (Morphs).".format(caso),
          "Morphs en ArchiCAD (round-trip GetElements)"),
     ]
@@ -398,8 +398,8 @@ def _generar_html(estado, chip, caso, modo):
              "python src/fase-3-masa/F3_ACCESOS_INTEGRADOR_v02.py --caso {}".format(caso),
              estado["f3_accesos"]["artefacto"]),
             ("f3_masa_rhino", "3.3 Masa en Rhino + Morphs (manual)", "manual",
-             "F3_VOLUM_GENERADOR_v07 + salidas a Morphs nativos de ArchiCAD (Live Connection).",
-             "Componente F3_VOLUM_GENERADOR_v07 en Grasshopper",
+             "F3_VOLUM_GENERADOR_v08 + salidas a Morphs nativos de ArchiCAD (Live Connection).",
+             "Componente F3_VOLUM_GENERADOR_v08 en Grasshopper",
              estado["f3_masa_rhino"]["artefacto"]),
         ]),
     ]

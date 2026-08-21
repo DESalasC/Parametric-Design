@@ -25,6 +25,7 @@ data/pot-geojson/*.gpkg
 data/pot-geojson/*.geojson
 data/pot-cache/*.json
 data/pot-cache/*.png
+data/fase-2-demanda/*-gfa-gh.json
 data/ideca-cache/*
 data/neighbors/*.3dm
 data/ghx-samples/
