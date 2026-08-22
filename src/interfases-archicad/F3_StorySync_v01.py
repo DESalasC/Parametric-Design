@@ -7,10 +7,10 @@ crear cada elemento (Morph) en el nivel correspondiente, leyendo los stories del
 proyecto SECUENCIALMENTE (por cota floorLevel).
 
 Uso (con el venv del proyecto y ArchiCAD abierto con el Python API activo,
-puerto 19723):
+puerto auto-detectado 19723-19743 (suele ser 19724 porque AutoClaw ocupa 19723)):
     .venv\\Scripts\\python.exe F3_StorySync_v01.py --list
     .venv\\Scripts\\python.exe F3_StorySync_v01.py --json niveles_deseados.json
-    .venv\\Scripts\\python.exe F3_StorySync_v01.py --puerto=19723 --list
+    .venv\\Scripts\\python.exe F3_StorySync_v01.py --puerto=19724 --list
 
 Limitación verificada (2026-08-17): el paquete `archicad` (API JSON, release
 ac29) expone LECTURA de stories (GetStoryNavigatorItems) pero NO un comando para
@@ -95,7 +95,7 @@ def comparar(stories, deseadas):
 
 
 def main():
-    puerto = 19723
+    puerto = None  # auto-detecta 19723-19743 (19724 si AutoClaw ocupa 19723)
     json_path = None
     listar = False
     for a in sys.argv[1:]:
@@ -127,7 +127,7 @@ def main():
         else:
             print("\nTodos los niveles deseados existen y están alineados.")
     elif not listar:
-        print("\nUso: --list  |  --json niveles_deseados.json  |  --puerto=19723")
+        print("\nUso: --list  |  --json niveles_deseados.json  |  --puerto=<N> (default: auto)")
 
 
 if __name__ == "__main__":
