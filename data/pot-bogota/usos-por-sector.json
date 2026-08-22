@@ -1,6 +1,6 @@
 {
   "_schema": "usos-por-sector_v02",
-  "nota": "Cuadro de usos del suelo por Área de Actividad (Decreto 555/2021, Art. 233-243 + Anexo 5). Cada uso se clasifica P (principal), C (complementario), R (restringido) o prohibido (ausente de la lista, o '—' en la norma). La resolución normativa por predio es por ÁREA DE ACTIVIDAD (areas-actividad.json), no por UPZ; el sector UPZ queda como fallback/legacy. Fuente local: LIBRARIES/POT_Bogota/Marco normativo (Art. 233-243).md.",
+  "nota": "Cuadro de usos del suelo por Área de Actividad (Decreto 555/2021, Art. 233-243 + Anexo 5). Cada uso se clasifica P (principal), C (complementario), R (restringido) o prohibido (ausente de la lista, o '—' en la norma). La resolución normativa por predio es por ÁREA DE ACTIVIDAD (areas-actividad.json), no por UPZ; el sector UPZ queda como fallback/legacy. Fuente local: D:\\Work\\LIBRARIES\\POT_Bogota\\Marco normativo (Art. 233-243).md.",
   "fuentes": [
     "https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=119582",
     "https://compilacionjuridica.shd.gov.co/compilacion/docs/d_alcabog_0555_2021.htm",
