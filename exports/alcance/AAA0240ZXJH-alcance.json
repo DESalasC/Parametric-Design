@@ -1,0 +1,507 @@
+{
+  "chip": "AAA0240ZXJH",
+  "origen_sirgas": {
+    "crs": "ESRI:102233",
+    "x": 95464.52950000018,
+    "y": 100055.61580000073
+  },
+  "area_lote_m2": 99.72,
+  "niveles": [
+    {
+      "id": "N1-CERCANO",
+      "etiqueta": "Cercano (2 km)",
+      "radio_m": 2000,
+      "circulo_sirgas": [
+        [
+          97464.53,
+          100055.62
+        ],
+        [
+          97447.42,
+          100316.67
+        ],
+        [
+          97396.38,
+          100573.25
+        ],
+        [
+          97312.29,
+          100820.98
+        ],
+        [
+          97196.58,
+          101055.62
+        ],
+        [
+          97051.24,
+          101273.14
+        ],
+        [
+          96878.74,
+          101469.83
+        ],
+        [
+          96682.05,
+          101642.32
+        ],
+        [
+          96464.53,
+          101787.67
+        ],
+        [
+          96229.9,
+          101903.37
+        ],
+        [
+          95982.17,
+          101987.47
+        ],
+        [
+          95725.58,
+          102038.51
+        ],
+        [
+          95464.53,
+          102055.62
+        ],
+        [
+          95203.48,
+          102038.51
+        ],
+        [
+          94946.89,
+          101987.47
+        ],
+        [
+          94699.16,
+          101903.37
+        ],
+        [
+          94464.53,
+          101787.67
+        ],
+        [
+          94247.01,
+          101642.32
+        ],
+        [
+          94050.32,
+          101469.83
+        ],
+        [
+          93877.82,
+          101273.14
+        ],
+        [
+          93732.48,
+          101055.62
+        ],
+        [
+          93616.77,
+          100820.98
+        ],
+        [
+          93532.68,
+          100573.25
+        ],
+        [
+          93481.64,
+          100316.67
+        ],
+        [
+          93464.53,
+          100055.62
+        ],
+        [
+          93481.64,
+          99794.56
+        ],
+        [
+          93532.68,
+          99537.98
+        ],
+        [
+          93616.77,
+          99290.25
+        ],
+        [
+          93732.48,
+          99055.62
+        ],
+        [
+          93877.82,
+          98838.09
+        ],
+        [
+          94050.32,
+          98641.4
+        ],
+        [
+          94247.01,
+          98468.91
+        ],
+        [
+          94464.53,
+          98323.56
+        ],
+        [
+          94699.16,
+          98207.86
+        ],
+        [
+          94946.89,
+          98123.76
+        ],
+        [
+          95203.48,
+          98072.73
+        ],
+        [
+          95464.53,
+          98055.62
+        ],
+        [
+          95725.58,
+          98072.73
+        ],
+        [
+          95982.17,
+          98123.76
+        ],
+        [
+          96229.9,
+          98207.86
+        ],
+        [
+          96464.53,
+          98323.56
+        ],
+        [
+          96682.05,
+          98468.91
+        ],
+        [
+          96878.74,
+          98641.4
+        ],
+        [
+          97051.24,
+          98838.09
+        ],
+        [
+          97196.58,
+          99055.62
+        ],
+        [
+          97312.29,
+          99290.25
+        ],
+        [
+          97396.38,
+          99537.98
+        ],
+        [
+          97447.42,
+          99794.56
+        ],
+        [
+          97464.53,
+          100055.62
+        ]
+      ],
+      "enfoque": "Vecindario directo: oferta/demanda inmediata, equipamientos de barrio, precios y canones del sector inmediato, competencia a escala local.",
+      "indicadores": [
+        "precio_venta_m2",
+        "canon_m2_mes",
+        "vacancia",
+        "absorcion",
+        "estrato",
+        "equipamientos_barrio"
+      ]
+    },
+    {
+      "id": "N2-INTERMEDIO",
+      "etiqueta": "Intermedio (hasta 5 km)",
+      "radio_m": 5000,
+      "circulo_sirgas": [
+        [
+          100464.53,
+          100055.62
+        ],
+        [
+          100421.75,
+          100708.25
+        ],
+        [
+          100294.16,
+          101349.71
+        ],
+        [
+          100083.93,
+          101969.03
+        ],
+        [
+          99794.66,
+          102555.62
+        ],
+        [
+          99431.3,
+          103099.42
+        ],
+        [
+          99000.06,
+          103591.15
+        ],
+        [
+          98508.34,
+          104022.38
+        ],
+        [
+          97964.53,
+          104385.74
+        ],
+        [
+          97377.95,
+          104675.01
+        ],
+        [
+          96758.62,
+          104885.24
+        ],
+        [
+          96117.16,
+          105012.84
+        ],
+        [
+          95464.53,
+          105055.62
+        ],
+        [
+          94811.9,
+          105012.84
+        ],
+        [
+          94170.43,
+          104885.24
+        ],
+        [
+          93551.11,
+          104675.01
+        ],
+        [
+          92964.53,
+          104385.74
+        ],
+        [
+          92420.72,
+          104022.38
+        ],
+        [
+          91929.0,
+          103591.15
+        ],
+        [
+          91497.76,
+          103099.42
+        ],
+        [
+          91134.4,
+          102555.62
+        ],
+        [
+          90845.13,
+          101969.03
+        ],
+        [
+          90634.9,
+          101349.71
+        ],
+        [
+          90507.31,
+          100708.25
+        ],
+        [
+          90464.53,
+          100055.62
+        ],
+        [
+          90507.31,
+          99402.98
+        ],
+        [
+          90634.9,
+          98761.52
+        ],
+        [
+          90845.13,
+          98142.2
+        ],
+        [
+          91134.4,
+          97555.62
+        ],
+        [
+          91497.76,
+          97011.81
+        ],
+        [
+          91929.0,
+          96520.08
+        ],
+        [
+          92420.72,
+          96088.85
+        ],
+        [
+          92964.53,
+          95725.49
+        ],
+        [
+          93551.11,
+          95436.22
+        ],
+        [
+          94170.43,
+          95225.99
+        ],
+        [
+          94811.9,
+          95098.39
+        ],
+        [
+          95464.53,
+          95055.62
+        ],
+        [
+          96117.16,
+          95098.39
+        ],
+        [
+          96758.62,
+          95225.99
+        ],
+        [
+          97377.95,
+          95436.22
+        ],
+        [
+          97964.53,
+          95725.49
+        ],
+        [
+          98508.34,
+          96088.85
+        ],
+        [
+          99000.06,
+          96520.08
+        ],
+        [
+          99431.3,
+          97011.81
+        ],
+        [
+          99794.66,
+          97555.62
+        ],
+        [
+          100083.93,
+          98142.2
+        ],
+        [
+          100294.16,
+          98761.52
+        ],
+        [
+          100421.75,
+          99402.98
+        ],
+        [
+          100464.53,
+          100055.62
+        ]
+      ],
+      "enfoque": "Area de mercado actual del proyecto: comparables de la UPZ y UPZ vecinas, dinamica de oferta nueva, servicios metropolitanos de la zona.",
+      "indicadores": [
+        "precio_venta_m2_upz",
+        "canon_m2_mes_upz",
+        "oferta_nueva",
+        "capacidad_compra",
+        "tendencia_poblacional"
+      ]
+    },
+    {
+      "id": "N3-LEJANO-ACCESIBILIDAD",
+      "etiqueta": "Lejano - accesibilidad (transporte publico y privado)",
+      "radio_m": null,
+      "criterios": {
+        "distancia_max_estacion_tm_m": 500,
+        "distancia_max_paradero_sitp_m": 500,
+        "isocrona_transporte_publico_min": 20,
+        "red_principal_privado": "Malla vial arterial e intermedia (vias principales del POT)"
+      },
+      "estado_datos": {
+        "malla_vial_disponible": true,
+        "estaciones_tm_disponible": true,
+        "paraderos_sitp_disponible": true,
+        "gtfs_disponible": false,
+        "nota": "Capas de estaciones (153 TM) y paraderos SITP descargadas 2026-08-14 (data/transporte/). La malla vial del POT viene en el contexto F1. El GTFS completo (horarios) queda pendiente: la isocrona N3 se calcula con metodo de primer orden (20 km/h, arclength de corredores, sinuosidad 1,3)."
+      },
+      "accesibilidad": {
+        "estacion_tm_mas_cercana": {
+          "nombre": "NQS - Calle 30 S",
+          "distancia_m": 223.0
+        },
+        "paradero_sitp_mas_cercano": {
+          "codigo": "Pq. La Guaca",
+          "distancia_m": 107.0
+        },
+        "estaciones_tm_500m": 1,
+        "paraderos_sitp_500m": 11,
+        "isocrona_20min_aprox": {
+          "metodo": "Primer orden, SIN GTFS completo: velocidad comercial 20 km/h -> 6666 m de red en 20 min; corredores TM por arclength del trazado; red zonal con factor de sinuosidad 1,3 (5128 m euclidianos).",
+          "distancia_red_max_m": 6666.7,
+          "corredor_tm_acceso": "NQS SUR",
+          "estaciones_tm_alcanzables_20min": 9,
+          "paraderos_sitp_alcanzables_20min": 1911,
+          "gtfs_completo": "PENDIENTE (requiere GTFS con horarios y routing)"
+        },
+        "red_principal_privado": {
+          "malla_vial_disponible": true,
+          "criterio": "Malla vial arterial e intermedia del POT (contexto F1)"
+        },
+        "capas_utilizadas": [
+          "estaciones_tm.geojson",
+          "paraderos_sitp.geojson",
+          "trazados_tm.geojson"
+        ]
+      },
+      "enfoque": "Preferencias de localizacion por acceso a red principal de transporte: estaciones TransMilenio y paraderos SITP a menos de 500 m del lote, e isocrona de 20 minutos en transporte publico (captura de demanda metropolitana).",
+      "indicadores": [
+        "distancia_estacion_tm_m",
+        "distancia_paradero_sitp_m",
+        "cobertura_isocrona_20min",
+        "tiempo_viaje_centro"
+      ]
+    }
+  ],
+  "consultas_investigacion": {
+    "N1-CERCANO": [
+      "Precios y canones de oferta activa a <=2 km (portales: Ciencuadras, FincaRaiz, Properati).",
+      "Vacancia y absorcion del sector inmediato.",
+      "Equipamientos y usos del primer anillo."
+    ],
+    "N2-INTERMEDIO": [
+      "Comparables de la UPZ y UPZ vecinas dentro de 5 km.",
+      "Oferta nueva en construccion (licencias) en el anillo intermedio.",
+      "Tendencia poblacional y capacidad de compra de la zona."
+    ],
+    "N3-LEJANO-ACCESIBILIDAD": [
+      "Distancia al corredor/estacion TransMilenio mas cercano (<500 m).",
+      "Cobertura de paraderos SITP a <500 m.",
+      "Isocrona de 20 min en transporte publico (primer orden; GTFS completo pendiente).",
+      "Acceso a la malla vial arterial (transporte privado)."
+    ]
+  },
+  "nota": "Los radios se miden desde el origen SIRGAS del lote. N3 usa accesibilidad en lugar de radio fijo; capas en data/transporte/ (descargar_capas_transporte.py)."
+}

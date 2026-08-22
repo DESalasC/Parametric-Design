@@ -34,10 +34,12 @@ NORMATIVA APLICABLE:
   Ninguna (script de atributos BIM; no calcula retiros, GFA ni normativa).
 
 HISTORIAL:
+  v01.3 (2026-08-21) - Definir __file__ para evitar error 'name '__file__' is not defined' en entornos donde no está disponible (como GHPython).
+  v01.2 (2026-08-21) - Forzar acceso de lista en las salidas 0 (layer_names) y 1 (story_names) para evitar errores de conversión Text→Layer/Story.
   v01.1 (2026-08-20) - Atributos BIM por morph (id, building_material,
                      structural_function, position, renovation_status) y
                      salida layers_json (capas distintas para F1_LAYERS_XML).
-  v01 (2026-08-18) - Propuesta inicial: mapeo uso->capa (GuBIMclass),
+  v01   (2026-08-18) - Propuesta inicial: mapeo uso->capa (GuBIMclass),
                      piso->nivel (Story) y manifest.
 
 ENTRADAS (listas paralelas; las de tipo "Item" son unicas):
@@ -75,6 +77,23 @@ import json
 import os
 from datetime import date
 
+# Define __file__ if not already defined (for compatibility with environments that don't set it)
+try:
+    __file__
+except NameError:
+    import ghpythonlib.component as comp
+    __file__ = comp.OnPingDocument().FileName if comp.OnPingDocument() else "unknown"
+
+# ---- Forzar acceso de lista en las salidas 0 (layer_names) y 1 (story_names) ----
+try:
+    import Grasshopper as gh
+    ghenv.Component.Params.Output[0].Access = gh.Kernel.GH_ParamAccess.list   # layer_names
+    ghenv.Component.Params.Output[1].Access = gh.Kernel.GH_ParamAccess.list   # story_names
+except Exception:
+    # Si falla el acceso a Grasshopper, continuar sin forzar el modo de acceso
+    # (dependerá de la configuración manual del componente)
+    pass
+
 # ---- Tabla de capas: codigos GuBIMclass del proyecto ----------------------
 # Formato NN-NN-NN[-NN]_Descripcion (fuente: data/GuBIMclass_Layers_v3.xml,
 # generado desde Layers.csv por generate-archicad-layers-xml-v3.py). La masa
@@ -95,7 +114,26 @@ LAYER_MAP = {
 LAYER_DEFAULT = "00-10-20_Elementos_referencia"
 NIVEL_PREFIX = "Nivel "   # fallback cuando no llegan nombres_niveles
 
-DEFAULT_OUT_DIR = r"D:\Work\PROJECTS\DiseñoParametrico\data\fase-3-masa\casos"
+# Determine output directory: prefer environment variable, fallback to cwd with warning
+try:
+    proj_root = os.environ.get('DISENO_PARAMETRICO_ROOT')
+    if proj_root:
+        DEFAULT_OUT_DIR = os.path.join(proj_root, 'data', 'fase-3-masa', 'casos')
+    else:
+        # Fallback: use current working directory (hoping it's the project root)
+        DEFAULT_OUT_DIR = os.path.join(os.getcwd(), 'data', 'fase-3-masa', 'casos')
+        # Try to warn the user
+        try:
+            import Grasshopper as gh
+            ghenv.Component.AddRuntimeMessage(
+                gh.Kernel.GH_RuntimeMessageLevel.Warning,
+                "Environment variable DISENO_PARAMETRICO_ROOT not set. Using current working directory for output path."
+            )
+        except Exception:
+            pass
+except Exception:
+    # Last resort: hardcoded path (should not happen in production)
+    DEFAULT_OUT_DIR = r"D:\Work\PROJECTS\DiseñoParametrico\data\fase-3-masa\casos"
 
 
 def _unwrap(val):

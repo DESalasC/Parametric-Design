@@ -5,393 +5,128 @@
     "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Inmobiliario",
     "ciudad": "Bogota D.C., Colombia",
     "moneda": "COP",
-    "fecha_ejecucion": "2026-08-14",
-    "chip": "AAA0127AZPA-GFA1053-CL550",
+    "fecha_ejecucion": "2026-08-12",
+    "chip": "AAA0240ZXJH",
     "ciclo_desarrollo_anios": 2,
-    "origen_datos": "Caso de estudio 2026-08-14 (ejercicio de resolucion del proceso): GFA 1053 m2 (edificabilidad de curaduria redondeada) y CL $550.000.000 (suelo renegociado). Precios validados con comparables Prado Veraniego 2026-08-13 (A $4,73M, B $6,8M, C $9,5M/m2).",
-    "nota_general": "Ejercicio: bajar el CL de $1.200 M a $550 M para que el proyecto supere las reglas de viabilidad y poder continuar el proceso hasta la presentacion final. | Incluye D_MIXTO (USO-MULTIPLE, override de usuario fuera de reglamentacion) para validacion de hipotesis."
+    "nota_general": "Los valores de mercado provienen de fuentes publicas consultadas el 2026-08-12 (ver seccion 'fuentes' por escenario y parametro). Antes de uso comercial, reemplazar el precio de suelo con el dato real del lote y validar precios de venta con comparables de radio 5 km.",
+    "gfa_fuente": "grasshopper-f1 (gfa-gh.json)",
+    "override_uso": {
+      "activo": true,
+      "nota": "",
+      "token": "USO_OVERRIDE:Mixto;",
+      "uso": "Mixto"
+    }
   },
-  "gfa_max_m2": 1053.0,
+  "gfa_max_m2": 13.2755,
   "lote": {
-    "area_m2": 450.0,
-    "precio_suelo_m2": 1222222.22,
-    "impuestos_escritura_pct": 0.0,
-    "costo_lote_total_cop": 550000000.0,
-    "fuente": "CL $550.000.000 COP = valor de ejercicio (el precio soportable por el mercado ronda $151-204 M con GFA 633; con GFA 1053 sube). Se toma CL directo.",
-    "fuente_url": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\AAA0127AZPA-prefactibilidad-gfa1053-cl550.json"
+    "area_m2": 450,
+    "precio_suelo_m2": 2600000,
+    "impuestos_escritura_pct": 4.0,
+    "fuente": "Supuesto de referencia: rango medio de suelo urbano residencial en Bogota segun Catastro Distrital (Visor Inmobiliario Bogota-Region) e IDECA (mediana del valor comercial por m2 de terreno por manzana). El dato real del lote debe reemplazar este valor.",
+    "fuente_url": "https://www.catastrobogota.gov.co/"
   },
-  "costo_lote_total_cop": 550000000.0,
+  "costo_lote_total_cop": 1216800000.0,
   "reglas_decision": {
     "mub_riesgo_pct": 18.0,
     "mub_atractivo_pct": 25.0,
     "roi_minimo_pct": 22.0,
     "cl_it_precaucion_pct": 25.0,
     "cl_it_inviable_pct": 30.0,
-    "nota": "Reglas de decision Bogota (objetivo Fase 2)."
+    "nota": "Reglas de decision Bogota (definidas en el objetivo Fase 2): MUB < 18% alto riesgo / > 25% atractivo; ROI minimo 22%; CL/IT > 25-30% sugiere inviabilidad para desarrollo y venta."
   },
   "escenarios": [
     {
       "escenario_id": "A_VIS",
       "producto": "A — VIS / VIP",
       "nivel_acabados": "Basico",
-      "gfa_m2": 1053.0,
-      "nga_m2": 842.4,
+      "gfa_m2": 13.28,
+      "nga_m2": 10.62,
       "eficiencia_nga": 0.8,
-      "tamano_unidad_m2": 55.0,
-      "num_unidades": 15,
-      "area_vendible_m2": 825.0,
+      "tamano_unidad_m2": 50.0,
+      "num_unidades": 0,
+      "area_vendible_m2": 0.0,
       "precio_venta_m2": 4727444,
       "costo_construccion_m2": 2300000,
       "absorcion_unid_mes": 5.0,
-      "meses_venta_estimados": 3.0,
+      "meses_venta_estimados": 0.0,
       "mix_usos_detalle": null,
-      "ingresos_totales_cop": 3900141300.0,
-      "costo_lote_cop": 550000000.0,
-      "costo_duro_cop": 2421900000.0,
-      "costo_blando_cop": 363285000.0,
-      "costo_mkt_cop": 156005652.0,
-      "costo_total_cop": 3491190652.0,
-      "utilidad_bruta_cop": 408950648.0,
-      "MUB_pct": 10.49,
-      "ROI_pct": 11.71,
-      "CL_IT_pct": 14.1,
-      "fuente_precio": "Tope VIS 2026: 135 SMMLV x $1.750.905 = $236,37 M (Argos; Decreto 1469/2025).",
+      "ingresos_totales_cop": 0.0,
+      "costo_lote_cop": 1216800000.0,
+      "costo_duro_cop": 30533650.0,
+      "costo_blando_cop": 3969374.5,
+      "costo_mkt_cop": 0.0,
+      "costo_total_cop": 1251303024.5,
+      "utilidad_bruta_cop": -1251303024.5,
+      "MUB_pct": 0.0,
+      "ROI_pct": -100.0,
+      "CL_IT_pct": 0.0,
+      "fuente_precio": "Derivado del tope legal VIS 2026: 135 SMMLV x $1.750.905 (Decreto 1469/2025, ratificado por Decreto 0159/2026) = $236.372.175 por unidad / 50 m2. Argos (2026) confirma tope cercano a $238 M.",
       "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados basicos $2,3 M/m2.",
+      "fuente_costo": "Konstruing (07-ago-2026): vivienda terminada con acabados basicos en Bogota; rango general Bogota $2,2-3,8 M/m2 (Aliados de Obras 2026). CAMACOL proyecta +15% de costos 2026 por presion laboral.",
       "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Valores validados 2026-08-13 (F2)."
+      "nota": "Menor precio y costo por m2; mayor eficiencia NGA por unidades pequenas. El piso adicional VIS aplica solo si la envolvente de Fase 1 no agoto el GFA (fuera de alcance de esta fase)."
     },
     {
       "escenario_id": "B_ESTANDAR",
       "producto": "B — Estandar",
       "nivel_acabados": "Medio",
-      "gfa_m2": 1053.0,
-      "nga_m2": 789.75,
+      "gfa_m2": 13.28,
+      "nga_m2": 9.96,
       "eficiencia_nga": 0.75,
-      "tamano_unidad_m2": 85.0,
-      "num_unidades": 9,
-      "area_vendible_m2": 765.0,
-      "precio_venta_m2": 6800000,
+      "tamano_unidad_m2": 90.0,
+      "num_unidades": 0,
+      "area_vendible_m2": 0.0,
+      "precio_venta_m2": 7200000,
       "costo_construccion_m2": 3000000,
       "absorcion_unid_mes": 2.5,
-      "meses_venta_estimados": 3.6,
+      "meses_venta_estimados": 0.0,
       "mix_usos_detalle": null,
-      "ingresos_totales_cop": 5202000000.0,
-      "costo_lote_cop": 550000000.0,
-      "costo_duro_cop": 3159000000.0,
-      "costo_blando_cop": 473850000.0,
-      "costo_mkt_cop": 208080000.0,
-      "costo_total_cop": 4390930000.0,
-      "utilidad_bruta_cop": 811070000.0,
-      "MUB_pct": 15.59,
-      "ROI_pct": 18.47,
-      "CL_IT_pct": 10.57,
-      "fuente_precio": "VALIDADO 2026-08-13: comparables Prado Veraniego $5,0-7,1 M/m2; obra nueva $6,8 M/m2.",
-      "fuente_precio_url": "https://www.metrocuadrado.com/apartamentos/venta/prado-veraniego/",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados medios $3,0 M/m2.",
+      "ingresos_totales_cop": 0.0,
+      "costo_lote_cop": 1216800000.0,
+      "costo_duro_cop": 39826500.0,
+      "costo_blando_cop": 5177445.0,
+      "costo_mkt_cop": 0.0,
+      "costo_total_cop": 1261803945.0,
+      "utilidad_bruta_cop": -1261803945.0,
+      "MUB_pct": 0.0,
+      "ROI_pct": -100.0,
+      "CL_IT_pct": 0.0,
+      "fuente_precio": "Precio medio-alto Bogota 2026: Terraes estima $6,0 M/m2 promedio en venta (50% del mercado entre $4,5 y $7,9 M/m2); Ciencuadras Q1-2026 reporta $7,42 M/m2 promedio para apartamentos; DANE IPVN Q1-2026 +8,47% anual vivienda nueva. Se toma $7,2 M/m2 para zona media-alta.",
+      "fuente_precio_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+      "fuente_costo": "Konstruing (07-ago-2026): vivienda terminada con acabados medios $2,2-3,5 M/m2 en Bogota. Se toma $3,0 M/m2 (media del rango) ajustado a multifamiliar.",
       "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Valores validados 2026-08-13 (F2)."
+      "nota": "Producto de mercado: unidades de 80-100 m2, precio y costo promedio. Es el benchmark de comparacion."
     },
     {
       "escenario_id": "C_LUJO",
       "producto": "C — Lujo / Alto nivel",
       "nivel_acabados": "Premium",
-      "gfa_m2": 1053.0,
-      "nga_m2": 737.1,
-      "eficiencia_nga": 0.7,
+      "gfa_m2": 13.28,
+      "nga_m2": 9.03,
+      "eficiencia_nga": 0.68,
       "tamano_unidad_m2": 150.0,
-      "num_unidades": 4,
-      "area_vendible_m2": 600.0,
-      "precio_venta_m2": 9500000,
+      "num_unidades": 0,
+      "area_vendible_m2": 0.0,
+      "precio_venta_m2": 12000000,
       "costo_construccion_m2": 4300000,
       "absorcion_unid_mes": 1.0,
-      "meses_venta_estimados": 4.0,
+      "meses_venta_estimados": 0.0,
       "mix_usos_detalle": null,
-      "ingresos_totales_cop": 5700000000.0,
-      "costo_lote_cop": 550000000.0,
-      "costo_duro_cop": 4527900000.0,
-      "costo_blando_cop": 679185000.0,
-      "costo_mkt_cop": 228000000.0,
-      "costo_total_cop": 5985085000.0,
-      "utilidad_bruta_cop": -285085000.0,
-      "MUB_pct": -5.0,
-      "ROI_pct": -4.76,
-      "CL_IT_pct": 9.65,
-      "fuente_precio": "VALIDADO 2026-08-13: premium norte $9-11 M/m2; se toma $9,5 M/m2.",
+      "ingresos_totales_cop": 0.0,
+      "costo_lote_cop": 1216800000.0,
+      "costo_duro_cop": 57084650.0,
+      "costo_blando_cop": 7421004.5,
+      "costo_mkt_cop": 0.0,
+      "costo_total_cop": 1281305654.5,
+      "utilidad_bruta_cop": -1281305654.5,
+      "MUB_pct": 0.0,
+      "ROI_pct": -100.0,
+      "CL_IT_pct": 0.0,
+      "fuente_precio": "Barrios premium de Bogota (La Cabrera, El Retiro) superan $11 M/m2 (Metrocuadrado 2026); Terraes ubica el rango amplio hasta $10,2 M/m2. Se toma $12 M/m2 para producto premium en zona de alto valor.",
       "fuente_precio_url": "https://www.metrocuadrado.com/noticias/actualidad/valor-del-metro-cuadrado-por-barrio-en-bogota-6020",
-      "fuente_costo": "Konstruing (07-ago-2026): acabados premium $4,3 M/m2.",
+      "fuente_costo": "Konstruing (07-ago-2026) y Aliados de Obras (2026): rango Bogota hasta $3,8 M/m2; acabados premium y mayores especificaciones elevan el costo a $4,3 M/m2 (supuesto tecnico documentado).",
       "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
-      "nota": "Valores validados 2026-08-13 (F2)."
-    },
-    {
-      "escenario_id": "D_MIXTO",
-      "producto": "D - Mixto (override usuario)",
-      "nivel_acabados": "Mixto",
-      "gfa_m2": 1053.0,
-      "nga_m2": 836.08,
-      "eficiencia_nga": 0.7940000000000002,
-      "tamano_unidad_m2": 61.54,
-      "num_unidades": 13,
-      "area_vendible_m2": 800.0,
-      "precio_venta_m2": 7212500.0,
-      "costo_construccion_m2": 3120000.0,
-      "absorcion_unid_mes": 1.18,
-      "meses_venta_estimados": 11.0,
-      "mix_usos_detalle": [
-        {
-          "uso": "Local comercial",
-          "pct_gfa": 0.2,
-          "gfa_i": 210.6,
-          "nga_i": 179.01,
-          "num_unidades": 3,
-          "area_vendible_m2": 150.0,
-          "precio_venta_m2": 9000000,
-          "costo_construccion_m2": 3600000,
-          "ingresos_cop": 1350000000.0
-        },
-        {
-          "uso": "Vivienda estandar",
-          "pct_gfa": 0.8,
-          "gfa_i": 842.4,
-          "nga_i": 657.07,
-          "num_unidades": 10,
-          "area_vendible_m2": 650.0,
-          "precio_venta_m2": 6800000,
-          "costo_construccion_m2": 3000000,
-          "ingresos_cop": 4420000000.0
-        }
-      ],
-      "ingresos_totales_cop": 5770000000.0,
-      "costo_lote_cop": 550000000.0,
-      "costo_duro_cop": 3285360000.0,
-      "costo_blando_cop": 492804000.0,
-      "costo_mkt_cop": 230800000.0,
-      "costo_total_cop": 4558964000.0,
-      "utilidad_bruta_cop": 1211036000.0,
-      "MUB_pct": 20.99,
-      "ROI_pct": 26.56,
-      "CL_IT_pct": 9.53,
-      "fuente_precio": "Supuestos de ejercicio 2026-08-14 (mix uso multiple: local ,0 M/m2 + vivienda validada ,8 M/m2).",
-      "fuente_precio_url": "",
-      "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local ,6 M/m2, vivienda ,0 M/m2).",
-      "fuente_costo_url": "",
-      "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion (hipotesis de validacion/prefactibilidad). Mix 20% local comercial + 80% vivienda estandar (Prado Veraniego). Vivienda con precios validados 2026-08-13; local supuesto de ejercicio."
-    },
-    {
-      "escenario_id": "D_MIXTO_SALUD",
-      "producto": "D - Mixto Salud (sensibilidad)",
-      "nivel_acabados": "Mixto",
-      "gfa_m2": 1053.0,
-      "nga_m2": 813.44,
-      "eficiencia_nga": 0.7725,
-      "tamano_unidad_m2": 57.31,
-      "num_unidades": 13,
-      "area_vendible_m2": 745.0,
-      "precio_venta_m2": 6735570.47,
-      "costo_construccion_m2": 3075000.0,
-      "absorcion_unid_mes": 1.71,
-      "meses_venta_estimados": 7.6,
-      "mix_usos_detalle": [
-        {
-          "uso": "Consultorios (salud)",
-          "pct_gfa": 0.25,
-          "gfa_i": 263.25,
-          "nga_i": 197.44,
-          "num_unidades": 4,
-          "area_vendible_m2": 160.0,
-          "precio_venta_m2": 6500000,
-          "costo_construccion_m2": 3300000.0,
-          "ingresos_cop": 1040000000.0
-        },
-        {
-          "uso": "Vivienda estandar",
-          "pct_gfa": 0.75,
-          "gfa_i": 789.75,
-          "nga_i": 616.0,
-          "num_unidades": 9,
-          "area_vendible_m2": 585.0,
-          "precio_venta_m2": 6800000,
-          "costo_construccion_m2": 3000000,
-          "ingresos_cop": 3978000000.0
-        }
-      ],
-      "ingresos_totales_cop": 5018000000.0,
-      "costo_lote_cop": 550000000.0,
-      "costo_duro_cop": 3237975000.0,
-      "costo_blando_cop": 485696250.0,
-      "costo_mkt_cop": 200720000.0,
-      "costo_total_cop": 4474391250.0,
-      "utilidad_bruta_cop": 543608750.0,
-      "MUB_pct": 10.83,
-      "ROI_pct": 12.15,
-      "CL_IT_pct": 10.96,
-      "fuente_precio": "Precios de sensibilidad 2026-08-14 (consultorio derivado del canon; vivienda del caso).",
-      "fuente_precio_url": "",
-      "fuente_costo": "Costo consultorio = estandar x1,10 (instalaciones medicas); vivienda del caso.",
-      "fuente_costo_url": "",
-      "nota": "USO-MULTIPLE + componente de salud (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas."
-    },
-    {
-      "escenario_id": "D_MIXTO_OFICINAS",
-      "producto": "D - Mixto Oficinas (sensibilidad)",
-      "nivel_acabados": "Mixto",
-      "gfa_m2": 1053.0,
-      "nga_m2": 826.61,
-      "eficiencia_nga": 0.7849999999999999,
-      "tamano_unidad_m2": 63.75,
-      "num_unidades": 12,
-      "area_vendible_m2": 765.0,
-      "precio_venta_m2": 6494117.65,
-      "costo_construccion_m2": 3000000.0,
-      "absorcion_unid_mes": 1.25,
-      "meses_venta_estimados": 9.6,
-      "mix_usos_detalle": [
-        {
-          "uso": "Oficinas (servicios)",
-          "pct_gfa": 0.25,
-          "gfa_i": 263.25,
-          "nga_i": 210.6,
-          "num_unidades": 3,
-          "area_vendible_m2": 180.0,
-          "precio_venta_m2": 5500000,
-          "costo_construccion_m2": 3000000,
-          "ingresos_cop": 990000000.0
-        },
-        {
-          "uso": "Vivienda estandar",
-          "pct_gfa": 0.75,
-          "gfa_i": 789.75,
-          "nga_i": 616.0,
-          "num_unidades": 9,
-          "area_vendible_m2": 585.0,
-          "precio_venta_m2": 6800000,
-          "costo_construccion_m2": 3000000,
-          "ingresos_cop": 3978000000.0
-        }
-      ],
-      "ingresos_totales_cop": 4968000000.0,
-      "costo_lote_cop": 550000000.0,
-      "costo_duro_cop": 3159000000.0,
-      "costo_blando_cop": 473850000.0,
-      "costo_mkt_cop": 198720000.0,
-      "costo_total_cop": 4381570000.0,
-      "utilidad_bruta_cop": 586430000.0,
-      "MUB_pct": 11.8,
-      "ROI_pct": 13.38,
-      "CL_IT_pct": 11.07,
-      "fuente_precio": "Precios de sensibilidad 2026-08-14 (oficina derivado del canon; vivienda del caso).",
-      "fuente_precio_url": "",
-      "fuente_costo": "Costo de vivienda del caso (oficina sin sobrecosto).",
-      "fuente_costo_url": "",
-      "nota": "USO-MULTIPLE + componente de oficinas (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas."
-    },
-    {
-      "escenario_id": "D_MIXTO_INSTITUCIONAL",
-      "producto": "D - Mixto Institucional Salud (sensibilidad)",
-      "nivel_acabados": "Mixto",
-      "gfa_m2": 1053.0,
-      "nga_m2": 811.86,
-      "eficiencia_nga": 0.7709999999999999,
-      "tamano_unidad_m2": 65.0,
-      "num_unidades": 8,
-      "area_vendible_m2": 520.0,
-      "precio_venta_m2": 6800000.0,
-      "costo_construccion_m2": 3120000.0,
-      "absorcion_unid_mes": 2.5,
-      "meses_venta_estimados": 3.2,
-      "mix_usos_detalle": [
-        {
-          "uso": "Institucional salud (laboratorio/IPS)",
-          "pct_gfa": 0.3,
-          "gfa_i": 315.9,
-          "nga_i": 236.92,
-          "num_unidades": 0,
-          "area_vendible_m2": 0.0,
-          "precio_venta_m2": 7000000,
-          "costo_construccion_m2": 3400000.0,
-          "ingresos_cop": 0.0
-        },
-        {
-          "uso": "Vivienda estandar",
-          "pct_gfa": 0.7,
-          "gfa_i": 737.1,
-          "nga_i": 574.94,
-          "num_unidades": 8,
-          "area_vendible_m2": 520.0,
-          "precio_venta_m2": 6800000,
-          "costo_construccion_m2": 3000000,
-          "ingresos_cop": 3536000000.0
-        }
-      ],
-      "ingresos_totales_cop": 3536000000.0,
-      "costo_lote_cop": 550000000.0,
-      "costo_duro_cop": 3285360000.0,
-      "costo_blando_cop": 492804000.0,
-      "costo_mkt_cop": 141440000.0,
-      "costo_total_cop": 4469604000.0,
-      "utilidad_bruta_cop": -933604000.0,
-      "MUB_pct": -26.4,
-      "ROI_pct": -20.89,
-      "CL_IT_pct": 15.55,
-      "fuente_precio": "Institucional salud $7,0 M/m2 derivado del canon 60.000x12/0,10; vivienda del caso.",
-      "fuente_precio_url": "",
-      "fuente_costo": "Institucional = estandar x1,15 (instalaciones de laboratorio).",
-      "fuente_costo_url": "",
-      "nota": "USO-MULTIPLE + institucional salud (laboratorio/IPS). Mercado real del barrio: 2 IPS < 200 m y 8 < 500 m (capa oficial Datos Abiertos Bogota 2026-08-14), 5+ hogares geriatricos < 200 m (levantamiento del usuario). Precio de venta derivado del canon (cap rate implicito ~10%)."
-    },
-    {
-      "escenario_id": "D_MIXTO_GERIATRICO",
-      "producto": "D - Mixto Geriatrico (sensibilidad)",
-      "nivel_acabados": "Mixto",
-      "gfa_m2": 1053.0,
-      "nga_m2": 827.66,
-      "eficiencia_nga": 0.7859999999999999,
-      "tamano_unidad_m2": 65.0,
-      "num_unidades": 8,
-      "area_vendible_m2": 520.0,
-      "precio_venta_m2": 6800000.0,
-      "costo_construccion_m2": 3060000.0,
-      "absorcion_unid_mes": 2.5,
-      "meses_venta_estimados": 3.2,
-      "mix_usos_detalle": [
-        {
-          "uso": "Hogar geriatrico (operador)",
-          "pct_gfa": 0.3,
-          "gfa_i": 315.9,
-          "nga_i": 252.72,
-          "num_unidades": 0,
-          "area_vendible_m2": 0.0,
-          "precio_venta_m2": 5500000,
-          "costo_construccion_m2": 3200000.0,
-          "ingresos_cop": 0.0
-        },
-        {
-          "uso": "Vivienda estandar",
-          "pct_gfa": 0.7,
-          "gfa_i": 737.1,
-          "nga_i": 574.94,
-          "num_unidades": 8,
-          "area_vendible_m2": 520.0,
-          "precio_venta_m2": 6800000,
-          "costo_construccion_m2": 3000000,
-          "ingresos_cop": 3536000000.0
-        }
-      ],
-      "ingresos_totales_cop": 3536000000.0,
-      "costo_lote_cop": 550000000.0,
-      "costo_duro_cop": 3222180000.0,
-      "costo_blando_cop": 483327000.0,
-      "costo_mkt_cop": 141440000.0,
-      "costo_total_cop": 4396947000.0,
-      "utilidad_bruta_cop": -860947000.0,
-      "MUB_pct": -24.35,
-      "ROI_pct": -19.58,
-      "CL_IT_pct": 15.55,
-      "fuente_precio": "Geriátrico $5,5 M/m2 (derivado del canon con cap rate ~8,7%); vivienda del caso.",
-      "fuente_precio_url": "",
-      "fuente_costo": "Geriátrico = estandar x1,05 (adecuaciones basicas; el operador equipa).",
-      "fuente_costo_url": "",
-      "nota": "USO-MULTIPLE + hogar geriatrico (operador arrienda el espacio). Demanda respaldada: Suba concentra 13% de los adultos mayores de Bogota (Alcaldia) e indice de envejecimiento de la ciudad 72/100 (proyecciones)."
+      "nota": "Producto de alto valor: unidades grandes, menor eficiencia NGA, mayor precio y costo por m2, menor absorcion."
     }
   ],
   "alertas": {
@@ -399,85 +134,36 @@
       {
         "nivel": "critica",
         "kpi": "MUB",
-        "texto": "MUB 10.5% < 18.0%: margen bruto de alto riesgo en Bogota."
+        "texto": "MUB 0.0% < 18.0%: margen bruto de alto riesgo en Bogota."
       },
       {
         "nivel": "critica",
         "kpi": "ROI",
-        "texto": "ROI 11.7% < 22.0%: por debajo del minimo estandar para desarrollar."
+        "texto": "ROI -100.0% < 22.0%: por debajo del minimo estandar para desarrollar."
       }
     ],
     "B_ESTANDAR": [
       {
         "nivel": "critica",
         "kpi": "MUB",
-        "texto": "MUB 15.6% < 18.0%: margen bruto de alto riesgo en Bogota."
+        "texto": "MUB 0.0% < 18.0%: margen bruto de alto riesgo en Bogota."
       },
       {
         "nivel": "critica",
         "kpi": "ROI",
-        "texto": "ROI 18.5% < 22.0%: por debajo del minimo estandar para desarrollar."
+        "texto": "ROI -100.0% < 22.0%: por debajo del minimo estandar para desarrollar."
       }
     ],
     "C_LUJO": [
       {
         "nivel": "critica",
         "kpi": "MUB",
-        "texto": "MUB -5.0% < 18.0%: margen bruto de alto riesgo en Bogota."
+        "texto": "MUB 0.0% < 18.0%: margen bruto de alto riesgo en Bogota."
       },
       {
         "nivel": "critica",
         "kpi": "ROI",
-        "texto": "ROI -4.8% < 22.0%: por debajo del minimo estandar para desarrollar."
-      }
-    ],
-    "D_MIXTO": [],
-    "D_MIXTO_SALUD": [
-      {
-        "nivel": "critica",
-        "kpi": "MUB",
-        "texto": "MUB 10.8% < 18.0%: margen bruto de alto riesgo en Bogota."
-      },
-      {
-        "nivel": "critica",
-        "kpi": "ROI",
-        "texto": "ROI 12.2% < 22.0%: por debajo del minimo estandar para desarrollar."
-      }
-    ],
-    "D_MIXTO_OFICINAS": [
-      {
-        "nivel": "critica",
-        "kpi": "MUB",
-        "texto": "MUB 11.8% < 18.0%: margen bruto de alto riesgo en Bogota."
-      },
-      {
-        "nivel": "critica",
-        "kpi": "ROI",
-        "texto": "ROI 13.4% < 22.0%: por debajo del minimo estandar para desarrollar."
-      }
-    ],
-    "D_MIXTO_INSTITUCIONAL": [
-      {
-        "nivel": "critica",
-        "kpi": "MUB",
-        "texto": "MUB -26.4% < 18.0%: margen bruto de alto riesgo en Bogota."
-      },
-      {
-        "nivel": "critica",
-        "kpi": "ROI",
-        "texto": "ROI -20.9% < 22.0%: por debajo del minimo estandar para desarrollar."
-      }
-    ],
-    "D_MIXTO_GERIATRICO": [
-      {
-        "nivel": "critica",
-        "kpi": "MUB",
-        "texto": "MUB -24.4% < 18.0%: margen bruto de alto riesgo en Bogota."
-      },
-      {
-        "nivel": "critica",
-        "kpi": "ROI",
-        "texto": "ROI -19.6% < 22.0%: por debajo del minimo estandar para desarrollar."
+        "texto": "ROI -100.0% < 22.0%: por debajo del minimo estandar para desarrollar."
       }
     ]
   },
@@ -486,269 +172,129 @@
     "nota_metodologica": "Sensibilidad marginal con unidades continuas; impacto medido como variacion de la utilidad bruta en % de los ingresos totales base. La absorcion no altera la UB estatica (afecta TIR/costos financieros en Fase 3).",
     "ranking": [
       {
-        "variable": "precio_venta",
-        "etiqueta": "Precio de venta (m2)",
-        "impacto_pct_IT_promedio": 9.6,
-        "riesgo_esperado": 9.6,
-        "rango_plausible_x": 1.0,
-        "prioridad_fetch": "Critica: definir precio exacto por tipologia en el sector; dato de mercado no controlable.",
+        "variable": "costo_lote",
+        "etiqueta": "Costo del lote",
+        "impacto_pct_IT_promedio": 174.81,
+        "riesgo_esperado": 52.44,
+        "rango_plausible_x": 0.3,
+        "prioridad_fetch": "Media: dato real del lote, no modificable en el corto plazo.",
         "por_escenario": {
           "A_VIS": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 382310287.26,
-            "ub_base_cop": 487917872.58,
-            "ub_minus_cop": 105607585.32,
-            "ub_plus_cop": 870228159.83
+            "impacto_pct_IT": 242.35,
+            "delta_abs_cop": 121680000.0,
+            "ub_base_cop": -1202852935.36,
+            "ub_minus_cop": -1081172935.36,
+            "ub_plus_cop": -1324532935.36
           },
           "B_ESTANDAR": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 515548800.0,
-            "ub_base_cop": 972638000.0,
-            "ub_minus_cop": 457089200.0,
-            "ub_plus_cop": 1488186800.0
+            "impacto_pct_IT": 169.74,
+            "delta_abs_cop": 121680000.0,
+            "ub_base_cop": -1192625314.5,
+            "ub_minus_cop": -1070945314.5,
+            "ub_plus_cop": -1314305314.5
           },
           "C_LUJO": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 672235200.0,
-            "ub_base_cop": 965267000.0,
-            "ub_minus_cop": 293031800.0,
-            "ub_plus_cop": 1637502200.0
-          },
-          "D_MIXTO": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 578903176.8,
-            "ub_base_cop": 1460867768.0,
-            "ub_minus_cop": 881964591.2,
-            "ub_plus_cop": 2039770944.8
-          },
-          "D_MIXTO_SALUD": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 525983931.06,
-            "ub_base_cop": 986168060.6,
-            "ub_minus_cop": 460184129.54,
-            "ub_plus_cop": 1512151991.66
-          },
-          "D_MIXTO_OFICINAS": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 515334731.29,
-            "ub_base_cop": 970497312.94,
-            "ub_minus_cop": 455162581.65,
-            "ub_plus_cop": 1485832044.24
-          },
-          "D_MIXTO_INSTITUCIONAL": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 529984166.4,
-            "ub_base_cop": 971677664.0,
-            "ub_minus_cop": 441693497.6,
-            "ub_plus_cop": 1501661830.4
-          },
-          "D_MIXTO_GERIATRICO": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 540295142.4,
-            "ub_base_cop": 1147444424.0,
-            "ub_minus_cop": 607149281.6,
-            "ub_plus_cop": 1687739566.4
+            "impacto_pct_IT": 112.33,
+            "delta_abs_cop": 121680000.0,
+            "ub_base_cop": -1176769057.3,
+            "ub_minus_cop": -1055089057.3,
+            "ub_plus_cop": -1298449057.3
           }
         },
         "puesto": 1
       },
       {
-        "variable": "costo_construccion",
-        "etiqueta": "Costo duro construccion (m2)",
-        "impacto_pct_IT_promedio": 6.81,
-        "riesgo_esperado": 6.81,
+        "variable": "precio_venta",
+        "etiqueta": "Precio de venta (m2)",
+        "impacto_pct_IT_promedio": 9.65,
+        "riesgo_esperado": 9.65,
         "rango_plausible_x": 1.0,
-        "prioridad_fetch": "Critica: definir costo VIS vs Estandar vs Lujo; depende del producto y del mercado de insumos.",
+        "prioridad_fetch": "Critica: definir precio exacto por tipologia en el sector; dato de mercado no controlable.",
         "por_escenario": {
           "A_VIS": {
-            "impacto_pct_IT": 6.99,
-            "delta_abs_cop": 278518500.0,
-            "ub_base_cop": 487917872.58,
-            "ub_minus_cop": 766436372.58,
-            "ub_plus_cop": 209399372.58
+            "impacto_pct_IT": 9.65,
+            "delta_abs_cop": 4845008.91,
+            "ub_base_cop": -1202852935.36,
+            "ub_minus_cop": -1207697944.28,
+            "ub_plus_cop": -1198007926.45
           },
           "B_ESTANDAR": {
-            "impacto_pct_IT": 6.76,
-            "delta_abs_cop": 363285000.0,
-            "ub_base_cop": 972638000.0,
-            "ub_minus_cop": 1335923000.0,
-            "ub_plus_cop": 609353000.0
+            "impacto_pct_IT": 9.65,
+            "delta_abs_cop": 6917863.05,
+            "ub_base_cop": -1192625314.5,
+            "ub_minus_cop": -1199543177.55,
+            "ub_plus_cop": -1185707451.45
           },
           "C_LUJO": {
-            "impacto_pct_IT": 7.44,
-            "delta_abs_cop": 520708500.0,
-            "ub_base_cop": 965267000.0,
-            "ub_minus_cop": 1485975500.0,
-            "ub_plus_cop": 444558500.0
-          },
-          "D_MIXTO": {
-            "impacto_pct_IT": 6.27,
-            "delta_abs_cop": 377816400.0,
-            "ub_base_cop": 1460867768.0,
-            "ub_minus_cop": 1838684168.0,
-            "ub_plus_cop": 1083051368.0
-          },
-          "D_MIXTO_SALUD": {
-            "impacto_pct_IT": 6.8,
-            "delta_abs_cop": 372367125.0,
-            "ub_base_cop": 986168060.6,
-            "ub_minus_cop": 1358535185.6,
-            "ub_plus_cop": 613800935.6
-          },
-          "D_MIXTO_OFICINAS": {
-            "impacto_pct_IT": 6.77,
-            "delta_abs_cop": 363285000.0,
-            "ub_base_cop": 970497312.94,
-            "ub_minus_cop": 1333782312.94,
-            "ub_plus_cop": 607212312.94
-          },
-          "D_MIXTO_INSTITUCIONAL": {
-            "impacto_pct_IT": 6.84,
-            "delta_abs_cop": 377816400.0,
-            "ub_base_cop": 971677664.0,
-            "ub_minus_cop": 1349494064.0,
-            "ub_plus_cop": 593861264.0
-          },
-          "D_MIXTO_GERIATRICO": {
-            "impacto_pct_IT": 6.58,
-            "delta_abs_cop": 370550700.0,
-            "ub_base_cop": 1147444424.0,
-            "ub_minus_cop": 1517995124.0,
-            "ub_plus_cop": 776893724.0
+            "impacto_pct_IT": 9.65,
+            "delta_abs_cop": 10453659.72,
+            "ub_base_cop": -1176769057.3,
+            "ub_minus_cop": -1187222717.02,
+            "ub_plus_cop": -1166315397.58
           }
         },
         "puesto": 2
       },
       {
-        "variable": "eficiencia_nga",
-        "etiqueta": "NGA (eficiencia de diseno)",
-        "impacto_pct_IT_promedio": 9.6,
-        "riesgo_esperado": 4.8,
-        "rango_plausible_x": 0.5,
-        "prioridad_fetch": "Alta: controlable por diseno; optimizar para mejorar la eficiencia sin incertidumbre de mercado.",
+        "variable": "costo_construccion",
+        "etiqueta": "Costo duro construccion (m2)",
+        "impacto_pct_IT_promedio": 6.37,
+        "riesgo_esperado": 6.37,
+        "rango_plausible_x": 1.0,
+        "prioridad_fetch": "Critica: definir costo VIS vs Estandar vs Lujo; depende del producto y del mercado de insumos.",
         "por_escenario": {
           "A_VIS": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 382310287.26,
-            "ub_base_cop": 487917872.58,
-            "ub_minus_cop": 105607585.32,
-            "ub_plus_cop": 870228159.83
+            "impacto_pct_IT": 6.87,
+            "delta_abs_cop": 3450302.45,
+            "ub_base_cop": -1202852935.36,
+            "ub_minus_cop": -1199402632.91,
+            "ub_plus_cop": -1206303237.81
           },
           "B_ESTANDAR": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 515548800.0,
-            "ub_base_cop": 972638000.0,
-            "ub_minus_cop": 457089200.0,
-            "ub_plus_cop": 1488186800.0
+            "impacto_pct_IT": 6.28,
+            "delta_abs_cop": 4500394.5,
+            "ub_base_cop": -1192625314.5,
+            "ub_minus_cop": -1188124920.0,
+            "ub_plus_cop": -1197125709.0
           },
           "C_LUJO": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 672235200.0,
-            "ub_base_cop": 965267000.0,
-            "ub_minus_cop": 293031800.0,
-            "ub_plus_cop": 1637502200.0
-          },
-          "D_MIXTO": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 578903176.8,
-            "ub_base_cop": 1460867768.0,
-            "ub_minus_cop": 881964591.2,
-            "ub_plus_cop": 2039770944.8
-          },
-          "D_MIXTO_SALUD": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 525983931.06,
-            "ub_base_cop": 986168060.6,
-            "ub_minus_cop": 460184129.54,
-            "ub_plus_cop": 1512151991.66
-          },
-          "D_MIXTO_OFICINAS": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 515334731.29,
-            "ub_base_cop": 970497312.94,
-            "ub_minus_cop": 455162581.65,
-            "ub_plus_cop": 1485832044.24
-          },
-          "D_MIXTO_INSTITUCIONAL": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 529984166.4,
-            "ub_base_cop": 971677664.0,
-            "ub_minus_cop": 441693497.6,
-            "ub_plus_cop": 1501661830.4
-          },
-          "D_MIXTO_GERIATRICO": {
-            "impacto_pct_IT": 9.6,
-            "delta_abs_cop": 540295142.4,
-            "ub_base_cop": 1147444424.0,
-            "ub_minus_cop": 607149281.6,
-            "ub_plus_cop": 1687739566.4
+            "impacto_pct_IT": 5.95,
+            "delta_abs_cop": 6450565.45,
+            "ub_base_cop": -1176769057.3,
+            "ub_minus_cop": -1170318491.85,
+            "ub_plus_cop": -1183219622.75
           }
         },
         "puesto": 3
       },
       {
-        "variable": "costo_lote",
-        "etiqueta": "Costo del lote",
-        "impacto_pct_IT_promedio": 1.01,
-        "riesgo_esperado": 0.3,
-        "rango_plausible_x": 0.3,
-        "prioridad_fetch": "Media: dato real del lote, no modificable en el corto plazo.",
+        "variable": "eficiencia_nga",
+        "etiqueta": "NGA (eficiencia de diseno)",
+        "impacto_pct_IT_promedio": 9.65,
+        "riesgo_esperado": 4.83,
+        "rango_plausible_x": 0.5,
+        "prioridad_fetch": "Alta: controlable por diseno; optimizar para mejorar la eficiencia sin incertidumbre de mercado.",
         "por_escenario": {
           "A_VIS": {
-            "impacto_pct_IT": 1.38,
-            "delta_abs_cop": 55000000.0,
-            "ub_base_cop": 487917872.58,
-            "ub_minus_cop": 542917872.58,
-            "ub_plus_cop": 432917872.58
+            "impacto_pct_IT": 9.65,
+            "delta_abs_cop": 4845008.91,
+            "ub_base_cop": -1202852935.36,
+            "ub_minus_cop": -1207697944.28,
+            "ub_plus_cop": -1198007926.45
           },
           "B_ESTANDAR": {
-            "impacto_pct_IT": 1.02,
-            "delta_abs_cop": 55000000.0,
-            "ub_base_cop": 972638000.0,
-            "ub_minus_cop": 1027638000.0,
-            "ub_plus_cop": 917638000.0
+            "impacto_pct_IT": 9.65,
+            "delta_abs_cop": 6917863.05,
+            "ub_base_cop": -1192625314.5,
+            "ub_minus_cop": -1199543177.55,
+            "ub_plus_cop": -1185707451.45
           },
           "C_LUJO": {
-            "impacto_pct_IT": 0.79,
-            "delta_abs_cop": 55000000.0,
-            "ub_base_cop": 965267000.0,
-            "ub_minus_cop": 1020267000.0,
-            "ub_plus_cop": 910267000.0
-          },
-          "D_MIXTO": {
-            "impacto_pct_IT": 0.91,
-            "delta_abs_cop": 55000000.0,
-            "ub_base_cop": 1460867768.0,
-            "ub_minus_cop": 1515867768.0,
-            "ub_plus_cop": 1405867768.0
-          },
-          "D_MIXTO_SALUD": {
-            "impacto_pct_IT": 1.0,
-            "delta_abs_cop": 55000000.0,
-            "ub_base_cop": 986168060.6,
-            "ub_minus_cop": 1041168060.6,
-            "ub_plus_cop": 931168060.6
-          },
-          "D_MIXTO_OFICINAS": {
-            "impacto_pct_IT": 1.02,
-            "delta_abs_cop": 55000000.0,
-            "ub_base_cop": 970497312.94,
-            "ub_minus_cop": 1025497312.94,
-            "ub_plus_cop": 915497312.94
-          },
-          "D_MIXTO_INSTITUCIONAL": {
-            "impacto_pct_IT": 1.0,
-            "delta_abs_cop": 55000000.0,
-            "ub_base_cop": 971677664.0,
-            "ub_minus_cop": 1026677664.0,
-            "ub_plus_cop": 916677664.0
-          },
-          "D_MIXTO_GERIATRICO": {
-            "impacto_pct_IT": 0.98,
-            "delta_abs_cop": 55000000.0,
-            "ub_base_cop": 1147444424.0,
-            "ub_minus_cop": 1202444424.0,
-            "ub_plus_cop": 1092444424.0
+            "impacto_pct_IT": 9.65,
+            "delta_abs_cop": 10453659.72,
+            "ub_base_cop": -1176769057.3,
+            "ub_minus_cop": -1187222717.02,
+            "ub_plus_cop": -1166315397.58
           }
         },
         "puesto": 4
@@ -764,58 +310,23 @@
           "A_VIS": {
             "impacto_pct_IT": 0.0,
             "delta_abs_cop": 0.0,
-            "ub_base_cop": 487917872.58,
-            "ub_minus_cop": 487917872.58,
-            "ub_plus_cop": 487917872.58
+            "ub_base_cop": -1202852935.36,
+            "ub_minus_cop": -1202852935.36,
+            "ub_plus_cop": -1202852935.36
           },
           "B_ESTANDAR": {
             "impacto_pct_IT": 0.0,
             "delta_abs_cop": 0.0,
-            "ub_base_cop": 972638000.0,
-            "ub_minus_cop": 972638000.0,
-            "ub_plus_cop": 972638000.0
+            "ub_base_cop": -1192625314.5,
+            "ub_minus_cop": -1192625314.5,
+            "ub_plus_cop": -1192625314.5
           },
           "C_LUJO": {
             "impacto_pct_IT": 0.0,
             "delta_abs_cop": 0.0,
-            "ub_base_cop": 965267000.0,
-            "ub_minus_cop": 965267000.0,
-            "ub_plus_cop": 965267000.0
-          },
-          "D_MIXTO": {
-            "impacto_pct_IT": 0.0,
-            "delta_abs_cop": 0.0,
-            "ub_base_cop": 1460867768.0,
-            "ub_minus_cop": 1460867768.0,
-            "ub_plus_cop": 1460867768.0
-          },
-          "D_MIXTO_SALUD": {
-            "impacto_pct_IT": 0.0,
-            "delta_abs_cop": 0.0,
-            "ub_base_cop": 986168060.6,
-            "ub_minus_cop": 986168060.6,
-            "ub_plus_cop": 986168060.6
-          },
-          "D_MIXTO_OFICINAS": {
-            "impacto_pct_IT": 0.0,
-            "delta_abs_cop": 0.0,
-            "ub_base_cop": 970497312.94,
-            "ub_minus_cop": 970497312.94,
-            "ub_plus_cop": 970497312.94
-          },
-          "D_MIXTO_INSTITUCIONAL": {
-            "impacto_pct_IT": 0.0,
-            "delta_abs_cop": 0.0,
-            "ub_base_cop": 971677664.0,
-            "ub_minus_cop": 971677664.0,
-            "ub_plus_cop": 971677664.0
-          },
-          "D_MIXTO_GERIATRICO": {
-            "impacto_pct_IT": 0.0,
-            "delta_abs_cop": 0.0,
-            "ub_base_cop": 1147444424.0,
-            "ub_minus_cop": 1147444424.0,
-            "ub_plus_cop": 1147444424.0
+            "ub_base_cop": -1176769057.3,
+            "ub_minus_cop": -1176769057.3,
+            "ub_plus_cop": -1176769057.3
           }
         },
         "puesto": 5
@@ -823,219 +334,49 @@
     ]
   },
   "recomendacion": {
-    "estado": "VIABLE",
-    "recomendado": {
-      "escenario_id": "D_MIXTO",
-      "producto": "D - Mixto (override usuario)",
-      "nivel_acabados": "Mixto",
-      "gfa_m2": 1053.0,
-      "nga_m2": 836.08,
-      "eficiencia_nga": 0.7940000000000002,
-      "tamano_unidad_m2": 61.54,
-      "num_unidades": 13,
-      "area_vendible_m2": 800.0,
-      "precio_venta_m2": 7212500.0,
-      "costo_construccion_m2": 3120000.0,
-      "absorcion_unid_mes": 1.18,
-      "meses_venta_estimados": 11.0,
-      "mix_usos_detalle": [
-        {
-          "uso": "Local comercial",
-          "pct_gfa": 0.2,
-          "gfa_i": 210.6,
-          "nga_i": 179.01,
-          "num_unidades": 3,
-          "area_vendible_m2": 150.0,
-          "precio_venta_m2": 9000000,
-          "costo_construccion_m2": 3600000,
-          "ingresos_cop": 1350000000.0
-        },
-        {
-          "uso": "Vivienda estandar",
-          "pct_gfa": 0.8,
-          "gfa_i": 842.4,
-          "nga_i": 657.07,
-          "num_unidades": 10,
-          "area_vendible_m2": 650.0,
-          "precio_venta_m2": 6800000,
-          "costo_construccion_m2": 3000000,
-          "ingresos_cop": 4420000000.0
-        }
-      ],
-      "ingresos_totales_cop": 5770000000.0,
-      "costo_lote_cop": 550000000.0,
-      "costo_duro_cop": 3285360000.0,
-      "costo_blando_cop": 492804000.0,
-      "costo_mkt_cop": 230800000.0,
-      "costo_total_cop": 4558964000.0,
-      "utilidad_bruta_cop": 1211036000.0,
-      "MUB_pct": 20.99,
-      "ROI_pct": 26.56,
-      "CL_IT_pct": 9.53,
-      "fuente_precio": "Supuestos de ejercicio 2026-08-14 (mix uso multiple: local ,0 M/m2 + vivienda validada ,8 M/m2).",
-      "fuente_precio_url": "",
-      "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local ,6 M/m2, vivienda ,0 M/m2).",
-      "fuente_costo_url": "",
-      "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion (hipotesis de validacion/prefactibilidad). Mix 20% local comercial + 80% vivienda estandar (Prado Veraniego). Vivienda con precios validados 2026-08-13; local supuesto de ejercicio."
-    },
+    "estado": "NO VIABLE",
+    "recomendado": null,
     "ranking_roi": [
       {
-        "escenario_id": "D_MIXTO",
-        "producto": "D - Mixto (override usuario)",
-        "ROI_pct": 26.56,
-        "MUB_pct": 20.99
+        "escenario_id": "A_VIS",
+        "producto": "A — VIS / VIP",
+        "ROI_pct": -100.0,
+        "MUB_pct": 0.0
       },
       {
         "escenario_id": "B_ESTANDAR",
         "producto": "B — Estandar",
-        "ROI_pct": 18.47,
-        "MUB_pct": 15.59
-      },
-      {
-        "escenario_id": "D_MIXTO_OFICINAS",
-        "producto": "D - Mixto Oficinas (sensibilidad)",
-        "ROI_pct": 13.38,
-        "MUB_pct": 11.8
-      },
-      {
-        "escenario_id": "D_MIXTO_SALUD",
-        "producto": "D - Mixto Salud (sensibilidad)",
-        "ROI_pct": 12.15,
-        "MUB_pct": 10.83
-      },
-      {
-        "escenario_id": "A_VIS",
-        "producto": "A — VIS / VIP",
-        "ROI_pct": 11.71,
-        "MUB_pct": 10.49
+        "ROI_pct": -100.0,
+        "MUB_pct": 0.0
       },
       {
         "escenario_id": "C_LUJO",
         "producto": "C — Lujo / Alto nivel",
-        "ROI_pct": -4.76,
-        "MUB_pct": -5.0
-      },
-      {
-        "escenario_id": "D_MIXTO_GERIATRICO",
-        "producto": "D - Mixto Geriatrico (sensibilidad)",
-        "ROI_pct": -19.58,
-        "MUB_pct": -24.35
-      },
-      {
-        "escenario_id": "D_MIXTO_INSTITUCIONAL",
-        "producto": "D - Mixto Institucional Salud (sensibilidad)",
-        "ROI_pct": -20.89,
-        "MUB_pct": -26.4
+        "ROI_pct": -100.0,
+        "MUB_pct": 0.0
       }
     ],
-    "veredicto_textual": "El escenario D - Mixto (override usuario) proyecta un ROI del 26.6%, superando a A — VIS / VIP y B — Estandar y C — Lujo / Alto nivel y D - Mixto Salud (sensibilidad) y D - Mixto Oficinas (sensibilidad) y D - Mixto Institucional Salud (sensibilidad) y D - Mixto Geriatrico (sensibilidad). Se recomienda disenar aproximadamente 13 unidades de 62 m2 con acabados mixto. Rentabilidad esperada: utilidad bruta de 1.211.036.000 COP (MUB 21.0%, CL/IT 9.5%). Mix de usos: los 3 escenarios son residenciales puros; un escenario mixto (p.ej. local comercial en primer piso) se modela duplicando un escenario con precio y costo propios del uso adicional."
+    "veredicto_textual": "Ningun escenario cumple las reglas de viabilidad (MUB >= 18%, ROI >= 22%, CL/IT <= 30%). Conclusion: con los parametros actuales el lote no soporta desarrollo y venta bajo las reglas de Bogota. Opciones: (1) renegociar el precio del suelo, (2) validar precios de venta reales con comparables de radio 5 km (el precio y el costo duro son las variables de mayor impacto), (3) evaluar alternativa de arriendo del lote."
   },
   "aporte_suelo_analisis": {
     "descripcion": "Escenario D: el dueno del lote lo aporta al proyecto y participa en las utilidades finales en lugar de recibir el precio de venta por adelantado.",
-    "cl_pedido_cop": 550000000.0,
+    "cl_pedido_cop": 1216800000.0,
+    "fraccion_aporte_pct": 100.0,
+    "pago_parcial_pct": 0.0,
+    "cl_aportado_cop": 1216800000.0,
+    "cl_compra_cop": 0.0,
     "roi_minimo_pct": 22.0,
     "pct_socio_manual": null,
     "escenarios": [
       {
         "escenario_id": "A_VIS",
-        "ub_sin_suelo_cop": 958950648.0,
-        "ctd_sin_suelo_cop": 2941190652.0,
-        "roi_max_dev_pct": 32.60416482515055,
-        "cl_soportable_cop": 255646479.14754105,
-        "pct_socio_min_pct": 26.658981844448483,
-        "pct_socio_max_pct": 32.523957850227134,
-        "ventana_posible": true,
-        "pct_socio_recomendado_pct": 29.6,
-        "dev_ub_cop": 675183056.1462295,
-        "dev_roi_pct": 22.956113221939802,
-        "socio_recibe_cop": 283767591.8537705,
-        "socio_retorno_vs_pedido_pct": 51.59410760977645,
-        "socio_retorno_vs_soportable_pct": 110.99999999999997
-      },
-      {
-        "escenario_id": "B_ESTANDAR",
-        "ub_sin_suelo_cop": 1361070000.0,
-        "ctd_sin_suelo_cop": 3840930000.0,
-        "roi_max_dev_pct": 35.43594910607587,
-        "cl_soportable_cop": 423004426.2295084,
-        "pct_socio_min_pct": 31.078814919843094,
-        "pct_socio_max_pct": 37.91615420220855,
-        "ventana_posible": true,
-        "pct_socio_recomendado_pct": 34.5,
-        "dev_ub_cop": 891535086.8852459,
-        "dev_roi_pct": 23.211438034154384,
-        "socio_recibe_cop": 469534913.1147542,
-        "socio_retorno_vs_pedido_pct": 85.36998420268259,
-        "socio_retorno_vs_soportable_pct": 110.99999999999997
-      },
-      {
-        "escenario_id": "C_LUJO",
-        "ub_sin_suelo_cop": 264915000.0,
-        "ctd_sin_suelo_cop": 5435085000.0,
-        "roi_max_dev_pct": 4.874164801470446,
-        "cl_soportable_cop": 0.0,
-        "pct_socio_min_pct": null,
-        "pct_socio_max_pct": -351.3593794235887,
-        "ventana_posible": false,
-        "pct_socio_recomendado_pct": null,
-        "dev_ub_cop": null,
-        "dev_roi_pct": null,
-        "socio_recibe_cop": null,
-        "socio_retorno_vs_pedido_pct": null,
-        "socio_retorno_vs_soportable_pct": null
-      },
-      {
-        "escenario_id": "D_MIXTO",
-        "ub_sin_suelo_cop": 1761036000.0,
-        "ctd_sin_suelo_cop": 4008964000.0,
-        "roi_max_dev_pct": 43.92745856535504,
-        "cl_soportable_cop": 720544196.7213116,
-        "pct_socio_min_pct": 40.91592657511326,
-        "pct_socio_max_pct": 49.91743042163817,
-        "ventana_posible": true,
-        "pct_socio_recomendado_pct": 45.4,
-        "dev_ub_cop": 961231941.6393442,
-        "dev_roi_pct": 23.977065936220534,
-        "socio_recibe_cop": 799804058.3606558,
-        "socio_retorno_vs_pedido_pct": 145.4189197019374,
-        "socio_retorno_vs_soportable_pct": 110.99999999999999
-      },
-      {
-        "escenario_id": "D_MIXTO_SALUD",
-        "ub_sin_suelo_cop": 1093608750.0,
-        "ctd_sin_suelo_cop": 3924391250.0,
-        "roi_max_dev_pct": 27.866965354180728,
-        "cl_soportable_cop": 188723504.09836054,
-        "pct_socio_min_pct": 17.25694898640492,
-        "pct_socio_max_pct": 21.05347776341402,
-        "ventana_posible": true,
-        "pct_socio_recomendado_pct": 19.2,
-        "dev_ub_cop": 884125660.4508197,
-        "dev_roi_pct": 22.52898867947531,
-        "socio_recibe_cop": 209483089.5491803,
-        "socio_retorno_vs_pedido_pct": 38.087834463487326,
-        "socio_retorno_vs_soportable_pct": 111.00000000000006
-      },
-      {
-        "escenario_id": "D_MIXTO_OFICINAS",
-        "ub_sin_suelo_cop": 1136430000.0,
-        "ctd_sin_suelo_cop": 3831570000.0,
-        "roi_max_dev_pct": 29.65964343598055,
-        "cl_soportable_cop": 240561147.54098368,
-        "pct_socio_min_pct": 21.16814476395235,
-        "pct_socio_max_pct": 25.825136612021858,
-        "ventana_posible": true,
-        "pct_socio_recomendado_pct": 23.5,
-        "dev_ub_cop": 869407126.2295082,
-        "dev_roi_pct": 22.69062358849005,
-        "socio_recibe_cop": 267022873.77049184,
-        "socio_retorno_vs_pedido_pct": 48.5496134128167,
-        "socio_retorno_vs_soportable_pct": 110.99999999999999
-      },
-      {
-        "escenario_id": "D_MIXTO_INSTITUCIONAL",
-        "ub_sin_suelo_cop": -383604000.0,
-        "ctd_sin_suelo_cop": 3919604000.0,
+        "fraccion_aporte_pct": 100.0,
+        "pago_parcial_pct": 0.0,
+        "ub_sin_suelo_cop": -34503024.5,
+        "ub_equity_cop": -34503024.5,
+        "ctd_sin_suelo_cop": 34503024.5,
+        "ctd_full_cop": 34503024.5,
+        "cl_compra_cop": 0.0,
         "roi_max_dev_pct": 0.0,
         "cl_soportable_cop": 0.0,
         "pct_socio_min_pct": null,
@@ -1049,9 +390,35 @@
         "socio_retorno_vs_soportable_pct": null
       },
       {
-        "escenario_id": "D_MIXTO_GERIATRICO",
-        "ub_sin_suelo_cop": -310947000.0,
-        "ctd_sin_suelo_cop": 3846947000.0,
+        "escenario_id": "B_ESTANDAR",
+        "fraccion_aporte_pct": 100.0,
+        "pago_parcial_pct": 0.0,
+        "ub_sin_suelo_cop": -45003945.0,
+        "ub_equity_cop": -45003945.0,
+        "ctd_sin_suelo_cop": 45003945.0,
+        "ctd_full_cop": 45003945.0,
+        "cl_compra_cop": 0.0,
+        "roi_max_dev_pct": 0.0,
+        "cl_soportable_cop": 0.0,
+        "pct_socio_min_pct": null,
+        "pct_socio_max_pct": null,
+        "ventana_posible": false,
+        "pct_socio_recomendado_pct": null,
+        "dev_ub_cop": null,
+        "dev_roi_pct": null,
+        "socio_recibe_cop": null,
+        "socio_retorno_vs_pedido_pct": null,
+        "socio_retorno_vs_soportable_pct": null
+      },
+      {
+        "escenario_id": "C_LUJO",
+        "fraccion_aporte_pct": 100.0,
+        "pago_parcial_pct": 0.0,
+        "ub_sin_suelo_cop": -64505654.5,
+        "ub_equity_cop": -64505654.5,
+        "ctd_sin_suelo_cop": 64505654.5,
+        "ctd_full_cop": 64505654.5,
+        "cl_compra_cop": 0.0,
         "roi_max_dev_pct": 0.0,
         "cl_soportable_cop": 0.0,
         "pct_socio_min_pct": null,
@@ -1065,263 +432,194 @@
         "socio_retorno_vs_soportable_pct": null
       }
     ],
-    "mejor_escenario": "D_MIXTO"
+    "mejor_escenario": "A_VIS"
   },
   "arriendo_analisis": {
     "descripcion": "Escenario E: el lote se arrienda durante el ciclo (24 meses) en lugar de comprarse; el canon reemplaza el desembolso del CL y el lote vuelve al dueno.",
-    "cl_pedido_cop": 550000000.0,
+    "cl_pedido_cop": 1216800000.0,
     "mensual_pct_cl": 0.75,
     "meses": 24,
-    "canon_base_cop": 99000000.0,
+    "canon_base_cop": 219024000.0,
     "escenarios": [
       {
         "escenario_id": "A_VIS",
-        "canon_pedido_cop": 99000000.0,
-        "ub_pedido_cop": 859950648.0,
-        "roi_pedido_pct": 28.286076316769098,
-        "mub_pedido_pct": 22.049217755264404,
-        "canon_it_pedido_pct": 2.5383695713793752,
-        "viable_pedido": true,
-        "canon_soportable_cop": 46016366.24655739,
-        "ub_soportable_cop": 912934281.7534428,
-        "roi_soportable_pct": 30.561466820914223,
-        "mub_soportable_pct": 23.407723247192166,
-        "canon_it_soportable_pct": 1.1798640794516186,
-        "viable_soportable": true
+        "canon_pedido_cop": 219024000.0,
+        "ub_pedido_cop": -253527024.5,
+        "roi_pedido_pct": -100.0,
+        "mub_pedido_pct": 0.0,
+        "canon_it_pedido_pct": 0.0,
+        "viable_pedido": false,
+        "canon_soportable_cop": 0.0,
+        "ub_soportable_cop": -34503024.5,
+        "roi_soportable_pct": -100.0,
+        "mub_soportable_pct": 0.0,
+        "canon_it_soportable_pct": 0.0,
+        "viable_soportable": false
       },
       {
         "escenario_id": "B_ESTANDAR",
-        "canon_pedido_cop": 99000000.0,
-        "ub_pedido_cop": 1262070000.0,
-        "roi_pedido_pct": 32.0328026132444,
-        "mub_pedido_pct": 24.261245674740483,
-        "canon_it_pedido_pct": 1.9031141868512111,
-        "viable_pedido": true,
-        "canon_soportable_cop": 76140796.72131151,
-        "ub_soportable_cop": 1284929203.2786884,
-        "roi_soportable_pct": 32.80331834579572,
-        "mub_soportable_pct": 24.70067672584945,
-        "canon_it_soportable_pct": 1.4636831357422435,
-        "viable_soportable": true
+        "canon_pedido_cop": 219024000.0,
+        "ub_pedido_cop": -264027945.0,
+        "roi_pedido_pct": -100.0,
+        "mub_pedido_pct": 0.0,
+        "canon_it_pedido_pct": 0.0,
+        "viable_pedido": false,
+        "canon_soportable_cop": 0.0,
+        "ub_soportable_cop": -45003945.0,
+        "roi_soportable_pct": -100.0,
+        "mub_soportable_pct": 0.0,
+        "canon_it_soportable_pct": 0.0,
+        "viable_soportable": false
       },
       {
         "escenario_id": "C_LUJO",
-        "canon_pedido_cop": 99000000.0,
-        "ub_pedido_cop": 165915000.0,
-        "roi_pedido_pct": 2.9980565893006705,
-        "mub_pedido_pct": 2.910789473684211,
-        "canon_it_pedido_pct": 1.7368421052631577,
+        "canon_pedido_cop": 219024000.0,
+        "ub_pedido_cop": -283529654.5,
+        "roi_pedido_pct": -100.0,
+        "mub_pedido_pct": 0.0,
+        "canon_it_pedido_pct": 0.0,
         "viable_pedido": false,
         "canon_soportable_cop": 0.0,
-        "ub_soportable_cop": 264915000.0,
-        "roi_soportable_pct": 4.874164801470446,
-        "mub_soportable_pct": 4.647631578947369,
-        "canon_it_soportable_pct": 0.0,
-        "viable_soportable": false
-      },
-      {
-        "escenario_id": "D_MIXTO",
-        "canon_pedido_cop": 99000000.0,
-        "ub_pedido_cop": 1662036000.0,
-        "roi_pedido_pct": 40.45887451788769,
-        "mub_pedido_pct": 28.804783362218373,
-        "canon_it_pedido_pct": 1.7157712305025996,
-        "viable_pedido": true,
-        "canon_soportable_cop": 129697955.40983608,
-        "ub_soportable_cop": 1631338044.5901637,
-        "roi_soportable_pct": 39.41704014887629,
-        "mub_soportable_pct": 28.272756405375453,
-        "canon_it_soportable_pct": 2.247798187345513,
-        "viable_soportable": true
-      },
-      {
-        "escenario_id": "D_MIXTO_SALUD",
-        "canon_pedido_cop": 99000000.0,
-        "ub_pedido_cop": 994608750.0,
-        "roi_pedido_pct": 24.720656983086098,
-        "mub_pedido_pct": 19.82082004782782,
-        "canon_it_pedido_pct": 1.9728975687524912,
-        "viable_pedido": true,
-        "canon_soportable_cop": 33970230.7377049,
-        "ub_soportable_cop": 1059638519.2622952,
-        "roi_soportable_pct": 26.769624866721735,
-        "mub_soportable_pct": 21.11675008494012,
-        "canon_it_soportable_pct": 0.6769675316401933,
-        "viable_soportable": true
-      },
-      {
-        "escenario_id": "D_MIXTO_OFICINAS",
-        "canon_pedido_cop": 99000000.0,
-        "ub_pedido_cop": 1037430000.0,
-        "roi_pedido_pct": 26.393881803402557,
-        "mub_pedido_pct": 20.882246376811594,
-        "canon_it_pedido_pct": 1.9927536231884055,
-        "viable_pedido": true,
-        "canon_soportable_cop": 43301006.55737706,
-        "ub_soportable_cop": 1093128993.4426231,
-        "roi_soportable_pct": 28.21071957215453,
-        "mub_soportable_pct": 22.00340163934427,
-        "canon_it_soportable_pct": 0.8715983606557379,
-        "viable_soportable": true
-      },
-      {
-        "escenario_id": "D_MIXTO_INSTITUCIONAL",
-        "canon_pedido_cop": 99000000.0,
-        "ub_pedido_cop": -482604000.0,
-        "roi_pedido_pct": -12.009245001498032,
-        "mub_pedido_pct": -13.648303167420814,
-        "canon_it_pedido_pct": 2.799773755656109,
-        "viable_pedido": false,
-        "canon_soportable_cop": 0.0,
-        "ub_soportable_cop": -383604000.0,
-        "roi_soportable_pct": -9.786804993565676,
-        "mub_soportable_pct": -10.848529411764705,
-        "canon_it_soportable_pct": 0.0,
-        "viable_soportable": false
-      },
-      {
-        "escenario_id": "D_MIXTO_GERIATRICO",
-        "canon_pedido_cop": 99000000.0,
-        "ub_pedido_cop": -409947000.0,
-        "roi_pedido_pct": -10.389065033057971,
-        "mub_pedido_pct": -11.593523755656108,
-        "canon_it_pedido_pct": 2.799773755656109,
-        "viable_pedido": false,
-        "canon_soportable_cop": 0.0,
-        "ub_soportable_cop": -310947000.0,
-        "roi_soportable_pct": -8.082955132992474,
-        "mub_soportable_pct": -8.79375,
+        "ub_soportable_cop": -64505654.5,
+        "roi_soportable_pct": -100.0,
+        "mub_soportable_pct": 0.0,
         "canon_it_soportable_pct": 0.0,
         "viable_soportable": false
       }
     ],
-    "mejor_escenario": "D_MIXTO"
+    "mejor_escenario": "A_VIS"
   },
   "flujo_caja": [
     {
-      "escenario_id": "D_MIXTO",
+      "escenario_id": "A_VIS",
       "modalidad": "compra",
       "pct_socio_pct": null,
+      "fraccion_aporte_pct": null,
+      "pago_parcial_pct": null,
+      "cl_compra_cop": null,
       "canon_total_cop": null,
       "filas": [
         {
           "trimestre": 0,
           "meses": "00-03",
           "ingresos_cop": 0.0,
-          "costo_lote_cop": 550000000.0,
+          "costo_lote_cop": 1216800000.0,
           "canon_arriendo_cop": 0.0,
           "costo_duro_cop": 0.0,
-          "costo_blando_cop": 123201000.0,
+          "costo_blando_cop": 992343.625,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -673201000.0,
-          "acumulado_cop": -673201000.0
+          "flujo_neto_cop": -1217792343.625,
+          "acumulado_cop": -1217792343.625
         },
         {
           "trimestre": 1,
           "meses": "03-06",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 492804000.0,
-          "costo_blando_cop": 123201000.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_duro_cop": 4580047.5,
+          "costo_blando_cop": 992343.625,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -62085000.0,
-          "acumulado_cop": -735286000.0
+          "flujo_neto_cop": -5572391.125,
+          "acumulado_cop": -1223364734.75
         },
         {
           "trimestre": 2,
           "meses": "06-09",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 492804000.0,
-          "costo_blando_cop": 123201000.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_duro_cop": 4580047.5,
+          "costo_blando_cop": 992343.625,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -62085000.0,
-          "acumulado_cop": -797371000.0
+          "flujo_neto_cop": -5572391.125,
+          "acumulado_cop": -1228937125.875
         },
         {
           "trimestre": 3,
           "meses": "09-12",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 657072000.0,
-          "costo_blando_cop": 123201000.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_duro_cop": 6106730.0,
+          "costo_blando_cop": 992343.625,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -226353000.0,
-          "acumulado_cop": -1023724000.0
+          "flujo_neto_cop": -7099073.625,
+          "acumulado_cop": -1236036199.5
         },
         {
           "trimestre": 4,
           "meses": "12-15",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 657072000.0,
+          "costo_duro_cop": 6106730.0,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -103152000.0,
-          "acumulado_cop": -1126876000.0
+          "flujo_neto_cop": -6106730.0,
+          "acumulado_cop": -1242142929.5
         },
         {
           "trimestre": 5,
           "meses": "15-18",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 492804000.0,
+          "costo_duro_cop": 4580047.5,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": 61116000.0,
-          "acumulado_cop": -1065760000.0
+          "flujo_neto_cop": -4580047.5,
+          "acumulado_cop": -1246722977.0
         },
         {
           "trimestre": 6,
           "meses": "18-21",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 492804000.0,
+          "costo_duro_cop": 4580047.5,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": 61116000.0,
-          "acumulado_cop": -1004644000.0
+          "flujo_neto_cop": -4580047.5,
+          "acumulado_cop": -1251303024.5
         },
         {
           "trimestre": 7,
           "meses": "21-24",
-          "ingresos_cop": 2308000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
           "costo_duro_cop": 0.0,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 92320000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": 2215680000.0,
-          "acumulado_cop": 1211036000.0
+          "flujo_neto_cop": 0.0,
+          "acumulado_cop": -1251303024.5
         }
       ],
       "totales": {
-        "ingresos_cop": 5770000000.0,
-        "costos_cop": 4558964000.0,
+        "ingresos_cop": 0.0,
+        "costos_cop": 1251303024.5,
         "reparto_dueno_cop": 0.0,
-        "flujo_neto_total_cop": 1211036000.0
+        "flujo_neto_total_cop": -1251303024.5
       },
-      "ub_esperada_cop": 1211036000.0,
+      "ub_esperada_cop": -1251303024.5,
       "consistente": true
     },
     {
-      "escenario_id": "D_MIXTO",
+      "escenario_id": "A_VIS",
       "modalidad": "aporte",
-      "pct_socio_pct": 45.4,
+      "pct_socio_pct": 0.0,
+      "fraccion_aporte_pct": 100.0,
+      "pago_parcial_pct": 0.0,
+      "cl_compra_cop": 0.0,
       "canon_total_cop": null,
       "filas": [
         {
@@ -1331,233 +629,236 @@
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
           "costo_duro_cop": 0.0,
-          "costo_blando_cop": 123201000.0,
+          "costo_blando_cop": 992343.625,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -123201000.0,
-          "acumulado_cop": -123201000.0
+          "flujo_neto_cop": -992343.625,
+          "acumulado_cop": -992343.625
         },
         {
           "trimestre": 1,
           "meses": "03-06",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 492804000.0,
-          "costo_blando_cop": 123201000.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_duro_cop": 4580047.5,
+          "costo_blando_cop": 992343.625,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -62085000.0,
-          "acumulado_cop": -185286000.0
+          "flujo_neto_cop": -5572391.125,
+          "acumulado_cop": -6564734.75
         },
         {
           "trimestre": 2,
           "meses": "06-09",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 492804000.0,
-          "costo_blando_cop": 123201000.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_duro_cop": 4580047.5,
+          "costo_blando_cop": 992343.625,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -62085000.0,
-          "acumulado_cop": -247371000.0
+          "flujo_neto_cop": -5572391.125,
+          "acumulado_cop": -12137125.875
         },
         {
           "trimestre": 3,
           "meses": "09-12",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 657072000.0,
-          "costo_blando_cop": 123201000.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_duro_cop": 6106730.0,
+          "costo_blando_cop": 992343.625,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -226353000.0,
-          "acumulado_cop": -473724000.0
+          "flujo_neto_cop": -7099073.625,
+          "acumulado_cop": -19236199.5
         },
         {
           "trimestre": 4,
           "meses": "12-15",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 657072000.0,
+          "costo_duro_cop": 6106730.0,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -103152000.0,
-          "acumulado_cop": -576876000.0
+          "flujo_neto_cop": -6106730.0,
+          "acumulado_cop": -25342929.5
         },
         {
           "trimestre": 5,
           "meses": "15-18",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 492804000.0,
+          "costo_duro_cop": 4580047.5,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": 61116000.0,
-          "acumulado_cop": -515760000.0
+          "flujo_neto_cop": -4580047.5,
+          "acumulado_cop": -29922977.0
         },
         {
           "trimestre": 6,
           "meses": "18-21",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 492804000.0,
+          "costo_duro_cop": 4580047.5,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": 61116000.0,
-          "acumulado_cop": -454644000.0
+          "flujo_neto_cop": -4580047.5,
+          "acumulado_cop": -34503024.5
         },
         {
           "trimestre": 7,
           "meses": "21-24",
-          "ingresos_cop": 2308000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
           "costo_duro_cop": 0.0,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 92320000.0,
-          "reparto_dueno_cop": 799510344.0,
-          "flujo_neto_cop": 1416169656.0,
-          "acumulado_cop": 961525656.0
+          "costo_mkt_cop": 0.0,
+          "reparto_dueno_cop": 0.0,
+          "flujo_neto_cop": 0.0,
+          "acumulado_cop": -34503024.5
         }
       ],
       "totales": {
-        "ingresos_cop": 5770000000.0,
-        "costos_cop": 4808474344.0,
-        "reparto_dueno_cop": 799510344.0,
-        "flujo_neto_total_cop": 961525656.0
+        "ingresos_cop": 0.0,
+        "costos_cop": 34503024.5,
+        "reparto_dueno_cop": 0.0,
+        "flujo_neto_total_cop": -34503024.5
       },
-      "ub_esperada_cop": 961525656.0,
+      "ub_esperada_cop": -34503024.5,
       "consistente": true
     },
     {
-      "escenario_id": "D_MIXTO",
+      "escenario_id": "A_VIS",
       "modalidad": "arriendo",
       "pct_socio_pct": null,
-      "canon_total_cop": 99000000.0,
+      "fraccion_aporte_pct": null,
+      "pago_parcial_pct": null,
+      "cl_compra_cop": null,
+      "canon_total_cop": 219024000.0,
       "filas": [
         {
           "trimestre": 0,
           "meses": "00-03",
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
-          "canon_arriendo_cop": 12375000.0,
+          "canon_arriendo_cop": 27378000.0,
           "costo_duro_cop": 0.0,
-          "costo_blando_cop": 123201000.0,
+          "costo_blando_cop": 992343.625,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -135576000.0,
-          "acumulado_cop": -135576000.0
+          "flujo_neto_cop": -28370343.625,
+          "acumulado_cop": -28370343.625
         },
         {
           "trimestre": 1,
           "meses": "03-06",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
-          "canon_arriendo_cop": 12375000.0,
-          "costo_duro_cop": 492804000.0,
-          "costo_blando_cop": 123201000.0,
-          "costo_mkt_cop": 23080000.0,
+          "canon_arriendo_cop": 27378000.0,
+          "costo_duro_cop": 4580047.5,
+          "costo_blando_cop": 992343.625,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -74460000.0,
-          "acumulado_cop": -210036000.0
+          "flujo_neto_cop": -32950391.125,
+          "acumulado_cop": -61320734.75
         },
         {
           "trimestre": 2,
           "meses": "06-09",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
-          "canon_arriendo_cop": 12375000.0,
-          "costo_duro_cop": 492804000.0,
-          "costo_blando_cop": 123201000.0,
-          "costo_mkt_cop": 23080000.0,
+          "canon_arriendo_cop": 27378000.0,
+          "costo_duro_cop": 4580047.5,
+          "costo_blando_cop": 992343.625,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -74460000.0,
-          "acumulado_cop": -284496000.0
+          "flujo_neto_cop": -32950391.125,
+          "acumulado_cop": -94271125.875
         },
         {
           "trimestre": 3,
           "meses": "09-12",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
-          "canon_arriendo_cop": 12375000.0,
-          "costo_duro_cop": 657072000.0,
-          "costo_blando_cop": 123201000.0,
-          "costo_mkt_cop": 23080000.0,
+          "canon_arriendo_cop": 27378000.0,
+          "costo_duro_cop": 6106730.0,
+          "costo_blando_cop": 992343.625,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -238728000.0,
-          "acumulado_cop": -523224000.0
+          "flujo_neto_cop": -34477073.625,
+          "acumulado_cop": -128748199.5
         },
         {
           "trimestre": 4,
           "meses": "12-15",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
-          "canon_arriendo_cop": 12375000.0,
-          "costo_duro_cop": 657072000.0,
+          "canon_arriendo_cop": 27378000.0,
+          "costo_duro_cop": 6106730.0,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -115527000.0,
-          "acumulado_cop": -638751000.0
+          "flujo_neto_cop": -33484730.0,
+          "acumulado_cop": -162232929.5
         },
         {
           "trimestre": 5,
           "meses": "15-18",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
-          "canon_arriendo_cop": 12375000.0,
-          "costo_duro_cop": 492804000.0,
+          "canon_arriendo_cop": 27378000.0,
+          "costo_duro_cop": 4580047.5,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": 48741000.0,
-          "acumulado_cop": -590010000.0
+          "flujo_neto_cop": -31958047.5,
+          "acumulado_cop": -194190977.0
         },
         {
           "trimestre": 6,
           "meses": "18-21",
-          "ingresos_cop": 577000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
-          "canon_arriendo_cop": 12375000.0,
-          "costo_duro_cop": 492804000.0,
+          "canon_arriendo_cop": 27378000.0,
+          "costo_duro_cop": 4580047.5,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 23080000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": 48741000.0,
-          "acumulado_cop": -541269000.0
+          "flujo_neto_cop": -31958047.5,
+          "acumulado_cop": -226149024.5
         },
         {
           "trimestre": 7,
           "meses": "21-24",
-          "ingresos_cop": 2308000000.0,
+          "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
-          "canon_arriendo_cop": 12375000.0,
+          "canon_arriendo_cop": 27378000.0,
           "costo_duro_cop": 0.0,
           "costo_blando_cop": 0.0,
-          "costo_mkt_cop": 92320000.0,
+          "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": 2203305000.0,
-          "acumulado_cop": 1662036000.0
+          "flujo_neto_cop": -27378000.0,
+          "acumulado_cop": -253527024.5
         }
       ],
       "totales": {
-        "ingresos_cop": 5770000000.0,
-        "costos_cop": 4107964000.0,
+        "ingresos_cop": 0.0,
+        "costos_cop": 253527024.5,
         "reparto_dueno_cop": 0.0,
-        "flujo_neto_total_cop": 1662036000.0
+        "flujo_neto_total_cop": -253527024.5
       },
-      "ub_esperada_cop": 1662036000.0,
+      "ub_esperada_cop": -253527024.5,
       "consistente": true
     }
   ],
-  "generado_por": "F2_DEMANDA_MOTOR_v02.py"
+  "generado_por": "F2_DEMANDA_MOTOR_v03.py"
 }

@@ -15,7 +15,9 @@
 #   retiros, GFA ni normativa).
 #
 # Historial de versiones:
-#   v01 (2026-08-19) - carga inicial.
+#   v01.2 (2026-08-21) - Definir __file__ para evitar error 'name '__file__' is not defined' en entornos donde no está disponible (como GHPython).
+#   v01.1 (2026-08-20) - Forzar acceso de lista en las salidas 0 (story_names) y 1 (story_elevations) para evitar errores de conversión Text→List.
+#   v01   (2026-08-19) - carga inicial.
 #
 # Entradas:
 #   json_path        : str (Item)   - ruta a programa-areas.json (misma que F3).
@@ -41,6 +43,23 @@
 import io
 import json
 import os
+
+# Define __file__ if not already defined (for compatibility with environments that don't set it)
+try:
+    __file__
+except NameError:
+    import ghpythonlib.component as comp
+    __file__ = comp.OnPingDocument().FileName if comp.OnPingDocument() else "unknown"
+
+# ---- Forzar acceso de lista en las salidas 0 (story_names) y 1 (story_elevations) ----
+try:
+    import Grasshopper as gh
+    ghenv.Component.Params.Output[0].Access = gh.Kernel.GH_ParamAccess.list   # story_names
+    ghenv.Component.Params.Output[1].Access = gh.Kernel.GH_ParamAccess.list   # story_elevations
+except Exception:
+    # Si falla el acceso a Grasshopper, continuar sin forzar el modo de acceso
+    # (dependerá de la configuración manual del componente)
+    pass
 
 
 def _f(v):
