@@ -3,6 +3,17 @@
 > **Nota:** Este archivo debe ir en `D:\WORK\PROJECTS\DiseñoParametrico\CLAUDE.md`
 > Es generado automáticamente por `init-project.ps1`. Esta es la plantilla maestra.
 
+## Normas generales
+Eres un asistente extremadamente eficiente en el uso de tokens. Da prioridad a la máxima consición sin sacrificar precision o utilidad.
+
+### Reglas principales para cada respuesta:
+- Ser directo y conciso, elimine los "fluff", cortesias y explicciones innecesarias.
+- Solamente responda lo que es estrictamente necesario para dar una respuesta adecuada.
+- Sumarice el contexto y las decisiones previas en lugar de repetir todo el historial. consulte siempre el vault.
+- Antes de responder internamente minimice el uso de tokens.
+- Remueva las redundancias y enfoquese en lo que puede dar un mayor valor.
+- si el operador dice modo conciso o optimice, sea mucho mas estricto.
+
 ## Contexto del proyecto
 Ecosistema BIM-GIS-AI para diseño arquitectónico paramétrico en Bogotá.
 Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor de demanda, generación de masa y inyección BIM nativa.
@@ -26,14 +37,14 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
 ## Reglas obligatorias
 
 ### GHPython
-5. **⚠️ NO usar el componente "Python 3 Script" de Grasshopper (Rhino 8).**
+1. **⚠️ NO usar el componente "Python 3 Script" de Grasshopper (Rhino 8).**
    El componente "Python 3 Script" tiene un bug documentado en Rhino 8: pierde
    el reconocimiento del tipo de lenguaje, sellando el componente sin posibilidad
    de edición. Han ocurrido 3 fallas en 2 días que obligan a reconstruir todos
    los componentes desde cero.
    ✅ **Usar SIEMPRE el componente "Script"** (el clásico) y seleccionar
    **IronPython 2.7** como lenguaje. Es mucho más estable en este contexto.
-6. Los scripts GHPython DEBEN ser compatibles con IronPython 2.7:
+2. Los scripts GHPython DEBEN ser compatibles con IronPython 2.7:
    - NO usar f-strings → usar `.format()` o `%`
    - NO usar `pathlib` → usar `os.path`
    - NO usar type hints → quitarlos
@@ -79,23 +90,23 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
 ```
 
 ### Normativa
-1. Toda referencia POT debe citar el **Decreto 555 de 2021** y consultar el `.gpkg` de la geobase Bogotá.
-2. Toda referencia NSR-10 debe citar el **Título y sección** (ej: NSR-10 A.2.5).
-3. Coordenadas: **MAGNA-SIRGAS Origen Bogotá** (EPSG:9377).
-4. Aplicar **desfase virtual** si se compara con origen local (0,0,0) de Archicad.
+3. Toda referencia POT debe citar el **Decreto 555 de 2021** y consultar el `.gpkg` de la geobase Bogotá.
+4. Toda referencia NSR-10 debe citar el **Título y sección** (ej: NSR-10 A.2.5).
+5. Coordenadas: **MAGNA-SIRGAS Origen Bogotá** (EPSG:9377).
+6. Aplicar **desfase virtual** si se compara con origen local (0,0,0) de Archicad.
 
 ### Clasificación Espacial Híbrida (ADR-008)
-5. **NO confiar ciegamente en datos oficiales.** La geodatabase del POT tiene huecos (calles no digitalizadas, alturas de vecinos faltantes).
-6. **Regla de clasificación de frentes**: Un borde del lote es "Frontal" si la distancia a CUALQUIER curva de vía es < 15 metros. Si no hay vía cerca, es "Lateral" o "Posterior".
-7. **Feedback Loop ArchiCAD ↔ Grasshopper**: Las vías se obtienen de DOS fuentes combinadas con Merge en GH:
+7. **NO confiar ciegamente en datos oficiales.** La geodatabase del POT tiene huecos (calles no digitalizadas, alturas de vecinos faltantes).
+8. **Regla de clasificación de frentes**: Un borde del lote es "Frontal" si la distancia a CUALQUIER curva de vía es < 15 metros. Si no hay vía cerca, es "Lateral" o "Posterior".
+9. **Feedback Loop ArchiCAD ↔ Grasshopper**: Las vías se obtienen de DOS fuentes combinadas con Merge en GH:
    - `vias_oficiales`: del JSON (capa Eje_vial del POT)
    - `vias_manuales`: dibujadas en ArchiCAD en capas `00-20-20_Elementos_entorno_urbano_preexistente`, `70-30-20_Andenes_preexistentes`, `70-50-10_Zonas_verdes_publicas`
-8. **Ortofoto de referencia**: Usar `fetch-aerial-photo-v6.py` para obtener imagen satelital. Colocar en capa `00-20-20_Foto_Aerea_Referencia` (50% transparencia) para verificar alineación.
+10. **Ortofoto de referencia**: Usar `fetch-aerial-photo-v6.py` para obtener imagen satelital. Colocar en capa `00-20-20_Foto_Aerea_Referencia` (50% transparencia) para verificar alineación.
 8b. **Curvas con arcos de la Live Connection**: el Deconstruct 2D Polyline emite el tipo del plugin "Planar Curve" (polilínea con segmentos curvos) que NO tiene ClosestPoint y los scripts GHPython lo rechazan (vías/vecinos/EP rectos emiten "Polyline Curve" nativa y funcionan). Normalizar a curva nativa (componente Curve de GH directo tras el Deconstruct, o Divide Curve + Polyline) o dibujar los elementos como polilíneas rectas en ArchiCAD. Los scripts manejan arcos sin problema una vez la curva es nativa de Rhino.
 
 ### Grasshopper / GHPython
-9. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm).
-10. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v08.py` + `F1_ETAPA2_LADOS_v06.py` (pipeline modular v26, regla híbrida 15m, regla Posterior N-1, Anexo 5 POT actualizado por Decreto 466/2024, ancho de vía TOTAL del perfil vial — incluye andenes; v06: laterales por vértices coincidentes + contacto mínimo + esquina real; ancho con respaldo desde LADOS_v06 → antejardín por tabla CU-5.5).
+11. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm).
+12. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v08.py` + `F1_ETAPA2_LADOS_v06.py` (pipeline modular v26, regla híbrida 15m, regla Posterior N-1, Anexo 5 POT actualizado por Decreto 466/2024, ancho de vía TOTAL del perfil vial — incluye andenes; v06: laterales por vértices coincidentes + contacto mínimo + esquina real; ancho con respaldo desde LADOS_v06 → antejardín por tabla CU-5.5).
     El linaje legacy (`F1_NORMATIVA_APLICAR_*`, `F1_CONTEXTO_POT_*`, `F1_LADOS_CONFIGURAR_*`,
     `F1_LADOS_CLASIFICAR_*`, patios viejos, `F1_PATIO_DISCONTINUIDAD_*`, `F1_VECINOS_ANALISIS_*`,
     `F1_VALIDADOR_CRUZADO_v01`, `F1_DESPLAZAR_ORIGEN_v01`, `F1_VERTICE_CERCANO_v01`) está
@@ -110,42 +121,42 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
     `00-00-10_Lote_proyecto`) y ETAPA1 v02 expone `layer_lote_ok`.
 
 ### PROHIBIDO usar 
-11. Rhinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg).
-12. Entradas JSON a GHPython: `No Type Hint` + `Item Access`.
-13. Entradas geométricas a GHPython: `List Access` + `Flatten`.
-13b. Entradas geométricas desde la Live Connection: **Type hint = Curve** en el
+13. Rhinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg).
+14. Entradas JSON a GHPython: `No Type Hint` + `Item Access`.
+15. Entradas geométricas a GHPython: `List Access` + `Flatten`.
+15b. Entradas geométricas desde la Live Connection: **Type hint = Curve** en el
     input del GHPython (fuerza la conversión a `Rhino.Geometry.Curve` nativa) +
     `List Access` + `Flatten`. Conectar la salida C del Deconstruct DIRECTO al
     script; NO reconstruir con Explode/PolyLine (el parámetro Polyline de
     Params > Geometry produce `Rhino.Geometry.Polyline`, sin ClosestPoint).
-14. Lotes deben ser **polilíneas (LineSegments)**, no NURBS.
-15. No usar APIs online dentro de GHPython; usar `data/` local.
-16. Si una entrada falla, usar valor por defecto y loggear warning.
-17. Prohibido usar coordenadas globales (SIRGAS) como input directo en GH/ArchiCAD.
+16. Lotes deben ser **polilíneas (LineSegments)**, no NURBS.
+17. No usar APIs online dentro de GHPython; usar `data/` local.
+18. Si una entrada falla, usar valor por defecto y loggear warning.
+19. Prohibido usar coordenadas globales (SIRGAS) como input directo en GH/ArchiCAD.
 
 ### Código Python
-13. Todo script GHPython nuevo requiere test antes de merge.
-14. Todo script va en `src/fase-N-<nombre>/` con fixture en `tests/`.
-15. Convención de 命名: `MAYUS_FASE_VERBO_vNN.py` (ej: `F1_CONTEXTO_v09.py`).
-16. Python externo: type hints obligatorios, ruff, mypy.
-17. GHPython: sin type hints (IronPython 2.7).
-18. La adquisición del lote se hace mediante el CHIP del predio usando el script scripts/utilities/fetch-urban-context-v6.py.
-19. El script genera un JSON en 'data/pot-cache/<CHIP>-contexto.json' con coordenadas locales (0,0,0) + metadatos SIRGAS + topografía.
-20. Los scripts GHPython de la Fase 1 SOLO deben leer este JSON. Si el JSON no existe, el pipeline debe detenerse e indicar al usuario que ejecute el script de fetch primero.
-21. La topografía maneja dos estados: 'ESTIMADA' (raster público) y 'REAL' (levantamiento). El sistema debe actualizarse dinámicamente cuando el estado cambie a REAL.
+20. Todo script GHPython nuevo requiere test antes de merge.
+21. Todo script va en `src/fase-N-<nombre>/` con fixture en `tests/`.
+22. Convención de 命名: `MAYUS_FASE_VERBO_vNN.py` (ej: `F1_CONTEXTO_v09.py`).
+23. Python externo: type hints obligatorios, ruff, mypy.
+24. GHPython: sin type hints (IronPython 2.7).
+25. La adquisición del lote se hace mediante el CHIP del predio usando el script scripts/utilities/fetch-urban-context-v6.py.
+26. El script genera un JSON en 'data/pot-cache/<CHIP>-contexto.json' con coordenadas locales (0,0,0) + metadatos SIRGAS + topografía.
+27. Los scripts GHPython de la Fase 1 SOLO deben leer este JSON. Si el JSON no existe, el pipeline debe detenerse e indicar al usuario que ejecute el script de fetch primero.
+28. La topografía maneja dos estados: 'ESTIMADA' (raster público) y 'REAL' (levantamiento). El sistema debe actualizarse dinámicamente cuando el estado cambie a REAL.
 
 ### Datos
-22. Archivo POT fuente: `D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg`
-23. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `gpkg-to-cache.py`).
-24. Whitelist de campos: `config/field-whitelist.json` (~30 campos de 2455 totales).
-25. Vecinos: modelado manual en Archicad (Morph), validar con `validate-neighbors.py` antes de pasar a GH.
+29. Archivo POT fuente: `D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg`
+30. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `gpkg-to-cache.py`).
+31. Whitelist de campos: `config/field-whitelist.json` (~30 campos de 2455 totales).
+32. Vecinos: modelado manual en Archicad (Morph), validar con `validate-neighbors.py` antes de pasar a GH.
 
 ### Modelos IA
-26. Modelo primario: `qwen2.5-coder:14b` (9 GB VRAM).
-27. Si Rhino.Compute activo: cambiar a `qwen2.5:7b` (5 GB VRAM) para no saturar.
-28. Fallback emergencia: `llama3.2:3b`.
-29. Claude Code enruta vía fcc-server en `http://127.0.0.1:8787`.
-30. **Ubicación de modelos**: `D:\Users\Work\.ollama\models\` (por defecto de Ollama con perfil Work en D:). Variable `OLLAMA_MODELS` apunta ahí.
+33. Modelo primario: `qwen2.5-coder:14b` (9 GB VRAM).
+34. Si Rhino.Compute activo: cambiar a `qwen2.5:7b` (5 GB VRAM) para no saturar.
+35. Fallback emergencia: `llama3.2:3b`.
+36. Claude Code enruta vía fcc-server en `http://127.0.0.1:8787`.
+37. **Ubicación de modelos**: `D:\Users\Work\.ollama\models\` (por defecto de Ollama con perfil Work en D:). Variable `OLLAMA_MODELS` apunta ahí.
 
 ## Comandos útiles
 
