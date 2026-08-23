@@ -44,6 +44,74 @@ ALTURA_CODIGOS_ESPECIALES = {
 }
 
 
+# --- OVERRIDE DE NORMA (orquestador) ---
+# Completa los datos normativos que la geobase POT no trae (rango, altura, IO, IC,
+# antejardin, tipologia). Lo edita el orquestador (data/pot-bogota/norma-override.json)
+# y GANA sobre la geobase (el operador lo confirma).
+NORMA_OVERRIDE_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "pot-bogota", "norma-override.json")
+
+
+def _cargar_norma_override(chip):
+    try:
+        with open(NORMA_OVERRIDE_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return None
+    if not isinstance(data, dict):
+        return None
+    lotes = data.get("lotes") if isinstance(data.get("lotes"), dict) else {}
+    ov = lotes.get(chip)
+    return ov if isinstance(ov, dict) else None
+
+
+def _aplicar_norma_override(pot_data, chip):
+    """Fusiona el override de norma (orquestador) en pot_data. El override GANA
+    sobre la geobase. Devuelve True si se aplico al menos un campo."""
+    ov = _cargar_norma_override(chip)
+    if not ov:
+        return False
+    mapeo = {
+        "upz": "upz",
+        "tratamiento": "tratamiento",
+        "tipologia": "tipologia",
+        "rango_edificabilidad": "rango_edificabilidad",
+        "io_maximo": "io_maximo",
+        "ic_maximo": "ic_maximo",
+        "semisotano_permitido": "semisotano_permitido",
+        "voladizo_permitido": "voladizo_permitido",
+        "subdivision_min_m2": "subdivision_min_m2",
+        "frente_min_m": "frente_min_m",
+        "fuente": "fuente_norma",
+    }
+    aplicado = []
+    for k_src, k_dst in mapeo.items():
+        v = ov.get(k_src)
+        if v is None or v == "":
+            continue
+        pot_data[k_dst] = v
+        aplicado.append(k_dst)
+    aj = ov.get("antejardin_min_m")
+    if aj is not None and aj != "":
+        try:
+            pot_data["antejardin_m"] = float(aj)
+            aplicado.append("antejardin_m")
+        except (ValueError, TypeError):
+            pass
+    pisos = ov.get("altura_maxima_pisos")
+    if pisos is not None and pisos != "":
+        try:
+            pot_data["altura_maxima_pisos"] = int(pisos)
+            if pot_data.get("altura_maxima_m") in (None, ""):
+                pot_data["altura_maxima_m"] = round(float(pisos) * ALTURA_PISO_M, 2)
+            aplicado.append("altura_maxima_pisos")
+        except (ValueError, TypeError):
+            pass
+    if aplicado:
+        print("  NORMA OVERRIDE aplicado (%s): %s" % (chip, ", ".join(aplicado)))
+    return bool(aplicado)
+
+
 def truncate_coords_2d(geom):
     if geom.is_empty: return geom
     if geom.has_z: return transform(lambda x, y, z=None: (x, y), geom)
@@ -198,6 +266,9 @@ def main(chip, output_dir="data/pot-cache"):
             print(f"Advertencia: No se pudo leer el POT .gdb ({e}).")
     else:
         print(f"Advertencia: No se encontro el POT .gdb en {POT_GDB_PATH}")
+
+    # --- OVERRIDE DE NORMA (orquestador): completa lo que la geobase no trae ---
+    _aplicar_norma_override(pot_data, chip)
 
     # --- EXTRACCION DE VIAS (3 capas del POT GDB) ---
     vias_oficiales = []

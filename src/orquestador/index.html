@@ -121,6 +121,15 @@
     <h2><span class="seccion-num">2</span>Normativa y generación de GFA</h2>
     <div class="subtitulo">Parámetros normativos y de ocupación.</div>
     <div id="vars-normativa"></div>
+    <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Completar norma (datos faltantes de la geobase)</h3>
+    <div class="ayuda" style="margin-bottom:8px;">La geobase POT no trae rango, altura, IO, IC ni antejard&iacute;n
+      para algunos tratamientos (p. ej. Renovaci&oacute;n). Complete aqu&iacute; los valores (fuente: ficha UPZ /
+      resoluci&oacute;n) y se fusionar&aacute;n al contexto del predio al re-fetchear.</div>
+    <div id="norma-override" class="grid-info"></div>
+    <div style="margin-top:12px;">
+      <button class="btn secundario" id="btn-guardar-norma" type="button">Guardar norma (override)</button>
+      <span id="norma-override-aviso" class="fuente" style="margin-left:10px;"></span>
+    </div>
     <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Usos del proyecto</h3>
     <div class="ayuda" style="margin-bottom:8px;">Marque los usos que desea incluir en el modelo. Los usos
       principales y complementarios los define la reglamentación; los prohibidos se muestran para descartarlos.</div>
@@ -211,9 +220,11 @@ async function init(){
     const o = document.createElement('option'); o.value = c; o.textContent = c;
     sel.appendChild(o);
   });
-  sel.addEventListener('change', () => { cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); });
+  sel.addEventListener('change', () => { cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); cargarNormaOverride(); });
 
   renderSeccion('normativa', $('vars-normativa'));
+  renderNormaOverride();
+  $('btn-guardar-norma').addEventListener('click', guardarNormaOverride);
   renderSeccion('modelado', $('vars-modelado'));
   renderSeccion('aporte', $('vars-aporte'));
   renderModos();
@@ -1030,6 +1041,82 @@ async function cargarPredio(){
     return '<div class="kv"><div class="k">'+x[0]+'</div><div class="v">'+x[1]+extra+'</div></div>';
   }).join('');
   det.style.display='grid';
+}
+
+// ---------- norma override (completa datos faltantes de la geobase) ----------
+const NORMA_FIELDS = [
+  {id:'rango_edificabilidad', label:'Rango de edificabilidad', tipo:'select', opciones:['1','2','3','4','5']},
+  {id:'altura_maxima_pisos', label:'Altura m&aacute;xima (pisos)', tipo:'int'},
+  {id:'io_maximo', label:'IO m&aacute;ximo', tipo:'number'},
+  {id:'ic_maximo', label:'IC m&aacute;ximo', tipo:'number'},
+  {id:'tipologia', label:'Tipolog&iacute;a', tipo:'select', opciones:['Continua','Aislada']},
+  {id:'tratamiento', label:'Tratamiento urban&iacute;stico', tipo:'select', opciones:['Consolidaci&oacute;n','Renovaci&oacute;n urbana','Desarrollo','Mejoramiento integral']},
+  {id:'antejardin_min_m', label:'Antejard&iacute;n frontal m&iacute;nimo (m)', tipo:'number'},
+  {id:'semisotano_permitido', label:'Semis&oacute;tano permitido', tipo:'bool'},
+  {id:'voladizo_permitido', label:'Voladizo permitido', tipo:'bool'},
+  {id:'subdivision_min_m2', label:'Subdivisi&oacute;n predial m&iacute;nima (m&sup2;)', tipo:'number'},
+  {id:'frente_min_m', label:'Frente m&iacute;nimo (m)', tipo:'number'},
+];
+function renderNormaOverride(){
+  const cont = $('norma-override'); cont.innerHTML = '';
+  NORMA_FIELDS.forEach(f => {
+    const div = document.createElement('div');
+    const lab = document.createElement('label'); lab.textContent = f.label; lab.htmlFor = 'no_'+f.id;
+    let inp;
+    if(f.tipo === 'bool'){
+      inp = document.createElement('select');
+      const off = document.createElement('option'); off.value='false'; off.textContent='No';
+      const on = document.createElement('option'); on.value='true'; on.textContent='S&iacute;';
+      inp.appendChild(off); inp.appendChild(on);
+    } else if(f.tipo === 'select'){
+      inp = document.createElement('select');
+      const vacio = document.createElement('option'); vacio.value=''; vacio.textContent='&mdash;'; inp.appendChild(vacio);
+      f.opciones.forEach(o => { const op = document.createElement('option'); op.value=o; op.textContent=o; inp.appendChild(op); });
+    } else {
+      inp = document.createElement('input');
+      inp.type = (f.tipo==='number'||f.tipo==='int') ? 'number' : 'text';
+      if(f.tipo==='int') inp.step='1';
+    }
+    inp.id = 'no_'+f.id;
+    div.appendChild(lab); div.appendChild(inp);
+    cont.appendChild(div);
+  });
+}
+async function cargarNormaOverride(){
+  const chip = $('chip').value;
+  const aviso = $('norma-override-aviso');
+  if(!chip){ return; }
+  const r = await api('/api/norma-override?chip=' + encodeURIComponent(chip));
+  if(!r.ok){ return; }
+  const ctx = r.contexto_pot || {}, ov = r.override || {};
+  NORMA_FIELDS.forEach(f => {
+    const el = $('no_'+f.id); if(!el) return;
+    let v = ov[f.id];
+    if(v === undefined || v === null || v === '') v = ctx[f.id];
+    if(f.tipo === 'bool'){ el.value = String(!!v); }
+    else { el.value = (v === undefined || v === null) ? '' : v; }
+  });
+  const faltan = NORMA_FIELDS.filter(f => { const v = ov[f.id]; return v===undefined||v===null||v===''; }).length;
+  aviso.textContent = (ov && Object.keys(ov).length)
+    ? ('override guardado (' + Object.keys(ov).length + ' campos)' + (faltan ? (' &middot; ' + faltan + ' sin completar') : ' &middot; completo'))
+    : 'sin override (se muestra lo que trae la geobase)';
+}
+async function guardarNormaOverride(){
+  const chip = $('chip').value;
+  const aviso = $('norma-override-aviso');
+  if(!chip){ aviso.textContent='Seleccione un CHIP.'; return; }
+  const override = {};
+  NORMA_FIELDS.forEach(f => {
+    const el = $('no_'+f.id); if(!el) return;
+    let v = el.value;
+    if(f.tipo === 'bool') v = (v === 'true');
+    else if(f.tipo === 'number' || f.tipo === 'int') v = (v === '' ? null : parseFloat(v));
+    else if(v === '') v = null;
+    override[f.id] = v;
+  });
+  const r = await api('/api/norma-override', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({chip, override}) });
+  aviso.textContent = r.ok ? ('Norma guardada en ' + r.ruta) : ('Error: ' + (r.error || 'desconocido'));
 }
 
 // ---------- caso (escenario de modelado, atado al CHIP seleccionado) ----------

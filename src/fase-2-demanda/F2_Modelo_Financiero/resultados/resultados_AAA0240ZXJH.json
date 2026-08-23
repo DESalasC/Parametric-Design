@@ -17,7 +17,7 @@
       "uso": "Mixto"
     }
   },
-  "gfa_max_m2": 13.2755,
+  "gfa_max_m2": 46.325,
   "lote": {
     "area_m2": 450,
     "precio_suelo_m2": 2600000,
@@ -39,8 +39,8 @@
       "escenario_id": "A_VIS",
       "producto": "A — VIS / VIP",
       "nivel_acabados": "Basico",
-      "gfa_m2": 13.28,
-      "nga_m2": 10.62,
+      "gfa_m2": 46.33,
+      "nga_m2": 37.06,
       "eficiencia_nga": 0.8,
       "tamano_unidad_m2": 50.0,
       "num_unidades": 0,
@@ -52,11 +52,11 @@
       "mix_usos_detalle": null,
       "ingresos_totales_cop": 0.0,
       "costo_lote_cop": 1216800000.0,
-      "costo_duro_cop": 30533650.0,
-      "costo_blando_cop": 3969374.5,
+      "costo_duro_cop": 106547500.0,
+      "costo_blando_cop": 13851175.0,
       "costo_mkt_cop": 0.0,
-      "costo_total_cop": 1251303024.5,
-      "utilidad_bruta_cop": -1251303024.5,
+      "costo_total_cop": 1337198675.0,
+      "utilidad_bruta_cop": -1337198675.0,
       "MUB_pct": 0.0,
       "ROI_pct": -100.0,
       "CL_IT_pct": 0.0,
@@ -70,8 +70,8 @@
       "escenario_id": "B_ESTANDAR",
       "producto": "B — Estandar",
       "nivel_acabados": "Medio",
-      "gfa_m2": 13.28,
-      "nga_m2": 9.96,
+      "gfa_m2": 46.33,
+      "nga_m2": 34.74,
       "eficiencia_nga": 0.75,
       "tamano_unidad_m2": 90.0,
       "num_unidades": 0,
@@ -83,11 +83,11 @@
       "mix_usos_detalle": null,
       "ingresos_totales_cop": 0.0,
       "costo_lote_cop": 1216800000.0,
-      "costo_duro_cop": 39826500.0,
-      "costo_blando_cop": 5177445.0,
+      "costo_duro_cop": 138975000.0,
+      "costo_blando_cop": 18066750.0,
       "costo_mkt_cop": 0.0,
-      "costo_total_cop": 1261803945.0,
-      "utilidad_bruta_cop": -1261803945.0,
+      "costo_total_cop": 1373841750.0,
+      "utilidad_bruta_cop": -1373841750.0,
       "MUB_pct": 0.0,
       "ROI_pct": -100.0,
       "CL_IT_pct": 0.0,
@@ -101,8 +101,8 @@
       "escenario_id": "C_LUJO",
       "producto": "C — Lujo / Alto nivel",
       "nivel_acabados": "Premium",
-      "gfa_m2": 13.28,
-      "nga_m2": 9.03,
+      "gfa_m2": 46.33,
+      "nga_m2": 31.5,
       "eficiencia_nga": 0.68,
       "tamano_unidad_m2": 150.0,
       "num_unidades": 0,
@@ -114,11 +114,11 @@
       "mix_usos_detalle": null,
       "ingresos_totales_cop": 0.0,
       "costo_lote_cop": 1216800000.0,
-      "costo_duro_cop": 57084650.0,
-      "costo_blando_cop": 7421004.5,
+      "costo_duro_cop": 199197500.0,
+      "costo_blando_cop": 25895675.0,
       "costo_mkt_cop": 0.0,
-      "costo_total_cop": 1281305654.5,
-      "utilidad_bruta_cop": -1281305654.5,
+      "costo_total_cop": 1441893175.0,
+      "utilidad_bruta_cop": -1441893175.0,
       "MUB_pct": 0.0,
       "ROI_pct": -100.0,
       "CL_IT_pct": 0.0,
@@ -174,31 +174,31 @@
       {
         "variable": "costo_lote",
         "etiqueta": "Costo del lote",
-        "impacto_pct_IT_promedio": 174.81,
-        "riesgo_esperado": 52.44,
+        "impacto_pct_IT_promedio": 50.09,
+        "riesgo_esperado": 15.03,
         "rango_plausible_x": 0.3,
         "prioridad_fetch": "Media: dato real del lote, no modificable en el corto plazo.",
         "por_escenario": {
           "A_VIS": {
-            "impacto_pct_IT": 242.35,
+            "impacto_pct_IT": 69.45,
             "delta_abs_cop": 121680000.0,
-            "ub_base_cop": -1202852935.36,
-            "ub_minus_cop": -1081172935.36,
-            "ub_plus_cop": -1324532935.36
+            "ub_base_cop": -1168131567.97,
+            "ub_minus_cop": -1046451567.97,
+            "ub_plus_cop": -1289811567.97
           },
           "B_ESTANDAR": {
-            "impacto_pct_IT": 169.74,
+            "impacto_pct_IT": 48.64,
             "delta_abs_cop": 121680000.0,
-            "ub_base_cop": -1192625314.5,
-            "ub_minus_cop": -1070945314.5,
-            "ub_plus_cop": -1314305314.5
+            "ub_base_cop": -1132442175.0,
+            "ub_minus_cop": -1010762175.0,
+            "ub_plus_cop": -1254122175.0
           },
           "C_LUJO": {
-            "impacto_pct_IT": 112.33,
+            "impacto_pct_IT": 32.19,
             "delta_abs_cop": 121680000.0,
-            "ub_base_cop": -1176769057.3,
-            "ub_minus_cop": -1055089057.3,
-            "ub_plus_cop": -1298449057.3
+            "ub_base_cop": -1077111595.0,
+            "ub_minus_cop": -955431595.0,
+            "ub_plus_cop": -1198791595.0
           }
         },
         "puesto": 1
@@ -213,24 +213,24 @@
         "por_escenario": {
           "A_VIS": {
             "impacto_pct_IT": 9.65,
-            "delta_abs_cop": 4845008.91,
-            "ub_base_cop": -1202852935.36,
-            "ub_minus_cop": -1207697944.28,
-            "ub_plus_cop": -1198007926.45
+            "delta_abs_cop": 16906710.7,
+            "ub_base_cop": -1168131567.97,
+            "ub_minus_cop": -1185038278.68,
+            "ub_plus_cop": -1151224857.27
           },
           "B_ESTANDAR": {
             "impacto_pct_IT": 9.65,
-            "delta_abs_cop": 6917863.05,
-            "ub_base_cop": -1192625314.5,
-            "ub_minus_cop": -1199543177.55,
-            "ub_plus_cop": -1185707451.45
+            "delta_abs_cop": 24139957.5,
+            "ub_base_cop": -1132442175.0,
+            "ub_minus_cop": -1156582132.5,
+            "ub_plus_cop": -1108302217.5
           },
           "C_LUJO": {
             "impacto_pct_IT": 9.65,
-            "delta_abs_cop": 10453659.72,
-            "ub_base_cop": -1176769057.3,
-            "ub_minus_cop": -1187222717.02,
-            "ub_plus_cop": -1166315397.58
+            "delta_abs_cop": 36478158.0,
+            "ub_base_cop": -1077111595.0,
+            "ub_minus_cop": -1113589753.0,
+            "ub_plus_cop": -1040633437.0
           }
         },
         "puesto": 2
@@ -245,24 +245,24 @@
         "por_escenario": {
           "A_VIS": {
             "impacto_pct_IT": 6.87,
-            "delta_abs_cop": 3450302.45,
-            "ub_base_cop": -1202852935.36,
-            "ub_minus_cop": -1199402632.91,
-            "ub_plus_cop": -1206303237.81
+            "delta_abs_cop": 12039867.5,
+            "ub_base_cop": -1168131567.97,
+            "ub_minus_cop": -1156091700.47,
+            "ub_plus_cop": -1180171435.47
           },
           "B_ESTANDAR": {
             "impacto_pct_IT": 6.28,
-            "delta_abs_cop": 4500394.5,
-            "ub_base_cop": -1192625314.5,
-            "ub_minus_cop": -1188124920.0,
-            "ub_plus_cop": -1197125709.0
+            "delta_abs_cop": 15704175.0,
+            "ub_base_cop": -1132442175.0,
+            "ub_minus_cop": -1116738000.0,
+            "ub_plus_cop": -1148146350.0
           },
           "C_LUJO": {
             "impacto_pct_IT": 5.95,
-            "delta_abs_cop": 6450565.45,
-            "ub_base_cop": -1176769057.3,
-            "ub_minus_cop": -1170318491.85,
-            "ub_plus_cop": -1183219622.75
+            "delta_abs_cop": 22509317.5,
+            "ub_base_cop": -1077111595.0,
+            "ub_minus_cop": -1054602277.5,
+            "ub_plus_cop": -1099620912.5
           }
         },
         "puesto": 3
@@ -271,30 +271,30 @@
         "variable": "eficiencia_nga",
         "etiqueta": "NGA (eficiencia de diseno)",
         "impacto_pct_IT_promedio": 9.65,
-        "riesgo_esperado": 4.83,
+        "riesgo_esperado": 4.82,
         "rango_plausible_x": 0.5,
         "prioridad_fetch": "Alta: controlable por diseno; optimizar para mejorar la eficiencia sin incertidumbre de mercado.",
         "por_escenario": {
           "A_VIS": {
             "impacto_pct_IT": 9.65,
-            "delta_abs_cop": 4845008.91,
-            "ub_base_cop": -1202852935.36,
-            "ub_minus_cop": -1207697944.28,
-            "ub_plus_cop": -1198007926.45
+            "delta_abs_cop": 16906710.7,
+            "ub_base_cop": -1168131567.97,
+            "ub_minus_cop": -1185038278.68,
+            "ub_plus_cop": -1151224857.27
           },
           "B_ESTANDAR": {
             "impacto_pct_IT": 9.65,
-            "delta_abs_cop": 6917863.05,
-            "ub_base_cop": -1192625314.5,
-            "ub_minus_cop": -1199543177.55,
-            "ub_plus_cop": -1185707451.45
+            "delta_abs_cop": 24139957.5,
+            "ub_base_cop": -1132442175.0,
+            "ub_minus_cop": -1156582132.5,
+            "ub_plus_cop": -1108302217.5
           },
           "C_LUJO": {
             "impacto_pct_IT": 9.65,
-            "delta_abs_cop": 10453659.72,
-            "ub_base_cop": -1176769057.3,
-            "ub_minus_cop": -1187222717.02,
-            "ub_plus_cop": -1166315397.58
+            "delta_abs_cop": 36478158.0,
+            "ub_base_cop": -1077111595.0,
+            "ub_minus_cop": -1113589753.0,
+            "ub_plus_cop": -1040633437.0
           }
         },
         "puesto": 4
@@ -310,23 +310,23 @@
           "A_VIS": {
             "impacto_pct_IT": 0.0,
             "delta_abs_cop": 0.0,
-            "ub_base_cop": -1202852935.36,
-            "ub_minus_cop": -1202852935.36,
-            "ub_plus_cop": -1202852935.36
+            "ub_base_cop": -1168131567.97,
+            "ub_minus_cop": -1168131567.97,
+            "ub_plus_cop": -1168131567.97
           },
           "B_ESTANDAR": {
             "impacto_pct_IT": 0.0,
             "delta_abs_cop": 0.0,
-            "ub_base_cop": -1192625314.5,
-            "ub_minus_cop": -1192625314.5,
-            "ub_plus_cop": -1192625314.5
+            "ub_base_cop": -1132442175.0,
+            "ub_minus_cop": -1132442175.0,
+            "ub_plus_cop": -1132442175.0
           },
           "C_LUJO": {
             "impacto_pct_IT": 0.0,
             "delta_abs_cop": 0.0,
-            "ub_base_cop": -1176769057.3,
-            "ub_minus_cop": -1176769057.3,
-            "ub_plus_cop": -1176769057.3
+            "ub_base_cop": -1077111595.0,
+            "ub_minus_cop": -1077111595.0,
+            "ub_plus_cop": -1077111595.0
           }
         },
         "puesto": 5
@@ -372,10 +372,10 @@
         "escenario_id": "A_VIS",
         "fraccion_aporte_pct": 100.0,
         "pago_parcial_pct": 0.0,
-        "ub_sin_suelo_cop": -34503024.5,
-        "ub_equity_cop": -34503024.5,
-        "ctd_sin_suelo_cop": 34503024.5,
-        "ctd_full_cop": 34503024.5,
+        "ub_sin_suelo_cop": -120398675.0,
+        "ub_equity_cop": -120398675.0,
+        "ctd_sin_suelo_cop": 120398675.0,
+        "ctd_full_cop": 120398675.0,
         "cl_compra_cop": 0.0,
         "roi_max_dev_pct": 0.0,
         "cl_soportable_cop": 0.0,
@@ -393,10 +393,10 @@
         "escenario_id": "B_ESTANDAR",
         "fraccion_aporte_pct": 100.0,
         "pago_parcial_pct": 0.0,
-        "ub_sin_suelo_cop": -45003945.0,
-        "ub_equity_cop": -45003945.0,
-        "ctd_sin_suelo_cop": 45003945.0,
-        "ctd_full_cop": 45003945.0,
+        "ub_sin_suelo_cop": -157041750.0,
+        "ub_equity_cop": -157041750.0,
+        "ctd_sin_suelo_cop": 157041750.0,
+        "ctd_full_cop": 157041750.0,
         "cl_compra_cop": 0.0,
         "roi_max_dev_pct": 0.0,
         "cl_soportable_cop": 0.0,
@@ -414,10 +414,10 @@
         "escenario_id": "C_LUJO",
         "fraccion_aporte_pct": 100.0,
         "pago_parcial_pct": 0.0,
-        "ub_sin_suelo_cop": -64505654.5,
-        "ub_equity_cop": -64505654.5,
-        "ctd_sin_suelo_cop": 64505654.5,
-        "ctd_full_cop": 64505654.5,
+        "ub_sin_suelo_cop": -225093175.0,
+        "ub_equity_cop": -225093175.0,
+        "ctd_sin_suelo_cop": 225093175.0,
+        "ctd_full_cop": 225093175.0,
         "cl_compra_cop": 0.0,
         "roi_max_dev_pct": 0.0,
         "cl_soportable_cop": 0.0,
@@ -444,13 +444,13 @@
       {
         "escenario_id": "A_VIS",
         "canon_pedido_cop": 219024000.0,
-        "ub_pedido_cop": -253527024.5,
+        "ub_pedido_cop": -339422675.0,
         "roi_pedido_pct": -100.0,
         "mub_pedido_pct": 0.0,
         "canon_it_pedido_pct": 0.0,
         "viable_pedido": false,
         "canon_soportable_cop": 0.0,
-        "ub_soportable_cop": -34503024.5,
+        "ub_soportable_cop": -120398675.0,
         "roi_soportable_pct": -100.0,
         "mub_soportable_pct": 0.0,
         "canon_it_soportable_pct": 0.0,
@@ -459,13 +459,13 @@
       {
         "escenario_id": "B_ESTANDAR",
         "canon_pedido_cop": 219024000.0,
-        "ub_pedido_cop": -264027945.0,
+        "ub_pedido_cop": -376065750.0,
         "roi_pedido_pct": -100.0,
         "mub_pedido_pct": 0.0,
         "canon_it_pedido_pct": 0.0,
         "viable_pedido": false,
         "canon_soportable_cop": 0.0,
-        "ub_soportable_cop": -45003945.0,
+        "ub_soportable_cop": -157041750.0,
         "roi_soportable_pct": -100.0,
         "mub_soportable_pct": 0.0,
         "canon_it_soportable_pct": 0.0,
@@ -474,13 +474,13 @@
       {
         "escenario_id": "C_LUJO",
         "canon_pedido_cop": 219024000.0,
-        "ub_pedido_cop": -283529654.5,
+        "ub_pedido_cop": -444117175.0,
         "roi_pedido_pct": -100.0,
         "mub_pedido_pct": 0.0,
         "canon_it_pedido_pct": 0.0,
         "viable_pedido": false,
         "canon_soportable_cop": 0.0,
-        "ub_soportable_cop": -64505654.5,
+        "ub_soportable_cop": -225093175.0,
         "roi_soportable_pct": -100.0,
         "mub_soportable_pct": 0.0,
         "canon_it_soportable_pct": 0.0,
@@ -506,11 +506,11 @@
           "costo_lote_cop": 1216800000.0,
           "canon_arriendo_cop": 0.0,
           "costo_duro_cop": 0.0,
-          "costo_blando_cop": 992343.625,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -1217792343.625,
-          "acumulado_cop": -1217792343.625
+          "flujo_neto_cop": -1220262793.75,
+          "acumulado_cop": -1220262793.75
         },
         {
           "trimestre": 1,
@@ -518,12 +518,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 4580047.5,
-          "costo_blando_cop": 992343.625,
+          "costo_duro_cop": 15982125.0,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -5572391.125,
-          "acumulado_cop": -1223364734.75
+          "flujo_neto_cop": -19444918.75,
+          "acumulado_cop": -1239707712.5
         },
         {
           "trimestre": 2,
@@ -531,12 +531,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 4580047.5,
-          "costo_blando_cop": 992343.625,
+          "costo_duro_cop": 15982125.0,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -5572391.125,
-          "acumulado_cop": -1228937125.875
+          "flujo_neto_cop": -19444918.75,
+          "acumulado_cop": -1259152631.25
         },
         {
           "trimestre": 3,
@@ -544,12 +544,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 6106730.0,
-          "costo_blando_cop": 992343.625,
+          "costo_duro_cop": 21309500.0,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -7099073.625,
-          "acumulado_cop": -1236036199.5
+          "flujo_neto_cop": -24772293.75,
+          "acumulado_cop": -1283924925.0
         },
         {
           "trimestre": 4,
@@ -557,12 +557,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 6106730.0,
+          "costo_duro_cop": 21309500.0,
           "costo_blando_cop": 0.0,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -6106730.0,
-          "acumulado_cop": -1242142929.5
+          "flujo_neto_cop": -21309500.0,
+          "acumulado_cop": -1305234425.0
         },
         {
           "trimestre": 5,
@@ -570,12 +570,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 4580047.5,
+          "costo_duro_cop": 15982125.0,
           "costo_blando_cop": 0.0,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -4580047.5,
-          "acumulado_cop": -1246722977.0
+          "flujo_neto_cop": -15982125.0,
+          "acumulado_cop": -1321216550.0
         },
         {
           "trimestre": 6,
@@ -583,12 +583,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 4580047.5,
+          "costo_duro_cop": 15982125.0,
           "costo_blando_cop": 0.0,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -4580047.5,
-          "acumulado_cop": -1251303024.5
+          "flujo_neto_cop": -15982125.0,
+          "acumulado_cop": -1337198675.0
         },
         {
           "trimestre": 7,
@@ -601,16 +601,16 @@
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
           "flujo_neto_cop": 0.0,
-          "acumulado_cop": -1251303024.5
+          "acumulado_cop": -1337198675.0
         }
       ],
       "totales": {
         "ingresos_cop": 0.0,
-        "costos_cop": 1251303024.5,
+        "costos_cop": 1337198675.0,
         "reparto_dueno_cop": 0.0,
-        "flujo_neto_total_cop": -1251303024.5
+        "flujo_neto_total_cop": -1337198675.0
       },
-      "ub_esperada_cop": -1251303024.5,
+      "ub_esperada_cop": -1337198675.0,
       "consistente": true
     },
     {
@@ -629,11 +629,11 @@
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
           "costo_duro_cop": 0.0,
-          "costo_blando_cop": 992343.625,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -992343.625,
-          "acumulado_cop": -992343.625
+          "flujo_neto_cop": -3462793.75,
+          "acumulado_cop": -3462793.75
         },
         {
           "trimestre": 1,
@@ -641,12 +641,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 4580047.5,
-          "costo_blando_cop": 992343.625,
+          "costo_duro_cop": 15982125.0,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -5572391.125,
-          "acumulado_cop": -6564734.75
+          "flujo_neto_cop": -19444918.75,
+          "acumulado_cop": -22907712.5
         },
         {
           "trimestre": 2,
@@ -654,12 +654,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 4580047.5,
-          "costo_blando_cop": 992343.625,
+          "costo_duro_cop": 15982125.0,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -5572391.125,
-          "acumulado_cop": -12137125.875
+          "flujo_neto_cop": -19444918.75,
+          "acumulado_cop": -42352631.25
         },
         {
           "trimestre": 3,
@@ -667,12 +667,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 6106730.0,
-          "costo_blando_cop": 992343.625,
+          "costo_duro_cop": 21309500.0,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -7099073.625,
-          "acumulado_cop": -19236199.5
+          "flujo_neto_cop": -24772293.75,
+          "acumulado_cop": -67124925.0
         },
         {
           "trimestre": 4,
@@ -680,12 +680,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 6106730.0,
+          "costo_duro_cop": 21309500.0,
           "costo_blando_cop": 0.0,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -6106730.0,
-          "acumulado_cop": -25342929.5
+          "flujo_neto_cop": -21309500.0,
+          "acumulado_cop": -88434425.0
         },
         {
           "trimestre": 5,
@@ -693,12 +693,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 4580047.5,
+          "costo_duro_cop": 15982125.0,
           "costo_blando_cop": 0.0,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -4580047.5,
-          "acumulado_cop": -29922977.0
+          "flujo_neto_cop": -15982125.0,
+          "acumulado_cop": -104416550.0
         },
         {
           "trimestre": 6,
@@ -706,12 +706,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 0.0,
-          "costo_duro_cop": 4580047.5,
+          "costo_duro_cop": 15982125.0,
           "costo_blando_cop": 0.0,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -4580047.5,
-          "acumulado_cop": -34503024.5
+          "flujo_neto_cop": -15982125.0,
+          "acumulado_cop": -120398675.0
         },
         {
           "trimestre": 7,
@@ -724,16 +724,16 @@
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
           "flujo_neto_cop": 0.0,
-          "acumulado_cop": -34503024.5
+          "acumulado_cop": -120398675.0
         }
       ],
       "totales": {
         "ingresos_cop": 0.0,
-        "costos_cop": 34503024.5,
+        "costos_cop": 120398675.0,
         "reparto_dueno_cop": 0.0,
-        "flujo_neto_total_cop": -34503024.5
+        "flujo_neto_total_cop": -120398675.0
       },
-      "ub_esperada_cop": -34503024.5,
+      "ub_esperada_cop": -120398675.0,
       "consistente": true
     },
     {
@@ -752,11 +752,11 @@
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 27378000.0,
           "costo_duro_cop": 0.0,
-          "costo_blando_cop": 992343.625,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -28370343.625,
-          "acumulado_cop": -28370343.625
+          "flujo_neto_cop": -30840793.75,
+          "acumulado_cop": -30840793.75
         },
         {
           "trimestre": 1,
@@ -764,12 +764,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 27378000.0,
-          "costo_duro_cop": 4580047.5,
-          "costo_blando_cop": 992343.625,
+          "costo_duro_cop": 15982125.0,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -32950391.125,
-          "acumulado_cop": -61320734.75
+          "flujo_neto_cop": -46822918.75,
+          "acumulado_cop": -77663712.5
         },
         {
           "trimestre": 2,
@@ -777,12 +777,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 27378000.0,
-          "costo_duro_cop": 4580047.5,
-          "costo_blando_cop": 992343.625,
+          "costo_duro_cop": 15982125.0,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -32950391.125,
-          "acumulado_cop": -94271125.875
+          "flujo_neto_cop": -46822918.75,
+          "acumulado_cop": -124486631.25
         },
         {
           "trimestre": 3,
@@ -790,12 +790,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 27378000.0,
-          "costo_duro_cop": 6106730.0,
-          "costo_blando_cop": 992343.625,
+          "costo_duro_cop": 21309500.0,
+          "costo_blando_cop": 3462793.75,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -34477073.625,
-          "acumulado_cop": -128748199.5
+          "flujo_neto_cop": -52150293.75,
+          "acumulado_cop": -176636925.0
         },
         {
           "trimestre": 4,
@@ -803,12 +803,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 27378000.0,
-          "costo_duro_cop": 6106730.0,
+          "costo_duro_cop": 21309500.0,
           "costo_blando_cop": 0.0,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -33484730.0,
-          "acumulado_cop": -162232929.5
+          "flujo_neto_cop": -48687500.0,
+          "acumulado_cop": -225324425.0
         },
         {
           "trimestre": 5,
@@ -816,12 +816,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 27378000.0,
-          "costo_duro_cop": 4580047.5,
+          "costo_duro_cop": 15982125.0,
           "costo_blando_cop": 0.0,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -31958047.5,
-          "acumulado_cop": -194190977.0
+          "flujo_neto_cop": -43360125.0,
+          "acumulado_cop": -268684550.0
         },
         {
           "trimestre": 6,
@@ -829,12 +829,12 @@
           "ingresos_cop": 0.0,
           "costo_lote_cop": 0.0,
           "canon_arriendo_cop": 27378000.0,
-          "costo_duro_cop": 4580047.5,
+          "costo_duro_cop": 15982125.0,
           "costo_blando_cop": 0.0,
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
-          "flujo_neto_cop": -31958047.5,
-          "acumulado_cop": -226149024.5
+          "flujo_neto_cop": -43360125.0,
+          "acumulado_cop": -312044675.0
         },
         {
           "trimestre": 7,
@@ -847,16 +847,16 @@
           "costo_mkt_cop": 0.0,
           "reparto_dueno_cop": 0.0,
           "flujo_neto_cop": -27378000.0,
-          "acumulado_cop": -253527024.5
+          "acumulado_cop": -339422675.0
         }
       ],
       "totales": {
         "ingresos_cop": 0.0,
-        "costos_cop": 253527024.5,
+        "costos_cop": 339422675.0,
         "reparto_dueno_cop": 0.0,
-        "flujo_neto_total_cop": -253527024.5
+        "flujo_neto_total_cop": -339422675.0
       },
-      "ub_esperada_cop": -253527024.5,
+      "ub_esperada_cop": -339422675.0,
       "consistente": true
     }
   ],

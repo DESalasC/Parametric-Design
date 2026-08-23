@@ -95,3 +95,29 @@ Cierre de fase **F1–F3** · **2026-08-18** · 85 commits · suite **234 passed
 - Vocabulario de frentes (Continua): `via`, `predio` (lateral), `espacio_publico`
   (zona verde); `indefinido`/`libre` → ignorar; `servidumbre` reservado a futuro.
 - Matching de lados por **cardinal** (no por índice) entre orquestador y canvas.
+
+
+## Sesión 2026-08-23 (tarde) — Override de norma + GFA
+
+### Cambios
+- `data/pot-bogota/norma-override.json` (clave por CHIP): completa rango, altura,
+  IO, IC, antejardín y tipología que la geobase POT no trae.
+- `fetch-urban-context-v6.py`: fusiona el override en `pot_data` (gana sobre la
+  geobase; solo campos faltantes/incorrectos).
+- `servidor.py` + `index.html`: `GET/POST /api/norma-override` + panel "Completar
+  norma (datos faltantes de la geobase)".
+- `scripts/utilities/verificar-gfa.py`: chequeo post-run del GFA.
+- Reconciliación `tratamiento` (`data/predios/AAA0240ZXJH/proyecto.json`) y
+  proyecto `EdificioDeysy` renombrado + chip/tratamiento/antejardín completados.
+
+### Pruebas
+- **Suite: 267 passed** (sin cambios en tests; cambios son de datos + orquestador).
+- Fetch verificado en vivo: override aplicado, `pot_data` con `rango "3"`,
+  `altura_maxima_pisos 4`, `io_maximo 0.7`, `ic_maximo 3.0`, `antejardin_m 3.5`.
+- `verificar-gfa.py` smoke-tested: detecta `io_maximo 4.0` y huella 46,3 m².
+
+### Decisiones
+- Override **por CHIP** (no por UPZ), **gana sobre la geobase**.
+- `upz`/`tratamiento` fuera del override (la geobase ya los trae bien).
+- Fuente exacta (ficha `041 EDIFICABILIDAD-FIRMA.pdf` + resolución 00865/2006)
+  sin OCR por ahora (el operador considera que la curaduría aún no lo exige).

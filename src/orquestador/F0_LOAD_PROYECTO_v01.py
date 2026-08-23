@@ -11,14 +11,12 @@
 #   retiros, GFA ni normativa).
 #
 # Historial de versiones:
-#   v01 (2026-08-18) — carga inicial del proyecto.json + salidas tipadas.
-#   v01.1 (2026-08-18) — normaliza tipo_bonificacion al vocabulario NORMATIVA;
-#       resuelve empate_posterior_pisos desde empate_posterior_m (m -> pisos);
-#       expone antejardin_m y voladizo_frontal_m como overrides numericos.
-#   v01.2 (2026-08-18) — empate_posterior_pisos y _m son independientes
-#       (edificio vecino existente, sin relacion con floor_height_user); se
-#       elimina la conversion m -> pisos; 'Servicios' -> 'EQUIPAMIENTO'; nueva
-#       salida derivada empate_posterior_entrepiso_m (m / pisos).
+#   v01.3 (2026-08-23) — vecinos por lado -> vecinos_por_lado_json
+#       (NORMATIVA_v08; respeta frente_override, confirmacion,
+#       'corresponde' y vecinos_manuales).
+#   v01.4 (2026-08-23) — frente confirmado por cardinal ->
+#       frente_override_json (para cablear F0 -> F1_ETAPA2_NORMATIVA_v08;
+#       ignora 'indefinido'/'libre').
 #
 # Entradas:
 #   ruta_json    : str (Item) — ruta absoluta al proyecto.json
@@ -29,7 +27,8 @@
 #   antejardin_decision, antejardin_m, voladizo_frontal_m,
 #   empate_posterior_pisos, empate_posterior_m, empate_posterior_entrepiso_m,
 #   tratamiento, caso, alineacion_nucleo, usos (list), modos (list),
-#   escenarios (list), vecinos_por_lado_json (str), ok (bool), log (str)
+#   escenarios (list), vecinos_por_lado_json (str), frente_override_json (str),
+#   ok (bool), log (str)
 #
 # Funciones internas:
 #   _val(d, k, default) — devuelve d[k] o default si falta o es None

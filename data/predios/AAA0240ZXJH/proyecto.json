@@ -7,11 +7,11 @@
     "tipo_bonificacion": "Ninguno",
     "floor_height_user": 3,
     "antejardin_decision": "Según reglamentación",
-    "antejardin_m": 0,
+    "antejardin_m": 3.5,
     "voladizo_frontal_m": 0,
     "empate_posterior_pisos": 0,
     "empate_posterior_m": null,
-    "tratamiento": "Consolidación",
+    "tratamiento": "Renovación",
     "caso": "A",
     "alineacion_nucleo": "1"
   },

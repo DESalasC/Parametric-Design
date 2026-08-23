@@ -20,6 +20,12 @@ SUBVERSIONES INTERNAS (v08.x: iteraciones sin cambio de version general):
          (presencia de lado "Posterior"). Sin lado posterior, el retiro
          lateral = SOLO sismica 2% x h (caso A: GFA 1.501,2 m2 en el
          estimador; 1.469,2 m2 en el canvas con patio 9,0 m2).
+  v08.2 (2026-08-23): regla de lote de esquina (2+ lados via/EP -> sin
+         aislamiento posterior; la esquina interior lleva patio 3x3) +
+         puente frente_override: entrada frente_override_json {cardinal:
+         frente} (salida de F0_LOAD_PROYECTO v01.4); la clasificacion del
+         operador manda sobre la geometrica, casada por cardinal (normal
+         saliente del lado).
 Regla de versionado: la version general (v08 -> v09) SOLO cambia con cambios
 mayores (contrato de entradas/salidas o algoritmo central); las iteraciones
 internas se registran como subversiones v08.x en este encabezado (el mensaje
@@ -171,6 +177,14 @@ ENTRADAS:
                                    llega: comportamiento v07 (altura_vecinos_m
                                    global). El id del lado = indice del
                                    segmento del poligono (sides_table_json).
+  frente_override_json (String)  - [v08.2] Override de frente por cardinal
+                                   (salida de F0_LOAD_PROYECTO v01.4):
+                                   {"<cardinal>": "via"|"predio"|
+                                   "espacio_publico"}. La clasificacion
+                                   confirmada por el operador manda sobre la
+                                   geometrica; se casa por cardinal (normal
+                                   saliente del lado). Sin cablear: se usa la
+                                   clasificacion geometrica del LADOS.
   reglamentacion_json (String)   - JSON de reglamentacion (salida de
                                    F1_ETAPA1_CONTEXTO_v02: pot_data con
                                    tipologia/ancho_via_m/antejardin_m).
@@ -181,9 +195,6 @@ SALIDAS:
   envelope_curve (Curve/List)    - Huella del PISO 1 (base, con retiros y
                                    patio). Compatibilidad con F1_EXPORTAR_GFA
                                    y el contrato v06.
-  envelope_por_piso (List)       - [v07] Curva de ocupacion POR PISO
-                                   (escalonada en pisos superiores). Fase 3
-                                   (VOLUM_GENERADOR_v07+) la consume.
   envelope_por_piso (List)       - [v07] Curva de ocupacion POR PISO
                                    (escalonada + voladizos en pisos
                                    superiores). Fase 3 (VOLUM_GENERADOR_v07+)
@@ -206,31 +217,11 @@ VERSIONES:
                      volumetrico lateral Anexo 5 SECCION 1.9.c + separacion
                      sismica NSR-10 A.6.5; se toma el mayor) + VOLADIZOS
                      frontales (Anexo 5 SECCION 1.13.b) en pisos != 1.
-  v06 (2026-08-16) - Respaldo del ancho de via desde sides_data del
-                     LADOS_v06 (operador > LADOS > reglamentacion > 0).
-                     Corrige antejardin en 3.0 m por ancho 0 (la entrada
-                     ancho_via_m sin cablear ya no deja el antejardin en
-                     default). Mensaje con prefijo v06.
-  v05 (2026-08-15) - Retiros por clasificacion + tratamiento + tipologia:
-                     antejardin por ancho de via (CU-5.5 / regla historica)
-                     con override; lateral 0 continua / 1/5 altura min 4m
-                     aislada; posterior tabla Consolidacion por pisos con
-                     empate volumetrico (SECCION 5.4.c). Entradas nuevas:
-                     tipologia, ancho_via_m, antejardin_m,
-                     empate_posterior_pisos.
-                     Ampliado (2026-08-15): entrada reglamentacion_json
-                     (salida de ETAPA1_v02) para derivar tipologia /
-                     ancho_via_m / antejardin_m de la reglamentacion cuando
-                     las entradas del operador son nulas o 0. La fuente POT
-                     actual no provee esos campos (mapas raster CU-5.4.2-33
-                     y CU-5.5) -> avisos + defaults reglamentarios.
-  v04 (2026-08-15) - Parseo robusto de rango, normalizacion de
-                     tipo_bonificacion, ocupacion_real = suma de fragmentos.
-  v03 - Fix rangos + toggle piso adicional + resta booleana del patio.
 ================================================================================
 """
 
-import Rhino.Geometry as rg
+# Rhino.Geometry solo existe dentro de Rhino/Grasshopper (no en el .venv).
+import Rhino.Geometry as rg  # type: ignore[reportMissingImports]
 import json
 import math
 import re

@@ -28,6 +28,7 @@ USO:
 """
 
 import argparse
+import datetime
 import io
 import json
 import os
@@ -50,6 +51,47 @@ F3_ACCESOS_SCRIPT = os.path.join(F3_DIR, "F3_ACCESOS_INTEGRADOR_v02.py")
 F1_FETCH_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-urban-context-v6.py")
 PROYECTOS = os.path.join(ORQ_DIR, "proyectos")
 PROVISIONAL = os.path.join(PROYECTOS, "_provisional")
+NORMA_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "norma-override.json")
+
+
+def _norma_override_leer():
+    """Lee data/pot-bogota/norma-override.json completo (dict)."""
+    return _json(NORMA_OVERRIDE_RUTA)
+
+
+def _norma_override_chip(chip):
+    """Devuelve el override de norma para un CHIP (dict) o None."""
+    data = _norma_override_leer()
+    lotes = data.get("lotes") if isinstance(data.get("lotes"), dict) else {}
+    ov = lotes.get(chip)
+    return ov if isinstance(ov, dict) else None
+
+
+def _norma_override_guardar(chip, override):
+    """Guarda (merge) el override de norma para un CHIP. Devuelve (ok, ruta)."""
+    data = _norma_override_leer()
+    data.setdefault("_schema", "norma_override_v01")
+    if not isinstance(data.get("lotes"), dict):
+        data["lotes"] = {}
+    nuevo = {}
+    prev = data["lotes"].get(chip)
+    if isinstance(prev, dict):
+        nuevo.update(prev)
+    if isinstance(override, dict):
+        for k, v in override.items():
+            if v is None or v == "":
+                nuevo.pop(k, None)
+            else:
+                nuevo[k] = v
+    nuevo["ultima_edicion"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    data["lotes"][chip] = nuevo
+    try:
+        os.makedirs(os.path.dirname(NORMA_OVERRIDE_RUTA), exist_ok=True)
+        with io.open(NORMA_OVERRIDE_RUTA, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        return True, NORMA_OVERRIDE_RUTA
+    except Exception as e:
+        return False, str(e)
 
 CASO_CHIP = {"A": "AAA0127AZPA", "B": "AAA0030JKOE", "B_SALUD": "AAA0030JKOE", "C": "AAA0039KRMR"}
 CASO_TITULO = {
@@ -361,6 +403,10 @@ def _contexto(chip):
             "sector_normativo": pot.get("sector_normativo"),
             "rango_edificabilidad": pot.get("rango_edificabilidad"),
             "altura_maxima_m": pot.get("altura_maxima_m"),
+            "io_maximo": pot.get("io_maximo"),
+            "ic_maximo": pot.get("ic_maximo"),
+            "tipologia": pot.get("tipologia"),
+            "antejardin_m": pot.get("antejardin_m"),
         },
     }
 
@@ -863,6 +909,14 @@ class Handler(BaseHTTPRequestHandler):
             caso = (q.get("caso") or ["A"])[0]
             self._send(200, {"ok": True, "resultados": _resultados(caso)})
             return
+        if parsed.path == "/api/norma-override":
+            chip = (q.get("chip") or [""])[0]
+            ov = _norma_override_chip(chip) if chip else None
+            ctx = _contexto(chip) if chip else None
+            self._send(200, {"ok": True, "chip": chip,
+                             "contexto_pot": (ctx or {}).get("pot", {}),
+                             "override": ov or {}})
+            return
         self._json_error("ruta no encontrada", 404)
 
     def do_POST(self):
@@ -917,6 +971,16 @@ class Handler(BaseHTTPRequestHandler):
             res = _pipeline(chip, _modalidad_desde_data(data),
                             data.get("escenario", "D_MIXTO"))
             self._send(200, {"ok": True, "pipeline": res})
+            return
+
+        if parsed.path == "/api/norma-override":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            ok, ruta = _norma_override_guardar(chip, data.get("override") or {})
+            self._send(200, {"ok": ok, "ruta": ruta,
+                             "override": _norma_override_chip(chip)})
             return
 
         self._json_error("ruta no encontrada", 404)
