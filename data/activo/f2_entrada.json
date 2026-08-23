@@ -1,0 +1,43 @@
+{
+  "chip": "AAA0240ZXJH",
+  "zona": "norte",
+  "fuentes": {
+    "precio_m2_venta": 4500000,
+    "periodo_ventas_meses": 8,
+    "tasas": {
+      "credito_constructor_ea": 0.14,
+      "credito_bancario_ea": 0.12
+    }
+  },
+  "operador": {
+    "costos_m2_por_acabado": {
+      "linea_alta": 2600000,
+      "media": 2100000,
+      "economica": 1700000,
+      "obra_gris": 1200000
+    },
+    "recursos_disponibles": 800000000,
+    "valores_venta_estimados_m2": {
+      "linea_alta": 7500000,
+      "media": 6500000
+    },
+    "modalidad_dueno_lote": {
+      "tipo": "aporte_completo",
+      "pago_parcial_pct": 0.0
+    }
+  },
+  "financiacion_saldo": [
+    {
+      "tipo": "preventas",
+      "periodo_ventas_meses": 8
+    },
+    {
+      "tipo": "credito_constructor",
+      "tasa_ea": 0.14
+    },
+    {
+      "tipo": "credito_bancario",
+      "tasa_ea": 0.12
+    }
+  ]
+}

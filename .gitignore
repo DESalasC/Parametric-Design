@@ -87,3 +87,6 @@ src/orquestador/checklist.html
 # Salidas generadas F3 (morph-manifest)
 gh-definitions/data/
 
+
+# Registro de predios: snapshots derivados (no versionar)
+data/predios/*/historico/

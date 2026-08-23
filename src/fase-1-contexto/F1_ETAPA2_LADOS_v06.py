@@ -676,6 +676,12 @@ else:
                 idx_posterior = libres[0]
                 motivo_posterior = "unico lado libre entre varios sin vecino"
 
+        # CORRECCION ESQUINA (2026-08-23): en lote de esquina NO existe
+        # lado Posterior. Solo el frente lleva antejardin; la esquina
+        # interior (union de dos colindantes) lleva patio 3x3 (PATIO).
+        # Se anula el posterior que la regla N-1 hubiera asignado.
+        if es_esquina:
+            idx_posterior = None
         if idx_posterior is not None:
             lados[idx_posterior]["clasificacion"] = "Posterior"
 

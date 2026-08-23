@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "actualizado": "2026-08-23",
+  "predios": [
+    {
+      "chip": "AAA0240ZXJH",
+      "nombre": null,
+      "zona": "norte",
+      "area_m2": 99.72,
+      "estado": "nuevo",
+      "ultima_instancia": null
+    }
+  ]
+}

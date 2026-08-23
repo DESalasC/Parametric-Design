@@ -1,0 +1,62 @@
+{
+  "_nota": "Esqueleto de referencia (Etapa 2). Reutiliza la estructura vigente de pot-cache/<CHIP>-contexto.json + salidas F1. Geometria vacia como placeholder; el orquestador la sobrescribe con cada chip.",
+  "chip": "AAA0240ZXJH",
+  "zona": "norte",
+  "metadata": {
+    "origen_sirgas": {
+      "crs": "ESRI:102233",
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "azimuth_norte_grados": 221.51,
+    "buffer_metros": 75
+  },
+  "pot_data": {
+    "upz": "MUZU",
+    "tratamiento": "Renovación",
+    "altura_maxima_m": null,
+    "rango_edificabilidad": "1"
+  },
+  "topografia": {
+    "estado": "ESTIMADA",
+    "fuente": "Catastro_REST_API"
+  },
+  "lot_curve": {
+    "vertices_3d_local": [],
+    "area_m2": 99.72
+  },
+  "vias_oficiales": [],
+  "vecinos_curves": [],
+  "espacios_publicos": [],
+  "lados": [
+    {
+      "id": 0,
+      "cardinal": "Norte",
+      "tipo": "Frontal",
+      "longitud_m": 0.0
+    },
+    {
+      "id": 1,
+      "cardinal": "Este",
+      "tipo": "Lateral",
+      "longitud_m": 0.0
+    },
+    {
+      "id": 2,
+      "cardinal": "Sur",
+      "tipo": "Posterior",
+      "longitud_m": 0.0
+    },
+    {
+      "id": 3,
+      "cardinal": "Oeste",
+      "tipo": "Lateral",
+      "longitud_m": 0.0
+    }
+  ],
+  "envelope_curve": [],
+  "gfa_total": 0.0,
+  "pisos_finales": 0,
+  "valido": false
+}

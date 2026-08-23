@@ -48,6 +48,7 @@ TOL_VIA_M = 12.0             # centro de la vía puede estar a media calzada + a
 MIN_FRACCION_VIA = 0.40
 TOL_EP_M = 1.0
 MIN_FRACCION_EP = 0.40
+TOL_COLINEAR_GRADOS = 10.0   # aristas consecutivas colineales se funden en un lado
 
 CARDINAL_BANDS = [
     ("Norte", 315.0, 45.0),
@@ -117,10 +118,37 @@ def _posicion_media(side_line: LineString, poly: Polygon) -> float:
     return side_line.project(Point(c.x, c.y), normalized=True)
 
 
-def _agrupar_por_cardinal(segments: List[Dict]) -> Dict[str, List[Dict]]:
-    grupos: Dict[str, List[Dict]] = {}
-    for seg in segments:
-        grupos.setdefault(seg["cardinal"], []).append(seg)
+def _agrupar_lados(segments: List[Dict]) -> List[List[Dict]]:
+    """Agrupa aristas consecutivas y colineales en lados (corridas de aristas).
+
+    Reemplaza el agrupamiento por cardinal: dos tramos del mismo cardinal pero
+    NO adyacentes quedan en lados separados (p. ej. Norte-1 y Norte-2).
+    """
+    if not segments:
+        return []
+    m = len(segments)
+
+    def _dir(seg):
+        return seg["dir_az"] % 180.0
+
+    def _colineal(a, b):
+        d = abs(_dir(a) - _dir(b)) % 180.0
+        return min(d, 180.0 - d) <= TOL_COLINEAR_GRADOS
+
+    # rotar para que una corrida no cruce el cierre del poligono
+    start = 0
+    for i in range(m):
+        if not _colineal(segments[i], segments[(i + 1) % m]):
+            start = (i + 1) % m
+            break
+    orden = [segments[(start + k) % m] for k in range(m)]
+    grupos: List[List[Dict]] = []
+    for seg in orden:
+        if grupos and _colineal(grupos[-1][-1], seg):
+            grupos[-1].append(seg)
+        else:
+            grupos.append([seg])
+    grupos.sort(key=lambda g: g[0]["id"])
     return grupos
 
 
@@ -136,7 +164,7 @@ def clasificar_vecinos_por_lado(contexto: Dict,
     lote = contexto.get("lote_objetivo", {}).get("vertices_3d_local", [])
     pts = [(float(x), float(y)) for x, y, _z in lote]
     if len(pts) < 3:
-        return {"chip": chip, "error": "lote sin vértices suficientes", "lados": []}
+        return {"chip": chip, "error": "lote sin v\u00e9rtices suficientes", "lados": []}
     if pts[0] != pts[-1]:
         pts.append(pts[0])
     n = len(pts) - 1
@@ -146,7 +174,7 @@ def clasificar_vecinos_por_lado(contexto: Dict,
         lot_poly = lot_poly.buffer(0)
     centroid = (lot_poly.centroid.x, lot_poly.centroid.y)
 
-    # geometrías de vías y espacios públicos (unión para consulta rápida)
+    # geometr\u00edas de v\u00edas y espacios p\u00fablicos (uni\u00f3n para consulta r\u00e1pida)
     via_geoms: List[LineString] = []
     for v in contexto.get("vias_oficiales", []):
         cl = v.get("coordenadas_local", [])
@@ -167,7 +195,7 @@ def clasificar_vecinos_por_lado(contexto: Dict,
         if p is not None:
             vecinos.append((v.get("chip", ""), p))
 
-    # segmentos del lote + fracciones de contacto
+    # segmentos del lote + fracciones de contacto + direcci\u00f3n (para colinealidad)
     segments: List[Dict] = []
     for i in range(n):
         p1 = pts[i]
@@ -175,10 +203,12 @@ def clasificar_vecinos_por_lado(contexto: Dict,
         line = LineString([p1, p2])
         nx, ny = _normal_saliente(p1, p2, centroid)
         az = azimut(nx, ny)
+        dir_az = azimut(p2[0] - p1[0], p2[1] - p1[1])
         segments.append({
             "id": i,
             "cardinal": cardinal(az),
             "azimut_grados": az,
+            "dir_az": dir_az,
             "line": line,
             "longitud_m": line.length,
             "frac_via": _frac_dentro(line, vias, tol_via),
@@ -186,10 +216,9 @@ def clasificar_vecinos_por_lado(contexto: Dict,
         })
 
     lados_out: List[Dict] = []
-    total_predios = 0
-    order = {"Norte": 0, "Oriente": 1, "Sur": 2, "Occidente": 3}
-    for card in sorted(_agrupar_por_cardinal(segments).keys(), key=lambda c: order.get(c, 9)):
-        grupo = _agrupar_por_cardinal(segments)[card]
+    colindantes_global: Dict[str, float] = {}
+    for grupo in _agrupar_lados(segments):
+        card = grupo[0]["cardinal"]
         longitud_total = sum(g["longitud_m"] for g in grupo) or 1.0
         frac_via = sum(g["frac_via"] * g["longitud_m"] for g in grupo) / longitud_total
         frac_ep = sum(g["frac_ep"] * g["longitud_m"] for g in grupo) / longitud_total
@@ -216,7 +245,7 @@ def clasificar_vecinos_por_lado(contexto: Dict,
                             colindantes[chip_v]["seg_min"] = seg["id"]
                             colindantes[chip_v]["t"] = t
 
-        # clasificación del frente (precedencia: via > espacio_publico > predio > libre)
+        # clasificaci\u00f3n del frente (precedencia: via > espacio_publico > predio > libre)
         if frac_via >= MIN_FRACCION_VIA:
             frente = "via"
         elif frac_ep >= MIN_FRACCION_EP:
@@ -237,9 +266,10 @@ def clasificar_vecinos_por_lado(contexto: Dict,
                     "altura_m": None,
                     "pisos": None,
                 })
-            total_predios += len(vecinos_out)
+                colindantes_global[vv["chip"]] = colindantes_global.get(vv["chip"], 0.0) + vv["longitud_colindancia_m"]
 
         lados_out.append({
+            "lado_id": grupo[0]["id"],
             "cardinal": card,
             "frente": frente,
             "frente_fuente": "auto",
@@ -252,15 +282,30 @@ def clasificar_vecinos_por_lado(contexto: Dict,
             "vecinos": vecinos_out,
         })
 
+    # cardinal_label desambiguado (Norte, Norte-1, ...) sin romper "cardinal" base
+    conteo: Dict[str, int] = {}
+    for l in lados_out:
+        conteo[l["cardinal"]] = conteo.get(l["cardinal"], 0) + 1
+    vistos: Dict[str, int] = {}
+    for l in lados_out:
+        base = l["cardinal"]
+        if conteo[base] > 1:
+            vistos[base] = vistos.get(base, 0) + 1
+            l["cardinal_label"] = "%s-%d" % (base, vistos[base])
+        else:
+            l["cardinal_label"] = base
+
     return {
         "chip": chip,
         "crs": crs,
         "azimuth_norte_grados": azimuth,
         "n_lados": len(lados_out),
-        "n_predios_colindantes": total_predios,
-        "nota": ("Clasificación automática (frente_fuente='auto'). Las vías provienen de "
+        "n_predios_colindantes": len(colindantes_global),
+        "colindantes": [{"chip": cv, "longitud_colindancia_total_m": round(ln, 2)}
+                        for cv, ln in sorted(colindantes_global.items())],
+        "nota": ("Clasificaci\u00f3n autom\u00e1tica (frente_fuente='auto'). Las v\u00edas provienen de "
                  "vias_oficiales (Eje_vial, INCOMPLETO: calles no digitalizadas pueden quedar "
-                 "como 'predio'); algunas zonas verdes están en 'vecinos' y no en "
+                 "como 'predio'); algunas zonas verdes est\u00e1n en 'vecinos' y no en "
                  "'espacios_publicos'. El operador debe confirmar/corregir 'frente' por lado "
                  "(frente_override)."),
         "lados": lados_out,

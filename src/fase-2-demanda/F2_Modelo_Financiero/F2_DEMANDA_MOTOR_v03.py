@@ -572,6 +572,19 @@ def _fraccion_aporte(cfg: dict) -> float:
     return min(100.0, max(0.0, float(cfg.get("fraccion_aporte_pct", 100.0)))) / 100.0
 
 
+def _aplicar_modalidad_dueno_lote(params: dict) -> None:
+    """Fuente fija: mapea el bloque canonico modalidad_dueno_lote {tipo,
+    pago_parcial_pct} al bloque interno aporte_suelo.pago_parcial_pct."""
+    m = params.get("modalidad_dueno_lote")
+    if not isinstance(m, dict):
+        return
+    if m.get("pago_parcial_pct") is not None:
+        params.setdefault("aporte_suelo", {})["pago_parcial_pct"] = m["pago_parcial_pct"]
+    else:
+        mapa = {"venta_completa": 100.0, "aporte_completo": 0.0}
+        params.setdefault("aporte_suelo", {})["pago_parcial_pct"] = mapa.get(m.get("tipo"), 30.0)
+
+
 def analizar_aporte_suelo(resultados: list, params: dict) -> dict:
     """Escenario D: el dueno del lote lo aporta y participa en las utilidades finales.
 
@@ -1428,6 +1441,8 @@ def main() -> int:
         params.setdefault("aporte_suelo", {})["pct_socio"] = args.pct_socio
     if args.pago_parcial is not None:
         params.setdefault("aporte_suelo", {})["pago_parcial_pct"] = args.pago_parcial
+    # Fuente fija: modalidad_dueno_lote (canonica) -> aporte_suelo.pago_parcial_pct
+    _aplicar_modalidad_dueno_lote(params)
     aporte = analizar_aporte_suelo(resultados, params)
     arriendo = analizar_arriendo(resultados, params)
     esc_flujo = recomendacion.get("recomendado") or max(resultados, key=lambda r: r["ROI_pct"])

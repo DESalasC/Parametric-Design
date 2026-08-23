@@ -200,7 +200,12 @@ else:
             cat1 = lado1.get("clasificacion", "Desconocido")
             cat2 = lado2.get("clasificacion", "Desconocido")
 
-            if cat1 == "Lateral" and cat2 == "Lateral":
+            # v02.1 (2026-08-23): el patio de esquina se ancla en la
+            # esquina interior (vertice N) cuando los DOS lados que la
+            # comparten son COLINDANTES (Lateral o Posterior). Antes solo
+            # "Lateral", por lo que un lado "Posterior" o un vecino cuyo
+            # vertice no coincide exactamente dejaba el patio sin generar.
+            if cat1 in ("Lateral", "Posterior") and cat2 in ("Lateral", "Posterior"):
                 vi = lot_vertices[vertice_n]
                 # Borde A: (V_n -> V_next)
                 va1 = vi
@@ -216,7 +221,7 @@ else:
 
             patio_count = len(patios_curves)
             cats = [l.get("clasificacion", "?") for l in lados]
-            mensaje = "PATIO v02 | V_N={} | Lados: {} | Patio={:.2f}x{:.2f}m ({} m2) | Generados: {}".format(
+            mensaje = "PATIO v02.1 | V_N={} | Lados: {} | Patio={:.2f}x{:.2f}m ({} m2) | Generados: {}".format(
                 vertice_n, ", ".join(cats), patio_lado, patio_lado,
                 area_patio, patio_count)
 

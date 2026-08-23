@@ -190,3 +190,22 @@ if isinstance(_vpl, dict):
             vecinos_por_lado_json = json.dumps(_m)
     except Exception as e:
         log += " | vecinos_por_lado_json: %s" % e
+
+# ---- v01.4: frente confirmado por cardinal -> frente_override_json ----
+# El operador confirma el frente (via/predio/espacio_publico) por lado en la
+# tarjeta 1b·1c. Aqui se emite {cardinal: frente} para que NORMATIVA_v08
+# aplique la clasificacion del operador a los retiros (no solo la geometrica).
+# "indefinido" y "libre" no emiten override (se ignoran / caen a geometria).
+frente_override_json = ""
+_vpl2 = proyecto.get("vecinos_por_lado")
+if isinstance(_vpl2, dict):
+    _fo = {}
+    for _lado in _vpl2.get("lados", []):
+        if not isinstance(_lado, dict):
+            continue
+        _card = _lado.get("cardinal") or _lado.get("cardinal_label")
+        _fr = _lado.get("frente_override") or _lado.get("frente")
+        if _card and _fr and str(_fr) not in ("indefinido", "libre", "", "None"):
+            _fo[str(_card)] = str(_fr)
+    if _fo:
+        frente_override_json = json.dumps(_fo)

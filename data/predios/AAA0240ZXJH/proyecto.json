@@ -1,0 +1,27 @@
+{
+  "nombre": null,
+  "chip": "AAA0240ZXJH",
+  "variables": {
+    "tipologia": "Continua",
+    "piso_adicional": false,
+    "tipo_bonificacion": "Ninguno",
+    "floor_height_user": 3,
+    "antejardin_decision": "Según reglamentación",
+    "antejardin_m": 0,
+    "voladizo_frontal_m": 0,
+    "empate_posterior_pisos": 0,
+    "empate_posterior_m": null,
+    "tratamiento": "Consolidación",
+    "caso": "A",
+    "alineacion_nucleo": "1"
+  },
+  "modalidad_dueno_lote": {
+    "tipo": "participacion",
+    "pago_parcial_pct": 30.0
+  },
+  "usos": [],
+  "modos": [],
+  "escenarios": [],
+  "vecinos_por_lado": null,
+  "crear_estructura": false
+}

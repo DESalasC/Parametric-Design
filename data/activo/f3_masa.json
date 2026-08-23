@@ -1,0 +1,14 @@
+{
+  "_nota": "Esqueleto de referencia (Etapa 2). Reutiliza la estructura vigente de F3 (F3_VOLUM_GENERADOR_v08 + morph-manifest.json + archicad-layer-map). Geometria vacia.",
+  "chip": "AAA0240ZXJH",
+  "volumenes_por_uso": [],
+  "usos_etiquetas": [],
+  "usos_pisos": [],
+  "layers_json": {},
+  "morph-manifest": {
+    "chip": "AAA0240ZXJH",
+    "generado": "",
+    "total_morphs": 0,
+    "morphs": []
+  }
+}

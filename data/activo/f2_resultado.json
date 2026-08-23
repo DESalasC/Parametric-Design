@@ -1,0 +1,28 @@
+{
+  "chip": "AAA0240ZXJH",
+  "total_gastos_estimado": 0,
+  "saldo": 0,
+  "escenarios": [
+    {
+      "id": "esc1",
+      "acabado": "media",
+      "financiacion": [
+        "preventas",
+        "credito_constructor"
+      ],
+      "total_gastos": 0,
+      "saldo": 0,
+      "roi": 0,
+      "flujo_caja": []
+    }
+  ],
+  "comparacion": {
+    "dimensiones": [
+      "costo",
+      "venta",
+      "saldo",
+      "financiacion",
+      "roi"
+    ]
+  }
+}

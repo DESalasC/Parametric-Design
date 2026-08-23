@@ -1,51 +1,42 @@
-# Próxima sesión - puntos para continuar (2026-08-22)
+# Próxima sesión - puntos para continuar (2026-08-23)
 
-Handoff para retomar en una nueva sesión. Estado consolidado tras el inicio del
-rediseño del orquestador (inventario, interfaz, modelo F2 y contrato de datos).
+Handoff para retomar en una nueva sesión. Estado consolidado tras la sesión de
+cierre (rediseño orquestador Etapa 2 + regla de esquina + puente frente_override).
 
 ## Estado vigente (versiones)
-- F1 NORMATIVA **v08**, LADOS **v06**, canvas **F1_Contexto_Base-Editado_v02**.
-- F3_VOLUM_GENERADOR **v08**, F3_MORPH_ATRIBUTOS **v02** (fix `OnPingDocument`).
-- F0_LOAD_PROYECTO **v01**, F0_STORIES **v01**, F2 motores **v03**.
-- `usos-por-sector.json` **v02**.
-- Suite: **257 passed**.
+- F0_LOAD_PROYECTO **v01.4** (emite `frente_override_json`), F0_STORIES v01.
+- F1 NORMATIVA **v08.2**, LADOS **v06** (+esquina), PATIO **v02.1**,
+  canvas **F1_Contexto_Base-Editado_v02** (sin cablear `frente_override_json`).
+- F2 motores v03 (`modalidad_dueno_lote`).
+- Suite: **267 passed**.
 
-## Terminado en esta sesión (2026-08-22)
-- Fix completo de `F3_MORPH_ATRIBUTOS` (v02 restaurado + `ghenv.Component.OnPingDocument()`).
-- Inventario de `src/` (Etapa 0) + nota de reubicación.
-- Interfaz del orquestador (cajas en una pantalla) + modelo F2.
-- Contrato de datos (`data/activo/`) con schemas JSON.
-- Verificación de compatibilidad (nada grave).
+## Terminado en esta sesión (2026-08-23)
+- Regla de lote de esquina en F1 (sin posterior + patio 3×3).
+- Puente `frente_override` orquestador→canvas (scripts; falta cableado .ghx).
+- Orquestador: mensaje de éxito en normativa, sin casillas duplicadas, financiero
+  con fallback + valor del lote, `modalidad_dueno_lote` consolidada.
 
-## Bloqueado / pendiente (orden sugerido)
-1. **Validar esquema con el operador real** (solo cuando el orquestador funcione; ahí
-   surgirán dudas de presentación/organización).
-2. **Esqueleto `data/activo/` + `data/predios/`** (Etapas 1–2 del rediseño).
-3. **Zonas de mercado** (norte / centro / sur / periferia) + mecanismo de actualización
-   periódica (DANE, Banco de la República, Catastro, portales; sin suscripciones).
-4. **Migrar código desde F0**: el orquestador produce todos los JSON canónicos; las
-   entradas de los componentes cambian desde F0 hasta el canvas.
-5. **F2**: añadir `recursos_disponibles`, `saldo`, `financiacion_saldo[]`
-   (preventas / constructor / bancario), acabados por opción y multi-escenario.
-6. **Reintentar `git mv`** de `src/fase-1-contexto/tests/` → `tests/fixtures/archicad/`
-   (con ArchiCAD cerrado; hoy falló por *Permission denied*).
-7. **Cleanup git**: `src/research/gh-definition-explorer/` (~39k archivos de docs
-   generadas) → gitignore + `git rm --cached`.
-8. **Agente de mercado** (futuro): ofertas independientes (obra gris VIS, lujo,
-   salud, comercio); el schema ya reserva el hueco.
+## Pendiente (orden sugerido)
+1. **Cablear `frente_override_json`** en el canvas: conectar la salida
+   `frente_override_json` de F0_LOAD_PROYECTO a la entrada `frente_override_json`
+   de F1_ETAPA2_NORMATIVA_v08 (Type hint = String, Item Access). Reiniciar equipo
+   y abrir programas en orden (ver reglas de entorno).
+2. **Re-ejecutar canvas F1→F2** para regenerar `AAA0240ZXJH-gfa-gh.json`.
+3. Validar anomalía de área de vecinos AAA0240ZXJH (Norte1 vs Norte2).
+4. F2: `recursos_disponibles`, `saldo`, `financiacion_saldo[]`, acabados, multi-escenario.
+5. Zonas de mercado + actualización periódica.
+6. Cleanup git (`gh-definition-explorer`, `git rm --cached` derivados).
+7. F3 → Zonas (no Morphs) para Ladybug.
 
 ## Para recordar (reglas de entorno)
-- GHPython = IronPython 2.7 (sin f-strings/pathlib/type hints); componente "Script".
-- `OnPingDocument` se obtiene vía `ghenv.Component`, NO `ghpythonlib.component`.
-- Acceso a entradas del canvas: SIEMPRE `globals().get()`, nunca nombres desnudos.
-- LAYER_MAP obligatorio = GuBIMclass, nunca `ARQ_*`.
-- `_legacy` es archivo pasivo; los tests "fuente" pinean la ruta activa (duplicados
-  activo + `_legacy` son intencionales).
+- GHPython = IronPython 2.7 (sin f-strings/pathlib/type hints); acceso a entradas
+  SIEMPRE `globals().get()`.
 - Derivados (resultados F2/F3, `gfa-gh.json`, `pot-cache/*`) no se commitean.
-- El orquestador es el único dueño de la cadena de datos: todo se produce desde F0.
+- Matching orquestador↔canvas por **cardinal** (normal saliente), no por índice.
+- El override del operador manda sobre la geometría (incluida la regla de esquina).
+- Para operar el canvas: cerrar AutoClaw → reiniciar equipo → abrir en orden
+  ArchiCAD/Grasshopper → reabrir AutoClaw para verificación (conexión frágil).
 
 ## Notas del vault (esta sesión)
-- `10-arquitectura/2026-08-22-plan-rediseno-orquestador.md`
-- `10-arquitectura/2026-08-22-inventario-reubicacion-src.md`
-- `10-arquitectura/2026-08-22-interfaz-orquestador.md`
-- `10-arquitectura/2026-08-22-contrato-datos.md`
+- `10-arquitectura/2026-08-23-cierre-sesion.md`
+- `10-arquitectura/2026-08-23-regla-lote-esquina.md`

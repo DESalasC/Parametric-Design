@@ -498,6 +498,66 @@ def parsear_vecinos_por_lado(raw):
     return out
 
 
+# v08.2 - Puente orquestador -> canvas: override de frente por cardinal
+# (misma convencion de azimut/cardinal que vecinos_por_lado.py).
+CARDINAL_BANDS = [
+    ("Norte", 315.0, 45.0),
+    ("Oriente", 45.0, 135.0),
+    ("Sur", 135.0, 225.0),
+    ("Occidente", 225.0, 315.0),
+]
+FRENTE_A_CLASIFICACION = {
+    "via": "Frontal",
+    "espacio_publico": "EspacioPublico",
+    "predio": "Lateral",
+}
+
+
+def _parsear_frente_override(raw):
+    """v08.2 - Parsea frente_override_json {cardinal: frente}."""
+    if raw is None:
+        return {}
+    try:
+        s = str(raw[0]) if isinstance(raw, list) and raw else str(raw)
+        data = json.loads(s)
+    except Exception:
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    out = {}
+    for k, v in data.items():
+        if str(v) in FRENTE_A_CLASIFICACION:
+            out[str(k)] = str(v)
+    return out
+
+
+def _cardinal_normal(nx, ny):
+    """v08.2 - Cardinal desde una normal (azimut = atan2(nx,ny) % 360)."""
+    if nx == 0.0 and ny == 0.0:
+        return "Norte"
+    az = math.degrees(math.atan2(nx, ny)) % 360.0
+    for name, lo, hi in CARDINAL_BANDS:
+        if lo <= hi:
+            if lo <= az < hi:
+                return name
+        else:
+            if az >= lo or az < hi:
+                return name
+    return "Norte"
+
+
+def _cardinal_lado(dx, dy, mx, my, cx, cy):
+    """v08.2 - Cardinal de un lado (normal saliente respecto al centroide)."""
+    n1 = (-dy, dx)
+    n2 = (dy, -dx)
+    vx = mx - cx
+    vy = my - cy
+    d1 = vx * n1[0] + vy * n1[1]
+    d2 = vx * n2[0] + vy * n2[1]
+    nx, ny = (n1 if d1 >= d2 else n2)
+    return _cardinal_normal(nx, ny)
+
+
 def _poligono_ccw(curva):
     """v08 - True si la polilinea esta en sentido antihorario (area signada)."""
     success, poly = curva.TryGetPolyline()
@@ -782,6 +842,7 @@ empate_lateral_min_raw = globals().get("empate_lateral_min_m", None)  # v07
 nsr_coef_raw = globals().get("nsr10_separacion_coef", None)        # v07
 voladizo_raw = globals().get("voladizo_frontal_m", None)           # v07
 vecinos_raw = globals().get("vecinos_por_lado_json", None)         # v08
+frente_override_raw = globals().get("frente_override_json", None)  # v08.2
 reglamentacion_raw = globals().get("reglamentacion_json", None)
 
 warnings = []
@@ -805,6 +866,16 @@ if sides_raw is not None:
         sides_data = None
 
 lados = sides_data.get("lados", []) if sides_data else []
+# v08.2 (2026-08-23): lote de esquina (2+ vertices con contacto real a
+# via/EP) -> sin aislamiento posterior; solo el frente lleva antejardin y
+# la esquina interior lleva patio 3x3 (PATIO).
+es_esquina = bool(sides_data.get("es_esquina", False)) if sides_data else False
+frente_override = _parsear_frente_override(frente_override_raw)
+if frente_override:
+    # la regla de esquina sigue al override del operador (2+ lados "via")
+    _n_vias = sum(1 for v in frente_override.values() if v == "via")
+    if _n_vias >= 2:
+        es_esquina = True
 
 # --- Anexo 5, SECCION 1.9.c (v08.1): el empate volumetrico lateral aplica
 # SOLO a predios con lado POSTERIOR (lote interior/fondo). Para predios con
@@ -943,9 +1014,16 @@ else:
         warnings.append(
             "sin ancho_via_m -> antejardin default {:.1f}m (ver mapa CU-5.5)".format(antejardin))
 
-# Posterior: empate volumetrico (SECCION 5.4.c) si el vecino tiene 3+ pisos
+# Posterior: empate volumetrico (SECCION 5.4.c) si el vecino tiene 3+ pisos.
+# v08.2: en lote de esquina NO aplica aislamiento posterior (solo el frente
+# lleva antejardin); el lado "Posterior" se trata como colindante sin retiro
+# y la esquina interior lleva patio 3x3 (PATIO).
 empate_posterior = empate_posterior_pisos >= 3.0
-if empate_posterior:
+if es_esquina:
+    retiro_posterior = 0.0
+    warnings.append(
+        "lote de esquina: sin aislamiento posterior (patio 3x3 en esquina interior)")
+elif empate_posterior:
     retiro_posterior = 0.0
 else:
     retiro_posterior = retiro_posterior_consolidacion(pisos_finales)
@@ -987,11 +1065,33 @@ def envelope_final(huella):
         pass
     return huella, max(0.0, area_curve(huella) - patio_area_total)
 
-# --- 2. Retiros base por lado (v06) + escalonamiento por piso (v07) ---
+# --- 2. Retiros base por lado (v06) + override del operador (v08.2) ---
+# v08.2: la clasificacion confirmada en 1b·1c manda sobre la geometrica;
+# se casa por cardinal (normal saliente del lado respecto al centroide).
+_centroide_lote = None
+if lot_polygon is not None and frente_override:
+    _vpre = _vertices_curva(lot_polygon)
+    if _vpre:
+        _npre = len(_vpre)
+        _centroide_lote = (sum(v.X for v in _vpre) / _npre,
+                           sum(v.Y for v in _vpre) / _npre)
+
 retiros_base = {}
 for lado in lados:
     idx = lado.get("id", 0)
     cls = lado.get("clasificacion", "Lateral")
+    if _centroide_lote is not None:
+        try:
+            _dx = float(lado.get("dx", 0.0) or 0.0)
+            _dy = float(lado.get("dy", 0.0) or 0.0)
+            _mx = float(lado.get("mx", 0.0) or 0.0)
+            _my = float(lado.get("my", 0.0) or 0.0)
+            _card = _cardinal_lado(_dx, _dy, _mx, _my,
+                                   _centroide_lote[0], _centroide_lote[1])
+            if _card in frente_override:
+                cls = FRENTE_A_CLASIFICACION[frente_override[_card]]
+        except Exception:
+            pass
     if cls == "Frontal":
         retiros_base[idx] = antejardin
     elif cls == "Posterior":

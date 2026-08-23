@@ -103,12 +103,6 @@ VARIABLES = [
     {"id": "voladizo_frontal_m", "label": "Voladizo frontal (m)", "tipo": "number",
      "default": 0.0, "seccion": "normativa",
      "ayuda": "Voladizo frontal en metros (override de 'Disminuir voladizo'). 0 = deriva del perfil vial."},
-    {"id": "empate_posterior_pisos", "label": "Nº de pisos del edificio vecino posterior", "tipo": "int",
-     "default": 0, "seccion": "normativa",
-     "ayuda": "Número de pisos del edificio vecino posterior (proyecto existente). Independiente de empate_posterior_m; pueden darse ambos."},
-    {"id": "empate_posterior_m", "label": "Altura (m) del edificio vecino posterior", "tipo": "number",
-     "default": None, "seccion": "normativa",
-     "ayuda": "Altura total en metros del edificio vecino posterior (proyecto existente). Independiente de empate_posterior_pisos; pueden darse ambos."},
     {"id": "tratamiento", "label": "Tratamiento urbanístico", "tipo": "select",
      "opciones": ["Consolidación", "Renovación urbana", "Desarrollo", "Mejoramiento integral"],
      "default": "Consolidación", "seccion": "normativa",
@@ -147,18 +141,48 @@ ESCENARIOS_FINANCIEROS = [
 ]
 
 
-def _aporte_a_pago_parcial(aporte, pago_parcial_pct=None):
-    """Traduce aporte_lote -> pago_parcial_pct del motor F2 (venta_completa=100,
-    aporte_completo=0, participacion=% indicado, default 30)."""
-    if aporte == "venta_completa":
-        return 100.0
-    if aporte == "aporte_completo":
-        return 0.0
+def _modalidad_dueno_lote(aporte_lote=None, pago_parcial_pct=None):
+    """Fuente fija: bloque canonico modalidad_dueno_lote {tipo, pago_parcial_pct}.
+    Unico productor: el orquestador. tipo: venta_completa | participacion |
+    aporte_completo. pago_parcial_pct: % del costo del lote en efectivo (0..100).
+    venta_completa -> 100, aporte_completo -> 0, participacion -> % indicado."""
+    tipo = aporte_lote if aporte_lote in ("venta_completa", "participacion",
+                                            "aporte_completo") else "participacion"
+    if tipo == "venta_completa":
+        pago = 100.0
+    elif tipo == "aporte_completo":
+        pago = 0.0
+    else:
+        try:
+            pago = float(pago_parcial_pct) if pago_parcial_pct not in (None, "") else 30.0
+        except (TypeError, ValueError):
+            pago = 30.0
+    return {"tipo": tipo, "pago_parcial_pct": round(min(100.0, max(0.0, pago)), 1)}
+
+
+def _persistir_modalidad_f2_entrada(chip, modalidad):
+    """Proyecta modalidad_dueno_lote en data/activo/f2_entrada.json (entrada F2)."""
+    ruta = os.path.join(ROOT, "data", "activo", "f2_entrada.json")
+    d = _json(ruta)
+    d.setdefault("operador", {})["modalidad_dueno_lote"] = {
+        "tipo": modalidad.get("tipo", "participacion"),
+        "pago_parcial_pct": modalidad.get("pago_parcial_pct", 30.0),
+    }
+    d["chip"] = chip
     try:
-        p = float(pago_parcial_pct) if pago_parcial_pct not in (None, "") else 30.0
-    except (TypeError, ValueError):
-        p = 30.0
-    return round(min(100.0, max(0.0, p)), 1)
+        with io.open(ruta, "w", encoding="utf-8") as f:
+            json.dump(d, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception:
+        return False
+
+
+def _modalidad_desde_data(data):
+    """Construye modalidad_dueno_lote desde el payload (bloque nuevo o campos legacy)."""
+    m = data.get("modalidad_dueno_lote")
+    if isinstance(m, dict):
+        return _modalidad_dueno_lote(m.get("tipo"), m.get("pago_parcial_pct"))
+    return _modalidad_dueno_lote(data.get("aporte_lote"), data.get("pago_parcial_pct"))
 
 
 def _ruta_parametros_f2_venta(chip):
@@ -170,9 +194,10 @@ def _ruta_parametros_f2_venta(chip):
     return os.path.join(F2_VENTA_DIR, "parametros_entrada.json")
 
 
-def _calcular_f2(chip, aporte_lote, pago_parcial_pct, gfa_m2=None, costo_lote_cop=None):
-    """Ejecuta F2 (venta) con el pago_parcial derivado del aporte del lote."""
-    pago = _aporte_a_pago_parcial(aporte_lote, pago_parcial_pct)
+def _calcular_f2(chip, modalidad, gfa_m2=None, costo_lote_cop=None):
+    """Ejecuta F2 (venta) con la modalidad del dueno del lote (fuente fija)."""
+    pago = modalidad.get("pago_parcial_pct", 30.0)
+    _persistir_modalidad_f2_entrada(chip, modalidad)
     parametros = _ruta_parametros_f2_venta(chip)
     cmd = [sys.executable, F2_VENTA_SCRIPT, "--parametros", parametros, "--chip", chip,
            "--pago-parcial", str(pago)]
@@ -205,8 +230,7 @@ def _calcular_f2(chip, aporte_lote, pago_parcial_pct, gfa_m2=None, costo_lote_co
             pass
     return {
         "ok": ok,
-        "aporte_lote": aporte_lote,
-        "pago_parcial_pct": pago,
+        "modalidad_dueno_lote": modalidad,
         "fraccion_aporte_pct": round(100.0 - pago, 1),
         "resumen": resumen,
         "salida": salida[-1500:],
@@ -235,7 +259,7 @@ def _generar_f3(chip, escenario="D_MIXTO"):
     return {"ok": ok, "chip": chip, "salida": salida[-1500:], "resultados": res}
 
 
-def _pipeline(chip, aporte_lote, pago_parcial_pct, escenario="D_MIXTO"):
+def _pipeline(chip, modalidad, escenario="D_MIXTO"):
     """Flujo completo F1 (contexto, si falta) -> F2 (venta con aporte) -> F3 (masa)."""
     pasos = []
     ctx = os.path.join(POT_CACHE, chip + "-contexto.json")
@@ -252,7 +276,7 @@ def _pipeline(chip, aporte_lote, pago_parcial_pct, escenario="D_MIXTO"):
             ok1, sal1 = False, "ERROR: " + str(ex)
         pasos.append({"paso": "f1_contexto", "ok": ok1, "salida": sal1[-800:]})
 
-    f2 = _calcular_f2(chip, aporte_lote, pago_parcial_pct)
+    f2 = _calcular_f2(chip, modalidad)
     pasos.append({"paso": "f2_venta", "ok": f2["ok"], "salida": f2["salida"][-800:]})
 
     f3 = None
@@ -266,7 +290,7 @@ def _pipeline(chip, aporte_lote, pago_parcial_pct, escenario="D_MIXTO"):
         "chip": chip,
         "completado": all(p["ok"] for p in pasos),
         "pasos": pasos,
-        "f2": {"pago_parcial_pct": f2["pago_parcial_pct"],
+        "f2": {"modalidad_dueno_lote": f2["modalidad_dueno_lote"],
                "fraccion_aporte_pct": f2["fraccion_aporte_pct"],
                "resumen": f2["resumen"]},
         "f3": ({"resultados": f3["resultados"]} if f3 and f3["ok"] else None),
@@ -345,6 +369,196 @@ def _vecinos_por_lado(chip):
     """Vecinos colindantes por lado (nomenclatura cardinal) desde el JSON pre-generado."""
     data = _json(os.path.join(POT_CACHE, chip + "-vecinos-por-lado.json"))
     return data if data else None
+
+
+# ---------------- Plano SVG (lados + contexto 25 m) ----------------
+
+def _clip_segment_lb(p1, p2, rect):
+    """Liang-Barsky: devuelve el segmento visible [x1,y1,x2,y2] o None."""
+    x0, y0 = p1[0], p1[1]
+    x1, y1 = p2[0], p2[1]
+    xmin, ymin, xmax, ymax = rect
+    dx = x1 - x0
+    dy = y1 - y0
+    p = [-dx, dx, -dy, dy]
+    q = [x0 - xmin, xmax - x0, y0 - ymin, ymax - y0]
+    u1, u2 = 0.0, 1.0
+    for pi, qi in zip(p, q):
+        if pi == 0:
+            if qi < 0:
+                return None
+        else:
+            r = qi / pi
+            if pi < 0:
+                if r > u2:
+                    return None
+                if r > u1:
+                    u1 = r
+            else:
+                if r < u1:
+                    return None
+                if r < u2:
+                    u2 = r
+    return [x0 + u1 * dx, y0 + u1 * dy, x0 + u2 * dx, y0 + u2 * dy]
+
+
+def _clip_polyline(pts, rect):
+    """Recorta una polilinea a rect; lista de segmentos visibles [[x1,y1,x2,y2], ...]."""
+    out = []
+    for i in range(len(pts) - 1):
+        seg = _clip_segment_lb(pts[i], pts[i + 1], rect)
+        if seg:
+            out.append(seg)
+    return out
+
+
+def _clip_polygon(pts, rect):
+    """Sutherland-Hodgman: recorta un poligono a rect; lista de [x, y]."""
+    xmin, ymin, xmax, ymax = rect
+
+    def eje(poly, axis, bound, mayor):
+        out = []
+        n = len(poly)
+        for i in range(n):
+            cur = poly[i]
+            prev = poly[i - 1]
+            cur_in = cur[axis] >= bound if mayor else cur[axis] <= bound
+            prev_in = prev[axis] >= bound if mayor else prev[axis] <= bound
+            if cur_in:
+                if not prev_in:
+                    t = (bound - prev[axis]) / (cur[axis] - prev[axis])
+                    out.append([prev[0] + t * (cur[0] - prev[0]),
+                                prev[1] + t * (cur[1] - prev[1])])
+                out.append(list(cur))
+            elif prev_in:
+                t = (bound - prev[axis]) / (cur[axis] - prev[axis])
+                out.append([prev[0] + t * (cur[0] - prev[0]),
+                            prev[1] + t * (cur[1] - prev[1])])
+        return out
+
+    poly = [list(p) for p in pts]
+    poly = eje(poly, 0, xmin, True)
+    poly = eje(poly, 0, xmax, False)
+    poly = eje(poly, 1, ymin, True)
+    poly = eje(poly, 1, ymax, False)
+    return poly
+
+
+def _area_m2(pts):
+    """Area (m2) de un poligono por formula del zapato (shoelace)."""
+    if not pts or len(pts) < 3:
+        return 0.0
+    s = 0.0
+    m = len(pts)
+    for i in range(m):
+        x1, y1 = pts[i][0], pts[i][1]
+        x2, y2 = pts[(i + 1) % m][0], pts[(i + 1) % m][1]
+        s += x1 * y2 - x2 * y1
+    return round(abs(s) / 2.0, 1)
+
+
+def _plano(chip):
+    """Geometria del plano SVG: lote + lados reconstruidos + contexto recortado a 25 m."""
+    ctx = _json(os.path.join(POT_CACHE, chip + "-contexto.json"))
+    vl = _json(os.path.join(POT_CACHE, chip + "-vecinos-por-lado.json"))
+    if not ctx:
+        return None
+    lote = [[float(p[0]), float(p[1])]
+            for p in ctx.get("lote_objetivo", {}).get("vertices_3d_local", [])]
+    if len(lote) < 3:
+        return None
+    if lote[0] == lote[-1]:
+        lote = lote[:-1]
+    n = len(lote)
+
+    lados = []
+    for k, lado in enumerate((vl or {}).get("lados", [])):
+        segs = lado.get("segmentos", [])
+        pts = []
+        for s in segs:
+            pts.append(lote[int(s) % n])
+        if segs:
+            pts.append(lote[(int(segs[-1]) + 1) % n])
+        lados.append({
+            "lado_id": lado.get("lado_id", k),
+            "cardinal": lado.get("cardinal"),
+            "cardinal_label": lado.get("cardinal_label", lado.get("cardinal")),
+            "frente": lado.get("frente"),
+            "frente_override": lado.get("frente_override"),
+            "azimut_grados": lado.get("azimut_grados"),
+            "longitud_m": lado.get("longitud_m"),
+            "n_vecinos": lado.get("n_vecinos"),
+            "vecinos_chips": [v.get("chip") for v in lado.get("vecinos", [])],
+            "polyline": [[round(p[0], 2), round(p[1], 2)] for p in pts],
+        })
+
+    xs = [p[0] for p in lote]
+    ys = [p[1] for p in lote]
+    xmin, xmax = min(xs) - 25.0, max(xs) + 25.0
+    ymin, ymax = min(ys) - 25.0, max(ys) + 25.0
+    rect = (xmin, ymin, xmax, ymax)
+
+    vias = []
+    for v in ctx.get("vias_oficiales", []):
+        pts = [[float(p[0]), float(p[1])] for p in v.get("coordenadas_local", [])]
+        if len(pts) >= 2:
+            segs = _clip_polyline(pts, rect)
+            if segs:
+                vias.append({"nombre": v.get("nombre"),
+                             "segmentos": [[round(x, 2) for x in s] for s in segs]})
+
+    eps = []
+    for e in ctx.get("espacios_publicos", []):
+        pts = [[float(p[0]), float(p[1])] for p in e.get("coordenadas_local", [])]
+        if len(pts) >= 3:
+            poly = _clip_polygon(pts, rect)
+            if len(poly) >= 3:
+                eps.append({"nombre": e.get("nombre"),
+                            "polyline": [[round(p[0], 2), round(p[1], 2)] for p in poly]})
+
+    vecinos = []
+    areas = {}
+    for v in ctx.get("vecinos", []):
+        pts = [[float(p[0]), float(p[1])] for p in v.get("vertices_3d_local", [])]
+        if len(pts) >= 3:
+            poly = _clip_polygon(pts, rect)
+            if len(poly) >= 3:
+                _chip = v.get("chip", "")
+                areas[_chip] = round(_area_m2(pts), 1)
+                vecinos.append({"chip": _chip,
+                                "area_m2": areas[_chip],
+                                "polyline": [[round(p[0], 2), round(p[1], 2)] for p in poly]})
+
+    nombres = {}
+    for lado_v in (vl or {}).get("lados", []):
+        for v in lado_v.get("vecinos", []):
+            _c = v.get("chip")
+            if _c:
+                nombres.setdefault(_c, v.get("nombre") or _c)
+
+    colindantes = {}
+    for lado in lados:
+        for cv in lado["vecinos_chips"]:
+            if cv:
+                _e = colindantes.setdefault(cv, {"chip": cv, "n_lados": 0, "lado_id": lado["lado_id"]})
+                _e["n_lados"] += 1
+
+    return {
+        "chip": chip,
+        "azimuth_norte_grados": (ctx.get("metadata") or {}).get("azimuth_norte_grados"),
+        "viewport": [round(xmin, 2), round(ymin, 2), round(xmax, 2), round(ymax, 2)],
+        "lote": [[round(p[0], 2), round(p[1], 2)] for p in lote],
+        "lados": lados,
+        "vias": vias,
+        "vecinos": vecinos,
+        "espacios_publicos": eps,
+        "colindantes": [{"chip": _e["chip"], "n_lados": _e["n_lados"],
+                         "lado_id": _e["lado_id"],
+                         "nombre": nombres.get(_e["chip"], _e["chip"]),
+                         "area_m2": areas.get(_e["chip"])}
+                        for _c, _e in sorted(colindantes.items())],
+    }
+
 
 
 def _usos_por_sector():
@@ -468,8 +682,12 @@ def _financiero(chip):
         if os.path.exists(cand):
             ruta = cand
             break
+    usar_default = False
     if not ruta:
-        return {"chip": chip, "disponible": False, "nota": "sin parametros F2 para este chip"}
+        ruta = os.path.join(F2_VENTA_DIR, "parametros_entrada.json")
+        usar_default = True
+        if not os.path.exists(ruta):
+            return {"chip": chip, "disponible": False, "nota": "sin parametros F2 para este chip"}
     d = _json(ruta)
     lote = d.get("lote", {})
     fin = d.get("financiero", {})
@@ -503,6 +721,7 @@ def _financiero(chip):
             "nota_marketing": fin.get("nota_marketing"),
         },
         "escenarios": escenarios,
+        "nota": ("parametros por defecto (sin archivo específico del CHIP)" if usar_default else None),
     }
 
 
@@ -627,6 +846,15 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 self._send(200, {"ok": True, "vecinos_por_lado": info})
             return
+
+        if parsed.path == "/api/plano":
+            chip = (q.get("chip") or [""])[0]
+            info = _plano(chip)
+            if info is None:
+                self._json_error("sin plano para el chip '{}'".format(chip), 404)
+            else:
+                self._send(200, {"ok": True, "plano": info})
+            return
         if parsed.path == "/api/financiero":
             chip = (q.get("chip") or [""])[0]
             self._send(200, {"ok": True, "financiero": _financiero(chip)})
@@ -667,8 +895,7 @@ class Handler(BaseHTTPRequestHandler):
             if not chip:
                 self._json_error("chip requerido")
                 return
-            res = _calcular_f2(chip, data.get("aporte_lote", "participacion"),
-                               data.get("pago_parcial_pct"), data.get("gfa_m2"),
+            res = _calcular_f2(chip, _modalidad_desde_data(data), data.get("gfa_m2"),
                                data.get("costo_lote_cop"))
             self._send(200, {"ok": True, "f2": res})
             return
@@ -687,8 +914,8 @@ class Handler(BaseHTTPRequestHandler):
             if not chip:
                 self._json_error("chip requerido")
                 return
-            res = _pipeline(chip, data.get("aporte_lote", "participacion"),
-                            data.get("pago_parcial_pct"), data.get("escenario", "D_MIXTO"))
+            res = _pipeline(chip, _modalidad_desde_data(data),
+                            data.get("escenario", "D_MIXTO"))
             self._send(200, {"ok": True, "pipeline": res})
             return
 

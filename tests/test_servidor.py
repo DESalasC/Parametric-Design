@@ -38,7 +38,6 @@ def test_variables_sin_jerga_y_secciones():
     # variables de decision humana presentes
     for esperado in ("tipologia", "piso_adicional", "tipo_bonificacion",
                      "floor_height_user", "antejardin_decision",
-                     "empate_posterior_pisos", "empate_posterior_m",
                      "tratamiento", "caso", "alineacion_nucleo"):
         assert esperado in ids, "falta {}".format(esperado)
     # sin jerga interna (punto 4/5/8): sin "override", "F1", "F2", "F3", "modo"/"escenario" sueltos
@@ -207,11 +206,20 @@ def test_aporte_lote_variable():
     assert p["tipo"] == "number" and p["seccion"] == "aporte"
 
 
-def test_aporte_a_pago_parcial():
-    """Traduccion aporte_lote -> pago_parcial_pct del motor F2."""
-    assert sv._aporte_a_pago_parcial("venta_completa") == 100.0
-    assert sv._aporte_a_pago_parcial("aporte_completo") == 0.0
-    assert sv._aporte_a_pago_parcial("participacion", None) == 30.0
-    assert sv._aporte_a_pago_parcial("participacion", 50) == 50.0
-    assert sv._aporte_a_pago_parcial("participacion", 150) == 100.0
-    assert sv._aporte_a_pago_parcial("participacion", -5) == 0.0
+def test_modalidad_dueno_lote():
+    """Fuente fija: modalidad_dueno_lote -> {tipo, pago_parcial_pct}."""
+    assert sv._modalidad_dueno_lote("venta_completa") == {"tipo": "venta_completa", "pago_parcial_pct": 100.0}
+    assert sv._modalidad_dueno_lote("aporte_completo") == {"tipo": "aporte_completo", "pago_parcial_pct": 0.0}
+    assert sv._modalidad_dueno_lote("participacion", None) == {"tipo": "participacion", "pago_parcial_pct": 30.0}
+    assert sv._modalidad_dueno_lote("participacion", 50) == {"tipo": "participacion", "pago_parcial_pct": 50.0}
+    assert sv._modalidad_dueno_lote("participacion", 150) == {"tipo": "participacion", "pago_parcial_pct": 100.0}
+    assert sv._modalidad_dueno_lote("participacion", -5) == {"tipo": "participacion", "pago_parcial_pct": 0.0}
+
+
+def test_modalidad_desde_data():
+    """Backward-compat: acepta bloque nuevo modalidad_dueno_lote o campos legacy."""
+    assert sv._modalidad_desde_data({"modalidad_dueno_lote": {"tipo": "aporte_completo", "pago_parcial_pct": 0}}) == \
+        {"tipo": "aporte_completo", "pago_parcial_pct": 0.0}
+    assert sv._modalidad_desde_data({"aporte_lote": "venta_completa"}) == \
+        {"tipo": "venta_completa", "pago_parcial_pct": 100.0}
+    assert sv._modalidad_desde_data({}) == {"tipo": "participacion", "pago_parcial_pct": 30.0}

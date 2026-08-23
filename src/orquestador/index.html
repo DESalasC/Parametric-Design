@@ -97,12 +97,16 @@
     <div id="predio-detalle" class="grid-info" style="display:none;"></div>
   </div>
 
-  <!-- ===== 1b. Vecinos por lado (empate lateral) ===== -->
+  <!-- ===== 1b·1c. Plano y vecinos por lado (integrados) ===== -->
   <div class="card">
-    <h2><span class="seccion-num">1b</span>Vecinos por lado (empate lateral)</h2>
-    <div class="subtitulo">Predios colindantes por lado, con su altura. Distingue predio de vía / espacio público.
-      El frente se detecta automáticamente pero puede corregirlo (override).</div>
-    <div id="vecinos-info" class="aviso info">Seleccione un CHIP para ver los vecinos por lado.</div>
+    <h2><span class="seccion-num">1b·1c</span>Plano y vecinos por lado</h2>
+    <div class="subtitulo">Vista en planta con <b>norte arriba</b> y contexto en 25 m. Cada vecino colindante
+      tiene un <b>color propio</b> y se etiqueta dentro del plano. Haga clic sobre un lado para cambiar su
+      clasificaci&oacute;n (cicla: indefinido &rarr; v&iacute;a &rarr; predio/vecino &rarr; espacio p&uacute;blico &rarr; libre)
+      y sobre un vecino para ubicarlo.</div>
+    <div id="plano"></div>
+    <div id="plano-leyenda" class="fuente" style="margin-top:8px;"></div>
+    <div id="vecinos-info" class="aviso info" style="margin-top:12px;">Seleccione un CHIP para ver los vecinos por lado.</div>
     <div id="vecinos-detalle"></div>
     <div id="vecinos-nota" class="fuente"></div>
     <div style="margin-top:12px; display:none;" id="vecinos-acciones">
@@ -139,6 +143,10 @@
     <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Variables financieras y fuentes (base de decisión)</h3>
     <div id="financiero-info" class="aviso info">Seleccione un CHIP para ver las variables financieras.</div>
     <div id="financiero-detalle"></div>
+    <div style="margin-top:12px;">
+      <label style="font-size:12.5px;color:#6b7280;">Valor del lote (COP) — opcional (override): </label>
+      <input type="number" id="costo-lote" placeholder="ej. 500000000" min="0" step="1000000" style="width:170px;">
+    </div>
     <div style="margin-top:14px;">
       <button class="btn primario" id="btn-calcular-f2" type="button">Calcular F2 (con aporte del lote)</button>
     </div>
@@ -203,7 +211,7 @@ async function init(){
     const o = document.createElement('option'); o.value = c; o.textContent = c;
     sel.appendChild(o);
   });
-  sel.addEventListener('change', () => { cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); syncCasoConChip(); });
+  sel.addEventListener('change', () => { cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); });
 
   renderSeccion('normativa', $('vars-normativa'));
   renderSeccion('modelado', $('vars-modelado'));
@@ -323,6 +331,7 @@ async function cargarFinanciero(){
   loteKvs.forEach(([k,v]) => { html += '<div class="kv"><div class="k">'+k+'</div><div class="v">'+(v!=null?v:'—')+'</div></div>'; });
   html += '</div>';
   if(f.lote.fuente) html += '<div class="fuente">Fuente lote: ' + f.lote.fuente + '</div>';
+  if(f.nota) html += '<div class="aviso info" style="margin-top:8px;">' + f.nota + '</div>';
   // financiero
   html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Costos y supuestos</h3><div class="grid-info">';
   const finKvs = [
@@ -370,6 +379,7 @@ async function cargarVecinos(){
     return;
   }
   VECINOS = r.vecinos_por_lado;
+  construirVecinos();
   info.style.display='none';
   nota.textContent = (VECINOS.nota || '');
   renderVecinos(VECINOS);
@@ -377,123 +387,155 @@ async function cargarVecinos(){
 
 function renderVecinos(data){
   const det = $('vecinos-detalle'); det.innerHTML = '';
-  const lados = data.lados || [];
-  if(!lados.length){ det.innerHTML = '<div class="aviso info">Sin lados clasificados.</div>'; return; }
-  lados.forEach((lado, li) => {
-    const block = document.createElement('div');
-    block.style.cssText = 'border:1px solid var(--borde); border-radius:8px; padding:10px 12px; margin:10px 0; background:#fff;';
-    const head = document.createElement('div');
-    head.style.cssText = 'display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;';
-    const tit = document.createElement('b'); tit.textContent = lado.cardinal; tit.style.cssText='font-size:15px; min-width:90px;';
-    head.appendChild(tit);
-    const badge = document.createElement('span');
-    badge.className = 'badge';
-    const over = !!lado.frente_override;
-    badge.textContent = (over ? 'override' : (lado.frente_fuente || 'auto')) + ' · ' + (lado.frente || '');
-    badge.style.background = over ? 'var(--manual)' : '#64748b';
-    head.appendChild(badge);
-    block.appendChild(head);
-    const conf = document.createElement('select');
-    conf.className = 'conf-sel'; conf.dataset.lado = String(li);
-    CONFIRMACIONES.forEach(o => { const op = document.createElement('option'); op.value = o.v; op.textContent = o.l; conf.appendChild(op); });
-    conf.value = lado.confirmacion || 'pendiente';
-    block.appendChild(conf);
-    const zona = document.createElement('div');
-    zona.className = 'zona-conf'; zona.dataset.lado = String(li); zona.style.cssText='margin-top:6px;';
-    block.appendChild(zona);
-    det.appendChild(block);
-    pintarZona(lado, li);
-    conf.addEventListener('change', () => pintarZona(lado, li));
+  const lados = (data && data.lados) || [];
+  if(!lados.length){ det.innerHTML = '<div class="aviso info">Sin lados clasificados.</div>'; $('vecinos-acciones').style.display='none'; return; }
+  const chips = Object.keys(NEIGHBOR_META).sort();
+  const opcionesLado = lados.map(l => ({ id: l.lado_id, label: l.cardinal_label || l.cardinal }));
+
+  const ayuda = document.createElement('div'); ayuda.className = 'ayuda';
+  ayuda.innerHTML = 'Cada vecino tiene un <b>color propio</b> (el mismo que en el plano). Use <b>Lado</b> para asignarlo al lado correcto, o <b>Sin asignar</b> para descartarlo. Complete <b>altura (m)</b> o <b>pisos</b> (uno de los dos): si da pisos, la altura se calcula con la altura de placa.';
+  det.appendChild(ayuda);
+
+  const ladosSec = document.createElement('div'); ladosSec.className='lados-frente'; ladosSec.style.cssText='margin-bottom:10px;padding:8px 0;border-bottom:1px solid #e2e5ea;';
+  const hl = document.createElement('div'); hl.className='subtitulo'; hl.style.cssText='font-weight:600;color:#374151;'; hl.textContent='Clasificar y confirmar lados (frente)';
+  ladosSec.appendChild(hl);
+  const helpL = document.createElement('div'); helpL.className='ayuda';
+  helpL.textContent='Confirme el frente de cada lado. En el plano: azul = vía, verde = espacio público, ámbar = predio/vecino, gris = libre. Su confirmación prevalece sobre la detección automática.';
+  ladosSec.appendChild(helpL);
+  lados.forEach(lado => {
+    const row = document.createElement('div'); row.style.cssText='display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:4px 0;';
+    const nameB = document.createElement('b'); nameB.textContent = lado.cardinal_label || lado.cardinal; nameB.style.cssText='min-width:84px;font-size:13px;';
+    row.appendChild(nameB);
+    const sel = document.createElement('select'); sel.className='lado-frente'; sel.dataset.lado_id = String(lado.lado_id);
+    CICLO_FRENTE.forEach(f => { const o = document.createElement('option'); o.value=f; o.textContent = ETIQUETA_FRENTE[f] || f; sel.appendChild(o); });
+    sel.value = frenteEfectivo(lado);
+    const badge = document.createElement('span'); badge.className='badge';
+    pintarBadgeFrente(lado, badge);
+    sel.addEventListener('change', () => { PLANO_OVERRIDES[lado.lado_id] = sel.value; if(PLANO_DATA) renderPlano(PLANO_DATA); pintarBadgeFrente(lado, badge); });
+    row.appendChild(sel); row.appendChild(badge);
+    ladosSec.appendChild(row);
   });
+  det.appendChild(ladosSec);
+
+  if(!chips.length){
+    const p = document.createElement('div'); p.className='aviso info'; p.textContent='Sin vecinos colindantes detectados por la geometría.';
+    det.appendChild(p);
+  } else {
+    chips.forEach(ch => det.appendChild(cardVecino(ch, opcionesLado)));
+  }
+
+  const ctxChips = Object.keys(ALL_VECINOS).filter(chip => !(chip in NEIGHBOR_META)).sort();
+  if(ctxChips.length){
+    const sec = document.createElement('div'); sec.style.cssText='margin-top:14px;border-top:1px dashed #94a3b8;padding-top:10px;';
+    const hh = document.createElement('div'); hh.className='subtitulo'; hh.style.cssText='font-weight:600;color:#374151;'; hh.textContent='Contexto cercano (no colindantes) — CHIPs detectados';
+    sec.appendChild(hh);
+    const help2 = document.createElement('div'); help2.className='ayuda';
+    help2.textContent='Polígonos dentro de 25 m que el sistema NO marcó como colindantes. Si alguno sí toca el lote, márquelo como colindante (su decisión tiene prioridad).';
+    sec.appendChild(help2);
+    ctxChips.forEach(chip => {
+      const row = document.createElement('div'); row.className='contexto-card'; row.dataset.chip = chip;
+      row.style.cssText = 'display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:5px 0; border-bottom:1px solid #f1f5f9;';
+      const swc = document.createElement('span'); swc.style.cssText='display:inline-block;width:14px;height:14px;border-radius:3px;background:repeating-linear-gradient(45deg,#cbd5e1,#cbd5e1 2px,#eef2f7 2px,#eef2f7 4px);border:1px solid rgba(0,0,0,.2);';
+      row.appendChild(swc);
+      const cCtx = document.createElement('span'); cCtx.textContent = chip; cCtx.style.cssText='font-family:monospace;font-size:12px;';
+      row.appendChild(cCtx);
+      const aCtx = document.createElement('span'); aCtx.textContent = fmtArea(ALL_VECINOS[chip] && ALL_VECINOS[chip].area_m2); aCtx.style.cssText='font-size:11px;color:#64748b;';
+      row.appendChild(aCtx);
+      const bM = document.createElement('button'); bM.type='button'; bM.className='btn secundario'; bM.textContent='marcar colindante'; bM.style.cssText='padding:3px 8px;font-size:11px;';
+      bM.addEventListener('click', () => marcarColindante(chip));
+      row.appendChild(bM);
+      sec.appendChild(row);
+    });
+    det.appendChild(sec);
+  }
+
+  const manuales = document.createElement('div'); manuales.style.cssText = 'margin-top:14px;';
+  const hm = document.createElement('div'); hm.className='subtitulo'; hm.style.cssText='font-weight:600;color:#374151;'; hm.textContent='Agregar vecino manual (si faltan)';
+  manuales.appendChild(hm);
+  lados.forEach((lado, li) => {
+    const g = document.createElement('div'); g.style.cssText = 'margin:8px 0;';
+    const hdr = document.createElement('div'); hdr.style.cssText = 'display:flex; align-items:center; gap:10px;';
+    hdr.innerHTML = '<b style="font-size:13px;">' + (lado.cardinal_label || lado.cardinal) + '</b>';
+    const btn = document.createElement('button'); btn.type='button'; btn.className='btn secundario'; btn.textContent='+ Agregar';
+    btn.addEventListener('click', () => agregarVecinoManual(lado, li));
+    hdr.appendChild(btn); g.appendChild(hdr);
+    const cont = document.createElement('div'); cont.className='manuales-cont'; cont.dataset.lado=String(li);
+    g.appendChild(cont);
+    (lado.vecinos_manuales || []).forEach((mv, mi) => agregarFilaManual(cont, li, lado, mv, mi));
+    manuales.appendChild(g);
+  });
+  det.appendChild(manuales);
+
   $('vecinos-acciones').style.display = 'block';
 }
 
-function pintarZona(lado, li){
-  const zona = document.querySelector('.zona-conf[data-lado="'+li+'"]');
-  const confSel = document.querySelector('.conf-sel[data-lado="'+li+'"]');
-  const conf = confSel ? confSel.value : (lado.confirmacion || 'pendiente');
-  zona.innerHTML = '';
-  const n = (lado.vecinos || []).length;
-  const resumen = document.createElement('div');
-  resumen.className = 'ayuda';
-  resumen.textContent = 'Detectados: ' + n + ' predio(s) colindante(s).';
-  zona.appendChild(resumen);
-  if(conf === 'pendiente'){
-    const p = document.createElement('div'); p.className = 'aviso info';
-    p.textContent = 'Confirme arriba si el número de vecinos corresponde a la realidad.';
-    zona.appendChild(p);
-    return;
-  }
-  if(conf === 'no_es_predio'){
-    const lbl = document.createElement('div'); lbl.className = 'ayuda'; lbl.style.cssText = 'margin-top:6px;';
-    lbl.textContent = 'Re-clasificar el frente del lado:';
-    zona.appendChild(lbl);
-    const sel = document.createElement('select');
-    sel.className = 'frente-sel'; sel.dataset.lado = String(li);
-    FRENTES.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; sel.appendChild(o); });
-    const actual = lado.frente_override || lado.frente;
-    sel.value = (actual === 'predio') ? 'via' : actual;
-    zona.appendChild(sel);
-    return;
-  }
-  const mostrarCorresponde = (conf === 'sobran');
-  const vecinos = lado.vecinos || [];
-  if(!vecinos.length){
-    const p = document.createElement('div'); p.className = 'ayuda'; p.textContent = 'Sin predios colindantes detectados.'; zona.appendChild(p);
-  } else {
-    const t = document.createElement('table');
-    let ths = '<tr>';
-    if(mostrarCorresponde) ths += '<th>¿Corresponde?</th>';
-    ths += '<th>Vecino</th><th>CHIP</th><th>Altura (m)</th><th>Pisos</th></tr>';
-    t.innerHTML = '<thead>'+ths+'</thead>';
-    const tb = document.createElement('tbody');
-    vecinos.forEach(v => {
-      const tr = document.createElement('tr');
-      if(mostrarCorresponde){
-        const tdC = document.createElement('td');
-        const cb = document.createElement('input'); cb.type = 'checkbox'; cb.className = 'vec-corresponde'; cb.dataset.lado = String(li); cb.dataset.chip = v.chip;
-        cb.checked = v.corresponde !== false;
-        tdC.appendChild(cb); tr.appendChild(tdC);
-      }
-      const tdNom = document.createElement('td'); tdNom.textContent = v.nombre || v.chip; tr.appendChild(tdNom);
-      const tdChip = document.createElement('td'); tdChip.textContent = v.chip; tdChip.style.cssText='font-family:monospace;font-size:12px;'; tr.appendChild(tdChip);
-      const tdH = document.createElement('td');
-      const ih = document.createElement('input'); ih.type='number'; ih.step='0.1'; ih.min='0'; ih.className='vec-altura'; ih.dataset.lado=String(li); ih.dataset.chip=v.chip; ih.placeholder='altura_m'; ih.value=(v.altura_m!=null?v.altura_m:''); ih.style.cssText='width:110px;'; tdH.appendChild(ih); tr.appendChild(tdH);
-      const tdP = document.createElement('td');
-      const ip = document.createElement('input'); ip.type='number'; ip.step='1'; ip.min='1'; ip.className='vec-pisos'; ip.dataset.lado=String(li); ip.dataset.chip=v.chip; ip.placeholder='pisos'; ip.value=(v.pisos!=null?v.pisos:''); ip.style.cssText='width:80px;'; tdP.appendChild(ip); tr.appendChild(tdP);
-      tb.appendChild(tr);
-    });
-    t.appendChild(tb);
-    zona.appendChild(t);
-  }
-  if(conf === 'faltan'){
-    const btn = document.createElement('button'); btn.type='button'; btn.className='btn secundario'; btn.textContent='+ Agregar vecino'; btn.style.cssText='margin-top:8px;';
-    btn.addEventListener('click', () => { agregarVecinoManual(lado, li); });
-    zona.appendChild(btn);
-    const cont = document.createElement('div'); cont.className='manuales-cont'; cont.dataset.lado=String(li);
-    zona.appendChild(cont);
-    (lado.vecinos_manuales || []).forEach((mv, mi) => agregarFilaManual(cont, li, lado, mv, mi));
-  }
+function cardVecino(chip, opcionesLado){
+  const meta = NEIGHBOR_META[chip] || {nombre: chip, altura_m: null, pisos: null};
+  const color = colorVecino(chip);
+  const fila = document.createElement('div'); fila.className='vecino-card'; fila.dataset.chip = chip;
+  fila.style.cssText = 'display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:7px 0; border-bottom:1px solid #f1f5f9;';
+
+  const sw = document.createElement('span'); sw.className='vecino-swatch';
+  sw.style.cssText = 'display:inline-block;width:15px;height:15px;border-radius:3px;background:'+color+';border:1px solid rgba(0,0,0,.25);flex:0 0 auto;';
+  fila.appendChild(sw);
+
+  const iNombre = document.createElement('input'); iNombre.type='text'; iNombre.className='vec-nombre'; iNombre.dataset.chip=chip;
+  iNombre.value = meta.nombre || ''; iNombre.placeholder='nombre'; iNombre.title='Renombrar vecino'; iNombre.style.cssText='width:92px;';
+  iNombre.addEventListener('change', () => { NEIGHBOR_META[chip].nombre = iNombre.value || chip; if(PLANO_DATA) renderPlano(PLANO_DATA); });
+  fila.appendChild(iNombre);
+
+  const cChip = document.createElement('span'); cChip.className='vec-chip'; cChip.textContent = chip;
+  cChip.style.cssText = 'font-family:monospace;font-size:11px;color:#64748b;';
+  fila.appendChild(cChip);
+
+  const areaTxt = document.createElement('span'); areaTxt.className='vec-area';
+  areaTxt.textContent = fmtArea(meta.area_m2);
+  areaTxt.style.cssText = 'font-size:11px;color:#64748b;min-width:72px;';
+  fila.appendChild(areaTxt);
+
+  const sel = document.createElement('select'); sel.className='vec-lado'; sel.dataset.chip=chip; sel.title='Asignar a un lado';
+  const opNone = document.createElement('option'); opNone.value=''; opNone.textContent='— Sin asignar —'; sel.appendChild(opNone);
+  opcionesLado.forEach(o => { const op = document.createElement('option'); op.value=String(o.id); op.textContent=o.label; sel.appendChild(op); });
+  const cur = NEIGHBOR_SIDE[chip];
+  sel.value = (cur != null && opcionesLado.some(o => String(o.id)===String(cur))) ? String(cur) : '';
+  sel.addEventListener('change', () => { NEIGHBOR_SIDE[chip] = sel.value === '' ? null : sel.value; if(PLANO_DATA) renderPlano(PLANO_DATA); });
+  fila.appendChild(sel);
+
+  const ih = document.createElement('input'); ih.type='number'; ih.step='0.1'; ih.min='0'; ih.className='vec-altura'; ih.dataset.chip=chip;
+  ih.placeholder='altura_m'; ih.title='Altura (m) — opcional si da pisos'; ih.value=(meta.altura_m!=null?meta.altura_m:''); ih.style.cssText='width:80px;';
+  fila.appendChild(ih);
+
+  const ip = document.createElement('input'); ip.type='number'; ip.step='1'; ip.min='1'; ip.className='vec-pisos'; ip.dataset.chip=chip;
+  ip.placeholder='pisos'; ip.title='Pisos — la altura se calcula: pisos × altura de placa'; ip.value=(meta.pisos!=null?meta.pisos:''); ip.style.cssText='width:60px;';
+  ip.addEventListener('change', () => { const p = ip.value === '' ? null : parseInt(ip.value, 10); if(p && p > 0) ih.value = (p * alturaDePlaca()).toFixed(1); });
+  fila.appendChild(ip);
+
+  const bNo = document.createElement('button'); bNo.type='button'; bNo.className='btn secundario'; bNo.textContent='no colindante';
+  bNo.title='Marcar como NO colindante (prioridad del operador sobre el sistema)'; bNo.style.cssText='padding:3px 8px;font-size:11px;';
+  bNo.addEventListener('click', () => quitarColindante(chip));
+  fila.appendChild(bNo);
+
+  return fila;
 }
 
 function agregarVecinoManual(lado, li){
   if(!lado.vecinos_manuales) lado.vecinos_manuales = [];
   const idx = lado.vecinos_manuales.length;
-  const mv = {nombre: lado.cardinal + '_extra' + (idx + 1), chip: '', altura_m: null, pisos: null};
+  const mv = {nombre: (lado.cardinal_label || lado.cardinal) + '_extra' + (idx + 1), chip: '', altura_m: null, pisos: null};
   lado.vecinos_manuales.push(mv);
   const cont = document.querySelector('.manuales-cont[data-lado="'+li+'"]');
   if(cont) agregarFilaManual(cont, li, lado, mv, idx);
 }
 
 function agregarFilaManual(cont, li, lado, mv, idx){
-  const fila = document.createElement('div');
+  const fila = document.createElement('div'); fila.className='manual-fila'; fila.dataset.lado = String(li);
   fila.style.cssText = 'display:flex; gap:8px; align-items:center; margin-top:6px; flex-wrap:wrap;';
   const iNombre = document.createElement('input'); iNombre.type='text'; iNombre.className='man-nombre'; iNombre.dataset.lado=String(li); iNombre.dataset.idx=String(idx); iNombre.value = mv.nombre || ''; iNombre.placeholder='nombre'; iNombre.style.cssText='width:110px;';
   const iChip = document.createElement('input'); iChip.type='text'; iChip.className='man-chip'; iChip.dataset.lado=String(li); iChip.dataset.idx=String(idx); iChip.value = mv.chip || ''; iChip.placeholder='chip'; iChip.style.cssText='width:130px;';
-  const iH = document.createElement('input'); iH.type='number'; iH.step='0.1'; iH.min='0'; iH.className='man-altura'; iH.dataset.lado=String(li); iH.dataset.idx=String(idx); iH.value = (mv.altura_m != null ? mv.altura_m : ''); iH.placeholder='altura_m'; iH.style.cssText='width:100px;';
-  const iP = document.createElement('input'); iP.type='number'; iP.step='1'; iP.min='1'; iP.className='man-pisos'; iP.dataset.lado=String(li); iP.dataset.idx=String(idx); iP.value = (mv.pisos != null ? mv.pisos : ''); iP.placeholder='pisos'; iP.style.cssText='width:80px;';
+  const iH = document.createElement('input'); iH.type='number'; iH.step='0.1'; iH.min='0'; iH.className='man-altura'; iH.dataset.lado=String(li); iH.dataset.idx=String(idx); iH.value = (mv.altura_m != null ? mv.altura_m : ''); iH.placeholder='altura_m'; iH.style.cssText='width:90px;';
+  const iP = document.createElement('input'); iP.type='number'; iP.step='1'; iP.min='1'; iP.className='man-pisos'; iP.dataset.lado=String(li); iP.dataset.idx=String(idx); iP.value = (mv.pisos != null ? mv.pisos : ''); iP.placeholder='pisos'; iP.style.cssText='width:70px;';
   const bQ = document.createElement('button'); bQ.type='button'; bQ.className='btn secundario'; bQ.textContent='×'; bQ.title='Quitar'; bQ.style.cssText='padding:4px 10px;';
-  bQ.addEventListener('click', () => { lado.vecinos_manuales.splice(idx, 1); pintarZona(lado, li); });
+  bQ.addEventListener('click', () => { lado.vecinos_manuales.splice(idx, 1); const cc = document.querySelector('.manuales-cont[data-lado="'+li+'"]'); if(cc){ cc.innerHTML=''; (lado.vecinos_manuales||[]).forEach((m, i) => agregarFilaManual(cc, li, lado, m, i)); } });
   [iNombre, iChip, iH, iP, bQ].forEach(el => fila.appendChild(el));
   cont.appendChild(fila);
 }
@@ -501,36 +543,54 @@ function agregarFilaManual(cont, li, lado, mv, idx){
 function recolectarVecinos(){
   if(!VECINOS) return null;
   const clon = JSON.parse(JSON.stringify(VECINOS));
-  (clon.lados || []).forEach((lado, li) => {
-    const confSel = document.querySelector('.conf-sel[data-lado="'+li+'"]');
-    if(confSel) lado.confirmacion = confSel.value;
-    const frenteSel = document.querySelector('.frente-sel[data-lado="'+li+'"]');
-    if(frenteSel && frenteSel.value !== lado.frente) lado.frente_override = frenteSel.value;
-    document.querySelectorAll('.vec-corresponde[data-lado="'+li+'"]').forEach(cb => {
-      const v = (lado.vecinos || []).find(x => x.chip === cb.dataset.chip);
-      if(v) v.corresponde = cb.checked;
+  const meta = {}, side = {};
+  document.querySelectorAll('.vecino-card[data-chip]').forEach(card => {
+    const chip = card.dataset.chip;
+    const nEl = card.querySelector('.vec-nombre');
+    const sEl = card.querySelector('.vec-lado');
+    const hEl = card.querySelector('.vec-altura');
+    const pEl = card.querySelector('.vec-pisos');
+    const pisos = (pEl && pEl.value !== '') ? parseInt(pEl.value, 10) : null;
+    const alturaDirecta = (hEl && hEl.value !== '') ? parseFloat(hEl.value) : null;
+    const alturaFinal = (pisos != null && pisos > 0) ? Math.round(pisos * alturaDePlaca() * 10) / 10 : alturaDirecta;
+    meta[chip] = {
+      nombre: (nEl && nEl.value) || chip,
+      altura_m: alturaFinal,
+      pisos: pisos,
+    };
+    side[chip] = (sEl && sEl.value !== '') ? sEl.value : null;
+  });
+  const sideChips = {};
+  Object.keys(meta).forEach(chip => { const sid = side[chip]; if(sid != null) (sideChips[sid] = sideChips[sid] || []).push(chip); });
+  (clon.lados || []).forEach(lado => {
+    const lid = String(lado.lado_id);
+    const antiguos = {};
+    (lado.vecinos || []).forEach(v => { if(v.chip) antiguos[v.chip] = v; });
+    lado.vecinos = (sideChips[lid] || []).map(chip => {
+      const old = antiguos[chip] || {};
+      return { chip: chip, nombre: meta[chip].nombre || old.nombre || chip,
+               altura_m: meta[chip].altura_m, pisos: meta[chip].pisos,
+               longitud_colindancia_m: old.longitud_colindancia_m };
     });
-    (lado.vecinos || []).forEach(v => {
-      const ih = document.querySelector('.vec-altura[data-lado="'+li+'"][data-chip="'+v.chip+'"]');
-      const ip = document.querySelector('.vec-pisos[data-lado="'+li+'"][data-chip="'+v.chip+'"]');
-      if(ih) v.altura_m = ih.value === '' ? null : parseFloat(ih.value);
-      if(ip) v.pisos = ip.value === '' ? null : parseInt(ip.value, 10);
+    if(PLANO_OVERRIDES && PLANO_OVERRIDES[lado.lado_id]) lado.frente_override = PLANO_OVERRIDES[lado.lado_id];
+    lado.vecinos_manuales = [];
+  });
+  document.querySelectorAll('.manual-fila[data-lado]').forEach(row => {
+    const li = parseInt(row.dataset.lado, 10);
+    const lado = (clon.lados || [])[li];
+    if(!lado) return;
+    const nEl = row.querySelector('.man-nombre');
+    const cEl = row.querySelector('.man-chip');
+    const hEl = row.querySelector('.man-altura');
+    const pEl = row.querySelector('.man-pisos');
+    const mp = (pEl && pEl.value !== '') ? parseInt(pEl.value, 10) : null;
+    const mh = (hEl && hEl.value !== '') ? parseFloat(hEl.value) : null;
+    lado.vecinos_manuales.push({
+      nombre: nEl ? nEl.value : '',
+      chip: cEl ? cEl.value : '',
+      altura_m: (mp != null && mp > 0) ? Math.round(mp * alturaDePlaca() * 10) / 10 : mh,
+      pisos: mp,
     });
-    const manuales = [];
-    document.querySelectorAll('.man-nombre[data-lado="'+li+'"]').forEach(el => {
-      const idx = el.dataset.idx;
-      const nombre = document.querySelector('.man-nombre[data-lado="'+li+'"][data-idx="'+idx+'"]');
-      const chip = document.querySelector('.man-chip[data-lado="'+li+'"][data-idx="'+idx+'"]');
-      const ih = document.querySelector('.man-altura[data-lado="'+li+'"][data-idx="'+idx+'"]');
-      const ip = document.querySelector('.man-pisos[data-lado="'+li+'"][data-idx="'+idx+'"]');
-      manuales.push({
-        nombre: nombre ? nombre.value : '',
-        chip: chip ? chip.value : '',
-        altura_m: ih && ih.value !== '' ? parseFloat(ih.value) : null,
-        pisos: ip && ip.value !== '' ? parseInt(ip.value, 10) : null,
-      });
-    });
-    lado.vecinos_manuales = manuales;
   });
   return clon;
 }
@@ -564,12 +624,383 @@ function generarNormativa(){
       if(alturas.length) out[String(sid)] = alturas;
     });
   });
-  const pendientes = (clon.lados || []).filter(l => (l.frente_override || l.frente) === 'predio' && (l.confirmacion || 'pendiente') === 'pendiente').length;
+  const sinAltura = [];
+  (clon.lados || []).forEach(l => {
+    const f = l.frente_override || l.frente;
+    if(f !== 'predio') return;
+    const tiene = (l.vecinos || []).some(v => v.altura_m != null && v.altura_m !== '' && !isNaN(parseFloat(v.altura_m)))
+                || (l.vecinos_manuales || []).some(v => v.altura_m != null && v.altura_m !== '' && !isNaN(parseFloat(v.altura_m)));
+    if(!tiene) sinAltura.push(l.cardinal_label || l.cardinal || '?');
+  });
   const pre = $('vecinos-normativa');
-  pre.textContent = (pendientes ? '// ⚠ ' + pendientes + ' lado(s) predio sin confirmar (se excluyen del empate).\n' : '') + JSON.stringify(out, null, 2);
+  NORMATIVA_JSON = JSON.stringify(out, null, 2);
+  const nSeg = Object.keys(out).length;
+  const alturas = [];
+  Object.values(out).forEach(arr => (arr || []).forEach(x => { if(alturas.indexOf(x) < 0) alturas.push(x); }));
+  if(nSeg){
+    pre.textContent = '✓ Empate lateral generado con éxito: ' + nSeg + ' segmento(s) con altura (' + alturas.join(', ') + ' m).';
+    pre.style.color = '#1a7f37'; pre.style.background = '#f0fdf4';
+  } else if(sinAltura.length){
+    pre.textContent = 'Sin empate lateral: complete la altura o pisos de los vecinos de: ' + sinAltura.join(', ') + '.';
+    pre.style.color = '#b45309'; pre.style.background = '#fffbeb';
+  } else {
+    pre.textContent = 'Sin lados predio: no aplica empate lateral.';
+    pre.style.color = '#b45309'; pre.style.background = '#fffbeb';
+  }
   pre.style.display = 'block';
-  $('btn-normativa-copiar').style.display = 'inline-block';
+  $('btn-normativa-copiar').style.display = nSeg ? 'inline-block' : 'none';
   return out;
+}
+
+// ---------- plano SVG (lados + contexto) ----------
+const COLORES_FRENTE = {
+  via: '#2563eb', predio: '#d97706', espacio_publico: '#16a34a',
+  libre: '#9ca3af', indefinido: '#9ca3af',
+};
+const CICLO_FRENTE = ['indefinido', 'via', 'predio', 'espacio_publico', 'libre'];
+const ETIQUETA_FRENTE = {
+  via: 'v\u00eda', predio: 'predio/vecino', espacio_publico: 'espacio p\u00fablico',
+  libre: 'libre', indefinido: 'indefinido',
+};
+// ---------- vecinos: colores + asignacion de lados ----------
+const PALETA_VECINOS = ['#e6194b','#3cb44b','#ffe119','#4363d8','#f58231','#911eb4','#42d4f4','#f032e6','#bfef45','#fabed4','#469990','#dcbeff'];
+let NEIGHBOR_SIDE = {};    // chip -> lado_id (null = sin asignar / descartado)
+let NEIGHBOR_META = {};    // chip -> {nombre, altura_m, pisos}
+let NEIGHBOR_COLORS = {};  // chip -> color
+let PLANO_DATA = null;
+
+function asignarColoresVecinos(chips){
+  const m = {};
+  chips.slice().sort().forEach((ch, i) => m[ch] = PALETA_VECINOS[i % PALETA_VECINOS.length]);
+  return m;
+}
+function colorVecino(chip){ return NEIGHBOR_COLORS[chip] || '#cbd5e1'; }
+
+function construirVecinos(){
+  const areaPrev = {};
+  Object.keys(NEIGHBOR_META).forEach(chip => { areaPrev[chip] = NEIGHBOR_META[chip].area_m2; });
+  NEIGHBOR_SIDE = {}; NEIGHBOR_META = {};
+  const chips = [];
+  ((VECINOS && VECINOS.lados) || []).forEach(lado => {
+    (lado.vecinos || []).forEach(v => {
+      if(!v.chip) return;
+      if(!(v.chip in NEIGHBOR_META)){
+        NEIGHBOR_META[v.chip] = { nombre: v.nombre || v.chip, altura_m: v.altura_m, pisos: v.pisos, area_m2: areaPrev[v.chip] || null };
+        chips.push(v.chip);
+      }
+      if(NEIGHBOR_SIDE[v.chip] === undefined) NEIGHBOR_SIDE[v.chip] = lado.lado_id;
+    });
+  });
+  NEIGHBOR_COLORS = asignarColoresVecinos(chips);
+}
+
+let ALL_VECINOS = {};
+let NORMATIVA_JSON = null;  // chip -> {area_m2, polyline} (todo el contexto 25 m)
+let PLANO_OVERRIDES = {};
+
+async function cargarPlano(){
+  const chip = $('chip').value;
+  const cont = $('plano'), ley = $('plano-leyenda');
+  if(!chip){ cont.innerHTML=''; ley.textContent=''; return; }
+  cont.innerHTML = '<div class="aviso info">Cargando plano...</div>';
+  ley.textContent = '';
+  const r = await api('/api/plano?chip=' + encodeURIComponent(chip));
+  if(!r.ok || !r.plano){ cont.innerHTML = '<div class="aviso error">' + (r.error||'sin plano') + '</div>'; return; }
+  PLANO_DATA = r.plano;
+  PLANO_OVERRIDES = {};
+  renderPlano(r.plano);
+}
+
+function _perpOffset(pts, dist){
+  const mid = pts[Math.floor(pts.length / 2)];
+  const a = pts[0], b = pts[pts.length - 1];
+  let dx = b[0] - a[0], dy = b[1] - a[1];
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len, ny = dx / len;
+  return [mid[0] + nx * dist, mid[1] + ny * dist];
+}
+
+function _centroide(pts){
+  if(!pts || !pts.length) return [0, 0];
+  let x = 0, y = 0;
+  pts.forEach(q => { x += q[0]; y += q[1]; });
+  return [x / pts.length, y / pts.length];
+}
+
+function fmtArea(a){
+  if(a == null || a === '') return '';
+  const num = Number(a);
+  if(!isFinite(num)) return '';
+  return num.toLocaleString('es-CO', {maximumFractionDigits: 1}) + ' m²';
+}
+
+function anguloVecino(chip){
+  let h = 0;
+  for(let i=0;i<chip.length;i++) h = (h * 31 + chip.charCodeAt(i)) >>> 0;
+  return h % 180;
+}
+
+function _distPuntoSeg(px, py, ax, ay, bx, by){
+  const dx = bx - ax, dy = by - ay;
+  const l2 = dx*dx + dy*dy;
+  let t = l2 ? ((px-ax)*dx + (py-ay)*dy) / l2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  const cx = ax + t*dx, cy = ay + t*dy;
+  return Math.hypot(px-cx, py-cy);
+}
+
+function _puntoColindancia(np, lp){
+  let best = np[0], bestD = Infinity;
+  np.forEach(q => {
+    let dmin = Infinity;
+    for(let i=0;i<lp.length;i++){
+      const a = lp[i], b = lp[(i+1)%lp.length];
+      const d = _distPuntoSeg(q[0], q[1], a[0], a[1], b[0], b[1]);
+      if(d < dmin) dmin = d;
+    }
+    if(dmin < bestD){ bestD = dmin; best = q; }
+  });
+  return best;
+}
+
+function refrescarTodo(){
+  if(PLANO_DATA) renderPlano(PLANO_DATA);
+  if(VECINOS) renderVecinos(VECINOS);
+}
+
+function marcarColindante(chip){
+  if(!(chip in ALL_VECINOS)) return;
+  NEIGHBOR_META[chip] = { nombre: 'Vecino_' + String(chip).slice(-4), altura_m: null, pisos: null, area_m2: ALL_VECINOS[chip].area_m2 };
+  NEIGHBOR_SIDE[chip] = null; // sin asignar
+  NEIGHBOR_COLORS = asignarColoresVecinos(Object.keys(NEIGHBOR_META).sort());
+  refrescarTodo();
+}
+
+function quitarColindante(chip){
+  delete NEIGHBOR_META[chip];
+  delete NEIGHBOR_SIDE[chip];
+  NEIGHBOR_COLORS = asignarColoresVecinos(Object.keys(NEIGHBOR_META).sort());
+  refrescarTodo();
+}
+
+function frenteEfectivo(lado){
+  return (PLANO_OVERRIDES && PLANO_OVERRIDES[lado.lado_id]) || lado.frente_override || lado.frente || 'indefinido';
+}
+
+function pintarBadgeFrente(lado, badge){
+  const over = (PLANO_OVERRIDES && PLANO_OVERRIDES[lado.lado_id]) || lado.frente_override;
+  badge.textContent = over ? 'confirmado' : 'auto';
+  badge.style.background = over ? 'var(--ok)' : '#64748b';
+}
+
+function alturaDePlaca(){
+  const el = $('var_floor_height_user');
+  const v = el ? parseFloat(el.value) : NaN;
+  return (isFinite(v) && v > 0) ? v : 3.0;
+}
+
+function renderPlano(p){
+  const cont = $('plano');
+  ALL_VECINOS = {};
+  (p.vecinos || []).forEach(v => { ALL_VECINOS[v.chip] = { area_m2: v.area_m2, polyline: v.polyline }; });
+  Object.keys(NEIGHBOR_META).forEach(chip => { if(ALL_VECINOS[chip] && ALL_VECINOS[chip].area_m2 != null) NEIGHBOR_META[chip].area_m2 = ALL_VECINOS[chip].area_m2; });
+  if(!Object.keys(NEIGHBOR_META).length && p.colindantes && p.colindantes.length){
+    NEIGHBOR_SIDE = {}; NEIGHBOR_META = {};
+    p.colindantes.forEach(cd => {
+      NEIGHBOR_META[cd.chip] = { nombre: cd.nombre || cd.chip, altura_m: null, pisos: null, area_m2: (ALL_VECINOS[cd.chip] && ALL_VECINOS[cd.chip].area_m2) || null };
+      NEIGHBOR_SIDE[cd.chip] = cd.lado_id;
+    });
+    NEIGHBOR_COLORS = asignarColoresVecinos(p.colindantes.map(cd => cd.chip));
+  }
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const xmin = p.viewport[0], ymin = p.viewport[1], xmax = p.viewport[2], ymax = p.viewport[3];
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', [xmin, -ymax, xmax - xmin, ymax - ymin].join(' '));
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  svg.setAttribute('width', '100%');
+  svg.style.cssText = 'border:1px solid var(--borde); border-radius:8px; background:#fbfcfe; max-height:560px;';
+  const P = pt => [pt[0], -pt[1]];
+
+  function path(pts, closed){
+    if(!pts || pts.length < 2) return '';
+    const d = pts.map(q => { const s = P(q); return s[0].toFixed(2) + ',' + s[1].toFixed(2); }).join(' L ');
+    return 'M' + d + (closed ? ' Z' : '');
+  }
+
+  const defs = document.createElementNS(NS, 'defs');
+  svg.appendChild(defs);
+  function hatch(id, color, ang){
+    const pat = document.createElementNS(NS, 'pattern');
+    pat.setAttribute('id', id);
+    pat.setAttribute('patternUnits', 'userSpaceOnUse');
+    pat.setAttribute('width', '2.2'); pat.setAttribute('height', '2.2');
+    pat.setAttribute('patternTransform', 'rotate(' + ang + ')');
+    const ln = document.createElementNS(NS, 'line');
+    ln.setAttribute('x1', '0'); ln.setAttribute('y1', '0'); ln.setAttribute('x2', '0'); ln.setAttribute('y2', '2.2');
+    ln.setAttribute('stroke', color); ln.setAttribute('stroke-width', '0.35');
+    pat.appendChild(ln); defs.appendChild(pat);
+  }
+  hatch('h-neutral', '#cbd5e1', 45);
+  Object.keys(NEIGHBOR_META).forEach(chip => hatch('h-' + chip, colorVecino(chip), anguloVecino(chip)));
+
+  const loteC = _centroide(p.lote);
+
+  // 1) contexto: EP verde, vecinos (rayado), vias azul
+  (p.espacios_publicos || []).forEach(e => {
+    const el = document.createElementNS(NS, 'path');
+    el.setAttribute('d', path(e.polyline, true));
+    el.setAttribute('fill', '#bbf7d0'); el.setAttribute('fill-opacity', '0.5');
+    el.setAttribute('stroke', '#16a34a'); el.setAttribute('stroke-width', '0.25');
+    svg.appendChild(el);
+  });
+  (p.vecinos || []).forEach(v => {
+    const esColindante = !!(v.chip && (v.chip in NEIGHBOR_META));
+    const el = document.createElementNS(NS, 'path');
+    el.setAttribute('d', path(v.polyline, true));
+    if(esColindante){
+      const col = colorVecino(v.chip);
+      el.setAttribute('fill', 'url(#h-' + v.chip + ')');
+      el.setAttribute('stroke', col); el.setAttribute('stroke-width', '0.4');
+    } else {
+      el.setAttribute('fill', 'url(#h-neutral)');
+      el.setAttribute('stroke', '#cbd5e1'); el.setAttribute('stroke-width', '0.25');
+    }
+    el.setAttribute('cursor', 'pointer');
+    el.dataset.chip = v.chip;
+    const ti = document.createElementNS(NS, 'title');
+    ti.textContent = (esColindante ? 'Clic para marcar como NO colindante' : 'Clic para marcar como colindante') + ' — ' + v.chip;
+    el.appendChild(ti);
+    el.addEventListener('click', () => { if(v.chip in NEIGHBOR_META) quitarColindante(v.chip); else marcarColindante(v.chip); });
+    svg.appendChild(el);
+
+    let labPt;
+    if(esColindante){
+      const pc = _puntoColindancia(v.polyline, p.lote);
+      let dx = pc[0] - loteC[0], dy = pc[1] - loteC[1];
+      const L = Math.hypot(dx, dy) || 1;
+      labPt = [pc[0] + dx/L*3.0, pc[1] + dy/L*3.0];
+    } else {
+      labPt = _centroide(v.polyline);
+    }
+    const ls = P(labPt);
+    const tl = document.createElementNS(NS, 'text');
+    tl.setAttribute('x', ls[0]); tl.setAttribute('y', ls[1]);
+    tl.setAttribute('text-anchor', 'middle');
+    tl.setAttribute('font-size', esColindante ? '2.0' : '1.6');
+    tl.setAttribute('font-weight', esColindante ? '600' : '400');
+    tl.setAttribute('fill', esColindante ? '#0f172a' : '#475569');
+    tl.setAttribute('paint-order', 'stroke'); tl.setAttribute('stroke', '#ffffff'); tl.setAttribute('stroke-width', '0.6');
+    const name = esColindante ? ((NEIGHBOR_META[v.chip] && NEIGHBOR_META[v.chip].nombre) || v.chip) : v.chip;
+    const tName = document.createElementNS(NS, 'tspan');
+    tName.setAttribute('x', ls[0]);
+    tName.textContent = name;
+    tl.appendChild(tName);
+    const area = (NEIGHBOR_META[v.chip] && NEIGHBOR_META[v.chip].area_m2 != null) ? NEIGHBOR_META[v.chip].area_m2 : (ALL_VECINOS[v.chip] ? ALL_VECINOS[v.chip].area_m2 : null);
+    if(area != null){
+      const tArea = document.createElementNS(NS, 'tspan');
+      tArea.setAttribute('x', ls[0]); tArea.setAttribute('dy', '2.2');
+      tArea.setAttribute('font-size', '1.6'); tArea.setAttribute('font-weight', '400');
+      tArea.textContent = fmtArea(area);
+      tl.appendChild(tArea);
+    }
+    svg.appendChild(tl);
+  });
+  (p.vias || []).forEach(v => {
+    (v.segmentos || []).forEach(seg => {
+      const el = document.createElementNS(NS, 'line');
+      const a = P([seg[0], seg[1]]), b = P([seg[2], seg[3]]);
+      el.setAttribute('x1', a[0]); el.setAttribute('y1', a[1]);
+      el.setAttribute('x2', b[0]); el.setAttribute('y2', b[1]);
+      el.setAttribute('stroke', '#2563eb'); el.setAttribute('stroke-width', '0.9');
+      svg.appendChild(el);
+    });
+  });
+
+  // 2) lote (fill blanco)
+  const loteEl = document.createElementNS(NS, 'path');
+  loteEl.setAttribute('d', path(p.lote, true));
+  loteEl.setAttribute('fill', '#ffffff'); loteEl.setAttribute('fill-opacity', '0.85');
+  loteEl.setAttribute('stroke', '#111827'); loteEl.setAttribute('stroke-width', '0.35');
+  svg.appendChild(loteEl);
+
+  // 3) lados (click = ciclar override)
+  (p.lados || []).forEach(lado => {
+    const frente = frenteEfectivo(lado);
+    const el = document.createElementNS(NS, 'path');
+    el.setAttribute('d', path(lado.polyline, false));
+    el.setAttribute('fill', 'none');
+    el.setAttribute('stroke', COLORES_FRENTE[frente] || '#9ca3af');
+    el.setAttribute('stroke-width', '2.2');
+    el.setAttribute('stroke-linecap', 'round');
+    el.setAttribute('cursor', 'pointer');
+    el.addEventListener('click', () => ciclarLado(lado, el));
+    svg.appendChild(el);
+
+    const cp = _perpOffset(lado.polyline, 2.4);
+    const cs = P(cp);
+    const t1 = document.createElementNS(NS, 'text');
+    t1.setAttribute('x', cs[0]); t1.setAttribute('y', cs[1]);
+    t1.setAttribute('text-anchor', 'middle'); t1.setAttribute('font-size', '2.4');
+    t1.setAttribute('font-weight', '600'); t1.setAttribute('fill', '#111827');
+    t1.textContent = lado.cardinal_label || lado.cardinal;
+    svg.appendChild(t1);
+
+    const fp = _perpOffset(lado.polyline, 4.2);
+    const fs = P(fp);
+    const t2 = document.createElementNS(NS, 'text');
+    t2.setAttribute('x', fs[0]); t2.setAttribute('y', fs[1]);
+    t2.setAttribute('text-anchor', 'middle'); t2.setAttribute('font-size', '1.9');
+    t2.setAttribute('fill', COLORES_FRENTE[frente] || '#9ca3af');
+    t2.dataset.etiqueta = String(lado.lado_id);
+    t2.textContent = ETIQUETA_FRENTE[frente] || frente;
+    svg.appendChild(t2);
+  });
+
+  // 4) flecha norte (fija arriba)
+  const cx = (xmin + xmax) / 2, top = -ymax + 3.5;
+  const g = document.createElementNS(NS, 'g');
+  const ln = document.createElementNS(NS, 'line');
+  ln.setAttribute('x1', cx); ln.setAttribute('y1', top + 6);
+  ln.setAttribute('x2', cx); ln.setAttribute('y2', top);
+  ln.setAttribute('stroke', '#111827'); ln.setAttribute('stroke-width', '0.6');
+  g.appendChild(ln);
+  const tri = document.createElementNS(NS, 'polygon');
+  tri.setAttribute('points', (cx-1.1)+','+(top+1.4)+' '+cx+','+top+' '+(cx+1.1)+','+(top+1.4));
+  tri.setAttribute('fill', '#111827');
+  g.appendChild(tri);
+  const tn = document.createElementNS(NS, 'text');
+  tn.setAttribute('x', cx); tn.setAttribute('y', top - 1.2);
+  tn.setAttribute('text-anchor', 'middle'); tn.setAttribute('font-size', '3');
+  tn.setAttribute('font-weight', '700'); tn.setAttribute('fill', '#111827');
+  tn.textContent = 'N';
+  g.appendChild(tn);
+  svg.appendChild(g);
+
+  cont.innerHTML = '';
+  cont.appendChild(svg);
+  pintarLeyenda();
+}
+
+function ciclarLado(lado, el){
+  const actual = frenteEfectivo(lado);
+  const i = CICLO_FRENTE.indexOf(actual);
+  const sig = CICLO_FRENTE[(i + 1) % CICLO_FRENTE.length];
+  PLANO_OVERRIDES[lado.lado_id] = sig;
+  el.setAttribute('stroke', COLORES_FRENTE[sig]);
+  const t2 = el.parentNode.querySelector('text[data-etiqueta="' + lado.lado_id + '"]');
+  if(t2){ t2.textContent = ETIQUETA_FRENTE[sig]; t2.setAttribute('fill', COLORES_FRENTE[sig]); }
+  const selF = document.querySelector('.lado-frente[data-lado_id="'+lado.lado_id+'"]');
+  if(selF){ selF.value = sig; const bd = selF.parentNode.querySelector('.badge'); if(bd) pintarBadgeFrente(lado, bd); }
+}
+
+function pintarLeyenda(){
+  const ley = $('plano-leyenda');
+  const items = [['via','v\u00eda'], ['predio','predio/vecino'], ['espacio_publico','espacio p\u00fablico'], ['libre','libre / indefinido']];
+  ley.innerHTML = items.map(it =>
+    '<span style="margin-right:14px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:' +
+    COLORES_FRENTE[it[0]] + ';margin-right:4px;vertical-align:middle;"></span>' + it[1] + '</span>'
+  ).join('') + ' &nbsp;\u00b7&nbsp; <span>contexto en 25 m: v\u00edas (azul), vecinos colindantes (color propio), resto (gris), espacio p\u00fablico (verde)</span>';
 }
 
 // ---------- predio ----------
@@ -663,7 +1094,10 @@ function recolectar(){
   const usos = [...document.querySelectorAll('#usos-checks input:checked')].map(x => x.value.replace('uso_',''));
   const modos = [...document.querySelectorAll('#modos-checks input:checked')].map(x => x.value.replace('modo_',''));
   const escenarios = [...document.querySelectorAll('#escenarios-checks input:checked')].map(x => x.value.replace('esc_',''));
-  return { nombre, chip, variables, usos, modos, escenarios, vecinos_por_lado: recolectarVecinos() };
+  const modalidad = { tipo: variables.aporte_lote || 'participacion', pago_parcial_pct: variables.pago_parcial_pct };
+  delete variables.aporte_lote;
+  delete variables.pago_parcial_pct;
+  return { nombre, chip, variables, modalidad_dueno_lote: modalidad, usos, modos, escenarios, vecinos_por_lado: recolectarVecinos() };
 }
 
 async function guardar(crear){
@@ -690,12 +1124,14 @@ async function calcularF2(){
   if(!chip){ alert('Seleccione un CHIP primero.'); return; }
   const aporte = $('var_aporte_lote') ? $('var_aporte_lote').value : 'participacion';
   const pago = $('var_pago_parcial_pct') ? $('var_pago_parcial_pct').value : null;
+  const costoEl = $('costo-lote');
+  const costoLote = (costoEl && costoEl.value !== '') ? parseFloat(costoEl.value) : null;
   const out = $('f2-resultado');
   out.style.display='block'; out.className='aviso info'; out.textContent='Ejecutando F2...';
-  const r = await api('/api/calcular-f2', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, aporte_lote:aporte, pago_parcial_pct:pago}) });
+  const r = await api('/api/calcular-f2', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, modalidad_dueno_lote:{tipo:aporte, pago_parcial_pct:pago}, costo_lote_cop:costoLote}) });
   if(!r.ok || !r.f2 || !r.f2.ok){ out.className='aviso error'; out.textContent = (r.f2 && r.f2.salida) || r.error || 'error'; return; }
   const f = r.f2;
-  let html = '<b>F2 calculado</b> · pago parcial <b>' + f.pago_parcial_pct + '%</b> (aporte en especie ' + f.fraccion_aporte_pct + '%)';
+  let html = '<b>F2 calculado</b> · pago parcial <b>' + (f.modalidad_dueno_lote && f.modalidad_dueno_lote.pago_parcial_pct != null ? f.modalidad_dueno_lote.pago_parcial_pct : '\u2014') + '%</b> (aporte en especie ' + f.fraccion_aporte_pct + '%)';
   if(f.resumen){
     html += '<br>GFA máx: ' + (f.resumen.gfa_max_m2!=null ? f.resumen.gfa_max_m2 : '—') + ' m² · Recomendado: <b>' + (f.resumen.recomendado||'—') + '</b>';
     if(f.resumen.veredicto) html += '<br>' + f.resumen.veredicto;
@@ -723,12 +1159,12 @@ async function ejecutarPipeline(){
   const pago = $('var_pago_parcial_pct') ? $('var_pago_parcial_pct').value : null;
   const out = $('pipeline-resultado');
   out.style.display='block'; out.className='aviso info'; out.textContent='Ejecutando F1→F2→F3...';
-  const r = await api('/api/pipeline', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, aporte_lote:aporte, pago_parcial_pct:pago, escenario:'D_MIXTO'}) });
+  const r = await api('/api/pipeline', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, modalidad_dueno_lote:{tipo:aporte, pago_parcial_pct:pago}, escenario:'D_MIXTO'}) });
   const p = r.pipeline;
   if(!r.ok || !p){ out.className='aviso error'; out.textContent = r.error || 'error'; return; }
   const pasos = (p.pasos||[]).map(function(s){ return (s.ok?'✓':'✗') + ' ' + s.paso; }).join(' · ');
   let html = '<b>' + (p.completado ? 'Pipeline completado' : 'Pipeline con fallos') + '</b> para ' + chip + '<br>' + pasos;
-  if(p.f2 && p.f2.resumen) html += '<br>F2: pago ' + p.f2.pago_parcial_pct + '% / aporte ' + p.f2.fraccion_aporte_pct + '% · GFA ' + (p.f2.resumen.gfa_max_m2||'—') + ' m²';
+  if(p.f2 && p.f2.resumen) html += '<br>F2: pago ' + (p.f2.modalidad_dueno_lote && p.f2.modalidad_dueno_lote.pago_parcial_pct != null ? p.f2.modalidad_dueno_lote.pago_parcial_pct : '\u2014') + '% / aporte ' + p.f2.fraccion_aporte_pct + '% · GFA ' + (p.f2.resumen.gfa_max_m2||'—') + ' m²';
   if(p.f3 && p.f3.resultados) html += '<br>F3: ' + (p.f3.resultados.pisos||'—') + ' pisos, GFA ' + (p.f3.resultados.gfa_total||'—') + ' m²';
   out.className = p.completado ? 'aviso ok' : 'aviso error';
   out.innerHTML = html;
@@ -776,9 +1212,9 @@ $('btn-generar-f3').addEventListener('click', () => generarF3());
 $('btn-pipeline').addEventListener('click', () => ejecutarPipeline());
 $('btn-normativa').addEventListener('click', () => generarNormativa());
 $('btn-normativa-copiar').addEventListener('click', () => {
-  const pre = $('vecinos-normativa');
-  if(!pre.textContent) return;
-  navigator.clipboard.writeText(pre.textContent).then(() => {
+  const txt = NORMATIVA_JSON || '';
+  if(!txt) return;
+  navigator.clipboard.writeText(txt).then(() => {
     $('btn-normativa-copiar').textContent = 'Copiado';
     setTimeout(() => { $('btn-normativa-copiar').textContent = 'Copiar'; }, 1500);
   }).catch(() => {});

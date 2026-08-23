@@ -37,7 +37,7 @@ def test_salidas_esperadas_presentes():
                    "empate_posterior_entrepiso_m",
                    "empate_posterior_pisos", "empate_posterior_m", "tratamiento",
                    "caso", "alineacion_nucleo", "usos", "modos", "escenarios",
-                   "vecinos_por_lado_json",
+                   "vecinos_por_lado_json", "frente_override_json",
                    "ok", "log"):
         assert salida in src
 

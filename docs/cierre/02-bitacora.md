@@ -68,3 +68,30 @@ Cierre de fase **F1–F3** · **2026-08-18** · 85 commits · suite **234 passed
 - F1 GFA manual en Rhino (verificar GFA 826.58 vs 1186.87 tras regeneración del operador).
 - Listas definitivas de usos por sector (Sinupot / CU-5.4.x).
 - F3 masa Rhino → Morphs ArchiCAD (manual). F4/F5 pendientes.
+
+
+## Sesión 2026-08-23 — Regla de esquina + puente frente_override
+
+### Cambios
+- **Normativa F1 (esquina)**: `LADOS_v06` anula `idx_posterior` en esquina;
+  `PATIO_v02.1` genera el patio 3×3 sobre lados colindantes (Lateral o Posterior);
+  `NORMATIVA_v08.2` fuerza `retiro_posterior = 0` en esquina.
+- **Puente orquestador→canvas**: `F0_LOAD_PROYECTO_v01.4` emite `frente_override_json`
+  `{cardinal: frente}`; `NORMATIVA_v08.2` lo aplica a los retiros por cardinal
+  (normal saliente, `azimut = atan2(nx,ny) % 360`, misma convención de
+  `vecinos_por_lado.py`).
+- **Orquestador (A/B/C)**: mensaje de éxito en normativa (JSON solo en "Copiar");
+  quitados `empate_posterior_pisos/m` duplicados; `_financiero` con fallback a
+  `parametros_entrada.json` + campo "Valor del lote (COP)" → `costo_lote_cop`.
+- **`modalidad_dueno_lote`** consolidada como única fuente (servidor + F2 + front).
+
+### Pruebas
+- **Suite: 267 passed** (nuevos `test_esquina_fuente.py`, `test_frente_override_fuente.py`).
+- Sintaxis Python OK en los tres scripts F1 y en F0 (IronPython 2.7).
+
+### Decisiones
+- Lote de esquina: sin aislamiento posterior; solo antejardín frontal + patio 3×3
+  en la esquina interior.
+- Vocabulario de frentes (Continua): `via`, `predio` (lateral), `espacio_publico`
+  (zona verde); `indefinido`/`libre` → ignorar; `servidumbre` reservado a futuro.
+- Matching de lados por **cardinal** (no por índice) entre orquestador y canvas.
