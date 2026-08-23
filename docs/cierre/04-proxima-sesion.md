@@ -1,52 +1,51 @@
-# Próxima sesión - puntos para continuar (2026-08-20)
+# Próxima sesión - puntos para continuar (2026-08-22)
 
-Handoff para retomar en una nueva sesión. Estado consolidado tras el cierre
-de inconsistencias y la preparación de Morphs funcionales.
+Handoff para retomar en una nueva sesión. Estado consolidado tras el inicio del
+rediseño del orquestador (inventario, interfaz, modelo F2 y contrato de datos).
 
 ## Estado vigente (versiones)
 - F1 NORMATIVA **v08**, LADOS **v06**, canvas **F1_Contexto_Base-Editado_v02**.
-- F3_VOLUM_GENERADOR **v08** (salidas `usos_pisos` + `circulacion_pisos`/
-  `servicios_pisos`/`losas_pisos`/`nucleo_pisos`), F3_MORPH_ATRIBUTOS **v01.1**
-  (atributos BIM + `layers_json`).
-- F0_LOAD_PROYECTO **v01.3**, F0_STORIES **v01**, F2 motores **v03**.
-- `usos-por-sector.json` **v02** (usos por Área de Actividad, 4 categorías).
-- Suite: **248 passed**.
-- Linaje: versiones viejas de F1 en `src/fase-1-contexto/_legacy/` (las que tienen
-  guard "fuente" mantienen copia idéntica en el directorio activo).
+- F3_VOLUM_GENERADOR **v08**, F3_MORPH_ATRIBUTOS **v02** (fix `OnPingDocument`).
+- F0_LOAD_PROYECTO **v01**, F0_STORIES **v01**, F2 motores **v03**.
+- `usos-por-sector.json` **v02**.
+- Suite: **257 passed**.
 
-## Terminado en esta sesión (2026-08-20)
-- 6 inconsistencias resueltas (test roto, drift v07→v08, docstring, `_legacy` F1,
-  contradicción `docs/`, derivado `gfa-gh.json` untrack).
-- `_legacy` reorganizado como archivo pasivo.
-- Fix de encoding (lectura JSON tolerante utf-8→latin-1) en `F1_ETAPA1_CONTEXTO_v02`.
-- `F3_MORPH_ATRIBUTOS_v01.1`: id + building_material + structural_function +
-  position + renovation_status + `layers_json`.
-- `F1_LAYERS_XML_v02`: entrada `json_path`.
-- Backup del canvas `.gh/.ghx` commiteado.
+## Terminado en esta sesión (2026-08-22)
+- Fix completo de `F3_MORPH_ATRIBUTOS` (v02 restaurado + `ghenv.Component.OnPingDocument()`).
+- Inventario de `src/` (Etapa 0) + nota de reubicación.
+- Interfaz del orquestador (cajas en una pantalla) + modelo F2.
+- Contrato de datos (`data/activo/`) con schemas JSON.
+- Verificación de compatibilidad (nada grave).
 
 ## Bloqueado / pendiente (orden sugerido)
-1. **Canvas (manual, Rhino)**: cambiar type hints de los inputs de #211 (Morph
-   Settings) y #207 (F0_STORIES) a **Text** para resolver "Data conversion failed
-   Text→Layer / Text→Story".
-2. **Cablear `layers_json`** (F3_MORPH_ATRIBUTOS) → `F1_LAYERS_XML_v02`
-   (`json_text` o `json_path`) para generar el XML de capas de los morphs antes de
-   crearlos.
-3. **GFA**: regenerar en Rhino (826.58 vs 1186.87 m²) y revisar anomalías (vecinos
-   0 lados, antejardín default 3.0 m, sin lado posterior).
-4. **F2**: validar `pago_parcial_pct` contra un caso real.
-5. **Fases posteriores**: F4 Ladybug (ambiental), F5 BIM (inyección).
-6. **Zonas** (siguiente fase): crear "Zonas" desde Grasshopper con 4 niveles de
-   jerarquía (nivel → unidad vivienda/comercio → habitaciones → …), en paralelo a
-   los Morphs ya funcionales.
+1. **Validar esquema con el operador real** (solo cuando el orquestador funcione; ahí
+   surgirán dudas de presentación/organización).
+2. **Esqueleto `data/activo/` + `data/predios/`** (Etapas 1–2 del rediseño).
+3. **Zonas de mercado** (norte / centro / sur / periferia) + mecanismo de actualización
+   periódica (DANE, Banco de la República, Catastro, portales; sin suscripciones).
+4. **Migrar código desde F0**: el orquestador produce todos los JSON canónicos; las
+   entradas de los componentes cambian desde F0 hasta el canvas.
+5. **F2**: añadir `recursos_disponibles`, `saldo`, `financiacion_saldo[]`
+   (preventas / constructor / bancario), acabados por opción y multi-escenario.
+6. **Reintentar `git mv`** de `src/fase-1-contexto/tests/` → `tests/fixtures/archicad/`
+   (con ArchiCAD cerrado; hoy falló por *Permission denied*).
+7. **Cleanup git**: `src/research/gh-definition-explorer/` (~39k archivos de docs
+   generadas) → gitignore + `git rm --cached`.
+8. **Agente de mercado** (futuro): ofertas independientes (obra gris VIS, lujo,
+   salud, comercio); el schema ya reserva el hueco.
 
 ## Para recordar (reglas de entorno)
-- GHPython = IronPython 2.7 (sin f-strings/pathlib/type hints); componente "Script",
-  no "Python 3 Script".
-- `_legacy` es archivo pasivo: no referenciarlo desde tests/código activo.
-- Lectura de JSON en GHPython: bytes crudos + `utf-8` con fallback `latin-1`.
-- Capas con estándar GuBIMclass (`data\GuBIMclass_Layers_v3.xml`); niveles con
-  nombres reales de ArchiCAD.
-- Derivados (`data/pot-cache/*`, `gfa-gh.json`, resultados F2/F3, `anexo5_pdf_extract.txt`)
-  NO se commitean.
-- `servidor.py` NO calcula GFA; lo hace la cadena Grasshopper (F0 → NORMATIVA_v08 →
-  F1_EXPORTAR_GFA_v02).
+- GHPython = IronPython 2.7 (sin f-strings/pathlib/type hints); componente "Script".
+- `OnPingDocument` se obtiene vía `ghenv.Component`, NO `ghpythonlib.component`.
+- Acceso a entradas del canvas: SIEMPRE `globals().get()`, nunca nombres desnudos.
+- LAYER_MAP obligatorio = GuBIMclass, nunca `ARQ_*`.
+- `_legacy` es archivo pasivo; los tests "fuente" pinean la ruta activa (duplicados
+  activo + `_legacy` son intencionales).
+- Derivados (resultados F2/F3, `gfa-gh.json`, `pot-cache/*`) no se commitean.
+- El orquestador es el único dueño de la cadena de datos: todo se produce desde F0.
+
+## Notas del vault (esta sesión)
+- `10-arquitectura/2026-08-22-plan-rediseno-orquestador.md`
+- `10-arquitectura/2026-08-22-inventario-reubicacion-src.md`
+- `10-arquitectura/2026-08-22-interfaz-orquestador.md`
+- `10-arquitectura/2026-08-22-contrato-datos.md`

@@ -83,3 +83,7 @@ gh-definitions/test_panel.json
 # Orquestador (runtime y generado)
 src/orquestador/proyectos/
 src/orquestador/checklist.html
+
+# Salidas generadas F3 (morph-manifest)
+gh-definitions/data/
+

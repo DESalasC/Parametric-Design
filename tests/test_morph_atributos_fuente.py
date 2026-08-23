@@ -2,14 +2,14 @@
 """Guardian de regresion para el cableado F3 -> F3_MORPH_ATRIBUTOS -> F1_LAYERS_XML.
 
 Bloque A: fija el contrato de formato entre la salida `layers_json` de
-F3_MORPH_ATRIBUTOS_v01 y la entrada `json_text`/`json_path` de F1_LAYERS_XML_v02,
-y entre `usos_pisos` (F3_VOLUM_GENERADOR_v08) y `pisos` (F3_MORPH_ATRIBUTOS_v01).
+F3_MORPH_ATRIBUTOS_v02 y la entrada `json_text`/`json_path` de F1_LAYERS_XML_v02,
+y entre `usos_pisos` (F3_VOLUM_GENERADOR_v08) y `pisos` (F3_MORPH_ATRIBUTOS_v02).
 """
 
 import os
 
 BASE = os.path.join(os.path.dirname(__file__), "..", "src")
-RUTA_MORPH = os.path.join(BASE, "fase-3-masa", "F3_MORPH_ATRIBUTOS_v01.py")
+RUTA_MORPH = os.path.join(BASE, "fase-3-masa", "F3_MORPH_ATRIBUTOS_v02.py")
 RUTA_LAYERS = os.path.join(BASE, "fase-1-contexto", "F1_LAYERS_XML_v02.py")
 RUTA_VOLUM = os.path.join(BASE, "fase-3-masa", "F3_VOLUM_GENERADOR_v08.py")
 
