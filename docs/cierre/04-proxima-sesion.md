@@ -28,7 +28,7 @@ norma + diagnóstico GFA).
 4. Validar anomalía de áreas de vecinos AAA0240ZXJH (Norte1 vs Norte2).
 5. F2: `recursos_disponibles`, `saldo`, `financiacion_saldo[]`, acabados, multi-escenario.
 6. Zonas de mercado + actualización periódica.
-7. Cleanup git (`gh-definition-explorer`, `git rm --cached` derivados).
+7. ~~Cleanup git~~ - HECHO 2026-08-23 (commit b49aa717): 24.460 derivados des-versionados (resultados/salidas F2, pot-cache, output/ gh-definition-explorer, copia suelta scripts/utilities/data) + reglas nuevas en .gitignore.
 8. F3 → Zonas (no Morphs) para Ladybug.
 9. OCR de la ficha 041 Muzú (solo si la curaduría lo exige).
 
