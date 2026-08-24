@@ -90,3 +90,19 @@ gh-definitions/data/
 
 # Registro de predios: snapshots derivados (no versionar)
 data/predios/*/historico/
+
+# Salidas derivadas F2 (financiero + renta) - no versionar
+src/fase-2-demanda/F2_Modelo_Financiero/resultados/
+src/fase-2-demanda/F2_Modelo_Financiero/resultados_*/
+src/fase-2-demanda/F2_Modelo_Financiero/resultados_*.json
+src/fase-2-demanda/F2_Modelo_Financiero/salidas_gfa*/
+src/fase-2-demanda/F2_Modelo_Renta/resultados/
+src/fase-2-demanda/F2_Modelo_Renta/resultados_*/
+src/fase-2-demanda/F2_Modelo_Renta/resultados_*.json
+
+# Research: salida generada del explorador de definiciones GH
+src/research/gh-definition-explorer/output/
+
+# Derivados de pot-cache / copia suelta bajo scripts
+data/pot-cache/*-ortofoto_meta.txt
+scripts/utilities/data/

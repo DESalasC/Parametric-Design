@@ -1,4 +1,0 @@
-Para insertar en ArchiCAD (Figure):
-Ancho fisico del elemento: 400 metros
-La imagen es un cuadrado perfecto de 400x400m.
-Insertar en la capa: 00-20-20_Foto_Aerea_Referencia
