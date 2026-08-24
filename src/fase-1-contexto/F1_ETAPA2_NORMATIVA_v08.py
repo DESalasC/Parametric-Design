@@ -179,8 +179,8 @@ ENTRADAS:
                                    segmento del poligono (sides_table_json).
   frente_override_json (String)  - [v08.2] Override de frente por cardinal
                                    (salida de F0_LOAD_PROYECTO v01.4):
-                                   {"<cardinal>": "via"|"predio"|
-                                   "espacio_publico"}. La clasificacion
+                                   {"<cardinal>": "via"|"via_no_frontal"|
+                                   "predio"|"espacio_publico"}. La clasificacion
                                    confirmada por el operador manda sobre la
                                    geometrica; se casa por cardinal (normal
                                    saliente del lado). Sin cablear: se usa la
@@ -499,6 +499,7 @@ CARDINAL_BANDS = [
 ]
 FRENTE_A_CLASIFICACION = {
     "via": "Frontal",
+    "via_no_frontal": "EspacioPublico",
     "espacio_publico": "EspacioPublico",
     "predio": "Lateral",
 }

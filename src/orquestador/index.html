@@ -364,7 +364,7 @@ async function cargarFinanciero(){
 }
 
 // ---------- vecinos por lado ----------
-const FRENTES = ['predio', 'via', 'espacio_publico', 'libre'];
+const FRENTES = ['predio', 'via', 'via_no_frontal', 'espacio_publico', 'libre'];
 const CONFIRMACIONES = [
   {v:'pendiente',   l:'— Confirme si los vecinos detectados corresponden a la realidad —'},
   {v:'confirmado',  l:'Sí, corresponden'},
@@ -665,12 +665,12 @@ function generarNormativa(){
 
 // ---------- plano SVG (lados + contexto) ----------
 const COLORES_FRENTE = {
-  via: '#2563eb', predio: '#d97706', espacio_publico: '#16a34a',
+  via: '#2563eb', via_no_frontal: '#60a5fa', predio: '#d97706', espacio_publico: '#16a34a',
   libre: '#9ca3af', indefinido: '#9ca3af',
 };
-const CICLO_FRENTE = ['indefinido', 'via', 'predio', 'espacio_publico', 'libre'];
+const CICLO_FRENTE = ['indefinido', 'via', 'via_no_frontal', 'predio', 'espacio_publico', 'libre'];
 const ETIQUETA_FRENTE = {
-  via: 'v\u00eda', predio: 'predio/vecino', espacio_publico: 'espacio p\u00fablico',
+  via: 'v\u00eda', via_no_frontal: 'v\u00eda (no frontal)', predio: 'predio/vecino', espacio_publico: 'espacio p\u00fablico',
   libre: 'libre', indefinido: 'indefinido',
 };
 // ---------- vecinos: colores + asignacion de lados ----------
@@ -1007,7 +1007,7 @@ function ciclarLado(lado, el){
 
 function pintarLeyenda(){
   const ley = $('plano-leyenda');
-  const items = [['via','v\u00eda'], ['predio','predio/vecino'], ['espacio_publico','espacio p\u00fablico'], ['libre','libre / indefinido']];
+  const items = [['via','v\u00eda'], ['via_no_frontal','v\u00eda (no frontal)'], ['predio','predio/vecino'], ['espacio_publico','espacio p\u00fablico'], ['libre','libre / indefinido']];
   ley.innerHTML = items.map(it =>
     '<span style="margin-right:14px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:' +
     COLORES_FRENTE[it[0]] + ';margin-right:4px;vertical-align:middle;"></span>' + it[1] + '</span>'

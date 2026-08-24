@@ -111,3 +111,33 @@ def test_f0_emite_frente_override_json(tmp_path):
     fo = json.loads(g["frente_override_json"])
     assert fo == {"Norte": "predio", "Sur": "via", "Oriente": "via",
                   "Occidente": "predio"}
+
+def test_parsear_frente_override_via_no_frontal():
+    f = _extraer(RUTA_NORM, "_parsear_frente_override")
+    r = f(json.dumps({"Sur": "via_no_frontal", "Oriente": "via"}))
+    assert r == {"Sur": "via_no_frontal", "Oriente": "via"}
+
+
+def test_frente_clasificacion_via_no_frontal():
+    s = _fuente(RUTA_NORM)
+    assert '"via_no_frontal": "EspacioPublico"' in s
+
+
+def test_f0_emite_via_no_frontal(tmp_path):
+    src = _fuente(RUTA_F0)
+    p = tmp_path / 'proyecto.json'
+    p.write_text(json.dumps({
+        "chip": "AAA0240ZXJH",
+        "variables": {},
+        "vecinos_por_lado": {
+            "lados": [
+                {"cardinal": "Sur", "frente": "via_no_frontal", "frente_override": None},
+                {"cardinal": "Oriente", "frente": "via", "frente_override": None},
+                {"cardinal": "Norte", "frente": "predio", "frente_override": None},
+            ]
+        }
+    }, ensure_ascii=False), encoding="utf-8")
+    g = {"ruta_json": str(p), "caso_default": "A"}
+    exec(compile(src, RUTA_F0, "exec"), g)
+    fo = json.loads(g["frente_override_json"])
+    assert fo == {"Sur": "via_no_frontal", "Oriente": "via", "Norte": "predio"}
