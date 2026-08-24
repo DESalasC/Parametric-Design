@@ -2,6 +2,9 @@
 # Cambia el puerto del servidor CommandConnection de ArchiCAD 29 (Python/JSON API
 # y Grasshopper Live Connection comparten este servidor) para evitar el conflicto
 # con AutoClaw, que ocupa 127.0.0.1:19723.
+# AVISO 2026-08-23: mover a 19724 SOLO sirve para la JSON/Python API (paquete 'archicad').
+# La Live Connection de Grasshopper (AC_*) solo conecta por 19723 y NO respeta este cambio;
+# para el canvas usar diagnostico_puerto_19723.ps1 -Liberar o cerrar/reabrir AutoClaw.
 #
 # HALLAZGO (2026-08-15): en ArchiCAD 29 NO existe UI para el puerto (la "Python
 # palette" solo configura la ubicacion del interprete). El puerto vive en el

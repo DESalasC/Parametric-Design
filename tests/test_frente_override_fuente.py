@@ -141,3 +141,8 @@ def test_f0_emite_via_no_frontal(tmp_path):
     exec(compile(src, RUTA_F0, "exec"), g)
     fo = json.loads(g["frente_override_json"])
     assert fo == {"Sur": "via_no_frontal", "Oriente": "via", "Norte": "predio"}
+
+def test_esquina_cuenta_via_no_frontal():
+    """v08.3: via_no_frontal cuenta como via para la regla de esquina."""
+    s = _fuente(RUTA_NORM)
+    assert 'if v in ("via", "via_no_frontal")' in s

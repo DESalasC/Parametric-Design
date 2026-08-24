@@ -6,6 +6,9 @@
 #
 # HALLAZGO (2026-08-15): ArchiCAD escucha en 0.0.0.0:19723 (todas las interfaces)
 # y AutoClaw en 127.0.0.1:19723 (solo loopback). Cuando el Live Connection de GH
+# AVISO 2026-08-23: mover a 19724 SOLO sirve para la JSON/Python API (paquete 'archicad').
+# La Live Connection de Grasshopper (AC_*) solo conecta por 19723 y NO respeta este cambio;
+# para el canvas usar diagnostico_puerto_19723.ps1 -Liberar o cerrar/reabrir AutoClaw.
 # reconecta a "localhost" recibe a AutoClaw, no a ArchiCAD. SOLUCION: conectar GH
 # a la IP LAN (p.ej. 192.168.1.2) en vez de localhost -> la conexion enruta al
 # socket 0.0.0.0 de ArchiCAD y AutoClaw nunca la ve (direcciones diferentes).

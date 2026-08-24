@@ -864,8 +864,12 @@ lados = sides_data.get("lados", []) if sides_data else []
 es_esquina = bool(sides_data.get("es_esquina", False)) if sides_data else False
 frente_override = _parsear_frente_override(frente_override_raw)
 if frente_override:
-    # la regla de esquina sigue al override del operador (2+ lados "via")
-    _n_vias = sum(1 for v in frente_override.values() if v == "via")
+    # la regla de esquina sigue al override del operador (2+ lados de calle).
+    # v08.3: "via_no_frontal" tambien cuenta como via (el lote es esquina
+    # si tiene 2+ lados de calle, aunque uno no sea el frente principal),
+    # para no generar patio posterior en esquina con via secundaria sin antejardin.
+    _n_vias = sum(1 for v in frente_override.values()
+                  if v in ("via", "via_no_frontal"))
     if _n_vias >= 2:
         es_esquina = True
 

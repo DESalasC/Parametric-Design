@@ -21,7 +21,7 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
 ## Stack
 - **CAD/BIM**: Rhino 8 + Grasshopper + Archicad
 - **Puente geométrico**: Rhino.Compute headless (puerto 6001) + Hops
-- **Conexión BIM**: Grasshopper–ArchiCAD Live Connection (plugin Graphisoft; sus componentes son AC_*). El API de comandos usa el protocolo JSON **Tapir** (paquete Python `archicad`, puerto CommandConnection 19723 → 19724 en este equipo).
+- **Conexión BIM**: Grasshopper-ArchiCAD Live Connection (plugin Graphisoft; componentes AC_*). El API de comandos usa el protocolo JSON **Tapir** (paquete Python `archicad`, puerto CommandConnection 19723). **Conflicto de puerto (2026-08-23):** AutoClaw escritorio ocupa 127.0.0.1:19723 (hardcodeado) y la Live Connection de GH solo conecta por 19723; mover ArchiCAD a 19724 solo sirve para la JSON/Python API (auto-escanea 19723-19743), no para el canvas (ver Limitaciones conocidas).
 - **IA local**: Ollama (qwen2.5-coder:14b primario, qwen2.5:7b si compute activo)
 - **Orquestador**: Claude Code vía fcc-server (puerto 8787)
 - **Conocimiento**: Obsidian + Graphify
@@ -216,6 +216,8 @@ DiseñoParametrico/
 > `DiseñoParametrico` (con ñ); usarlo consistentemente en toda la documentación.
 
 ## Limitaciones conocidas
+
+- **Puerto 19723 (AutoClaw vs ArchiCAD)**: AutoClaw escritorio hardcodea 127.0.0.1:19723 y lo reclama al rato de inactividad de Grasshopper/ArchiCAD. La Live Connection de GH (AC_*) solo conecta por 19723, por lo que el workaround de mover ArchiCAD a 19724 (`cambiar_puerto_archicad.ps1`) SOLO sirve para la JSON/Python API (paquete `archicad`, F3_StorySync). Para operar el canvas: `diagnostico_puerto_19723.ps1 -Liberar` o cerrar/reabrir AutoClaw en orden (ArchiCAD -> Grasshopper -> AutoClaw).
 - **Vecinos**: modelado manual (no hay modelo 3D público de Bogotá).
 - **Lotes curvos**: NO soportados en `ANALISIS_VECINOS` (requiere polilínea).
 - **POT**: 191 campos en `.gpkg`, solo ~30 relevantes (ver `config/field-whitelist.json`).

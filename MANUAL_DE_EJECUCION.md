@@ -17,7 +17,7 @@ cd D:\Work\PROJECTS\DiseñoParametrico
 
 - **Python del proyecto**: usar `.\.venv\Scripts\python.exe` (no el Python global). No hace falta activar el venv.
 - **Rhino 8 + Grasshopper abiertos**, con el canvas maestro: `gh-definitions\F1_Contexto_Base-Editado_v02.gh`.
-- **ArchiCAD abierto** con la **Live Connection** activa (plugin Graphisoft, componentes `AC_*`). Puerto CommandConnection: **19723 → 19724** en este equipo (si cambia, ver `scripts\utilities\cambiar_puerto_archicad.ps1`).
+**ArchiCAD abierto** con la **Live Connection** activa (plugin Graphisoft, componentes `AC_*`). Puerto CommandConnection: **19723** (la Live Connection de GH solo conecta por 19723; mover ArchiCAD a 19724 solo sirve para la JSON/Python API). Si se bloquea, ver `scripts\utilities\diagnostico_puerto_19723.ps1 -Liberar`.
 - **Unidades de Rhino en METROS** (nunca mm).
 - **GHPython**: usar SIEMPRE el componente **"Script" clásico con IronPython 2.7**. **NUNCA** el componente "Python 3 Script" (bug Rhino 8: sella el componente).
 - **Coordenadas locales** (0,0,0) con metadatos SIRGAS; **no** usar coordenadas globales como input directo en GH/ArchiCAD.
