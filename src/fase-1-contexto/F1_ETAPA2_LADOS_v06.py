@@ -85,6 +85,10 @@ VERSIONES:
                      contacto real (< 0.10 m con via o EP). Entrada
                      contacto_min_frac. Mensaje con detalle por lado
                      (distancias, fracciones, motivo).
+  v06.2 (2026-08-23) - Nomenclatura cardinal por lado (Norte/Oriente/Sur/
+                       Occidente, normal saliente; misma convencion que
+                       NORMATIVA_v08 y vecinos_por_lado.py) en el mensaje y
+                       el JSON. Guard de ancho de via absurdo (>100m).
   v06.1 (2026-08-17) - Cada lado emite dx/dy/mx/my (direccion + punto medio)
                        del lado, insumo para F3 (colocacion del nucleo contra
                        la medianera sin depender del orden de lote_vertices).
@@ -117,7 +121,48 @@ TOL_VERTICES_COINC_M = 0.10
 CONTACTO_MIN_FRACCION = 0.30
 # Intersecciones de linea mas cercanas que esto se ignoran (borde propio/ruido)
 MIN_ANCHO_VIA_M = 0.5
+# v06.2: ancho de via absurdo (>100m) indica geometria en otro frame de
+# coordenadas; se descarta la muestra para no propagar el error a NORMATIVA.
+MAX_ANCHO_VIA_M = 100.0
 MUESTRAS_ANCHO = 7
+
+# v06.2 - Nomenclatura cardinal (misma convencion que NORMATIVA_v08 y
+# vecinos_por_lado.py): Norte/Oriente/Sur/Occidente desde la normal saliente.
+CARDINAL_BANDS = [
+    ("Norte", 315.0, 45.0),
+    ("Oriente", 45.0, 135.0),
+    ("Sur", 135.0, 225.0),
+    ("Occidente", 225.0, 315.0),
+]
+
+
+def _cardinal_normal(nx, ny):
+    """v06.2 - Cardinal desde una normal (azimut = atan2(nx,ny) % 360)."""
+    if nx == 0.0 and ny == 0.0:
+        return "Norte"
+    az = math.degrees(math.atan2(nx, ny)) % 360.0
+    for name, lo, hi in CARDINAL_BANDS:
+        if lo <= hi:
+            if lo <= az < hi:
+                return name
+        else:
+            if az >= lo or az < hi:
+                return name
+    return "Norte"
+
+
+def _cardinal_lado(dx, dy, mx, my, cx, cy):
+    """v06.2 - Cardinal de un lado (normal saliente respecto al centroide)."""
+    n1 = (-dy, dx)
+    n2 = (dy, -dx)
+    vx = mx - cx
+    vy = my - cy
+    d1 = vx * n1[0] + vy * n1[1]
+    d2 = vx * n2[0] + vy * n2[1]
+    nx, ny = (n1 if d1 >= d2 else n2)
+    return _cardinal_normal(nx, ny)
+
+
 
 
 def safe_list(val):
@@ -473,7 +518,7 @@ def medir_ancho_via_total(lot_vertices, lados, vias_list, muestras=MUESTRAS_ANCH
                     if pt_int is None:
                         continue
                     d = p.DistanceTo(pt_int)
-                    if d > MIN_ANCHO_VIA_M:
+                    if MIN_ANCHO_VIA_M < d <= MAX_ANCHO_VIA_M:
                         # Primera interseccion valida = borde opuesto del
                         # poligono de via = ancho total
                         ancho_muestra = d
@@ -539,11 +584,13 @@ if lot_vertices_raw is not None and not isinstance(lot_vertices_raw, list):
                "CADA input geometrico (lot_vertices, vias_curves, ep_curves, "
                "vecinos_curves, andenes_curves) -> List Access + Flatten.")
 elif len(lot_vertices) < 3:
-    mensaje = "LADOS v06.1 | ERROR: Se necesitan >= 3 vertices ({} recibidos)".format(
+    mensaje = "LADOS v06.2 | ERROR: Se necesitan >= 3 vertices ({} recibidos)".format(
         len(lot_vertices))
 else:
     try:
         n = len(lot_vertices)
+        cx = sum(v.X for v in lot_vertices) / n
+        cy = sum(v.Y for v in lot_vertices) / n
 
         # Reconstruir poligono simplificado
         poly = rg.Polyline()
@@ -636,8 +683,11 @@ else:
                 "dist_v_m": round(dist_vertices[i], 2),
                 "comparte_a": comparte_a,
                 "comparte_n": comparte_n,
-                # v06.1: direccion + punto medio del lado (insumo F3 medianera,
-                # evita depender del orden de lote_vertices)
+                # v06.2: cardinal del lado (normal saliente, nomenclatura
+                # orquestador); v06.1: direccion + punto medio (insumo F3)
+                "cardinal": _cardinal_lado(p2.X - p1.X, p2.Y - p1.Y,
+                                           (p1.X + p2.X) / 2.0,
+                                           (p1.Y + p2.Y) / 2.0, cx, cy),
                 "dx": round(p2.X - p1.X, 4),
                 "dy": round(p2.Y - p1.Y, 4),
                 "mx": round((p1.X + p2.X) / 2.0, 4),
@@ -746,8 +796,8 @@ else:
             return "na" if x is None else "{:.2f}".format(x)
 
         detalle = "; ".join(
-            "L{}=[{} aisl:{} v:{} ep:{} vec:{} fr:{}/{}/{} ({})]".format(
-                l["id"], l["clasificacion"], l["aislamiento_tipo"],
+            "{}[L{}]=[{} aisl:{} v:{} ep:{} vec:{} fr:{}/{}/{} ({})]".format(
+                l.get("cardinal", "?"), l["id"], l["clasificacion"], l["aislamiento_tipo"],
                 fmt_dist(l.get("dist_via_m")),
                 fmt_dist(l.get("dist_ep_m")),
                 fmt_dist(l.get("dist_vec_m")),
@@ -755,7 +805,7 @@ else:
                 l.get("motivo", ""))
             for l in lados)
 
-        mensaje = "LADOS v06.1 | A=V{} N=V{} | {} | Esq:{} | Posterior:{} ({}) | Vias:{} EP:{} Vec:{} Andenes:{} | Ancho via: {:.2f}m | Detalle: {}".format(
+        mensaje = "LADOS v06.2 | A=V{} N=V{} | {} | Esq:{} | Posterior:{} ({}) | Vias:{} EP:{} Vec:{} Andenes:{} | Ancho via: {:.2f}m | Detalle: {}".format(
             vertice_a, vertice_n, ", ".join(cats_final),
             es_esquina,
             "SI" if idx_posterior is not None else "NO",
@@ -767,4 +817,4 @@ else:
             mensaje += " | AVISOS: " + "; ".join(avisos)
 
     except Exception as e:
-        mensaje = "LADOS v06.1 | ERROR: {}".format(str(e))
+        mensaje = "LADOS v06.2 | ERROR: {}".format(str(e))

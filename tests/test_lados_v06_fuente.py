@@ -56,7 +56,7 @@ def test_intersection_namespace():
 
 def test_mensaje_v06():
     src = _fuente()
-    assert "LADOS v06.1 |" in src
+    assert "LADOS v06.2 |" in src
     assert "fr:" in src
     assert "aislamiento_tipo" in src
 
@@ -72,7 +72,7 @@ def test_prefijo_error_v06():
     """El prefijo del mensaje de error debe decir v06.1 (no v04 heredado)."""
     src = _fuente()
     assert "LADOS v04 | ERROR" not in src
-    assert "LADOS v06.1 | ERROR" in src
+    assert "LADOS v06.2 | ERROR" in src
 
 
 def test_version_v061_encabezado():
@@ -90,3 +90,13 @@ def test_lado_direccion_v061():
     assert '"dy": round(p2.Y - p1.Y, 4)' in src
     assert '"mx": round((p1.X + p2.X) / 2.0, 4)' in src
     assert '"my": round((p1.Y + p2.Y) / 2.0, 4)' in src
+
+def test_cardinal_v062():
+    """v06.2: cada lado emite cardinal (Norte/Oriente/Sur/Occidente)."""
+    src = _fuente()
+    assert "CARDINAL_BANDS" in src
+    assert "def _cardinal_normal" in src
+    assert "def _cardinal_lado" in src
+    assert '"cardinal": _cardinal_lado(' in src
+    assert "MAX_ANCHO_VIA_M" in src
+    assert 'l.get("cardinal", "?")' in src
