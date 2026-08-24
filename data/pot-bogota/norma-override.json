@@ -7,14 +7,15 @@
       "rango_edificabilidad": "3",
       "altura_maxima_pisos": 4,
       "io_maximo": 0.7,
-      "ic_maximo": 3.0,
+      "ic_maximo": 3,
       "antejardin_min_m": 3.5,
       "semisotano_permitido": true,
       "voladizo_permitido": true,
-      "subdivision_min_m2": 140.0,
-      "frente_min_m": 7.0,
+      "subdivision_min_m2": 140,
+      "frente_min_m": 7,
       "fuente": "Resolucion 00865/2006 + ficha de edificabilidad UPZ 41 Muzu | Ficha: G:\\Documentos\\UPZ_CONSOLIDACION\\041_Muzú\\Imágenes\\041 EDIFICABILIDAD-FIRMA.pdf | Resolucion: G:\\Documentos\\UPZ_CONSOLIDACION\\041_Muzú\\Decreto\\upz 41 muzu _resolucion 00865 15  septiembre 2006.PDF",
-      "ultima_edicion": "2026-08-23 17:01"
+      "ultima_edicion": "2026-08-23 21:32",
+      "tratamiento": "Renovaci&oacute;n urbana"
     }
   }
 }

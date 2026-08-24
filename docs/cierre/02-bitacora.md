@@ -121,3 +121,37 @@ Cierre de fase **F1–F3** · **2026-08-18** · 85 commits · suite **234 passed
 - `upz`/`tratamiento` fuera del override (la geobase ya los trae bien).
 - Fuente exacta (ficha `041 EDIFICABILIDAD-FIRMA.pdf` + resolución 00865/2006)
   sin OCR por ahora (el operador considera que la curaduría aún no lo exige).
+
+
+## Sesión 2026-08-23 (noche) — cardinal, via_no_frontal, puerto 19723
+
+### Cambios
+- **LADOS v06.2**: nomenclatura cardinal por lado (normal saliente,
+  `azimut = atan2(nx,ny) % 360`, bandas N/O/S/Occ) — misma convención en
+  NORMATIVA_v08 y `vecinos_por_lado.py`; guard `MAX_ANCHO_VIA_M = 100.0`.
+- **Frente `via_no_frontal`** (vía sin antejardín): `FRENTE_A_CLASIFICACION` →
+  "EspacioPublico" en NORMATIVA; UI del orquestador (FRENTES/CICLO/COLORES/ETIQUETA).
+- **`via_no_frontal` cuenta como vía en esquina** (v08.3): `_n_vias` suma
+  `v in ("via", "via_no_frontal")` → el lote es esquina con 2+ lados de calle aunque
+  uno no sea el frente principal (evita patio posterior espurio).
+- **Docs puerto 19723** (CLAUDE.md, MANUAL, scripts): la Live Connection de GH solo
+  conecta por 19723; mover ArchiCAD a 19724 solo sirve para la JSON/Python API.
+- **`diagnostico_puerto_19723.ps1 -Liberar`**: comprueba `$LASTEXITCODE` de taskkill
+  (ya no dice "liberado" en falso), fallback `Stop-Process -Force`, y guía a cerrar
+  AutoClaw o ejecutar como Administrador (AutoClaw corre elevado → acceso denegado).
+
+### Pruebas
+- Suite: **272 passed** (267 → 272; nuevos tests cardinal v06.2, via_no_frontal ×3,
+  esquina cuenta via_no_frontal).
+
+### Decisiones
+- `via_no_frontal` = vía funcional sin aislamiento (mapea a EspacioPublico), pero
+  **sí cuenta como calle** para la regla de esquina.
+- AutoClaw hardcodea 127.0.0.1:19723 y lo reclama; no hay config → depende del
+  soporte de AutoClaw (ticket abierto); workaround real = cerrar/reabrir en orden.
+
+### Pendientes (diagnosticados, NO resueltos)
+- Área orquestador 450 vs 99,72; entidades HTML sin decodificar; mojibake en labels.
+- Re-exportar F1 al .gh (canvas aún corre v06.1/v08.1); nicknames en salida LADOS.
+- Frame de coordenadas EP/vía/vecinos (ROOT CAUSE: ancho via 41,7 m, Ocup 1,6 m²).
+- Parámetros financieros por CHIP + persistencia de variables + 1b-1c vecinos.
