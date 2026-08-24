@@ -52,6 +52,14 @@ F1_FETCH_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-urban-contex
 PROYECTOS = os.path.join(ORQ_DIR, "proyectos")
 PROVISIONAL = os.path.join(PROYECTOS, "_provisional")
 NORMA_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "norma-override.json")
+FINANCIERO_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "financiero-override.json")
+
+# Archivos ACTIVOS (nombre literal "CHIP"): el canvas SIEMPRE lee/escribe estos,
+# sin editar el panel. El orquestador los sobreescribe al seleccionar el predio.
+ACTIVO_CONTEXTO = os.path.join(POT_CACHE, "CHIP-contexto.json")
+ACTIVO_VECINOS = os.path.join(POT_CACHE, "CHIP-vecinos-por-lado.json")
+ACTIVO_CASOS_DIR = os.path.join(F3_CASOS, "CASO")
+GFA_FLAG_RUTA = os.path.join(ROOT, "data", "fase-2-demanda", "gfa-export-flag.json")
 
 
 def _norma_override_leer():
@@ -92,6 +100,192 @@ def _norma_override_guardar(chip, override):
         return True, NORMA_OVERRIDE_RUTA
     except Exception as e:
         return False, str(e)
+
+def _area_shoelace_local(vertices):
+    """Area (m2) desde vertices_3d_local [x,y,z] (formula del zapato).
+    Devuelve None si no hay vertices suficientes."""
+    pts = []
+    for p in (vertices or []):
+        if isinstance(p, (list, tuple)) and len(p) >= 2:
+            pts.append([float(p[0]), float(p[1])])
+    if len(pts) < 3:
+        return None
+    if pts[0] == pts[-1]:
+        pts = pts[:-1]
+    if len(pts) < 3:
+        return None
+    s = 0.0
+    m = len(pts)
+    for i in range(m):
+        x1, y1 = pts[i][0], pts[i][1]
+        x2, y2 = pts[(i + 1) % m][0], pts[(i + 1) % m][1]
+        s += x1 * y2 - x2 * y1
+    return round(abs(s) / 2.0, 2)
+
+
+def _perimetro_local(vertices):
+    """Perimetro (m) desde vertices_3d_local [x,y,z]. Devuelve None si no hay vertices."""
+    pts = []
+    for p in (vertices or []):
+        if isinstance(p, (list, tuple)) and len(p) >= 2:
+            pts.append([float(p[0]), float(p[1])])
+    if len(pts) < 2:
+        return None
+    m = len(pts)
+    total = 0.0
+    for i in range(m):
+        x1, y1 = pts[i][0], pts[i][1]
+        x2, y2 = pts[(i + 1) % m][0], pts[(i + 1) % m][1]
+        total += ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+    return round(total, 2)
+
+
+def _financiero_override_leer():
+    return _json(FINANCIERO_OVERRIDE_RUTA)
+
+
+def _financiero_override_chip(chip):
+    data = _financiero_override_leer()
+    lotes = data.get("lotes") if isinstance(data.get("lotes"), dict) else {}
+    ov = lotes.get(chip)
+    return ov if isinstance(ov, dict) else None
+
+
+def _financiero_override_guardar(chip, override):
+    """Guarda (merge) el override financiero de un CHIP y proyecta un
+    parametros_<CHIP>_mercado2026.json para que F2 lo use. Devuelve (ok, detalle)."""
+    data = _financiero_override_leer()
+    data.setdefault("_schema", "financiero_override_v01")
+    if not isinstance(data.get("lotes"), dict):
+        data["lotes"] = {}
+    nuevo = {}
+    prev = data["lotes"].get(chip)
+    if isinstance(prev, dict):
+        nuevo.update(prev)
+    if isinstance(override, dict):
+        for k, v in override.items():
+            if v is None or v == "":
+                nuevo.pop(k, None)
+            else:
+                nuevo[k] = v
+    nuevo["ultima_edicion"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    data["lotes"][chip] = nuevo
+    try:
+        os.makedirs(os.path.dirname(FINANCIERO_OVERRIDE_RUTA), exist_ok=True)
+        with io.open(FINANCIERO_OVERRIDE_RUTA, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        return False, str(e)
+
+    # Proyectar a un parametros_<CHIP>_mercado2026.json (entrada real de F2)
+    try:
+        base_ruta = os.path.join(F2_VENTA_DIR, "parametros_entrada.json")
+        base = _json(base_ruta)
+        if base:
+            chip_ctx = _contexto(chip)
+            area_real = None
+            if chip_ctx:
+                area_real = chip_ctx["lote"]["area_m2"]
+            area_final = nuevo.get("area_m2")
+            if area_final is None or area_final == "":
+                area_final = area_real if area_real is not None else base.get("lote", {}).get("area_m2")
+            base.setdefault("lote", {})["area_m2"] = area_final
+            for k in ("precio_suelo_m2", "impuestos_escritura_pct", "costo_lote_total_cop", "fuente"):
+                if nuevo.get(k) not in (None, ""):
+                    base["lote"][k] = nuevo[k]
+            for k in ("costos_blandos_pct", "marketing_ventas_pct"):
+                if nuevo.get(k) not in (None, ""):
+                    base.setdefault("financiero", {})[k] = nuevo[k]
+            esc_ov = nuevo.get("escenarios")
+            if isinstance(esc_ov, dict):
+                base.setdefault("escenarios", {})
+                for eid, ev in esc_ov.items():
+                    if not isinstance(ev, dict):
+                        continue
+                    base["escenarios"].setdefault(eid, {})
+                    for k in ("precio_venta_m2", "costo_construccion_m2"):
+                        if ev.get(k) not in (None, ""):
+                            base["escenarios"][eid][k] = ev[k]
+            base.setdefault("meta", {})["chip"] = chip
+            out_ruta = os.path.join(F2_VENTA_DIR, "parametros_{}_mercado2026.json".format(chip))
+            with io.open(out_ruta, "w", encoding="utf-8") as f:
+                json.dump(base, f, indent=2, ensure_ascii=False)
+            return True, FINANCIERO_OVERRIDE_RUTA
+    except Exception as e:
+        return False, str(e)
+    return True, FINANCIERO_OVERRIDE_RUTA
+
+
+def _vecinos_override_ruta(chip):
+    return os.path.join(POT_CACHE, chip + "-vecinos-por-lado-override.json")
+
+
+def _vecinos_por_lado_data(chip):
+    """Vecinos por lado CON overrides del operador (si existen), si no el auto."""
+    auto = _json(os.path.join(POT_CACHE, chip + "-vecinos-por-lado.json"))
+    ov = _json(_vecinos_override_ruta(chip))
+    if ov and ov.get("lados"):
+        return ov
+    return auto or None
+
+
+def _activar_chip(chip):
+    """Sobreescribe los archivos ACTIVOS (CHIP-*.json) con los datos del CHIP
+    seleccionado para que el canvas no requiera edición. Devuelve dict con lo activado."""
+    activados = {}
+    ctx = os.path.join(POT_CACHE, chip + "-contexto.json")
+    if os.path.exists(ctx):
+        try:
+            shutil.copy2(ctx, ACTIVO_CONTEXTO)
+            activados["contexto"] = ACTIVO_CONTEXTO
+        except Exception:
+            pass
+    vpl = _vecinos_por_lado_data(chip)
+    if vpl:
+        try:
+            with io.open(ACTIVO_VECINOS, "w", encoding="utf-8") as f:
+                json.dump(vpl, f, indent=2, ensure_ascii=False)
+            activados["vecinos_por_lado"] = ACTIVO_VECINOS
+        except Exception:
+            pass
+    return activados
+
+
+def _activar_caso(caso):
+    """Sobreescribe los archivos ACTIVOS de F3 (casos/CASO/) con el caso seleccionado
+    para que F3_VOLUM_GENERADOR_v08 lea un path fijo. Devuelve dict con lo activado."""
+    activados = {}
+    if not caso:
+        return activados
+    src = os.path.join(F3_CASOS, caso)
+    if not os.path.isdir(src):
+        return activados
+    try:
+        os.makedirs(ACTIVO_CASOS_DIR, exist_ok=True)
+    except Exception:
+        return activados
+    for nombre in ("programa-areas.json", "accesos.json", "layout_espacial.json"):
+        origen = os.path.join(src, nombre)
+        if os.path.exists(origen):
+            try:
+                shutil.copy2(origen, os.path.join(ACTIVO_CASOS_DIR, nombre))
+                activados[nombre] = os.path.join(ACTIVO_CASOS_DIR, nombre)
+            except Exception:
+                pass
+    return activados
+
+
+def _gfa_flag_poner(valor):
+    """Pone el flag de exportación GFA (True dispara la exportación en el canvas,
+    que al terminar lo devuelve a False)."""
+    try:
+        os.makedirs(os.path.dirname(GFA_FLAG_RUTA), exist_ok=True)
+        with io.open(GFA_FLAG_RUTA, "w", encoding="utf-8") as f:
+            json.dump({"exportar": bool(valor)}, f, ensure_ascii=False)
+        return GFA_FLAG_RUTA
+    except Exception:
+        return None
+
 
 CASO_CHIP = {"A": "AAA0127AZPA", "B": "AAA0030JKOE", "B_SALUD": "AAA0030JKOE", "C": "AAA0039KRMR"}
 CASO_TITULO = {
@@ -180,6 +374,69 @@ ESCENARIOS_FINANCIEROS = [
     {"id": "A_VIS", "label": "VIS / VIP", "descripcion": "Vivienda de interés social (acabado básico, precio tope VIS)."},
     {"id": "B_ESTANDAR", "label": "Estándar", "descripcion": "Segmento medio (acabado estándar)."},
     {"id": "C_LUJO", "label": "Lujo", "descripcion": "Segmento alto (acabado premium)."},
+]
+
+# Nombres canónicos de los archivos de intercambio (única fuente de verdad para el
+# cableado del canvas). REGLA DEL CANVAS: los componentes GH leen/escriben SIEMPRE el
+# archivo ACTIVO (nombre literal "CHIP"/"CASO"); el orquestador lo sobreescribe al
+# seleccionar el predio y conserva el archivo por-CHIP como historial.
+ARCHIVOS_INTERCAMBIO = [
+    {"id": "contexto", "canvas": True,
+     "activo": "data/pot-cache/CHIP-contexto.json",
+     "archivo": "data/pot-cache/<CHIP>-contexto.json",
+     "produce": "fetch-urban-context-v6.py (escribe <CHIP>-contexto.json) → orquestador copia al activo",
+     "consume": "F1_ETAPA1_CONTEXTO_v02 (lee el activo)"},
+    {"id": "vecinos_por_lado", "canvas": True,
+     "activo": "data/pot-cache/CHIP-vecinos-por-lado.json",
+     "archivo": "data/pot-cache/<CHIP>-vecinos-por-lado.json",
+     "produce": "vecinos_por_lado.py (escribe <CHIP>-vecinos-por-lado.json) → orquestador copia al activo (con confirmaciones)",
+     "consume": "F1_ETAPA2_NORMATIVA_v08 (lee el activo: vecinos_por_lado_json)"},
+    {"id": "gfa_gh", "canvas": True,
+     "activo": "data/fase-2-demanda/CHIP-gfa-gh.json",
+     "archivo": "data/fase-2-demanda/<CHIP>-gfa-gh.json",
+     "produce": "F1_EXPORTAR_GFA_v02 (disparado por gfa-export-flag.json; escribe activo + archivo)",
+     "consume": "F2_DEMANDA_MOTOR_v03 / F2_RENTA_MOTOR_v03 (leen el archivo por CHIP)"},
+    {"id": "gfa_flag", "canvas": False,
+     "activo": None,
+     "archivo": "data/fase-2-demanda/gfa-export-flag.json",
+     "produce": "orquestador (POST /api/exportar-gfa)",
+     "consume": "F1_EXPORTAR_GFA_v02 (dispara la exportación y la devuelve a false)"},
+    {"id": "programa_areas", "canvas": True,
+     "activo": "src/fase-3-masa/casos/CASO/programa-areas.json",
+     "archivo": "src/fase-3-masa/casos/<CASO>/programa-areas.json",
+     "produce": "F3_DISTRIBUCION_v01.py (escribe <CASO>) → orquestador copia al activo",
+     "consume": "F3_VOLUM_GENERADOR_v08 (lee el activo: json_path)"},
+    {"id": "accesos", "canvas": True,
+     "activo": "src/fase-3-masa/casos/CASO/accesos.json",
+     "archivo": "src/fase-3-masa/casos/<CASO>/accesos.json",
+     "produce": "F3_ACCESOS_INTEGRADOR_v02.py (escribe <CASO>) → orquestador copia al activo",
+     "consume": "orquestador (resultados)"},
+
+    {"id": "vecinos_override", "canvas": False,
+     "activo": None,
+     "archivo": "data/pot-cache/<CHIP>-vecinos-por-lado-override.json",
+     "produce": "orquestador (POST /api/vecinos-por-lado)",
+     "consume": "orquestador (GET) — confirmaciones del operador"},
+    {"id": "norma_override", "canvas": False,
+     "activo": None,
+     "archivo": "data/pot-bogota/norma-override.json",
+     "produce": "orquestador (POST /api/norma-override)",
+     "consume": "fetch-urban-context-v6.py (fusiona en pot_data, gana sobre la geobase)"},
+    {"id": "financiero_override", "canvas": False,
+     "activo": None,
+     "archivo": "data/pot-bogota/financiero-override.json",
+     "produce": "orquestador (POST /api/financiero)",
+     "consume": "orquestador + generación de parametros_<CHIP>_mercado2026.json"},
+    {"id": "parametros_f2_venta", "canvas": False,
+     "activo": None,
+     "archivo": "src/fase-2-demanda/F2_Modelo_Financiero/parametros_<CHIP>_mercado2026.json",
+     "produce": "orquestador (POST /api/financiero) o manual",
+     "consume": "F2_DEMANDA_MOTOR_v03.py (--parametros)"},
+    {"id": "resultados_f2", "canvas": False,
+     "activo": None,
+     "archivo": "src/fase-2-demanda/F2_Modelo_Financiero/resultados/resultados_<CHIP>.json",
+     "produce": "F2_DEMANDA_MOTOR_v03.py",
+     "consume": "orquestador + F3"},
 ]
 
 
@@ -376,17 +633,22 @@ def _contexto(chip):
             desnivel = None
 
     def _area_lote():
+        real = _area_shoelace_local(lote.get("vertices_3d_local") or lote.get("vertices") or lote.get("poligono"))
+        if real is not None:
+            return real
         for k in ("area_m2", "area", "area_m"):
             if lote.get(k) is not None:
                 return lote[k]
         return None
 
+    _v3d = lote.get("vertices_3d_local") or lote.get("vertices") or lote.get("poligono") or []
+
     return {
         "chip": chip,
         "lote": {
             "area_m2": _area_lote(),
-            "perimetro_m": lote.get("perimetro_m") or lote.get("perimetro"),
-            "n_vertices": len(lote.get("vertices", []) or lote.get("poligono", []) or []),
+            "perimetro_m": _perimetro_local(_v3d) or lote.get("perimetro_m") or lote.get("perimetro"),
+            "n_vertices": len(_v3d),
         },
         "topografia": {
             "estado": topo.get("estado", "ESTIMADA") if isinstance(topo, dict) else None,
@@ -412,8 +674,8 @@ def _contexto(chip):
 
 
 def _vecinos_por_lado(chip):
-    """Vecinos colindantes por lado (nomenclatura cardinal) desde el JSON pre-generado."""
-    data = _json(os.path.join(POT_CACHE, chip + "-vecinos-por-lado.json"))
+    """Vecinos colindantes por lado (nomenclatura cardinal) CON overrides del operador."""
+    data = _vecinos_por_lado_data(chip)
     return data if data else None
 
 
@@ -506,7 +768,7 @@ def _area_m2(pts):
 def _plano(chip):
     """Geometria del plano SVG: lote + lados reconstruidos + contexto recortado a 25 m."""
     ctx = _json(os.path.join(POT_CACHE, chip + "-contexto.json"))
-    vl = _json(os.path.join(POT_CACHE, chip + "-vecinos-por-lado.json"))
+    vl = _vecinos_por_lado_data(chip) or {}
     if not ctx:
         return None
     lote = [[float(p[0]), float(p[1])]
@@ -720,7 +982,10 @@ def _usos(chip):
 
 
 def _financiero(chip):
-    """Variables financieras + fuentes (base de decisión del operador)."""
+    """Variables financieras + fuentes (base de decisión del operador).
+    El área del lote se toma del contexto real F1 (no del valor de referencia
+    del archivo de parámetros); los overrides del operador (financiero-override.json)
+    ganan sobre los valores de referencia de mercado."""
     ruta = None
     for cand in (os.path.join(F2_VENTA_DIR, "parametros_{}_mercado2026.json".format(chip)),
                  os.path.join(F2_VENTA_DIR, "parametros_{}_venta.json".format(chip)),
@@ -735,39 +1000,68 @@ def _financiero(chip):
         if not os.path.exists(ruta):
             return {"chip": chip, "disponible": False, "nota": "sin parametros F2 para este chip"}
     d = _json(ruta)
+    ov = _financiero_override_chip(chip) or {}
+
+    ctx = _contexto(chip)
+    area_real = (ctx or {}).get("lote", {}).get("area_m2") if ctx else None
+    area_final = ov.get("area_m2") if ov.get("area_m2") not in (None, "") else (
+        area_real if area_real is not None else d.get("lote", {}).get("area_m2"))
+
     lote = d.get("lote", {})
     fin = d.get("financiero", {})
     esc = d.get("escenarios", {})
+
+    def _mix(ov_key, base_val):
+        v = ov.get(ov_key)
+        return base_val if v is None or v == "" else v
+
+    area_fuente = "parametros"
+    if ov.get("area_m2") not in (None, ""):
+        area_fuente = "override"
+    elif area_real is not None:
+        area_fuente = "contexto"
+
+    lote_out = {
+        "area_m2": area_final,
+        "area_m2_fuente": area_fuente,
+        "precio_suelo_m2": _mix("precio_suelo_m2", lote.get("precio_suelo_m2")),
+        "impuestos_escritura_pct": _mix("impuestos_escritura_pct", lote.get("impuestos_escritura_pct")),
+        "costo_lote_total_cop": _mix("costo_lote_total_cop", lote.get("costo_lote_total_cop")),
+        "fuente": ov.get("fuente") or lote.get("fuente"),
+        "fuente_url": ov.get("fuente_url") or lote.get("fuente_url"),
+    }
+    financiero_out = {
+        "costos_blandos_pct": _mix("costos_blandos_pct", fin.get("costos_blandos_pct")),
+        "marketing_ventas_pct": _mix("marketing_ventas_pct", fin.get("marketing_ventas_pct")),
+        "nota_costos_blandos": fin.get("nota_costos_blandos"),
+        "nota_marketing": fin.get("nota_marketing"),
+    }
     escenarios = []
+    esc_ov = ov.get("escenarios") if isinstance(ov.get("escenarios"), dict) else {}
     for eid, ev in esc.items():
+        eo = esc_ov.get(eid) if isinstance(esc_ov.get(eid), dict) else {}
         escenarios.append({
             "id": eid,
             "nombre": ev.get("nombre", eid),
             "nivel_acabados": ev.get("nivel_acabados"),
-            "precio_venta_m2": ev.get("precio_venta_m2"),
-            "costo_construccion_m2": ev.get("costo_construccion_m2"),
+            "precio_venta_m2": eo.get("precio_venta_m2") if eo.get("precio_venta_m2") not in (None, "") else ev.get("precio_venta_m2"),
+            "costo_construccion_m2": eo.get("costo_construccion_m2") if eo.get("costo_construccion_m2") not in (None, "") else ev.get("costo_construccion_m2"),
             "fuente_precio": ev.get("fuente_precio"),
         })
+    nota = None
+    if usar_default:
+        nota = ("Este CHIP no tiene archivo de parámetros propio; se muestran los valores de "
+                "referencia de mercado (parametros_entrada.json). Edítelos y pulse 'Guardar financiero' "
+                "para crear parametros_{}_mercado2026.json.".format(chip))
     return {
         "chip": chip,
         "disponible": True,
         "ruta_parametros": ruta,
-        "lote": {
-            "area_m2": lote.get("area_m2"),
-            "precio_suelo_m2": lote.get("precio_suelo_m2"),
-            "impuestos_escritura_pct": lote.get("impuestos_escritura_pct"),
-            "costo_lote_total_cop": lote.get("costo_lote_total_cop"),
-            "fuente": lote.get("fuente"),
-            "fuente_url": lote.get("fuente_url"),
-        },
-        "financiero": {
-            "costos_blandos_pct": fin.get("costos_blandos_pct"),
-            "marketing_ventas_pct": fin.get("marketing_ventas_pct"),
-            "nota_costos_blandos": fin.get("nota_costos_blandos"),
-            "nota_marketing": fin.get("nota_marketing"),
-        },
+        "tiene_override": bool(ov),
+        "lote": lote_out,
+        "financiero": financiero_out,
         "escenarios": escenarios,
-        "nota": ("parametros por defecto (sin archivo específico del CHIP)" if usar_default else None),
+        "nota": nota,
     }
 
 
@@ -917,6 +1211,9 @@ class Handler(BaseHTTPRequestHandler):
                              "contexto_pot": (ctx or {}).get("pot", {}),
                              "override": ov or {}})
             return
+        if parsed.path == "/api/archivos":
+            self._send(200, {"ok": True, "archivos": ARCHIVOS_INTERCAMBIO})
+            return
         self._json_error("ruta no encontrada", 404)
 
     def do_POST(self):
@@ -981,6 +1278,67 @@ class Handler(BaseHTTPRequestHandler):
             ok, ruta = _norma_override_guardar(chip, data.get("override") or {})
             self._send(200, {"ok": ok, "ruta": ruta,
                              "override": _norma_override_chip(chip)})
+            return
+
+        if parsed.path == "/api/financiero":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            ok, detalle = _financiero_override_guardar(chip, data.get("override") or {})
+            self._send(200, {"ok": ok, "ruta": detalle,
+                             "financiero": _financiero(chip) if ok else None})
+            return
+
+        if parsed.path == "/api/vecinos-por-lado":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            vpl = data.get("vecinos_por_lado")
+            if not isinstance(vpl, dict):
+                self._json_error("vecinos_por_lado requerido")
+                return
+            vpl["chip"] = chip
+            vpl["_schema"] = "vecinos_por_lado_override_v01"
+            vpl["_saved_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            ruta = _vecinos_override_ruta(chip)
+            try:
+                with io.open(ruta, "w", encoding="utf-8") as f:
+                    json.dump(vpl, f, indent=2, ensure_ascii=False)
+                # refrescar el ACTIVO que lee el canvas
+                with io.open(ACTIVO_VECINOS, "w", encoding="utf-8") as f:
+                    json.dump(vpl, f, indent=2, ensure_ascii=False)
+                self._send(200, {"ok": True, "ruta": ruta, "activo": ACTIVO_VECINOS})
+            except Exception as e:
+                self._json_error(str(e), 500)
+            return
+
+        if parsed.path == "/api/activar-chip":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            activados = _activar_chip(chip)
+            self._send(200, {"ok": True, "chip": chip, "activados": activados})
+            return
+
+        if parsed.path == "/api/activar-caso":
+            caso = (data.get("caso") or "").strip()
+            if not caso:
+                self._json_error("caso requerido")
+                return
+            activados = _activar_caso(caso)
+            self._send(200, {"ok": True, "caso": caso, "activados": activados})
+            return
+
+        if parsed.path == "/api/exportar-gfa":
+            ruta = _gfa_flag_poner(True)
+            if ruta is None:
+                self._json_error("no se pudo escribir el flag de exportación", 500)
+                return
+            self._send(200, {"ok": True, "flag": ruta,
+                             "mensaje": "Flag exportar=true escrito. El canvas exportará y lo devolverá a false."})
             return
 
         self._json_error("ruta no encontrada", 404)

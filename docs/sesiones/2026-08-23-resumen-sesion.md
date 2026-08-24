@@ -126,3 +126,74 @@ y diagnóstico del lote AAA0240ZXJH (área, orientación, coordenadas y financie
 
 ## Commits
 `898a50a`, `e870c49`, `3f3ff83`, `15a98b7`, `b49aa717`, `adbba01f`.
+
+---
+
+# Resumen de sesión - 2026-08-23 (madrugada, 22:17–23:17)
+
+**Tema:** corrección del orquestador (área real, financiero editable, persistencia por
+CHIP, entidades HTML) + regla del canvas (archivos ACTIVOS literales `CHIP`/`CASO`) +
+activación automática de CASO + exportación GFA por flag.
+
+## Contexto
+Sobre el CHIP de referencia `AAA0240ZXJH` (lote real **99,72 m²**, "EdificioDeysy", UPZ 41
+Muzú) se encontró que el orquestador mostraba 450 m² (valor de referencia de mercado del
+archivo de parámetros F2) en vez del área real, y que el canvas exigía editar el panel de
+cada componente por predio (esquema `<CHIP>`). Se pasó a la regla del **activo literal**
+(`CHIP`/`CASO`), con el orquestador sobreescribiendo el activo al seleccionar.
+
+## Errores encontrados
+1. **Área 450 m² vs 99,72 m²**: `lote.area_m2` hardcodeado (450) en `parametros_entrada.json`
+   / `parametros_AAA0127AZPA_mercado2026.json`; el contexto trae 99,72 correcto.
+2. **Entidades HTML** en sección 2: `label` con `&iacute;`/`&aacute;` mostradas literales
+   (`textContent` no decodifica).
+3. **"parámetros por defecto"**: sin `parametros_AAA0240ZXJH_*` → caía a `parametros_entrada.json`.
+4. **Sin persistencia** de vecinos/frentes por CHIP (solo en `proyecto.json`, sin recarga).
+5. **Lista de vecinos siempre visible** en 1b·1c (ruido; el SVG ya resuelve la selección).
+6. **`n_vertices`/`perímetro` = 0/null**: leían `vertices`/`poligono` (inexistentes; el campo
+   real es `vertices_3d_local`).
+7. **Esquema `<CHIP>`** obligaba a re-cablear el canvas por predio (error de diseño).
+
+## Modificaciones solicitadas
+1. Área real como punto de partida; valores de mercado editables y persistentes por CHIP.
+2. Persistencia de 1b·1c + normativa al re-seleccionar el mismo CHIP.
+3. Nombres canónicos de intercambio (activos literales) para cablear el canvas una sola vez.
+4. Activación automática de CASO en el orquestador.
+5. Exportación GFA automática por flag JSON (`true` → exporta → `false`).
+
+## Soluciones entregadas
+- **Backend `servidor.py`**: área real por shoelace (`_area_shoelace_local`, `_perimetro_local`),
+  `_financiero()` con área de contexto + merge de override, `_financiero_override_guardar`
+  (genera `parametros_<CHIP>_mercado2026.json`), persistencia vecinos (`POST /api/vecinos-por-lado`
+  + `_vecinos_por_lado_data`), `_activar_chip`/`_activar_caso`/`_gfa_flag_poner`, endpoints
+  `/api/activar-chip`, `/api/activar-caso`, `/api/exportar-gfa`, `/api/archivos`,
+  `/api/financiero`.
+- **Frontend `index.html`**: entidades corregidas, financiero editable + "Guardar financiero",
+  "Guardar vecinos/frentes", lista de vecinos colapsada, activación CHIP/CASO automática,
+  botón "Exportar GFA", tarjeta de archivos (activos vs fuera del canvas).
+- **GHPython `F1_EXPORTAR_GFA_v02.py` (v02.2)**: disparador por `gfa-export-flag.json`;
+  escribe `<CHIP>-gfa-gh.json` + `CHIP-gfa-gh.json`; resetea el flag a `false`.
+- **Docs**: `ARCHIVOS_INTERCAMBIO.md` + `docs/archivos-intercambio-canonicos.md` (regla
+  activo/archivo) + este instructivo.
+- **`.gitignore`**: activos de runtime (`gfa-export-flag.json`, `casos/CASO/`).
+
+## Lecciones aprendidas
+1. El **área del lote es INPUT** (del contexto/geometría), no un valor de mercado de referencia.
+2. `textContent` **no** decodifica entidades HTML; usar texto UTF-8 literal.
+3. **Regla del canvas**: dentro del canvas nombres literales `CHIP`/`CASO`; el orquestador
+   sobreescribe el activo y conserva el archivo por-CHIP como historial.
+4. El **GFA** debe ser por **trigger** (flag), no escritura automática en cada recomputación.
+5. Editar `.py` **no** actualiza el canvas (re-exportar el componente GHPython).
+
+## Pendientes de esta sesión
+1. **Re-exportar** `F1_EXPORTAR_GFA_v02` (y el resto de componentes) en el `.gh`/`.ghx`.
+2. **Frame de coordenadas** (ROOT CAUSE del ancho de vía 41,7 m → antejardín 7 m): validar
+   que vías/EP/vecinos usen el mismo origen local del lote.
+3. **Nicknames** en LADOS/NORMATIVA (imprimir `nombre`/`cardinal_label` por lado).
+4. **Activo `proyecto.json`** (espejo literal para `F0_LOAD_PROYECTO.ruta_json`).
+5. F3 → Zonas (no Morphs) para Ladybug; OCR ficha 041 Muzú (si lo exige curaduría).
+6. F2: `recursos_disponibles`, `saldo`, `financiacion_saldo[]`, acabados, multi-escenario.
+
+## Commits
+- `feat(orquestador+canvas)`: área real, financiero editable/persistente, regla de activos
+  literales CHIP/CASO, activación CASO, exportación GFA por flag (2026-08-23 madrugada).

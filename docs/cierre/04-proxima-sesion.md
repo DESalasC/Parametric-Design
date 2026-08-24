@@ -62,3 +62,45 @@ cardinal, `via_no_frontal`, puerto 19723 y diagnóstico del lote AAA0240ZXJH.
 ## Notas del vault (esta sesión)
 - `memory/2026-08-23.md` (workspace) + `MEMORY.md` (lecciones durables).
 - `docs/sesiones/2026-08-23-resumen-sesion.md` (tarde + noche).
+
+
+---
+
+## Actualización 2026-08-23 (madrugada, 22:17–23:17)
+
+Handoff posterior al cierre "noche". Se resolvieron varios pendientes y se introdujo la
+**regla del canvas (archivos ACTIVOS literales `CHIP`/`CASO`)**.
+
+### Resuelto (de la lista anterior)
+- **Área 450 → 99,72**: `_area_shoelace_local` desde `vertices_3d_local` en contexto y financiero.
+- **Codificación**: entidades HTML (`&iacute;`) corregidas en la sección 2 del formulario.
+- **Parámetros financieros por CHIP**: área real como INPUT + valores de mercado editables +
+  "Guardar financiero" (genera `parametros_<CHIP>_mercado2026.json`).
+- **Persistencia por CHIP**: vecinos/frentes se guardan y recargan (`POST /api/vecinos-por-lado`).
+- **1b·1c**: lista de vecinos colapsada tras "Detalle de vecinos (N)".
+- `n_vertices`/`perímetro` corregidos.
+
+### Nuevo en esta sesión
+- Activos literales `CHIP-contexto.json`, `CHIP-vecinos-por-lado.json`, `casos/CASO/`.
+- `POST /api/activar-chip` (auto al cambiar CHIP) y `POST /api/activar-caso` (auto al cambiar caso).
+- Exportación GFA por flag `gfa-export-flag.json` (`true` → exporta → `false`),
+  `F1_EXPORTAR_GFA_v02.py` v02.2.
+- Docs: `docs/instructivo-cableado-canvas.md`, `docs/archivos-intercambio-canonicos.md`,
+  `src/orquestador/ARCHIVOS_INTERCAMBIO.md`.
+
+### Pendiente (orden sugerido)
+1. **Re-exportar GHPython en el canvas** (`F1_EXPORTAR_GFA_v02` y el resto) — el `.gh`/`.ghx`
+   embebe el código; los `.py` ya están actualizados.
+2. **Frame de coordenadas** (ROOT CAUSE ancho de vía 41,7 m → antejardín 7 m): validar
+   vías/EP/vecinos en el MISMO origen local del lote.
+3. **Nicknames** en LADOS/NORMATIVA (`nombre`/`cardinal_label` por lado).
+4. **Activo `proyecto.json`** (espejo literal para `F0_LOAD_PROYECTO.ruta_json`).
+5. F3 → Zonas (no Morphs) para Ladybug; OCR ficha 041 Muzú (si lo exige curaduría).
+6. F2: `recursos_disponibles`, `saldo`, `financiacion_saldo[]`, acabados, multi-escenario.
+
+## Para recordar (reglas de entorno)
+- GHPython = IronPython 2.7 (sin f-strings/pathlib/type hints); entradas SIEMPRE
+  `globals().get()`; re-exportar el componente "Script" tras editar el `.py`.
+- Dentro del canvas: nombres literales `CHIP`/`CASO`; el orquestador sobreescribe el activo.
+- Derivados (`pot-cache/*`, `gfa-gh.json`, `proyectos/`, `casos/CASO/`, `gfa-export-flag.json`)
+  **no se commitean**; sí `norma-override.json`, `financiero-override.json`, `.py` y docs.

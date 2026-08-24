@@ -110,8 +110,10 @@
     <div id="vecinos-detalle"></div>
     <div id="vecinos-nota" class="fuente"></div>
     <div style="margin-top:12px; display:none;" id="vecinos-acciones">
+      <button class="btn exito" id="btn-guardar-vecinos" type="button">Guardar vecinos/frentes (por CHIP)</button>
       <button class="btn primario" id="btn-normativa" type="button">Generar JSON NORMATIVA (vecinos_por_lado_json)</button>
       <button class="btn secundario" id="btn-normativa-copiar" type="button" style="display:none;">Copiar</button>
+      <span id="vecinos-aviso" class="fuente" style="margin-left:10px;"></span>
     </div>
     <pre id="vecinos-normativa" style="display:none; background:#0f172a; color:#e2e8f0; padding:12px; border-radius:8px; font-size:12px; overflow:auto; max-height:260px;"></pre>
   </div>
@@ -152,6 +154,10 @@
     <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Variables financieras y fuentes (base de decisión)</h3>
     <div id="financiero-info" class="aviso info">Seleccione un CHIP para ver las variables financieras.</div>
     <div id="financiero-detalle"></div>
+    <div style="margin-top:12px; display:none;" id="fin-guardar">
+      <button class="btn exito" id="btn-guardar-financiero" type="button">Guardar financiero (por CHIP)</button>
+      <span id="fin-aviso" class="fuente" style="margin-left:10px;"></span>
+    </div>
     <div style="margin-top:12px;">
       <label style="font-size:12.5px;color:#6b7280;">Valor del lote (COP) — opcional (override): </label>
       <input type="number" id="costo-lote" placeholder="ej. 500000000" min="0" step="1000000" style="width:170px;">
@@ -160,6 +166,11 @@
       <button class="btn primario" id="btn-calcular-f2" type="button">Calcular F2 (con aporte del lote)</button>
     </div>
     <div id="f2-resultado" class="aviso info" style="display:none;"></div>
+    <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #cbd5e1;">
+      <button class="btn secundario" id="btn-exportar-gfa" type="button">Exportar GFA (disparar en canvas)</button>
+      <span id="gfa-aviso" class="fuente" style="margin-left:10px;"></span>
+      <div class="ayuda" style="margin-top:4px;">Pone el flag <code>gfa-export-flag.json</code> en <code>true</code>; el componente F1_EXPORTAR_GFA_v02 lo consume, exporta y lo devuelve a <code>false</code> por omisión.</div>
+    </div>
   </div>
 
   <!-- ===== 4. Modelado ===== -->
@@ -182,6 +193,13 @@
   <div class="card" id="card-resultados" style="display:none;">
     <h2><span class="seccion-num">✓</span>Resultados del lote seleccionado</h2>
     <div id="resultados"></div>
+  </div>
+
+  <!-- ===== Archivos de intercambio ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">↔</span>Archivos de intercambio (canónicos)</h2>
+    <div class="subtitulo">Nombres canónicos para cablear el canvas una sola vez. <code>&lt;CHIP&gt;</code> y <code>&lt;CASO&gt;</code> se sustituyen por el valor real del predio/caso seleccionado.</div>
+    <div id="archivos-detalle"></div>
   </div>
 
   <!-- ===== Nota técnica ===== -->
@@ -220,7 +238,7 @@ async function init(){
     const o = document.createElement('option'); o.value = c; o.textContent = c;
     sel.appendChild(o);
   });
-  sel.addEventListener('change', () => { cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); cargarNormaOverride(); });
+  sel.addEventListener('change', () => { activarChip(); cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); cargarNormaOverride(); });
 
   renderSeccion('normativa', $('vars-normativa'));
   renderNormaOverride();
@@ -229,6 +247,7 @@ async function init(){
   renderSeccion('aporte', $('vars-aporte'));
   renderModos();
   renderEscenarios();
+  cargarArchivos();
   bindCaso();
 }
 
@@ -322,45 +341,76 @@ async function cargarUsos(){
   if(r.ok) renderUsos(r.usos);
 }
 
+function finInput(id, label, val){
+  const v = (val == null || val === '') ? '' : val;
+  return '<div class="campo"><label for="'+id+'">'+label+'</label><input id="'+id+'" type="number" step="any" value="'+v+'"></div>';
+}
 async function cargarFinanciero(){
   const chip = $('chip').value;
   const info = $('financiero-info');
   const det = $('financiero-detalle');
-  if(!chip){ info.className='aviso info'; info.textContent='Seleccione un CHIP para ver las variables financieras.'; det.innerHTML=''; return; }
+  const saveWrap = $('fin-guardar');
+  if(!chip){ info.className='aviso info'; info.textContent='Seleccione un CHIP para ver las variables financieras.'; det.innerHTML=''; if(saveWrap) saveWrap.style.display='none'; return; }
   info.className='aviso info'; info.textContent='Cargando variables financieras…';
   const r = await api('/api/financiero?chip=' + encodeURIComponent(chip));
-  if(!r.ok || !r.financiero.disponible){ info.className='aviso error'; info.textContent = (r.financiero && r.financiero.nota) || 'sin datos'; det.innerHTML=''; return; }
+  if(!r.ok || !r.financiero || !r.financiero.disponible){ info.className='aviso error'; info.textContent = (r.financiero && r.financiero.nota) || 'sin datos'; det.innerHTML=''; if(saveWrap) saveWrap.style.display='none'; return; }
   info.style.display='none';
   const f = r.financiero;
   let html = '';
-  // lote
-  html += '<h3 style="font-size:13.5px;color:#374151;margin:10px 0 4px;">Lote</h3><div class="grid-info">';
-  const loteKvs = [
-    ['Área lote (m²)', f.lote.area_m2], ['Precio suelo ($/m²)', f.lote.precio_suelo_m2],
-    ['Impuestos escritura (%)', f.lote.impuestos_escritura_pct], ['Costo lote total (COP)', f.lote.costo_lote_total_cop],
-  ];
-  loteKvs.forEach(([k,v]) => { html += '<div class="kv"><div class="k">'+k+'</div><div class="v">'+(v!=null?v:'—')+'</div></div>'; });
+  html += '<div class="fuente">Archivo de parámetros: <code>'+f.ruta_parametros+'</code>'+(f.tiene_override?' · override del operador':'')+'</div>';
+  html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Lote (punto de partida del análisis)</h3><div class="fila">';
+  html += finInput('fin_area_m2','Área lote (m²) — real del contexto', f.lote.area_m2);
+  html += finInput('fin_precio_suelo_m2','Precio suelo ($/m²)', f.lote.precio_suelo_m2);
+  html += finInput('fin_impuestos','Impuestos escritura (%)', f.lote.impuestos_escritura_pct);
+  html += finInput('fin_costo_total','Costo lote total (COP)', f.lote.costo_lote_total_cop);
   html += '</div>';
   if(f.lote.fuente) html += '<div class="fuente">Fuente lote: ' + f.lote.fuente + '</div>';
-  if(f.nota) html += '<div class="aviso info" style="margin-top:8px;">' + f.nota + '</div>';
-  // financiero
-  html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Costos y supuestos</h3><div class="grid-info">';
-  const finKvs = [
-    ['Costos blandos (%)', f.financiero.costos_blandos_pct], ['Marketing/ventas (%)', f.financiero.marketing_ventas_pct],
-  ];
-  finKvs.forEach(([k,v]) => { html += '<div class="kv"><div class="k">'+k+'</div><div class="v">'+(v!=null?v+' %':'—')+'</div></div>'; });
+  html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Costos y supuestos</h3><div class="fila">';
+  html += finInput('fin_costos_blandos','Costos blandos (%)', f.financiero.costos_blandos_pct);
+  html += finInput('fin_marketing','Marketing/ventas (%)', f.financiero.marketing_ventas_pct);
   html += '</div>';
   if(f.financiero.nota_costos_blandos) html += '<div class="fuente">' + f.financiero.nota_costos_blandos + '</div>';
-  // escenarios
   if(f.escenarios && f.escenarios.length){
-    html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Escenarios (valores de referencia)</h3><table><tr><th>Escenario</th><th>Acabado</th><th>Venta $/m²</th><th>Costo $/m²</th></tr>';
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Escenarios (valores de referencia de mercado — editables)</h3><table><tr><th>Escenario</th><th>Acabado</th><th>Venta $/m²</th><th>Costo $/m²</th></tr>';
     f.escenarios.forEach(e => {
-      html += '<tr><td>'+e.nombre+'</td><td>'+ (e.nivel_acabados||'—') +'</td><td>'+(e.precio_venta_m2!=null?e.precio_venta_m2:'—')+'</td><td>'+(e.costo_construccion_m2!=null?e.costo_construccion_m2:'—')+'</td></tr>';
+      html += '<tr><td>'+e.nombre+'</td><td>'+ (e.nivel_acabados||'—') +'</td>' +
+        '<td><input type="number" step="any" id="fin_esc_'+e.id+'_precio" value="'+(e.precio_venta_m2!=null?e.precio_venta_m2:'')+'" style="width:110px;"></td>' +
+        '<td><input type="number" step="any" id="fin_esc_'+e.id+'_costo" value="'+(e.costo_construccion_m2!=null?e.costo_construccion_m2:'')+'" style="width:110px;"></td></tr>';
       if(e.fuente_precio) html += '<tr><td colspan="4" class="fuente">Fuente: '+e.fuente_precio+'</td></tr>';
     });
     html += '</table>';
   }
+  if(f.nota) html += '<div class="aviso info" style="margin-top:8px;">' + f.nota + '</div>';
   det.innerHTML = html;
+  if(saveWrap) saveWrap.style.display='block';
+}
+async function guardarFinanciero(){
+  const chip = $('chip').value;
+  if(!chip){ alert('Seleccione un CHIP primero.'); return; }
+  const num = id => { const el = $(id); const v = el ? el.value : ''; return (v === '') ? null : parseFloat(v); };
+  const override = {
+    area_m2: num('fin_area_m2'),
+    precio_suelo_m2: num('fin_precio_suelo_m2'),
+    impuestos_escritura_pct: num('fin_impuestos'),
+    costo_lote_total_cop: num('fin_costo_total'),
+    costos_blandos_pct: num('fin_costos_blandos'),
+    marketing_ventas_pct: num('fin_marketing'),
+    escenarios: {},
+  };
+  document.querySelectorAll('input[id^="fin_esc_"]').forEach(el => {
+    const m = el.id.match(/^fin_esc_(.+)_(precio|costo)$/);
+    if(!m) return;
+    const eid = m[1], campo = (m[2] === 'precio') ? 'precio_venta_m2' : 'costo_construccion_m2';
+    override.escenarios[eid] = override.escenarios[eid] || {};
+    override.escenarios[eid][campo] = (el.value === '') ? null : parseFloat(el.value);
+  });
+  const aviso = $('fin-aviso');
+  const r = await api('/api/financiero', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip, override}) });
+  if(aviso){
+    aviso.textContent = r.ok ? ('Guardado. Parámetros F2 actualizados: ' + (r.ruta||'')) : ('Error: ' + (r.error||'desconocido'));
+    aviso.className = r.ok ? 'aviso ok' : 'aviso error';
+  }
+  if(r.ok) cargarFinanciero();
 }
 
 // ---------- vecinos por lado ----------
@@ -428,11 +478,24 @@ function renderVecinos(data){
   });
   det.appendChild(ladosSec);
 
+  const nVec = chips.length;
+  const extra = document.createElement('div'); extra.id='vecinos-extra'; extra.style.display='none';
+  const toggle = document.createElement('button'); toggle.type='button'; toggle.className='btn secundario';
+  toggle.style.cssText='margin:4px 0 10px;';
+  const setToggle = (abierto) => { toggle.textContent = (abierto ? '▾ ' : '▸ ') + (nVec ? ('Detalle de vecinos (' + nVec + ' predios)') : 'Detalle de vecinos'); };
+  setToggle(false);
+  toggle.addEventListener('click', () => {
+    const abierto = extra.style.display !== 'none';
+    extra.style.display = abierto ? 'none' : 'block';
+    setToggle(!abierto);
+  });
+  det.appendChild(toggle);
+
   if(!chips.length){
     const p = document.createElement('div'); p.className='aviso info'; p.textContent='Sin vecinos colindantes detectados por la geometría.';
-    det.appendChild(p);
+    extra.appendChild(p);
   } else {
-    chips.forEach(ch => det.appendChild(cardVecino(ch, opcionesLado)));
+    chips.forEach(ch => extra.appendChild(cardVecino(ch, opcionesLado)));
   }
 
   const ctxChips = Object.keys(ALL_VECINOS).filter(chip => !(chip in NEIGHBOR_META)).sort();
@@ -457,7 +520,7 @@ function renderVecinos(data){
       row.appendChild(bM);
       sec.appendChild(row);
     });
-    det.appendChild(sec);
+    extra.appendChild(sec);
   }
 
   const manuales = document.createElement('div'); manuales.style.cssText = 'margin-top:14px;';
@@ -475,8 +538,9 @@ function renderVecinos(data){
     (lado.vecinos_manuales || []).forEach((mv, mi) => agregarFilaManual(cont, li, lado, mv, mi));
     manuales.appendChild(g);
   });
-  det.appendChild(manuales);
+  extra.appendChild(manuales);
 
+  det.appendChild(extra);
   $('vecinos-acciones').style.display = 'block';
 }
 
@@ -1046,16 +1110,16 @@ async function cargarPredio(){
 // ---------- norma override (completa datos faltantes de la geobase) ----------
 const NORMA_FIELDS = [
   {id:'rango_edificabilidad', label:'Rango de edificabilidad', tipo:'select', opciones:['1','2','3','4','5']},
-  {id:'altura_maxima_pisos', label:'Altura m&aacute;xima (pisos)', tipo:'int'},
-  {id:'io_maximo', label:'IO m&aacute;ximo', tipo:'number'},
-  {id:'ic_maximo', label:'IC m&aacute;ximo', tipo:'number'},
-  {id:'tipologia', label:'Tipolog&iacute;a', tipo:'select', opciones:['Continua','Aislada']},
-  {id:'tratamiento', label:'Tratamiento urban&iacute;stico', tipo:'select', opciones:['Consolidaci&oacute;n','Renovaci&oacute;n urbana','Desarrollo','Mejoramiento integral']},
-  {id:'antejardin_min_m', label:'Antejard&iacute;n frontal m&iacute;nimo (m)', tipo:'number'},
-  {id:'semisotano_permitido', label:'Semis&oacute;tano permitido', tipo:'bool'},
+  {id:'altura_maxima_pisos', label:'Altura máxima (pisos)', tipo:'int'},
+  {id:'io_maximo', label:'IO máximo', tipo:'number'},
+  {id:'ic_maximo', label:'IC máximo', tipo:'number'},
+  {id:'tipologia', label:'Tipología', tipo:'select', opciones:['Continua','Aislada']},
+  {id:'tratamiento', label:'Tratamiento urbanístico', tipo:'select', opciones:['Consolidación','Renovación urbana','Desarrollo','Mejoramiento integral']},
+  {id:'antejardin_min_m', label:'Antejardín frontal mínimo (m)', tipo:'number'},
+  {id:'semisotano_permitido', label:'Semisótano permitido', tipo:'bool'},
   {id:'voladizo_permitido', label:'Voladizo permitido', tipo:'bool'},
-  {id:'subdivision_min_m2', label:'Subdivisi&oacute;n predial m&iacute;nima (m&sup2;)', tipo:'number'},
-  {id:'frente_min_m', label:'Frente m&iacute;nimo (m)', tipo:'number'},
+  {id:'subdivision_min_m2', label:'Subdivisión predial mínima (m²)', tipo:'number'},
+  {id:'frente_min_m', label:'Frente mínimo (m)', tipo:'number'},
 ];
 function renderNormaOverride(){
   const cont = $('norma-override'); cont.innerHTML = '';
@@ -1066,11 +1130,11 @@ function renderNormaOverride(){
     if(f.tipo === 'bool'){
       inp = document.createElement('select');
       const off = document.createElement('option'); off.value='false'; off.textContent='No';
-      const on = document.createElement('option'); on.value='true'; on.textContent='S&iacute;';
+      const on = document.createElement('option'); on.value='true'; on.textContent='Sí';
       inp.appendChild(off); inp.appendChild(on);
     } else if(f.tipo === 'select'){
       inp = document.createElement('select');
-      const vacio = document.createElement('option'); vacio.value=''; vacio.textContent='&mdash;'; inp.appendChild(vacio);
+      const vacio = document.createElement('option'); vacio.value=''; vacio.textContent='—'; inp.appendChild(vacio);
       f.opciones.forEach(o => { const op = document.createElement('option'); op.value=o; op.textContent=o; inp.appendChild(op); });
     } else {
       inp = document.createElement('input');
@@ -1098,7 +1162,7 @@ async function cargarNormaOverride(){
   });
   const faltan = NORMA_FIELDS.filter(f => { const v = ov[f.id]; return v===undefined||v===null||v===''; }).length;
   aviso.textContent = (ov && Object.keys(ov).length)
-    ? ('override guardado (' + Object.keys(ov).length + ' campos)' + (faltan ? (' &middot; ' + faltan + ' sin completar') : ' &middot; completo'))
+    ? ('override guardado (' + Object.keys(ov).length + ' campos)' + (faltan ? (' · ' + faltan + ' sin completar') : ' · completo'))
     : 'sin override (se muestra lo que trae la geobase)';
 }
 async function guardarNormaOverride(){
@@ -1128,6 +1192,7 @@ function updateCaso(){
   const c = sel ? sel.value : '';
   const det = $('caso-detalle');
   const card = $('card-resultados');
+  if(c) activarCaso(c);
   if(c && CASO_TITULO[c]){
     det.style.display='block';
     det.innerHTML = '<b>'+CASO_TITULO[c]+'</b>';
@@ -1292,9 +1357,65 @@ async function verResultados(caso){
   card.style.display='block';
 }
 
+async function guardarVecinos(){
+  const chip = $('chip').value;
+  if(!chip){ alert('Seleccione un CHIP primero.'); return; }
+  const clon = recolectarVecinos();
+  if(!clon){ alert('No hay vecinos por lado para guardar.'); return; }
+  const aviso = $('vecinos-aviso');
+  const r = await api('/api/vecinos-por-lado', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip, vecinos_por_lado: clon}) });
+  if(aviso){ aviso.textContent = r.ok ? ('Guardado en ' + (r.ruta||'')) : ('Error: ' + (r.error||'desconocido')); }
+}
+
+async function cargarArchivos(){
+  const r = await api('/api/archivos');
+  const cont = $('archivos-detalle');
+  if(!r.ok || !r.archivos){ return; }
+  const canvasFiles = r.archivos.filter(a => a.canvas);
+  const otros = r.archivos.filter(a => !a.canvas);
+  let html = '';
+  if(canvasFiles.length){
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:8px 0 4px;">Activos — el canvas lee/escribe estos (nombre literal CHIP/CASO)</h3>';
+    html += '<table><tr><th>ID</th><th>Activo (canvas)</th><th>Archivo por CHIP/CASO (historial)</th><th>Produce</th><th>Consume</th></tr>';
+    canvasFiles.forEach(a => {
+      html += '<tr><td><code>'+a.id+'</code></td><td><code>'+a.activo+'</code></td><td><code>'+(a.archivo||'—')+'</code></td><td>'+a.produce+'</td><td>'+a.consume+'</td></tr>';
+    });
+    html += '</table>';
+  }
+  if(otros.length){
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Fuera del canvas — el orquestador los mantiene por CHIP</h3>';
+    html += '<table><tr><th>ID</th><th>Archivo</th><th>Produce</th><th>Consume</th></tr>';
+    otros.forEach(a => {
+      html += '<tr><td><code>'+a.id+'</code></td><td><code>'+(a.archivo||a.activo||'')+'</code></td><td>'+a.produce+'</td><td>'+a.consume+'</td></tr>';
+    });
+    html += '</table>';
+  }
+  cont.innerHTML = html;
+}
+
+async function activarChip(){
+  const chip = $('chip').value;
+  if(!chip) return;
+  try { await api('/api/activar-chip', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip}) }); } catch(e){}
+}
+
+async function activarCaso(caso){
+  if(!caso) return;
+  try { await api('/api/activar-caso', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({caso}) }); } catch(e){}
+}
+
+async function exportarGfa(){
+  const aviso = $('gfa-aviso');
+  const r = await api('/api/exportar-gfa', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({}) });
+  if(aviso){ aviso.textContent = r.ok ? (r.mensaje || 'Flag exportar=true escrito') : ('Error: ' + (r.error || 'desconocido')); }
+}
+
 $('btn-crear').addEventListener('click', () => guardar(true));
 $('btn-guardar').addEventListener('click', () => guardar(false));
+$('btn-guardar-financiero').addEventListener('click', () => guardarFinanciero());
+$('btn-guardar-vecinos').addEventListener('click', () => guardarVecinos());
 $('btn-calcular-f2').addEventListener('click', () => calcularF2());
+$('btn-exportar-gfa').addEventListener('click', () => exportarGfa());
 $('btn-generar-f3').addEventListener('click', () => generarF3());
 $('btn-pipeline').addEventListener('click', () => ejecutarPipeline());
 $('btn-normativa').addEventListener('click', () => generarNormativa());

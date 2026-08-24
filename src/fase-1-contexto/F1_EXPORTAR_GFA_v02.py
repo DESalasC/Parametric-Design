@@ -12,9 +12,12 @@ PROPOSITO:
   para alimentar F2 (F2_DEMANDA_MOTOR_v03 y F2_RENTA_MOTOR_v03 leen este
   archivo automaticamente cuando no se les pasa --gfa).
 
-AUTOMATIZACION (v02):
-  - SIN toggle de operador: escribe solo cuando valido=True Y el contenido
-    cambio respecto al archivo ya escrito (el JSON queda siempre al dia).
+AUTOMATIZACION (v02.2):
+  - DISPARADOR por flag: exporta SOLO cuando data/fase-2-demanda/gfa-export-flag.json
+    trae {"exportar": true} (lo pone el orquestador vía POST /api/exportar-gfa); al
+    terminar el script lo devuelve a false por omisión.
+  - Escribe DOS archivos: <CHIP>-gfa-gh.json (historial + F2) y CHIP-gfa-gh.json
+    (activo literal, regla del canvas).
   - CHIP derivado automaticamente del json_path (data/pot-cache/<CHIP>-contexto.json,
     el mismo panel que ya alimenta F1_ETAPA1_CONTEXTO_v01). El operador no
     tipea nada.
@@ -70,6 +73,9 @@ VERSIONES (general; la subversion interna se detalla abajo):
 SUBVERSIONES INTERNAS (v02.x: iteraciones sin cambio de version general ni de
 contrato de entradas/salidas; la version general v02 -> v03 SOLO cambia con
 cambios mayores):
+  v02.2 (2026-08-23) - Disparador por flag (gfa-export-flag.json {exportar:true}
+      -> exporta y devuelve a false); escribe <CHIP>-gfa-gh.json + activo
+      CHIP-gfa-gh.json. Sin cambio de contrato de entradas/salidas.
   v02.1 (2026-08-18) - Cadena 'fuente' apunta al canvas vigente
       F1_Contexto_Base-Editado_v02 (antes v00); referencias de NORMATIVA en
       encabezado/comentarios actualizadas a v08 (antes v04). Sin cambio de
@@ -95,6 +101,28 @@ from datetime import date
 
 DEFAULT_OUTPUT_DIR = r"D:\Work\PROJECTS\DiseñoParametrico\data\fase-2-demanda"
 REDONDEO = 4
+FLAG_PATH = os.path.join(DEFAULT_OUTPUT_DIR, "gfa-export-flag.json")
+
+
+def leer_flag():
+    """Lee el flag gfa-export-flag.json ({exportar: true/false}). False si no existe."""
+    try:
+        with open(FLAG_PATH, "rb") as f:
+            d = json.loads(f.read().decode("utf-8-sig"))
+        return bool(d.get("exportar", False))
+    except Exception:
+        return False
+
+
+def reset_flag():
+    """Devuelve el flag a exportar=false tras una exportación (por omisión)."""
+    try:
+        if not os.path.isdir(DEFAULT_OUTPUT_DIR):
+            os.makedirs(DEFAULT_OUTPUT_DIR)
+        with open(FLAG_PATH, "wb") as f:
+            f.write(json.dumps({"exportar": False}).encode("utf-8"))
+    except Exception:
+        pass
 
 
 def unwrap(val):
@@ -270,9 +298,13 @@ data, warnings = build_payload()
 json_text = json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True)
 
 valido_calc = parse_gh_bool(valido)
+flag_exportar = leer_flag()
 
 if data["chip"] == "":
     estado = "ERROR: no se pudo derivar el CHIP del json_path (no se escribe)"
+    ruta_json = ""
+elif not flag_exportar:
+    estado = "EN_ESPERA: flag exportar=False (use 'Exportar GFA' en el orquestador)"
     ruta_json = ""
 elif not valido_calc:
     estado = "NO_ESCRITO: valido=False (el calculo normativo no es valido)"
@@ -286,22 +318,19 @@ else:
         carpeta = str(carpeta).strip()
         if not os.path.isdir(carpeta):
             os.makedirs(carpeta)
-        ruta_json = os.path.join(carpeta, data["chip"] + "-gfa-gh.json")
 
-        # Deteccion de cambios: solo escribe si el contenido es distinto
-        if os.path.exists(ruta_json):
-            with open(ruta_json, "rb") as f:
-                previo = f.read().decode("utf-8")
-            if previo == json_text:
-                estado = "SIN_CAMBIOS: el archivo ya esta al dia"
-            else:
-                with open(ruta_json, "wb") as f:
-                    f.write(json_text.encode("utf-8"))
-                estado = "OK: escrito " + ruta_json
-        else:
-            with open(ruta_json, "wb") as f:
-                f.write(json_text.encode("utf-8"))
-            estado = "OK: escrito " + ruta_json
+        # archivo por CHIP (historial + F2) y activo literal (regla del canvas)
+        ruta_archivo = os.path.join(carpeta, data["chip"] + "-gfa-gh.json")
+        ruta_activo = os.path.join(carpeta, "CHIP-gfa-gh.json")
+
+        with open(ruta_archivo, "wb") as f:
+            f.write(json_text.encode("utf-8"))
+        with open(ruta_activo, "wb") as f:
+            f.write(json_text.encode("utf-8"))
+
+        reset_flag()  # el flag vuelve a false por omisión
+        ruta_json = ruta_archivo
+        estado = "OK: escrito " + ruta_archivo + " (activo: " + ruta_activo + ")"
     except Exception as e:  # noqa: BLE001 - IronPython 2.7
         estado = "ERROR escribiendo JSON: " + str(e)
         ruta_json = ""

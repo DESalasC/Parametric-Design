@@ -106,3 +106,7 @@ src/research/gh-definition-explorer/output/
 # Derivados de pot-cache / copia suelta bajo scripts
 data/pot-cache/*-ortofoto_meta.txt
 scripts/utilities/data/
+
+# Archivos ACTIVOS del canvas (runtime; el orquestador los sobreescribe)
+data/fase-2-demanda/gfa-export-flag.json
+src/fase-3-masa/casos/CASO/
