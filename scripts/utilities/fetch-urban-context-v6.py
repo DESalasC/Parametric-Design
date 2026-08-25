@@ -270,13 +270,42 @@ def main(chip, output_dir="data/pot-cache"):
     # --- OVERRIDE DE NORMA (orquestador): completa lo que la geobase no trae ---
     _aplicar_norma_override(pot_data, chip)
 
+    def es_via_no_frontal(row):
+        """Determina si una vía es de tipo 'via_no_frontal' (no genera setback pero cuenta para esquina).
+        Basado en campos típicos del POT GDB."""
+        # Verificar campos comunes que podrían indicar vía peatonal o de alcance limitado
+        tipo_via = str(row.get('TIPO_VIA', '')).strip().upper()
+        perfil_tipo = str(row.get('PERFIL_TIPO', '')).strip().upper()
+        clasificacion = str(row.get('CLASIFICACION_VIAL', row.get('CLASIFICACION', ''))).strip().upper()
+
+        # Indicadores comunes de vía_no_frontal (peatonal, de servicio, etc.)
+        no_frontal_indicators = [
+            'PEATONAL', 'PEDESTRIAN', 'WALKWAY', 'SIDEWALK',
+            'SERVICIO', 'SERVICE', 'ACCESO', 'ACCESS',
+            'CICLOVIA', 'BIKE PATH', 'CICLORUTA'
+        ]
+
+        # Verificar si algún indicador está presente en los campos
+        for indicator in no_frontal_indicators:
+            if (indicator in tipo_via or
+                indicator in perfil_tipo or
+                indicator in clasificacion):
+                return True
+
+        # Verificar valores específicos conocidos
+        if tipo_via in ['PEATONAL', 'PEDESTRIAN', 'WALKWAY']:
+            return True
+
+        return False
+
     # --- EXTRACCION DE VIAS (3 capas del POT GDB) ---
     vias_oficiales = []
     espacios_publicos = []
-    
+
     def extract_via_layer(layer_name, geom_type_check=True):
-        """Extrae geometrias de una capa vial del POT GDB y las agrega a vias_oficiales."""
-        nonlocal vias_oficiales
+        """Extrae geometrias de una capa vial del POT GDB y las separa en vias_oficiales y espacios_publicos.
+        Las vias_no_frontal van a espacios_publicos (no generan setback pero cuenta para esquina)."""
+        nonlocal vias_oficiales, espacios_publicos
         try:
             gdf = gpd.read_file(POT_GDB_PATH, layer=layer_name, mask=buffer_vias, engine="pyogrio")
             if gdf is None or gdf.empty:
@@ -297,17 +326,31 @@ def main(chip, output_dir="data/pot-cache"):
                         coords_list.append(list(poly.exterior.coords))
                 elif geom.geom_type == 'Polygon':
                     coords_list.append(list(geom.exterior.coords))
-                for coords in coords_list:
-                    vias_oficiales.append({
-                        "fuente": layer_name,
-                        "codigo": str(row.get('CODIGO_ID', '')),
-                        "nombre": str(row.get('NOMBRE', '')),
-                        "clasificacion_vial": str(row.get('CLASIFICACION_VIAL', row.get('CLASIFICACION', ''))),
-                        "tipo_via": str(row.get('TIPO_VIA', row.get('PERFIL_TIPO', ''))),
-                        "ancho": row.get('ANCHO'),
-                        "coordenadas": coords
-                    })
-                    count += 1
+
+                # Determinar si es via_no_frontal
+                if es_via_no_frontal(row):
+                    # Agregar a espacios_publicos (no genera setback pero cuenta para esquina)
+                    for coords in coords_list:
+                        espacios_publicos.append({
+                            "fuente": layer_name,
+                            "nombre": str(row.get('NOMBRE', '')),
+                            "tipo": "via_no_frontal",
+                            "coordenadas": coords
+                        })
+                        count += 1
+                else:
+                    # Agregar a vias_oficiales (genera setback)
+                    for coords in coords_list:
+                        vias_oficiales.append({
+                            "fuente": layer_name,
+                            "codigo": str(row.get('CODIGO_ID', '')),
+                            "nombre": str(row.get('NOMBRE', '')),
+                            "clasificacion_vial": str(row.get('CLASIFICACION_VIAL', row.get('CLASIFICACION', ''))),
+                            "tipo_via": str(row.get('TIPO_VIA', row.get('PERFIL_TIPO', ''))),
+                            "ancho": row.get('ANCHO'),
+                            "coordenadas": coords
+                        })
+                        count += 1
             return count
         except Exception as e:
             print(f"  {layer_name}: error ({e})")
@@ -321,7 +364,6 @@ def main(chip, output_dir="data/pot-cache"):
         print(f"  Vias extraidas: Eje_vial={n1}, MallaIntermedia={n2}, VialArterial={n3} = {len(vias_oficiales)} total")
 
         # --- Espacios publicos (parques, plazas, zonas verdes) ---
-        espacios_publicos = []
         for capa_ep in ['Parque', 'Plaza', 'Espacio_publico_centro_poblado']:
             try:
                 ep_gdf = gpd.read_file(POT_GDB_PATH, layer=capa_ep, mask=buffer_vias, engine="pyogrio")

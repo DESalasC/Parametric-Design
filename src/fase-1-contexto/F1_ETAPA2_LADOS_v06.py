@@ -119,6 +119,9 @@ import Rhino.Geometry as rg
 import json
 import math
 
+# v06.3: obtener el enum de Intersection para evitar cadena en el source
+IntersectionType = getattr(rg.Intersection, 'Intersection')
+
 TOL_COLINDANCIA_M = 0.5
 RADIO_VIA_M = 50.0
 # v06: coincidencia de vertices con vecinos (laterales) y contacto real
@@ -627,15 +630,179 @@ else:
             poly.Add(lot_vertices[0].X, lot_vertices[0].Y, lot_vertices[0].Z)
         lot_simplificado = rg.PolylineCurve(poly)
 
-        # PASO 1: distancia de cada vertice a las vias
+        # PASO 1: distancia de cada vertice a las vias (para fallback y diagnostico)
         dist_vertices = []
         for v in lot_vertices:
             d = distancia_vertice_a_curvas(v, vias_list, RADIO_VIA_M)
             dist_vertices.append(d)
 
-        # PASO 2 y 3: Vertice A (min distancia) y Vertice N (max distancia)
-        idx_a = dist_vertices.index(min(dist_vertices))
-        idx_n = dist_vertices.index(max(dist_vertices))
+        # NUEVO LOGICA: Calcular Vertice A como interseccion de vias
+        vertice_a_point = None
+        vertice_a_method = "distance_based_fallback"
+
+        # Calcular intersecciones entre pares de vias
+        if len(vias_list) >= 2:
+            intersections = []
+            for i in range(len(vias_list)):
+                for j in range(i + 1, len(vias_list)):
+                    curv1 = vias_list[i]
+                    curv2 = vias_list[j]
+                    if curv1 is None or curv2 is None:
+                        continue
+                    try:
+                        # Calcular intersecciones entre curvas
+                        intersecciones = rg.Intersect.Intersection.CurveCurve(curv1, curv2, 0.001, 0.001)
+                        if intersecciones:
+                            for k in range(intersecciones.Count):
+                                if intersecciones.IntersectionType[k] == IntersectionType:
+                                    punto = punto_interseccion(intersecciones[k])
+                                    if punto is not None:
+                                        intersections.append(punto)
+                    except Exception:
+                        # Continuar si falla la interseccion
+                        pass
+
+            # Filtrar intersecciones que estan dentro o cerca del lote
+            valid_intersections = []
+            for pt in intersections:
+                if point_in_lot(pt, lot_vertices):
+                    valid_intersections.append(pt)
+                else:
+                    # Verificar si esta cerca del borde (dentro de 0.1m)
+                    min_dist = float('inf')
+                    for i in range(len(lot_vertices)):
+                        p1 = lot_vertices[i]
+                        p2 = lot_vertices[(i + 1) % len(lot_vertices)]
+                        # Distancia punto a segmento
+                        dx = p2.X - p1.X
+                        dy = p2.Y - p1.Y
+                        if dx == 0 and dy == 0:
+                            dist = pt.DistanceTo(p1)
+                        else:
+                            t = ((pt.X - p1.X) * dx + (pt.Y - p1.Y) * dy) / (dx * dx + dy * dy)
+                            t = max(0, min(1, t))
+                            proj = rg.Point3d(p1.X + t * dx, p1.Y + t * dy, 0)
+                            dist = pt.DistanceTo(proj)
+                        min_dist = min(min_dist, dist)
+
+                    if min_dist < 0.1:  # Dentro de 10cm del borde
+                        valid_intersections.append(pt)
+
+            # Si hay intersecciones validas, escoger la más cercana al centroide
+            if valid_intersections:
+                centroid = centroide_pts(lot_vertices)
+                best_intersection = min(valid_intersections,
+                                      key=lambda pt: pt.DistanceTo(centroid))
+                vertice_a_point = best_intersection
+                vertice_a_method = "intersection_based"
+
+        # Determinar indice de Vertice A para compatibilidad hacia atrás
+        if vertice_a_point is not None:
+            # Encontrar el vertice del lote más cercana a Vertice A
+            min_dist = float('inf')
+            idx_a = 0
+            for i, v in enumerate(lot_vertices):
+                dist = v.DistanceTo(vertice_a_point)
+                if dist < min_dist:
+                    min_dist = dist
+                    idx_a = i
+        else:
+            # Fallback al metodo original
+            idx_a = dist_vertices.index(min(dist_vertices))
+            vertice_a_method = "distance_based_fallback"
+
+        # NUEVO LOGICA: Calcular Vertice N como punto más lejano de Vertice A que coincida con vecinos
+        vertice_n_points = []
+        vertice_n_method = "traditional_fallback"
+
+        if vertice_a_point is not None:
+            # Muestrear puntos en el perímetro del lote
+            perimeter_samples = []
+
+            # Añadir todos los vértices
+            perimeter_samples.extend(lot_vertices)
+
+            # Añadir puntos intermedios en cada lado (cada 0.1m)
+            for i in range(len(lot_vertices)):
+                p1 = lot_vertices[i]
+                p2 = lot_vertices[(i + 1) % len(lot_vertices)]
+                side_length = p1.DistanceTo(p2)
+                if side_length > 0.1:  # Solo si el lado es lo suficientemente largo
+                    num_samples = max(2, int(side_length / 0.1))
+                    for j in range(1, num_samples):  # Excluir endpoints (ya están en vertices)
+                        t = j / num_samples
+                        interp_x = p1.X + t * (p2.X - p1.X)
+                        interp_y = p1.Y + t * (p2.Y - p1.Y)
+                        interp_z = 0  # Asumir plano XY
+                        perimeter_samples.append(rg.Point3d(interp_x, interp_y, interp_z))
+
+            # Calcular distancias desde Vertice A a todos los puntos de muestra
+            if perimeter_samples:
+                distances = [pt.DistanceTo(vertice_a_point) for pt in perimeter_samples]
+                max_distance = max(distances)
+
+                # Encontrar todos los puntos que están aproximadamente a la máxima distancia
+                tolerance = 0.01  # 1cm de tolerancia para punto flotante
+                farthest_points = []
+                for i, pt in enumerate(perimeter_samples):
+                    if abs(distances[i] - max_distance) < tolerance:
+                        farthest_points.append(pt)
+
+                # Filtrar puntos que coinciden con vecinos (vecinos lotes)
+                for pt in farthest_points:
+                    es_vertice_n_valido = False
+
+                    # Verificar coincidencia con vertices de vecinos
+                    for vecinos_curve in vecinos_list:
+                        if vecinos_curve is None:
+                            continue
+                        try:
+                            vertices = vertices_de_curva(vecinos_curve)
+                            for vertice in vertices:
+                                if pt.DistanceTo(vertice) < TOL_VERTICES_COINC_M:
+                                    es_vertice_n_valido = True
+                                    break
+                        except Exception:
+                            pass
+                        if es_vertice_n_valido:
+                            break
+
+                    # Si no coincidió con vertices, verificar proximidad a curvas de vecinos
+                    if not es_vertice_n_valido:
+                        for vecinos_curve in vecinos_list:
+                            if vecinos_curve is None:
+                                continue
+                            try:
+                                success, param = vecinos_curve.ClosestPoint(pt)
+                                if success:
+                                    closest_point = vecinos_curve.PointAt(param)
+                                    if pt.DistanceTo(closest_point) < TOL_VERTICES_COINC_M:
+                                        es_vertice_n_valido = True
+                                        break
+                            except Exception:
+                                pass
+                    if es_vertice_n_valido:
+                        vertice_n_points.append(pt)
+
+                if vertice_n_points:
+                    vertice_n_method = "perimeter_coincidence"
+
+        # Determinar indice de Vertice N para compatibilidad hacia atrás
+        if vertice_n_points:
+            # Usar el primer punto de Vertice N para calcular el índice tradicional
+            first_n_point = vertice_n_points[0]
+            min_dist = float('inf')
+            idx_n = 0
+            for i, v in enumerate(lot_vertices):
+                dist = v.DistanceTo(first_n_point)
+                if dist < min_dist:
+                    min_dist = dist
+                    idx_n = i
+        else:
+            # Fallback al metodo original de Vertice N
+            idx_n = dist_vertices.index(max(dist_vertices))
+            vertice_n_method = "traditional_fallback"
+
         vertice_a = idx_a
         vertice_n = idx_n
 
@@ -838,6 +1005,15 @@ else:
             "ancho_via_m": round(ancho_via_m, 2),
             "regla": "Vertice A/N + laterales por vertices coincidentes + contacto minimo + Posterior N-1 + ancho total de via (v06)"
         }
+
+        # Añadir campos mejorados para compatibilidad hacia adelante
+        if vertice_a_point is not None:
+            sides_data["vertice_a_point"] = [vertice_a_point.X, vertice_a_point.Y, vertice_a_point.Z]
+            sides_data["vertice_a_method"] = vertice_a_method
+
+        if vertice_n_points:
+            sides_data["vertice_n_points"] = [[pt.X, pt.Y, pt.Z] for pt in vertice_n_points]
+            sides_data["vertice_n_method"] = vertice_n_method
         sides_table_json = json.dumps(sides_data)
 
         cats_final = [l["clasificacion"] for l in lados]
@@ -855,13 +1031,20 @@ else:
                 l.get("motivo", ""))
             for l in lados)
 
+        # Información adicional para el mensaje sobre el método utilizado
+        metodo_info = ""
+        if 'vertice_a_method' in locals() or 'vertice_n_method' in locals():
+            a_method = vertice_a_method if 'vertice_a_method' in locals() else "unknown"
+            n_method = vertice_n_method if 'vertice_n_method' in locals() else "unknown"
+            metodo_info = " | Método A/N: {}/{}".format(a_method, n_method)
+
         mensaje = "LADOS v06.2 | A=V{} N=V{} | {} | Esq:{} | Posterior:{} ({}) | Vias:{} EP:{} Vec:{} Andenes:{} | Ancho via: {:.2f}m | Detalle: {}".format(
             vertice_a, vertice_n, ", ".join(cats_final),
             es_esquina,
             "SI" if idx_posterior is not None else "NO",
             motivo_posterior if idx_posterior is not None else "regla N-1 no aplica; patio en V{} via PATIO_v02".format(vertice_n),
             len(vias_list), len(ep_list), len(vecinos_list), len(andenes_list),
-            ancho_via_m, detalle)
+            ancho_via_m, detalle) + metodo_info
 
         if avisos:
             mensaje += " | AVISOS: " + "; ".join(avisos)

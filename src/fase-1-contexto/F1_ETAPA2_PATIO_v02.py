@@ -185,45 +185,106 @@ else:
         if vertice_n is None:
             mensaje = "PATIO v02 | ERROR: sides_table_json sin vertice_n (usar F1_ETAPA2_LADOS_v02)"
         else:
+            # NUEVO: Intentar usar los puntos mejorados de Vertice N si están disponibles
+            vertice_n_points_data = sides_data.get("vertice_n_points")
+            usar_puntos_mejorados = vertice_n_points_data is not None and len(vertice_n_points_data) > 0
+
             # Tamano del patio segun altura
             pisos = max(1, int(math.ceil(altura_max / ALTURA_ENTREPISO)))
             patio_lado = max(PATIO_MINIMO_M, pisos * 0.25)
             area_patio = patio_lado * patio_lado
 
-            # Verificar que los dos lados que comparten el vertice N son Laterales
-            if len(lados) >= n and n > 0:
-                lado1 = lados[vertice_n]
-                lado2 = lados[(vertice_n + n - 1) % n]
+            patios_curves_generados = []
+
+            if usar_puntos_mejorados:
+                # Usar los puntos mejorados de Vertice N
+                for punto_coords in vertice_n_points_data:
+                    vi = rg.Point3d(punto_coords[0], punto_coords[1], punto_coords[2] if len(punto_coords) > 2 else 0)
+
+                    # Encontrar el índice del vértice más cercano para determinar los lados
+                    min_dist = float('inf')
+                    vertice_n_idx = 0
+                    for i, v in enumerate(lot_vertices):
+                        dist = v.DistanceTo(vi)
+                        if dist < min_dist:
+                            min_dist = dist
+                            vertice_n_idx = i
+
+                    # Verificar que los dos lados que comparten el vertice N son Laterales
+                    if len(lados) >= n and n > 0:
+                        lado1 = lados[vertice_n_idx]
+                        lado2 = lados[(vertice_n_idx + n - 1) % n]
+                    else:
+                        lado1 = {}
+                        lado2 = {}
+                    cat1 = lado1.get("clasificacion", "Desconocido")
+                    cat2 = lado2.get("clasificacion", "Desconocido")
+
+                    # v02.1 (2026-08-23): el patio de esquina se ancla en la
+                    # esquina interior (vertice N) cuando los DOS lados que la
+                    # comparten son COLINDANTES (Lateral o Posterior). Antes solo
+                    # "Lateral", por lo que un lado "Posterior" o un vecino cuyo
+                    # vertice no coincide exactamente dejaba el patio sin generar.
+                    if cat1 in ("Lateral", "Posterior") and cat2 in ("Lateral", "Posterior"):
+                        # Borde A: (V_n -> V_next)
+                        va1 = vi
+                        va2 = lot_vertices[(vertice_n_idx + 1) % n]
+                        # Borde B: (V_prev -> V_n)
+                        vb1 = lot_vertices[(vertice_n_idx + n - 1) % n]
+                        vb2 = vi
+
+                        patio_crv = build_patio_desde_vertice(
+                            vi, va1, va2, vb1, vb2, patio_lado, lot_vertices)
+                        if patio_crv:
+                            patios_curves_generados.append(patio_crv)
             else:
-                lado1 = {}
-                lado2 = {}
-            cat1 = lado1.get("clasificacion", "Desconocido")
-            cat2 = lado2.get("clasificacion", "Desconocido")
+                # FALLBACK: Usar el método tradicional de vertice_n índice
+                # Tamano del patio segun altura
+                pisos = max(1, int(math.ceil(altura_max / ALTURA_ENTREPISO)))
+                patio_lado = max(PATIO_MINIMO_M, pisos * 0.25)
+                area_patio = patio_lado * patio_lado
 
-            # v02.1 (2026-08-23): el patio de esquina se ancla en la
-            # esquina interior (vertice N) cuando los DOS lados que la
-            # comparten son COLINDANTES (Lateral o Posterior). Antes solo
-            # "Lateral", por lo que un lado "Posterior" o un vecino cuyo
-            # vertice no coincide exactamente dejaba el patio sin generar.
-            if cat1 in ("Lateral", "Posterior") and cat2 in ("Lateral", "Posterior"):
-                vi = lot_vertices[vertice_n]
-                # Borde A: (V_n -> V_next)
-                va1 = vi
-                va2 = lot_vertices[(vertice_n + 1) % n]
-                # Borde B: (V_prev -> V_n)
-                vb1 = lot_vertices[(vertice_n + n - 1) % n]
-                vb2 = vi
+                # Verificar que los dos lados que comparten el vertice N son Laterales
+                if len(lados) >= n and n > 0:
+                    lado1 = lados[vertice_n]
+                    lado2 = lados[(vertice_n + n - 1) % n]
+                else:
+                    lado1 = {}
+                    lado2 = {}
+                cat1 = lado1.get("clasificacion", "Desconocido")
+                cat2 = lado2.get("clasificacion", "Desconocido")
 
-                patio_crv = build_patio_desde_vertice(
-                    vi, va1, va2, vb1, vb2, patio_lado, lot_vertices)
-                if patio_crv:
-                    patios_curves.append(patio_crv)
+                # v02.1 (2026-08-23): el patio de esquina se ancla en la
+                # esquina interior (vertice N) cuando los DOS lados que la
+                # comparten son COLINDANTES (Lateral o Posterior). Antes solo
+                # "Lateral", por lo que un lado "Posterior" o un vecino cuyo
+                # vertice no coincide exactamente dejaba el patio sin generar.
+                if cat1 in ("Lateral", "Posterior") and cat2 in ("Lateral", "Posterior"):
+                    vi = lot_vertices[vertice_n]
+                    # Borde A: (V_n -> V_next)
+                    va1 = vi
+                    va2 = lot_vertices[(vertice_n + 1) % n]
+                    # Borde B: (V_prev -> V_n)
+                    vb1 = lot_vertices[(vertice_n + n - 1) % n]
+                    vb2 = vi
 
-            patio_count = len(patios_curves)
+                    patio_crv = build_patio_desde_vertice(
+                        vi, va1, va2, vb1, vb2, patio_lado, lot_vertices)
+                    if patio_crv:
+                        patios_curves_generados.append(patio_crv)
+
+            patio_count = len(patios_curves_generados)
+            patios_curves = patios_curves_generados
             cats = [l.get("clasificacion", "?") for l in lados]
-            mensaje = "PATIO v02.1 | V_N={} | Lados: {} | Patio={:.2f}x{:.2f}m ({} m2) | Generados: {}".format(
-                vertice_n, ", ".join(cats), patio_lado, patio_lado,
-                area_patio, patio_count)
+
+            if usar_puntos_mejorados:
+                mensaje = "PATIO v02.2 | V_N_Puntos={} | Lados: {} | Patio={:.2f}x{:.2f}m ({} m2) | Generados: {}".format(
+                    len(vertice_n_points_data), ", ".join(cats), patio_lado, patio_lado,
+                    area_patio, patio_count)
+            else:
+                mensaje = "PATIO v02.1 | V_N={} | Lados: {} | Patio={:.2f}x{:.2f}m ({} m2) | Generados: {}".format(
+                    vertice_n, ", ".join(cats), patio_lado, patio_lado,
+                    area_patio, patio_count)
 
     except Exception as e:
         mensaje = "PATIO v02 | ERROR: {}".format(str(e))
