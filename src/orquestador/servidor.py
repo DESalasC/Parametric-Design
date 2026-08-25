@@ -53,6 +53,7 @@ PROYECTOS = os.path.join(ORQ_DIR, "proyectos")
 PROVISIONAL = os.path.join(PROYECTOS, "_provisional")
 NORMA_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "norma-override.json")
 FINANCIERO_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "financiero-override.json")
+SETBACK_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "setback-override.json")
 
 # Archivos ACTIVOS (nombre literal "CHIP"): el canvas SIEMPRE lee/escribe estos,
 # sin editar el panel. El orquestador los sobreescribe al seleccionar el predio.
@@ -100,6 +101,7 @@ def _norma_override_guardar(chip, override):
         return True, NORMA_OVERRIDE_RUTA
     except Exception as e:
         return False, str(e)
+
 
 def _area_shoelace_local(vertices):
     """Area (m2) desde vertices_3d_local [x,y,z] (formula del zapato).
@@ -214,6 +216,83 @@ def _financiero_override_guardar(chip, override):
     except Exception as e:
         return False, str(e)
     return True, FINANCIERO_OVERRIDE_RUTA
+
+
+def _setback_override_leer():
+    """Lee data/pot-bogota/setback-override.json completo (dict)."""
+    return _json(SETBACK_OVERRIDE_RUTA)
+
+
+def _setback_override_chip(chip):
+    """Devuelve el override de setback para un CHIP (lista) o None."""
+    data = _setback_override_leer()
+    lotes = data.get("lotes") if isinstance(data.get("lotes"), dict) else {}
+    ov = lotes.get(chip)
+    return ov if isinstance(ov, list) else None
+
+
+def _setback_override_guardar(chip, override):
+    """Guarda (merge) el override de setback por lado para un CHIP.
+    El override es un dict con formato: {"AAA0240ZXJH": [{"side_id": 0, "has_setback": true}, ...]}.
+    Devuelve (ok, ruta)."""
+    data = _setback_override_leer()
+    data.setdefault("_schema", "setback_override_v01")
+    if not isinstance(data.get("lotes"), dict):
+        data["lotes"] = {}
+    nuevo = {}
+    prev = data["lotes"].get(chip)
+    if isinstance(prev, dict):
+        # Convertir lista de overrides existentes a dict por side_id para facilitar merge
+        prev_dict = {item.get("side_id"): item for item in prev if isinstance(item, dict) and "side_id" in item}
+    else:
+        prev_dict = {}
+
+    if isinstance(override, dict) and chip in override:
+        override_list = override[chip]
+        if isinstance(override_list, list):
+            for item in override_list:
+                if isinstance(item, dict) and "side_id" in item and "has_setback" in item:
+                    side_id = int(item["side_id"])
+                    has_setback = bool(item["has_setback"])
+                    nuevo[side_id] = {"side_id": side_id, "has_setback": has_setback}
+                # Ignore items malformados
+            # Merge con prev: los nuevos valores sobrescriben los antiguos
+            for side_id, item in prev_dict.items():
+                if side_id not in nuevo:
+                    nuevo[side_id] = item
+            # Convertir de nuevo a lista
+            final_list = [nuevo[sid] for sid in sorted(nuevo.keys())]
+            data["lotes"][chip] = final_list
+        else:
+            # Si no es una lista válida, mantener lo existente
+            if isinstance(prev, list):
+                data["lotes"][chip] = prev
+            else:
+                data["lotes"][chip] = []
+    else:
+        # No se proporcionó override para este chip, mantener lo existente
+        if isinstance(prev, list):
+            data["lotes"][chip] = prev
+        else:
+            data["lotes"][chip] = []
+
+    # Actualizar timestamp
+    if isinstance(data["lotes"].get(chip), list) and len(data["lotes"][chip]) > 0:
+        # Añadir timestamp al primer elemento si no existe
+        if not isinstance(data["lotes"][chip][0], dict) or "ultima_edicion" not in data["lotes"][chip][0]:
+            if data["lotes"][chip]:
+                data["lotes"][chip][0]["ultima_edicion"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    elif isinstance(data["lotes"].get(chip), list):
+        # Lista vacía, crear elemento con timestamp
+        data["lotes"][chip] = [{"ultima_edicion": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")}]
+
+    try:
+        os.makedirs(os.path.dirname(SETBACK_OVERRIDE_RUTA), exist_ok=True)
+        with io.open(SETBACK_OVERRIDE_RUTA, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        return True, SETBACK_OVERRIDE_RUTA
+    except Exception as e:
+        return False, str(e)
 
 
 def _vecinos_override_ruta(chip):
@@ -411,7 +490,6 @@ ARCHIVOS_INTERCAMBIO = [
      "archivo": "src/fase-3-masa/casos/<CASO>/accesos.json",
      "produce": "F3_ACCESOS_INTEGRADOR_v02.py (escribe <CASO>) → orquestador copia al activo",
      "consume": "orquestador (resultados)"},
-
     {"id": "vecinos_override", "canvas": False,
      "activo": None,
      "archivo": "data/pot-cache/<CHIP>-vecinos-por-lado-override.json",
@@ -427,6 +505,11 @@ ARCHIVOS_INTERCAMBIO = [
      "archivo": "data/pot-bogota/financiero-override.json",
      "produce": "orquestador (POST /api/financiero)",
      "consume": "orquestador + generación de parametros_<CHIP>_mercado2026.json"},
+    {"id": "setback_override", "canvas": False,
+     "activo": None,
+     "archivo": "data/pot-bogota/<CHIP>-setback-override.json",
+     "produce": "orquestador (POST /api/setback-override)",
+     "consume": "F1_ETAPA2_LADOS_v06 (lee lado_via_setback_override_json)"},
     {"id": "parametros_f2_venta", "canvas": False,
      "activo": None,
      "archivo": "src/fase-2-demanda/F2_Modelo_Financiero/parametros_<CHIP>_mercado2026.json",
@@ -681,6 +764,7 @@ def _vecinos_por_lado(chip):
 
 # ---------------- Plano SVG (lados + contexto 25 m) ----------------
 
+
 def _clip_segment_lb(p1, p2, rect):
     """Liang-Barsky: devuelve el segmento visible [x1,y1,x2,y2] o None."""
     x0, y0 = p1[0], p1[1]
@@ -866,7 +950,6 @@ def _plano(chip):
                          "area_m2": areas.get(_e["chip"])}
                         for _c, _e in sorted(colindantes.items())],
     }
-
 
 
 def _usos_por_sector():
@@ -1214,6 +1297,18 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/archivos":
             self._send(200, {"ok": True, "archivos": ARCHIVOS_INTERCAMBIO})
             return
+        if parsed.path == "/api/setback-override":
+            chip = (q.get("chip") or [""])[0]
+            ov = _setback_override_chip(chip) if chip else None
+            ctx = _contexto(chip) if chip else None
+            # Provide the override in the format expected by the frontend
+            override_data = {}
+            if ov and isinstance(ov, list):
+                override_data[chip] = ov
+            self._send(200, {"ok": True, "chip": chip,
+                             "contexto": (ctx or {}).get("pot", {}),
+                             "override": override_data})
+            return
         self._json_error("ruta no encontrada", 404)
 
     def do_POST(self):
@@ -1288,6 +1383,16 @@ class Handler(BaseHTTPRequestHandler):
             ok, detalle = _financiero_override_guardar(chip, data.get("override") or {})
             self._send(200, {"ok": ok, "ruta": detalle,
                              "financiero": _financiero(chip) if ok else None})
+            return
+
+        if parsed.path == "/api/setback-override":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            ok, ruta = _setback_override_guardar(chip, data.get("override") or {})
+            self._send(200, {"ok": ok, "ruta": ruta,
+                             "setback_override": _setback_override_chip(chip)})
             return
 
         if parsed.path == "/api/vecinos-por-lado":

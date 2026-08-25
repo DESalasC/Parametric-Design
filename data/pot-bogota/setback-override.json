@@ -1,0 +1,16 @@
+{
+  "_schema": "setback_override_v01",
+  "lotes": {
+    "AAA0240ZXJH": [
+      {
+        "side_id": 1,
+        "has_setback": true,
+        "ultima_edicion": "2026-08-25 10:37"
+      },
+      {
+        "side_id": 2,
+        "has_setback": true
+      }
+    ]
+  }
+}
