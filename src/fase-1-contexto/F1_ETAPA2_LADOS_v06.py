@@ -68,6 +68,10 @@ ENTRADAS:
                               elementos cercanos que no colindan)
   contacto_min_frac (Number, OPCIONAL) — Fraccion minima del lado con
                               contacto para clasificar (default 0.30)
+  lado_via_setback_override_json (String, OPCIONAL) — JSON array de objetos
+                              {side_id: int, has_setback: bool} para override
+                              manual de setback en lados que limitan con vía
+                              (default: ninguno, compatibilidad hacia atrás)
 
 SALIDAS:
   sides_table_json (String) — Clasificacion + vertice_a + vertice_n +
@@ -92,6 +96,9 @@ VERSIONES:
   v06.1 (2026-08-17) - Cada lado emite dx/dy/mx/my (direccion + punto medio)
                        del lado, insumo para F3 (colocacion del nucleo contra
                        la medianera sin depender del orden de lote_vertices).
+  v06.3 (2026-08-24) - Override manual de setback por lado que limita con vía
+                       para controlar exactamente qué lados tienen retiro
+                       según regulaciones UPZ/UPL específicas.
   v05 (2026-08-16) - Ancho de via TOTAL del perfil vial (poligono de via,
                      incluye andenes). Los andenes dejan de usarse para
                      medir. Renombrado desde v04 por cambio de concepto.
@@ -161,8 +168,6 @@ def _cardinal_lado(dx, dy, mx, my, cx, cy):
     d2 = vx * n2[0] + vy * n2[1]
     nx, ny = (n1 if d1 >= d2 else n2)
     return _cardinal_normal(nx, ny)
-
-
 
 
 def safe_list(val):
@@ -442,7 +447,7 @@ def medir_ancho_via_total(lot_vertices, lados, vias_list, muestras=MUESTRAS_ANCH
       1. Muestrear el lado frontal del lote.
       2. Para cada muestra: el POLIGONO DE VIA mas cercano (el que toca el
          lado) y su punto q1.
-      3. Desde q1, linea larga perpendicular al poligono orientada hacia
+      3. Desde q1, linea larga perpendicular al poligono orientado hacia
          AFUERA del lote (alejandose del centroide); la primera interseccion
          con d > MIN_ANCHO_VIA_M es el borde OPUESTO del poligono de via =
          ancho total.
@@ -513,17 +518,22 @@ def medir_ancho_via_total(lot_vertices, lados, vias_list, muestras=MUESTRAS_ANCH
             eventos = rg.Intersect.Intersection.CurveLine(
                 mejor_crv, linea, 0.001, 0.001)
             if eventos:
+                distancias = []
                 for ev in eventos:
                     pt_int = punto_interseccion(ev)
                     if pt_int is None:
                         continue
                     d = p.DistanceTo(pt_int)
-                    if MIN_ANCHO_VIA_M < d <= MAX_ANCHO_VIA_M:
-                        # Primera interseccion valida = borde opuesto del
-                        # poligono de via = ancho total
-                        ancho_muestra = d
-                        break
-            if ancho_muestra:
+                    if d > MIN_ANCHO_VIA_M:  # Only consider intersections sufficiently far from p
+                        distancias.append(d)
+                # We need at least two intersection points to measure width (entry and exit)
+                if len(distancias) >= 2:
+                    distancias.sort()
+                    # Width = distance between first and second intersection (entry and exit)
+                    ancho_muestra = distancias[1] - distancias[0]
+                # If we have 0 or 1 intersection, we can't measure width
+            if ancho_muestra is not None and ancho_muestra <= MAX_ANCHO_VIA_M:
+                # Also check that the measured width is reasonable
                 anchos_lado.append(ancho_muestra)
 
         if anchos_lado:
@@ -559,6 +569,23 @@ try:
 except Exception:
     CONTACTO_MIN_FRACCION = 0.30
 
+# Lado via setback override (opcional) - JSON array de objetos {side_id: int, has_setback: bool}
+_lado_override_in = globals().get("lado_via_setback_override_json", None)
+lado_override_dict = {}
+if _lado_override_in is not None:
+    try:
+        override_list = json.loads(_lado_override_in)
+        if isinstance(override_list, list):
+            for item in override_list:
+                if isinstance(item, dict) and "side_id" in item and "has_setback" in item:
+                    side_id = int(item["side_id"])
+                    has_setback = bool(item["has_setback"])
+                    lado_override_dict[side_id] = has_setback
+                # Ignore items malformados
+    except Exception:
+        # Si falla el parsing JSON, ignorar overrides (compatibilidad hacia atrás)
+        pass
+
 lot_vertices = safe_list(lot_vertices_raw)
 
 # v04: filtrar Guids / no-curvas (cables de Tapir mal conectados) sin crashear
@@ -580,7 +607,7 @@ ancho_via_m = 0.0
 # y salidas null. Las entradas geometricas deben ir en List Access + Flatten
 # (regla 13 de CLAUDE.md).
 if lot_vertices_raw is not None and not isinstance(lot_vertices_raw, list):
-    mensaje = ("LADOS v04 | CONFIG: entradas en 'Item Access'. Clic derecho en "
+    mensaje = ("LADOS v06 | CONFIG: entradas en 'Item Access'. Clic derecho en "
                "CADA input geometrico (lot_vertices, vias_curves, ep_curves, "
                "vecinos_curves, andenes_curves) -> List Access + Flatten.")
 elif len(lot_vertices) < 3:
@@ -674,6 +701,9 @@ else:
                 "frac_via_m": round(f_v, 3),
                 "frac_ep_m": round(f_e, 3),
                 "frac_vec_m": round(f_n, 3),
+                "f_v": f_v,
+                "f_e": f_e,
+                "f_n": f_n,
                 "toca_via": toca_via,
                 "toca_ep": toca_ep,
                 "toca_vecino": toca_vecino,
@@ -735,12 +765,32 @@ else:
         if idx_posterior is not None:
             lados[idx_posterior]["clasificacion"] = "Posterior"
 
-        # PASO 6: fallback v02 — lado del frente sin colindancia detectada
+        # APLICAR OVERRIDES DE SETBACK PARA LADOS QUE LIMITAN CON VIA
+        # Solo aplica a lados que tienen toca_via = True (limitan con via)
         for l in lados:
-            if l["clasificacion"] == "Lateral" and l["comparte_a"] and not l["toca_vecino"]:
-                l["clasificacion"] = "Frontal"
+            side_id = l["id"]
+            # Solo considerar overrides para lados que limitan con via
+            if l.get("toca_via", False) and side_id in lado_override_dict:
+                override_has_setback = lado_override_dict[side_id]
+                if override_has_setback:
+                    # Forzar que el lado tenga setback
+                    # Si ya es Frontal o Posterior, mantener su tipo de setback
+                    # Si no, asignar como Frontal para setback (antejardin)
+                    current_tipo = l["aislamiento_tipo"]
+                    if current_tipo not in ["antejardin", "posterior"]:
+                        l["aislamiento_tipo"] = "antejardin"
+                        # También actualizar clasificacion a Frontal para consistencia
+                        l["clasificacion"] = "Frontal"
+                        l["motivo"] = l["motivo"] + " (override: setback forcado)"
+                else:
+                    # Forzar que el lado NO tenga setback
+                    l["aislamiento_tipo"] = "lateral"
+                    # Cambiar clasificacion a Lateral (a menos que sea EP, pero si toca via, probablemente no es EP)
+                    l["clasificacion"] = "Lateral"
+                    l["motivo"] = l["motivo"] + " (override: setback desactivado)"
 
-        # Etiqueta de aislamiento normativo por clasificacion (insumo NORMATIVA)
+        # ETAPA v02 (2026-08-15): Etiqueta de aislamiento normativo por clasificacion
+        # (insumo NORMATIVA)
         for l in lados:
             c = l["clasificacion"]
             if c == "Frontal":
@@ -752,7 +802,7 @@ else:
             else:
                 l["aislamiento_tipo"] = "cero"
 
-        # PASO 7 (v05): ANCHO TOTAL DE LA VIA (perfil vial completo)
+        # PASO 6 (v05): ANCHO TOTAL DE LA VIA (perfil vial completo)
         anchos_por_lado, ancho_promedio = medir_ancho_via_total(
             lot_vertices, lados, vias_list)
 

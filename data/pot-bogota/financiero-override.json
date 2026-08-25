@@ -1,3 +1,28 @@
 {
-  "_schema": "financiero_override_v01"
+  "_schema": "financiero_override_v01",
+  "lotes": {
+    "AAA0240ZXJH": {
+      "area_m2": 99.72,
+      "precio_suelo_m2": 160000,
+      "impuestos_escritura_pct": 4,
+      "costo_lote_total_cop": 16000000,
+      "costos_blandos_pct": 13,
+      "marketing_ventas_pct": 1.5,
+      "escenarios": {
+        "A_VIS": {
+          "precio_venta_m2": 3727444,
+          "costo_construccion_m2": 1800000
+        },
+        "B_ESTANDAR": {
+          "precio_venta_m2": 4500000,
+          "costo_construccion_m2": 2000000
+        },
+        "C_LUJO": {
+          "precio_venta_m2": 12000000,
+          "costo_construccion_m2": 4300000
+        }
+      },
+      "ultima_edicion": "2026-08-24 22:38"
+    }
+  }
 }
