@@ -328,6 +328,25 @@ def _activar_chip(chip):
             activados["vecinos_por_lado"] = ACTIVO_VECINOS
         except Exception:
             pass
+    # Espejo ACTIVO del proyecto (data/activo/proyecto.json): al cambiar de
+    # chip se actualiza el campo 'chip' para que F0_LOAD_PROYECTO lea el
+    # chip vigente. Fix 2026-09-01 (revision adversarial O2).
+    try:
+        datos = {}
+        if os.path.isfile(ACTIVO_PROYECTO):
+            with io.open(ACTIVO_PROYECTO, "r", encoding="utf-8") as f:
+                datos = json.load(f)
+        if not isinstance(datos, dict):
+            datos = {}
+        datos["chip"] = chip
+        carpeta_activo = os.path.dirname(ACTIVO_PROYECTO)
+        if not os.path.isdir(carpeta_activo):
+            os.makedirs(carpeta_activo)
+        with io.open(ACTIVO_PROYECTO, "w", encoding="utf-8") as f:
+            json.dump(datos, f, indent=2, ensure_ascii=False)
+        activados["proyecto"] = ACTIVO_PROYECTO
+    except Exception:
+        pass
     return activados
 
 
@@ -352,6 +371,24 @@ def _activar_caso(caso):
                 activados[nombre] = os.path.join(ACTIVO_CASOS_DIR, nombre)
             except Exception:
                 pass
+    # Espejo ACTIVO del proyecto: al cambiar de caso se actualiza el campo
+    # 'caso' para que F0_LOAD_PROYECTO lea el caso vigente. Fix 2026-09-01 (O2).
+    try:
+        datos = {}
+        if os.path.isfile(ACTIVO_PROYECTO):
+            with io.open(ACTIVO_PROYECTO, "r", encoding="utf-8") as f:
+                datos = json.load(f)
+        if not isinstance(datos, dict):
+            datos = {}
+        datos["caso"] = caso
+        carpeta_activo = os.path.dirname(ACTIVO_PROYECTO)
+        if not os.path.isdir(carpeta_activo):
+            os.makedirs(carpeta_activo)
+        with io.open(ACTIVO_PROYECTO, "w", encoding="utf-8") as f:
+            json.dump(datos, f, indent=2, ensure_ascii=False)
+        activados["proyecto"] = ACTIVO_PROYECTO
+    except Exception:
+        pass
     return activados
 
 

@@ -53,8 +53,10 @@ concreto; la vía 2 se reserva para cuando se quiera CI/headless sin ArchiCAD.
 `POST /api/proyecto` escribe, ademas del proyecto con nombre o `_provisional`,
 un **espejo literal** en `data/activo/proyecto.json` (constante
 `ACTIVO_PROYECTO` en `servidor.py`). Esa es la ruta estable que debe consumir
-`F0_LOAD_PROYECTO` via el input `ruta_json`: al re-seleccionar chip/caso o
-guardar variables, el espejo se reescribe y el canvas recalcula sin tocar el
-cableado. Con esto queda cerrada la parte de datos del pendiente #4 del
+`F0_LOAD_PROYECTO` via el input `ruta_json`. El espejo se reescribe:
+(a) `POST /api/proyecto` (payload completo del formulario), (b)
+`POST /api/activar-chip` (campo `chip`, conservando el resto) y (c)
+`POST /api/activar-caso` (campo `caso`). Asi el canvas recalcula sin tocar
+el cableado. Con esto queda cerrada la parte de datos del pendiente #4 del
 cierre 2026-08-23 (activo `proyecto.json` espejo); la eleccion de via de
 disparo (1+3 combinadas) sigue abierta para la proxima sesion.

@@ -1,0 +1,16 @@
+{
+  "nombre": "",
+  "chip": "AAA0127AZPA",
+  "variables": {
+    "tipologia": "Aislada"
+  },
+  "usos": [
+    "Vivienda"
+  ],
+  "modos": [
+    "venta"
+  ],
+  "escenarios": [
+    "C_LUJO"
+  ]
+}

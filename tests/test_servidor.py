@@ -112,6 +112,21 @@ def test_guardar_proyecto_escribe_espejo_activo():
             os.remove(sv.ACTIVO_PROYECTO)
 
 
+def test_activar_chip_actualiza_espejo():
+    # El espejo conserva el payload del formulario y actualiza el chip.
+    with io.open(sv.ACTIVO_PROYECTO, "w", encoding="utf-8") as f:
+        json.dump({"chip": "CHIP_VIEJO", "variables": {"tipologia": "Aislada"}}, f)
+    try:
+        sv._activar_chip("CHIP_INEXISTENTE_TEST")
+        with io.open(sv.ACTIVO_PROYECTO, "r", encoding="utf-8") as f:
+            espejo = json.load(f)
+        assert espejo["chip"] == "CHIP_INEXISTENTE_TEST"
+        assert espejo["variables"]["tipologia"] == "Aislada"
+    finally:
+        if os.path.isfile(sv.ACTIVO_PROYECTO):
+            os.remove(sv.ACTIVO_PROYECTO)
+
+
 def test_http_smoke():
     srv = HTTPServer(("127.0.0.1", 0), sv.Handler)
     t = threading.Thread(target=srv.serve_forever, daemon=True)
