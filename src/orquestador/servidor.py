@@ -61,6 +61,7 @@ ACTIVO_CONTEXTO = os.path.join(POT_CACHE, "CHIP-contexto.json")
 ACTIVO_VECINOS = os.path.join(POT_CACHE, "CHIP-vecinos-por-lado.json")
 ACTIVO_CASOS_DIR = os.path.join(F3_CASOS, "CASO")
 GFA_FLAG_RUTA = os.path.join(ROOT, "data", "fase-2-demanda", "gfa-export-flag.json")
+ACTIVO_PROYECTO = os.path.join(ROOT, "data", "activo", "proyecto.json")
 
 
 def _norma_override_leer():
@@ -1188,6 +1189,16 @@ def _guardar_proyecto(nombre, data):
     ruta = os.path.join(destino, "proyecto.json")
     with io.open(ruta, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
+    # Espejo ACTIVO: data/activo/proyecto.json es la ruta estable que
+    # consume F0_LOAD_PROYECTO (input ruta_json). Se reescribe en cada
+    # guardado; cierra el pendiente #4 del cierre 2026-08-23.
+    try:
+        carpeta_activo = os.path.dirname(ACTIVO_PROYECTO)
+        if not os.path.isdir(carpeta_activo):
+            os.makedirs(carpeta_activo)
+        shutil.copy2(ruta, ACTIVO_PROYECTO)
+    except OSError as exc:
+        print("[aviso] no se pudo escribir el espejo activo: %s" % exc)
     return ruta, destino
 
 
@@ -1333,7 +1344,7 @@ class Handler(BaseHTTPRequestHandler):
                 ok, carpeta = _crear_estructura(nombre)
                 if ok:
                     creado = carpeta
-            self._send(200, {"ok": True, "ruta": ruta, "destino": destino, "estructura_creada": creado})
+            self._send(200, {"ok": True, "ruta": ruta, "destino": destino, "estructura_creada": creado, "ruta_activa": ACTIVO_PROYECTO})
             return
 
         if parsed.path == "/api/calcular-f2":

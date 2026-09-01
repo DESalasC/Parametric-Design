@@ -119,7 +119,8 @@ El loader reemplaza los inputs sueltos, pero el cableado del canvas es **manual*
 2. Añadir dos inputs: `ruta_json` (string, Item Access) y `caso_default` (string,
    Item Access).
 3. Conectar `ruta_json` a un panel con la ruta del `proyecto.json` generado por el
-   formulario (`src/orquestador/proyectos/<nombre>/proyecto.json`).
+   formulario (`data/activo/proyecto.json`, espejo reescrito en cada
+   guardado por `POST /api/proyecto`).
 4. Conectar las salidas (`tipologia`, `caso`, `usos`, etc.) a los componentes que
    antes recibían los inputs sueltos (F1_LADOS, F1_NORMATIVA, F3_VOLUM, F3_ACCESOS).
 5. Ejecución **por clic o Tapir**: se re-escribe el `proyecto.json` (formulario o

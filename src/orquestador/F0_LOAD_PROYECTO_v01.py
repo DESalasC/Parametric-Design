@@ -18,6 +18,8 @@
 #       frente_override_json (para cablear F0 -> F1_ETAPA2_NORMATIVA_v08;
 #       ignora 'indefinido'/'libre').
 #
+# Ruta recomendada (2026-09-01): conectar ruta_json a data/activo/proyecto.json
+#   (espejo que el orquestador reescribe en cada POST /api/proyecto).
 # Entradas:
 #   ruta_json    : str (Item) — ruta absoluta al proyecto.json
 #   caso_default : str (Item) — caso por defecto si el json no trae 'caso'

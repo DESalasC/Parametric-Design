@@ -31,7 +31,8 @@ El disparo real del canvas depende de **qué vía** se quiere automatizar:
 
 1. Si basta con **recálculo automático** (vía 1): solo falta activar el
    auto-solve del canvas y confirmar que `ruta_json` apunta al `proyecto.json`
-   del orquestador (`src/orquestador/proyectos/_provisional/proyecto.json`).
+   del orquestador (`data/activo/proyecto.json`; espejo reescrito por
+   `POST /api/proyecto` en cada guardado, ver Actualizacion 2026-09-01).
 2. Si se quiere **disparar desde ArchiCAD** (vía 3): construir un script Tapir
    que conecte (`ACConnection.connect(19723)`), lea stories (como
    `F3_StorySync_v01`), re-escriba `proyecto.json` y emita un log de "listo".
@@ -46,3 +47,14 @@ vía más directa es la **1 + 3 combinadas**: el formulario re-escribe el JSON y
 un script Tapir confirma el estado de ArchiCAD; el operador conserva el clic de
 resolver en GH (o deja el auto-solve). Implementar la vía 3 es el siguiente paso
 concreto; la vía 2 se reserva para cuando se quiera CI/headless sin ArchiCAD.
+
+## Actualizacion 2026-09-01 - espejo activo `proyecto.json`
+
+`POST /api/proyecto` escribe, ademas del proyecto con nombre o `_provisional`,
+un **espejo literal** en `data/activo/proyecto.json` (constante
+`ACTIVO_PROYECTO` en `servidor.py`). Esa es la ruta estable que debe consumir
+`F0_LOAD_PROYECTO` via el input `ruta_json`: al re-seleccionar chip/caso o
+guardar variables, el espejo se reescribe y el canvas recalcula sin tocar el
+cableado. Con esto queda cerrada la parte de datos del pendiente #4 del
+cierre 2026-08-23 (activo `proyecto.json` espejo); la eleccion de via de
+disparo (1+3 combinadas) sigue abierta para la proxima sesion.

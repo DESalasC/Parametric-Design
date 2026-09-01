@@ -99,6 +99,19 @@ def test_guardar_provisional_y_crear_estructura():
         shutil.rmtree(os.path.join(sv.PROYECTOS, nombre), ignore_errors=True)
 
 
+def test_guardar_proyecto_escribe_espejo_activo():
+    contenido = {"chip": "AAA0127AZPA", "origen": "test_espejo"}
+    ruta, destino = sv._guardar_proyecto("", contenido)
+    try:
+        assert os.path.isfile(sv.ACTIVO_PROYECTO)
+        with io.open(sv.ACTIVO_PROYECTO, "r", encoding="utf-8") as f:
+            espejo = json.load(f)
+        assert espejo.get("origen") == "test_espejo"
+    finally:
+        if os.path.isfile(sv.ACTIVO_PROYECTO):
+            os.remove(sv.ACTIVO_PROYECTO)
+
+
 def test_http_smoke():
     srv = HTTPServer(("127.0.0.1", 0), sv.Handler)
     t = threading.Thread(target=srv.serve_forever, daemon=True)
