@@ -26,6 +26,11 @@ SUBVERSIONES INTERNAS (v08.x: iteraciones sin cambio de version general):
          frente} (salida de F0_LOAD_PROYECTO v01.4); la clasificacion del
          operador manda sobre la geometrica, casada por cardinal (normal
          saliente del lado).
+  v08.3 (2026-08-23): "via_no_frontal" cuenta como via en la regla de
+         esquina (2+ lados de calle), evitando patio posterior en esquina
+         con via secundaria sin antejardin. El codigo se integro el
+         2026-08-23 (commit 3f3ff835) pero este encabezado no se
+         actualizo; registrado el 2026-09-01.
 Regla de versionado: la version general (v08 -> v09) SOLO cambia con cambios
 mayores (contrato de entradas/salidas o algoritmo central); las iteraciones
 internas se registran como subversiones v08.x en este encabezado (el mensaje

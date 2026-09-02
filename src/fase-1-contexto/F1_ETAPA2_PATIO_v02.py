@@ -20,9 +20,23 @@ ALGORITMO (2026-08-12):
   desde el vertice N, alineado a las direcciones de los dos lados
   laterales que lo comparten.
 
+SUBVERSIONES INTERNAS (v02.x: iteraciones sin cambio de version general):
+  v02.0 (2026-08-12) - Algoritmo original: patio cuadrado desde el
+         Vertice N sobre los dos lados laterales que lo comparten.
+  v02.1 (2026-08-23) - El patio de esquina se ancla en el Vertice N
+         cuando los DOS lados que lo comparten son colindantes (Lateral
+         o Posterior); antes solo "Lateral" dejaba el patio sin generar.
+  v02.2 (2026-08-25) - Consume vertice_n_points de F1_ETAPA2_LADOS_v06.3
+         (puntos mejorados del Vertice N por intersecciones reales con
+         vias) y genera un patio por cada punto disponible.
+Regla de versionado: la version general (v02 -> v03) SOLO cambia con
+cambios mayores (contrato de entradas/salidas o algoritmo central); las
+iteraciones internas se registran como subversiones v02.x en este
+encabezado. Historial reconstruido desde git el 2026-09-01.
+
 ENTRADAS:
   lot_vertices (Point3d[])     — 4 vertices desde Discontinuity
-  sides_table_json (String)    — Clasificacion desde F1_ETAPA2_LADOS_v02
+  sides_table_json (String)    — Clasificacion desde F1_ETAPA2_LADOS_v06
   altura_max_pot (Number)      — Altura maxima [m]
 
 SALIDAS:
@@ -183,7 +197,7 @@ else:
         n = len(lot_vertices)
 
         if vertice_n is None:
-            mensaje = "PATIO v02 | ERROR: sides_table_json sin vertice_n (usar F1_ETAPA2_LADOS_v02)"
+            mensaje = "PATIO v02 | ERROR: sides_table_json sin vertice_n (usar F1_ETAPA2_LADOS_v06)"
         else:
             # NUEVO: Intentar usar los puntos mejorados de Vertice N si están disponibles
             vertice_n_points_data = sides_data.get("vertice_n_points")

@@ -119,8 +119,10 @@ import Rhino.Geometry as rg
 import json
 import math
 
-# v06.3: obtener el enum de Intersection para evitar cadena en el source
-IntersectionType = getattr(rg.Intersection, 'Intersection')
+# v06.3: obtener el enum de Intersection para evitar cadena en el source.
+# fix 2026-09-01: el enum vive en rg.Intersect (Rhino.Geometry.Intersect),
+# no en rg.Intersection -> AttributeError al resolver el canvas.
+IntersectionType = getattr(rg.Intersect, 'Intersection')
 
 TOL_COLINDANCIA_M = 0.5
 RADIO_VIA_M = 50.0
@@ -654,7 +656,14 @@ else:
                         intersecciones = rg.Intersect.Intersection.CurveCurve(curv1, curv2, 0.001, 0.001)
                         if intersecciones:
                             for k in range(intersecciones.Count):
-                                if intersecciones.IntersectionType[k] == IntersectionType:
+                                # fix 2026-09-01: el tipo de interseccion es
+                                # propiedad del evento (CurveIntersection.
+                                # IntersectionType) y se compara contra el
+                                # VALOR Point (cruce puntual de vias); antes
+                                # se indexaba la lista con el enum y se
+                                # comparaba contra la clase -> rama muerta
+                                # silenciosa desde v06.3.
+                                if intersecciones[k].IntersectionType == IntersectionType.Point:
                                     punto = punto_interseccion(intersecciones[k])
                                     if punto is not None:
                                         intersections.append(punto)
