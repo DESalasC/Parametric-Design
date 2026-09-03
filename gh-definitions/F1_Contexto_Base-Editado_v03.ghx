@@ -49,8 +49,8 @@
             <chunk name="Projection">
               <items count="2">
                 <item name="Target" type_name="gh_drawing_point" type_code="30">
-                  <X>-1335</X>
-                  <Y>-241</Y>
+                  <X>88</X>
+                  <Y>-116</Y>
                 </item>
                 <item name="Zoom" type_name="gh_single" type_code="5">0.85</item>
               </items>
@@ -136,9 +136,9 @@
         </chunk>
         <chunk name="DefinitionObjects">
           <items count="1">
-            <item name="ObjectCount" type_name="gh_int32" type_code="3">202</item>
+            <item name="ObjectCount" type_name="gh_int32" type_code="3">203</item>
           </items>
-          <chunks count="202">
+          <chunks count="203">
             <chunk name="Object" index="0">
               <items count="2">
                 <item name="GUID" type_name="gh_guid" type_code="9">c552a431-af5b-46a9-a8a4-0fcbc27ef596</item>
@@ -1125,11 +1125,35 @@ CAPAS ARCHICAD (creadas via Tapir):
                     <item name="CodeInput" type_name="gh_string" type_code="10"># -*- coding: utf-8 -*-
 """
 ================================================================================
-F1_ETAPA2_NORMATIVA_v06.py - Retiros + Patios + Indices + Piso Adicional
+F1_ETAPA2_NORMATIVA_v08.py - Retiros + Patios + Indices + Piso Adicional
                             + Ancho de via con respaldo desde LADOS
+                            + ENVELOPE ESCALONADO por pisos superiores
+                            + VECINOS CON ALTURAS VARIABLES por lateral
 Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
+
+SUBVERSIONES INTERNAS (v08.x: iteraciones sin cambio de version general):
+  v08.1 (2026-08-16): correccion normativa del operador - el empate
+         volumetrico lateral (Anexo 5, SECCION 1.9.c) aplica UNICAMENTE a
+         predios con lado POSTERIOR (lote interior/fondo). Para predios con
+         dos laterales y al menos una esquina (sin lado posterior) NO aplica:
+         con vecinos construidos rige SIEMPRE el aislamiento sismorresistente
+         (NSR-10 A.6.5, 2% x h). Entrada nueva `aplica_empate_lateral`
+         (Boolean, override) + auto-deteccion por la clasificacion del LADOS
+         (presencia de lado "Posterior"). Sin lado posterior, el retiro
+         lateral = SOLO sismica 2% x h (caso A: GFA 1.501,2 m2 en el
+         estimador; 1.469,2 m2 en el canvas con patio 9,0 m2).
+  v08.2 (2026-08-23): regla de lote de esquina (2+ lados via/EP -&gt; sin
+         aislamiento posterior; la esquina interior lleva patio 3x3) +
+         puente frente_override: entrada frente_override_json {cardinal:
+         frente} (salida de F0_LOAD_PROYECTO v01.4); la clasificacion del
+         operador manda sobre la geometrica, casada por cardinal (normal
+         saliente del lado).
+Regla de versionado: la version general (v08 -&gt; v09) SOLO cambia con cambios
+mayores (contrato de entradas/salidas o algoritmo central); las iteraciones
+internas se registran como subversiones v08.x en este encabezado (el mensaje
+del componente reporta la subversion en curso).
 
 CALCULO:
   1. Descontar retiro FRONTAL (antejardin) del lado frontal del lote
@@ -1143,7 +1167,48 @@ CALCULO:
      SECCION 5.4.c) el retiro posterior = 0 en la huella
   5. Restar el patio (desde vertice N) del perimetro restante (Boolean Diff)
   6. Calcular pisos base (Decreto 555/2021) y aplicar PISO ADICIONAL
-  7. Calcular GFA (Gross Floor Area) maximo para Fase 2
+  7. ESCALONAMIENTO EN PISOS SUPERIORES (v07/v08.1): cuando la edificacion supera la
+     altura de las edificaciones colindantes sin aislamiento lateral (Anexo 5
+     POT, SECCION 1.9.c - Empates de aislamientos laterales), los pisos por
+     encima del nivel de empate se retiran con aislamiento lateral =
+     max(1/5 x altura desde el nivel de empate, minimo del empate). Se toma el
+     MAYOR entre ese retiro y la separacion sismica NSR-10 A.6.5 (Tabla
+     A.6.5-1: 1-3% de la altura por piso) cuando aplica (&gt;3 pisos, amenaza
+     intermedia/alta, colindancia con predio). NO aplica en lados que
+     colindan con via publica o espacio publico (excepcion A.6.5).
+     NOTA v08.1 (correccion normativa del operador): la SECCION 1.9.c (empate
+     volumetrico lateral) aplica SOLO a predios con lado POSTERIOR (lote
+     interior/fondo). Para predios con dos laterales y al menos una esquina
+     (sin lado posterior) NO aplica: con vecinos construidos rige SIEMPRE el
+     aislamiento de las normas SISMORRESISTENTES (NSR-10 A.6.5, 2% x h).
+     Entrada aplica_empate_lateral (Boolean): override manual; sin cablear,
+     auto-deteccion por la clasificacion del LADOS (presencia de lado
+     Posterior).
+  8. Calcular GFA ESCALONADO = suma de las areas de los envelopes por piso
+     (Fase 2) y emitir envelope_por_piso para Fase 3 (masa escalonada).
+  9. VOLADIZOS (v07, Anexo 5 POT SECCION 1.13): en pisos diferentes del
+     primero, la fachada frontal puede sobresalir del paramento de
+     construccion sobre el antejardin/APAUP segun el perfil vial (SECCION
+     1.13.b): &lt;=6m no se permite; &gt;6-10m 0,60m; &gt;10-15m 0,80m; &gt;15-22m
+     1,00m; &gt;22m/malla arterial 1,50m. El voladizo SE contabiliza en el
+     indice de construccion (GFA) en pisos != 1 y NO en el area ocupada
+     (definicion de Voladizo). NO se permite sobre cesiones publicas para
+     parques/equipamientos ni EEP (lados EspacioPublico), ni sobre
+     aislamientos laterales (lados Lateral). Implementacion: en pisos 2+ el
+     retiro frontal del envelope se reduce a (antejardin - voladizo).
+ 10. VECINOS CON ALTURAS VARIABLES POR LATERAL (v08): NO todos los vecinos
+     tienen la misma altura y sobre un mismo lado del predio puede haber
+     VARIOS vecinos (como se modela en Fase 2). La entrada
+     `vecinos_por_lado_json` define por cada lado Lateral la lista de vecinos
+     (altura y longitud opcional). El retiro de empate (SECCION 1.9.c) se
+     calcula POR SEGMENTO con la altura del vecino de ese segmento (el retiro
+     del piso crece donde el vecino es mas bajo); el lado se subdivide en
+     tantos sub-segmentos como vecinos (longitudes proporcionales si no se
+     informan). El recorte de la huella pasa a SEMIPLANOS por sub-segmento
+     (cajas exteriores + BooleanDifference), robusto en poligonos concavos
+     (reemplaza al desplazamiento por interseccion de lineas, que solo es
+     estable en convexos). Sin la entrada, el comportamiento es identico al
+     v07 (altura_vecinos_m global).
 
 NOTA NORMATIVA (antejardin / retiro frontal):
   En Consolidacion el antejardin se exige segun el mapa CU-5.5
@@ -1155,11 +1220,18 @@ NOTA NORMATIVA (antejardin / retiro frontal):
   En esquineros el mapa permite reducir a 2,00m por el lado de mayor
   dimension (usar antejardin_m para casos puntuales).
 
-NOTA NORMATIVA (tipologia aislada):
-  La tipologia aislada y su aislamiento lateral dependen de la
-  reglamentacion (mapas CU-5.4.2 a CU-5.4.33 - Edificabilidad): lateral =
-  1/5 de la altura en metros, minimo 4,00m (3,00m solo en Mejoramiento
-  Integral). Se exige desde el segundo piso o el nivel de empate.
+NOTA NORMATIVA (empate volumetrico lateral, SECCION 1.9.c - v07):
+  "Cuando el proyecto supere la altura de las edificaciones colindantes sin
+  aislamiento lateral existentes a la fecha [555/2021], con altura superior a
+  la definida en los mapas CU-5.4.2 a CU-5.4.33, la edificacion de mayor
+  altura debe prever aislamiento lateral por el costado que colinde con la
+  edificacion de menor altura, calculado a partir de la altura de la menor."
+  Dimension minima del aislamiento lateral: 1/5 de la altura en metros que
+  alcance la edificacion medida desde el nivel de empate (SECCION 1.9.b /
+  1.9.c), con minimo parametrizable (empate_lateral_min_m, default 3,00m).
+  La separacion sismica NSR-10 A.6.5 (Tabla A.6.5-1, &gt;3 pisos) se suma a la
+  comparacion: se toma el MAYOR valor entre el retiro POT y la separacion
+  sismica del piso (s_i = coeficiente x h_i).
 
 NOTA NORMATIVA (empate volumetrico posterior):
   "En predios que colinden posteriormente con predios en los que a la fecha
@@ -1171,6 +1243,16 @@ NOTA NORMATIVA (empate volumetrico posterior):
   Entrada empate_posterior_pisos: pisos del vecino posterior existente.
   Si &gt;= 3: retiro posterior = 0 en la huella (el aislamiento se exige solo
   por encima de la altura del vecino).
+
+NOTA NORMATIVA (vecinos con alturas variables, SECCION 1.9.c - v08):
+  El empate volumetrico lateral se calcula contra las edificaciones
+  colindantes EXISTENTES por cada costado. Cuando un lateral colinda con
+  VARIOS vecinos de alturas DIFERENTES, el retiro por piso se aplica por
+  SEGMENTO: cada sub-segmento del lado usa la altura de su vecino (el retiro
+  resultante es mayor donde el vecino es mas bajo, que es el caso mas
+  desfavorable para el proyecto). La subdivision del lado se hace con las
+  longitudes informadas o proporcional al numero de vecinos. Los lados
+  Lateral sin vecinos informados usan altura_vecinos_m (global, v07).
 
 ENTRADAS:
   lot_polygon (Curve)            - Lote simplificado
@@ -1197,6 +1279,36 @@ ENTRADAS:
                                    o de la regla por ancho de via.
   empate_posterior_pisos (Number)- Pisos del vecino posterior existente
                                    (&gt;=3 activa empate volumetrico)
+  altura_vecinos_m (Number)      - [v07] Altura de las edificaciones
+                                   colindantes (nivel de empate lateral,
+                                   SECCION 1.9.c). Si 0/nulo: sin
+                                   escalonamiento + aviso.
+  empate_lateral_min_m (Number)  - [v07] Minimo del aislamiento lateral por
+                                   empate (default 3,00m).
+  voladizo_frontal_m (Number)    - [v07] Override del voladizo frontal [m]
+                                   (SECCION 1.13.b). Si 0/nulo: se deriva del
+                                   perfil vial (tabla 1.13.b, columna con
+                                   antejardin). Aplica en pisos != 1, solo en
+                                   lados Frontal (via).
+  vecinos_por_lado_json (String) - [v08] Vecinos por lateral con alturas
+                                   variables. JSON con dos formatos:
+                                   (a) {"&lt;id_lado&gt;": [altura_m, ...], ...}
+                                   (b) {"lados": [{"id": &lt;id&gt;,
+                                       "vecinos": [{"altura_m": ..,
+                                                     "longitud_m": ..}]}], ...}
+                                   Cada lado Lateral listado se subdivide en
+                                   tantos sub-segmentos como vecinos. Si no
+                                   llega: comportamiento v07 (altura_vecinos_m
+                                   global). El id del lado = indice del
+                                   segmento del poligono (sides_table_json).
+  frente_override_json (String)  - [v08.2] Override de frente por cardinal
+                                   (salida de F0_LOAD_PROYECTO v01.4):
+                                   {"&lt;cardinal&gt;": "via"|"via_no_frontal"|
+                                   "predio"|"espacio_publico"}. La clasificacion
+                                   confirmada por el operador manda sobre la
+                                   geometrica; se casa por cardinal (normal
+                                   saliente del lado). Sin cablear: se usa la
+                                   clasificacion geometrica del LADOS.
   reglamentacion_json (String)   - JSON de reglamentacion (salida de
                                    F1_ETAPA1_CONTEXTO_v02: pot_data con
                                    tipologia/ancho_via_m/antejardin_m).
@@ -1204,38 +1316,36 @@ ENTRADAS:
                                    reglamentacion &gt; default + aviso.
 
 SALIDAS:
-  envelope_curve (Curve/List)    - Huella fisica con retiros y patio restado
-  gfa_total (Number)             - Area Bruta Construida TOTAL (incl. piso extra)
+  envelope_curve (Curve/List)    - Huella del PISO 1 (base, con retiros y
+                                   patio). Compatibilidad con F1_EXPORTAR_GFA
+                                   y el contrato v06.
+  envelope_por_piso (List)       - [v07] Curva de ocupacion POR PISO
+                                   (escalonada + voladizos en pisos
+                                   superiores). Fase 3 (VOLUM_GENERADOR_v07+)
+                                   la consume.
+  retiros_por_piso (String)      - [v07] JSON con el desglose por piso:
+                                   altura, retiro lateral aplicado, voladizo,
+                                   area, escalonado (bool).
+  gfa_total (Number)             - GFA ESCALONADO = suma de areas por piso
+                                   (incluye voladizos en pisos != 1)
   ocupacion_real, io_maximo, ic_real, ic_maximo,
   altura_total, pisos_finales, valido (bool), mensaje
 
 VERSIONES:
-  VERSIONES:
-  v06 (2026-08-16) - Respaldo del ancho de via desde sides_data del
-                     LADOS_v06 (operador &gt; LADOS &gt; reglamentacion &gt; 0).
-                     Corrige antejardin en 3.0 m por ancho 0 (la entrada
-                     ancho_via_m sin cablear ya no deja el antejardin en
-                     default). Mensaje con prefijo v06.
-  v05 (2026-08-15) - Retiros por clasificacion + tratamiento + tipologia:
-                     antejardin por ancho de via (CU-5.5 / regla historica)
-                     con override; lateral 0 continua / 1/5 altura min 4m
-                     aislada; posterior tabla Consolidacion por pisos con
-                     empate volumetrico (SECCION 5.4.c). Entradas nuevas:
-                     tipologia, ancho_via_m, antejardin_m,
-                     empate_posterior_pisos.
-                     Ampliado (2026-08-15): entrada reglamentacion_json
-                     (salida de ETAPA1_v02) para derivar tipologia /
-                     ancho_via_m / antejardin_m de la reglamentacion cuando
-                     las entradas del operador son nulas o 0. La fuente POT
-                     actual no provee esos campos (mapas raster CU-5.4.2-33
-                     y CU-5.5) -&gt; avisos + defaults reglamentarios.
-  v04 (2026-08-15) - Parseo robusto de rango, normalizacion de
-                     tipo_bonificacion, ocupacion_real = suma de fragmentos.
-  v03 - Fix rangos + toggle piso adicional + resta booleana del patio.
+  v08 (2026-08-16) - Vecinos con alturas VARIABLES por lateral (SECCION 1.9.c
+                     por segmento) + recorte de la huella por SEMIPLANOS
+                     (cajas exteriores + BooleanDifference), robusto en
+                     concavos. Entrada vecinos_por_lado_json. Sin la entrada:
+                     identico al v07.
+  v07 (2026-08-16) - Envelope escalonado por pisos superiores (empate
+                     volumetrico lateral Anexo 5 SECCION 1.9.c + separacion
+                     sismica NSR-10 A.6.5; se toma el mayor) + VOLADIZOS
+                     frontales (Anexo 5 SECCION 1.13.b) en pisos != 1.
 ================================================================================
 """
 
-import Rhino.Geometry as rg
+# Rhino.Geometry solo existe dentro de Rhino/Grasshopper (no en el .venv).
+import Rhino.Geometry as rg  # type: ignore[reportMissingImports]
 import json
 import math
 import re
@@ -1264,6 +1374,17 @@ POSTERIOR_CONSOLIDACION = [
 # Anexo 5 POT, SECCION 1.9.b - lateral aislada: 1/5 altura, minimo
 LATERAL_FRACCION_ALTURA = 0.2
 LATERAL_MINIMO_M = 4.0
+# Anexo 5 POT, SECCION 1.13.b - Voladizos (columna con antejardin/APAUP)
+# Ancho de via [m] -&gt; voladizo maximo [m] (pisos != 1, solo frontal)
+VOLADIZO_POR_ANCHO_VIA = [
+    (6.0, 0.0), (10.0, 0.60), (15.0, 0.80), (22.0, 1.00), (999.0, 1.50),
+]
+# v07 - Empate volumetrico lateral (SECCION 1.9.c) y separacion sismica NSR-10 A.6.5
+EMPATE_LATERAL_MIN_M = 3.0        # minimo del aislamiento lateral por empate
+NSR10_SEPARACION_COEF = 0.02      # Tabla A.6.5-1 &gt;3 pisos: 0,01 sin vecina /
+                                 # 0,02 losas coincidentes / 0,03 no coincidentes
+                                 # (default 0,02, parametrizable via entrada)
+NSR10_SEPARACION_COEF_RAW = None
 # Regla historica pre-555 (respaldo cuando el mapa CU-5.5 no senala):
 # ancho de via [m] -&gt; antejardin [m]
 FRONTAL_POR_ANCHO_VIA = [
@@ -1397,6 +1518,23 @@ def retiro_posterior_consolidacion(pisos):
     return POSTERIOR_CONSOLIDACION[-1][1]
 
 
+def retiro_lateral_empate(h_piso, h_vecino, min_m):
+    """v07 - Aislamiento lateral por empate volumetrico (Anexo 5 SECCION 1.9.c):
+    1/5 de la altura medida desde el nivel de empate, con minimo.
+    Si el piso no supera al vecino colindante, retorno 0."""
+    if h_vecino &lt;= 0 or h_piso &lt;= h_vecino:
+        return 0.0
+    h_exc = h_piso - h_vecino
+    return max(LATERAL_FRACCION_ALTURA * h_exc, min_m)
+
+
+def separacion_sismica_piso(h_piso, coef):
+    """v07 - NSR-10 A.6.5 (Tabla A.6.5-1, &gt;3 pisos aereos): s_i = coef x h_i."""
+    if coef &lt;= 0:
+        return 0.0
+    return coef * h_piso
+
+
 def retiro_frontal_por_ancho_via(ancho_via_m):
     """Regla historica pre-555: ancho de via [m] -&gt; antejardin [m]."""
     if ancho_via_m is None or ancho_via_m &lt;= 0:
@@ -1405,6 +1543,316 @@ def retiro_frontal_por_ancho_via(ancho_via_m):
         if ancho_via_m &lt; limite:
             return retiro
     return FRONTAL_POR_ANCHO_VIA[-1][1]
+
+
+def voladizo_por_perfil_vial(ancho_via_m):
+    """v07 - Anexo 5 SECCION 1.13.b: voladizo frontal maximo segun el perfil
+    vial (columna con antejardin/APAUP). 0 si no se permite."""
+    if ancho_via_m is None or ancho_via_m &lt;= 0:
+        return 0.0
+    for limite, vol in VOLADIZO_POR_ANCHO_VIA:
+        if ancho_via_m &lt;= limite:
+            return vol
+    return VOLADIZO_POR_ANCHO_VIA[-1][1]
+
+
+def parsear_vecinos_por_lado(raw):
+    """v08 - Parsea vecinos_por_lado_json a {lado_id: [(altura_m, longitud_m o
+    None), ...]}. Acepta: (a) {"&lt;id&gt;": [altura, ...]}, (b) {"lados":
+    [{"id": .., "vecinos": [{"altura_m": .., "longitud_m": ..}]}]}.
+    Devuelve {} si no hay datos validos."""
+    if raw is None:
+        return {}
+    try:
+        s = str(raw[0]) if isinstance(raw, list) and raw else str(raw)
+        data = json.loads(s)
+    except:
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    out = {}
+    entradas = []
+    if "lados" in data and isinstance(data["lados"], list):
+        for l in data["lados"]:
+            if not isinstance(l, dict):
+                continue
+            try:
+                lid = int(l.get("id", -1))
+            except:
+                continue
+            vecs = l.get("vecinos", [])
+            if lid &gt;= 0 and isinstance(vecs, list):
+                entradas.append((lid, vecs))
+    else:
+        for k, v in data.items():
+            try:
+                lid = int(k)
+            except:
+                continue
+            if isinstance(v, list):
+                entradas.append((lid, v))
+    for lid, vecs in entradas:
+        norm = []
+        for v in vecs:
+            if isinstance(v, (int, float)):
+                norm.append((float(v), None))
+            elif isinstance(v, dict):
+                try:
+                    h = float(v.get("altura_m", 0.0))
+                except:
+                    h = 0.0
+                lon = v.get("longitud_m")
+                try:
+                    lon = float(lon) if lon is not None else None
+                except:
+                    lon = None
+                if h &gt; 0:
+                    norm.append((h, lon))
+        if norm:
+            out[lid] = norm
+    return out
+
+
+# v08.2 - Puente orquestador -&gt; canvas: override de frente por cardinal
+# (misma convencion de azimut/cardinal que vecinos_por_lado.py).
+CARDINAL_BANDS = [
+    ("Norte", 315.0, 45.0),
+    ("Oriente", 45.0, 135.0),
+    ("Sur", 135.0, 225.0),
+    ("Occidente", 225.0, 315.0),
+]
+FRENTE_A_CLASIFICACION = {
+    "via": "Frontal",
+    "via_no_frontal": "EspacioPublico",
+    "espacio_publico": "EspacioPublico",
+    "predio": "Lateral",
+}
+
+
+def _parsear_frente_override(raw):
+    """v08.2 - Parsea frente_override_json {cardinal: frente}."""
+    if raw is None:
+        return {}
+    try:
+        s = str(raw[0]) if isinstance(raw, list) and raw else str(raw)
+        data = json.loads(s)
+    except Exception:
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    out = {}
+    for k, v in data.items():
+        if str(v) in FRENTE_A_CLASIFICACION:
+            out[str(k)] = str(v)
+    return out
+
+
+def _cardinal_normal(nx, ny):
+    """v08.2 - Cardinal desde una normal (azimut = atan2(nx,ny) % 360)."""
+    if nx == 0.0 and ny == 0.0:
+        return "Norte"
+    az = math.degrees(math.atan2(nx, ny)) % 360.0
+    for name, lo, hi in CARDINAL_BANDS:
+        if lo &lt;= hi:
+            if lo &lt;= az &lt; hi:
+                return name
+        else:
+            if az &gt;= lo or az &lt; hi:
+                return name
+    return "Norte"
+
+
+def _cardinal_lado(dx, dy, mx, my, cx, cy):
+    """v08.2 - Cardinal de un lado (normal saliente respecto al centroide)."""
+    n1 = (-dy, dx)
+    n2 = (dy, -dx)
+    vx = mx - cx
+    vy = my - cy
+    d1 = vx * n1[0] + vy * n1[1]
+    d2 = vx * n2[0] + vy * n2[1]
+    nx, ny = (n1 if d1 &gt;= d2 else n2)
+    return _cardinal_normal(nx, ny)
+
+
+def _poligono_ccw(curva):
+    """v08 - True si la polilinea esta en sentido antihorario (area signada)."""
+    success, poly = curva.TryGetPolyline()
+    if not success or poly is None:
+        return True
+    s = 0.0
+    c = poly.Count
+    for i in range(c - 1):
+        s += poly[i].X * poly[i + 1].Y - poly[i + 1].X * poly[i].Y
+    return s &gt; 0
+
+
+def _area_signada_puntos(puntos):
+    """v08 - Area con signo de una lista de Point3d (positiva = CCW)."""
+    s = 0.0
+    n = len(puntos)
+    for i in range(n):
+        p = puntos[i]
+        q = puntos[(i + 1) % n]
+        s += p.X * q.Y - q.X * p.Y
+    return s / 2.0
+
+
+def _curva_desde_puntos(puntos):
+    """v08 - PolylineCurve cerrada desde una lista de Point3d."""
+    if puntos is None or len(puntos) &lt; 3:
+        return None
+    poly = rg.Polyline(puntos)
+    if not poly.IsClosed:
+        poly.Add(poly[0])
+    return rg.PolylineCurve(poly)
+
+
+def _vertices_curva(curva):
+    """v08 - Vertices de la polilinea (con cierre)."""
+    success, poly = curva.TryGetPolyline()
+    if not success or poly is None:
+        return []
+    pts = [rg.Point3d(p.X, p.Y, 0.0) for p in poly]
+    if len(pts) &gt;= 2 and pts[0].DistanceTo(pts[-1]) &gt; 0.001:
+        pts.append(rg.Point3d(pts[0]))
+    return pts
+
+
+def _recortar_puntos(puntos, sub_segmentos):
+    """v08 - Sutherland-Hodgman por semiplanos sobre PUNTOS (sin cajas ni
+    booleanos): cada sub-segmento con retiro &gt; 0 recorta el poligono contra la
+    linea desplazada hacia adentro. Robusto en concavos, chaflanes exactos y
+    SIEMPRE devuelve un poligono CONEXO (una curva por piso). Devuelve lista
+    de Point3d (cerrada) o None si se degenera."""
+    poly = [rg.Point3d(p.X, p.Y, 0.0) for p in puntos]
+    if len(poly) &lt; 3:
+        return None
+    ccw = _area_signada_puntos(poly) &gt; 0
+    for (a, b), r in sub_segmentos:
+        if r &lt;= 0.0:
+            continue
+        dx = b.X - a.X
+        dy = b.Y - a.Y
+        largo = math.hypot(dx, dy)
+        if largo &lt; 1e-9:
+            continue
+        ux, uy = dx / largo, dy / largo
+        if ccw:
+            nx, ny = -uy, ux
+        else:
+            nx, ny = uy, -ux
+        k = nx * (a.X + nx * r) + ny * (a.Y + ny * r)
+        nuevo = []
+        m = len(poly)
+        for j in range(m):
+            p = poly[j]
+            q = poly[(j + 1) % m]
+            dp = nx * p.X + ny * p.Y - k
+            dq = nx * q.X + ny * q.Y - k
+            dentro_p = dp &gt;= -1e-9
+            dentro_q = dq &gt;= -1e-9
+            if dentro_p:
+                nuevo.append(p)
+            if dentro_p != dentro_q:
+                t = dp / (dp - dq)
+                nuevo.append(rg.Point3d(p.X + t * (q.X - p.X),
+                                        p.Y + t * (q.Y - p.Y), 0.0))
+        poly = nuevo
+        if len(poly) &lt; 3:
+            return None
+    return poly
+
+
+def _subdividir_lado(p1, p2, vecinos):
+    """v08 - Subdivide el segmento (p1,p2) en tantas partes como vecinos.
+    Longitudes proporcionales a las informadas; si ninguna se informa, partes
+    iguales. Devuelve lista de puntos (len = len(vecinos)+1)."""
+    n = len(vecinos)
+    if n &lt;= 1:
+        return [rg.Point3d(p1.X, p1.Y, 0.0), rg.Point3d(p2.X, p2.Y, 0.0)]
+    longs = [v[1] for v in vecinos]
+    total = sum([lo for lo in longs if lo is not None and lo &gt; 0])
+    if total &lt;= 0:
+        fracciones = [1.0 / n] * n
+    else:
+        fracciones = []
+        for lo in longs:
+            if lo is not None and lo &gt; 0:
+                fracciones.append(lo / total)
+            else:
+                fracciones.append(0.0)
+        # normalizar (si alguna es 0, repartir el resto proporcional)
+        suma = sum(fracciones)
+        if suma &lt;= 0:
+            fracciones = [1.0 / n] * n
+        else:
+            fracciones = [f / suma for f in fracciones]
+    pts = [rg.Point3d(p1.X, p1.Y, 0.0)]
+    for f in fracciones:
+        ult = pts[-1]
+        pts.append(rg.Point3d(ult.X + (p2.X - p1.X) * f, ult.Y + (p2.Y - p1.Y) * f, 0.0))
+    if pts[-1].DistanceTo(rg.Point3d(p2.X, p2.Y, 0.0)) &gt; 0.01:
+        pts[-1] = rg.Point3d(p2.X, p2.Y, 0.0)
+    return pts
+
+
+def _subsegmentos_piso(nv, lados, vertices, retiros_base, vecinos_por_lado,
+                       altura_vecinos_m, empate_lateral_min, nsr_coef,
+                       pisos_finales, floor_h, voladizo_frontal,
+                       empate_activo=True):
+    """v08.1 - Construye la lista de (sub-segmento, retiro) para un piso.
+    Lados Lateral con vecinos informados: un sub-segmento por vecino (retiro
+    por empate con SU altura). Lados Lateral sin vecinos: altura_vecinos_m
+    global (v07). Frontal en pisos != 1: antejardin - voladizo.
+    Anexo 5, SECCION 1.9.c: el empate volumetrico lateral aplica SOLO a
+    predios con lado POSTERIOR; para predios con dos laterales y al menos
+    una esquina (sin lado posterior) NO aplica -&gt; rige SOLO la separacion
+    sismica NSR-10 A.6.5 (2% x h) con vecinos construidos."""
+    h_piso = nv * floor_h
+    # La separacion sismica no toca el piso 1: la huella define la OCUPACION
+    # del lote (IO); el escalonamiento por sismica/empate actua de N2 en
+    # adelante.
+    r_sismica = separacion_sismica_piso(h_piso, nsr_coef) \
+        if (pisos_finales &gt; 3 and nv &gt; 1) else 0.0
+    subs = []
+    n = len(vertices) - 1
+    for i in range(n):
+        p1, p2 = vertices[i], vertices[(i + 1) % n]
+        cls = "Lateral"
+        for lado in lados:
+            if lado.get("id", 0) == i:
+                cls = lado.get("clasificacion", "Lateral")
+                break
+        retiro_base = retiros_base.get(i, 0.0)
+        if cls == "Lateral" and i in vecinos_por_lado:
+            vecs = vecinos_por_lado[i]
+            sub_pts = _subdividir_lado(p1, p2, vecs)
+            for j in range(len(sub_pts) - 1):
+                r = max(retiro_base, r_sismica)
+                if empate_activo:
+                    h_vec = vecs[j][0]
+                    r = max(r, retiro_lateral_empate(h_piso, h_vec, empate_lateral_min))
+                subs.append(((sub_pts[j], sub_pts[j + 1]), r))
+        elif cls == "Lateral":
+            r = max(retiro_base, r_sismica)
+            if empate_activo:
+                r = max(r, retiro_lateral_empate(h_piso, altura_vecinos_m, empate_lateral_min))
+            subs.append(((p1, p2), r))
+        elif cls == "Frontal" and nv &gt; 1 and voladizo_frontal &gt; 0:
+            r = max(0.0, retiro_base - voladizo_frontal)
+            subs.append(((p1, p2), r))
+        else:
+            subs.append(((p1, p2), retiro_base))
+    return subs
+
+
+def area_curvas(curva_o_lista):
+    """v08 - Area de una curva o lista de curvas (piso partido en piezas)."""
+    if curva_o_lista is None:
+        return 0.0
+    if isinstance(curva_o_lista, list):
+        return sum([area_curve(c) for c in curva_o_lista])
+    return area_curve(curva_o_lista)
 
 
 def area_curve(crv):
@@ -1505,6 +1953,12 @@ tipologia_raw = globals().get("tipologia", None)
 ancho_via_raw = globals().get("ancho_via_m", None)
 antejardin_raw = globals().get("antejardin_m", None)
 empate_posterior_raw = globals().get("empate_posterior_pisos", None)
+altura_vecinos_raw = globals().get("altura_vecinos_m", None)       # v07
+empate_lateral_min_raw = globals().get("empate_lateral_min_m", None)  # v07
+nsr_coef_raw = globals().get("nsr10_separacion_coef", None)        # v07
+voladizo_raw = globals().get("voladizo_frontal_m", None)           # v07
+vecinos_raw = globals().get("vecinos_por_lado_json", None)         # v08
+frente_override_raw = globals().get("frente_override_json", None)  # v08.2
 reglamentacion_raw = globals().get("reglamentacion_json", None)
 
 warnings = []
@@ -1528,6 +1982,38 @@ if sides_raw is not None:
         sides_data = None
 
 lados = sides_data.get("lados", []) if sides_data else []
+# v08.2 (2026-08-23): lote de esquina (2+ vertices con contacto real a
+# via/EP) -&gt; sin aislamiento posterior; solo el frente lleva antejardin y
+# la esquina interior lleva patio 3x3 (PATIO).
+es_esquina = bool(sides_data.get("es_esquina", False)) if sides_data else False
+frente_override = _parsear_frente_override(frente_override_raw)
+if frente_override:
+    # la regla de esquina sigue al override del operador (2+ lados de calle).
+    # v08.3: "via_no_frontal" tambien cuenta como via (el lote es esquina
+    # si tiene 2+ lados de calle, aunque uno no sea el frente principal),
+    # para no generar patio posterior en esquina con via secundaria sin antejardin.
+    _n_vias = sum(1 for v in frente_override.values()
+                  if v in ("via", "via_no_frontal"))
+    if _n_vias &gt;= 2:
+        es_esquina = True
+
+# --- Anexo 5, SECCION 1.9.c (v08.1): el empate volumetrico lateral aplica
+# SOLO a predios con lado POSTERIOR (lote interior/fondo). Para predios con
+# dos laterales y al menos una esquina (sin lado posterior) NO aplica: rige
+# SOLO la separacion sismica NSR-10 A.6.5 (2% x h) con vecinos construidos.
+aplica_empate_raw = globals().get("aplica_empate_lateral", None)
+if aplica_empate_raw is not None and str(unwrap(aplica_empate_raw)).strip() not in ("", "None"):
+    empate_activo = parse_gh_bool(aplica_empate_raw)
+    warnings.append("empate 1.9.c %s por entrada" % ("activo" if empate_activo else "inactivo"))
+else:
+    empate_activo = any(
+        str(lado.get("clasificacion", "")).strip().lower() == "posterior"
+        for lado in lados)
+    if empate_activo:
+        warnings.append("empate 1.9.c activo: predio con lado posterior")
+    else:
+        warnings.append("empate 1.9.c NO aplica: predio sin lado posterior "
+                        "(dos laterales y esquina) -&gt; solo sismica NSR-10 A.6.5")
 
 # --- Tipologia: operador &gt; reglamentacion &gt; Continua ---
 tipologia = normalize_tipologia(tipologia_raw, warnings)
@@ -1574,6 +2060,48 @@ except:
     empate_posterior_pisos = 0.0
 
 try:
+    altura_vecinos_m = float(unwrap(altura_vecinos_raw)) if altura_vecinos_raw else 0.0
+except:
+    altura_vecinos_m = 0.0
+
+try:
+    empate_lateral_min = float(unwrap(empate_lateral_min_raw)) if empate_lateral_min_raw else 0.0
+except:
+    empate_lateral_min = 0.0
+if empate_lateral_min &lt;= 0:
+    empate_lateral_min = EMPATE_LATERAL_MIN_M
+
+try:
+    nsr_coef = float(unwrap(nsr_coef_raw)) if nsr_coef_raw else 0.0
+except:
+    nsr_coef = 0.0
+if nsr_coef &lt;= 0:
+    nsr_coef = NSR10_SEPARACION_COEF
+
+try:
+    voladizo_override = float(unwrap(voladizo_raw)) if voladizo_raw else 0.0
+except:
+    voladizo_override = 0.0
+# Voladizo frontal: override del operador &gt; perfil vial (SECCION 1.13.b)
+voladizo_frontal = voladizo_override if voladizo_override &gt; 0 else \
+    voladizo_por_perfil_vial(ancho_via_m)
+if voladizo_override &lt;= 0 and voladizo_frontal &gt; 0:
+    warnings.append(
+        "voladizo frontal {:.2f}m por perfil vial (SECCION 1.13.b)".format(
+            voladizo_frontal))
+
+# v08 - Vecinos con alturas variables por lateral (SECCION 1.9.c por segmento)
+vecinos_por_lado = parsear_vecinos_por_lado(vecinos_raw)
+total_vecinos = sum([len(v) for v in vecinos_por_lado.values()])
+if total_vecinos &gt; 0:
+    warnings.append(
+        "vecinos por lado (v08): {} lados, {} vecinos".format(
+            len(vecinos_por_lado), total_vecinos))
+elif vecinos_raw is not None and str(vecinos_raw).strip() != "":
+    warnings.append(
+        "vecinos_por_lado_json sin datos validos -&gt; modo v07 (altura global)")
+
+try:
     floor_h = float(unwrap(floor_h_raw)) if floor_h_raw else 3.0
 except:
     floor_h = 3.0
@@ -1606,9 +2134,16 @@ else:
         warnings.append(
             "sin ancho_via_m -&gt; antejardin default {:.1f}m (ver mapa CU-5.5)".format(antejardin))
 
-# Posterior: empate volumetrico (SECCION 5.4.c) si el vecino tiene 3+ pisos
+# Posterior: empate volumetrico (SECCION 5.4.c) si el vecino tiene 3+ pisos.
+# v08.2: en lote de esquina NO aplica aislamiento posterior (solo el frente
+# lleva antejardin); el lado "Posterior" se trata como colindante sin retiro
+# y la esquina interior lleva patio 3x3 (PATIO).
 empate_posterior = empate_posterior_pisos &gt;= 3.0
-if empate_posterior:
+if es_esquina:
+    retiro_posterior = 0.0
+    warnings.append(
+        "lote de esquina: sin aislamiento posterior (patio 3x3 en esquina interior)")
+elif empate_posterior:
     retiro_posterior = 0.0
 else:
     retiro_posterior = retiro_posterior_consolidacion(pisos_finales)
@@ -1619,56 +2154,140 @@ if tipologia == "Aislada":
 else:
     retiro_lateral = 0.0
 
-retiros = {}
-for lado in lados:
-    idx = lado.get("id", 0)
-    cls = lado.get("clasificacion", "Lateral")
-    if cls == "Frontal":
-        retiros[idx] = antejardin
-    elif cls == "Posterior":
-        retiros[idx] = retiro_posterior
-    elif cls == "EspacioPublico":
-        retiros[idx] = 0.0
-    else:
-        retiros[idx] = retiro_lateral
-
 # --- Inicializar outputs ---
 envelope_curve = None
+envelope_por_piso = []
+retiros_por_piso = ""
 ocupacion_real = 0.0
 valido = False
 area_lote = area_curve(lot_polygon) if lot_polygon else 0.0
 
-# --- 1. Construir huella con retiros ---
-huella_retiros = None
-if lot_polygon is not None:
-    try:
-        huella_retiros = build_footprint_retiros(lot_polygon, retiros)
-    except:
-        huella_retiros = lot_polygon
-
-# --- 2. Restar patios geométricamente (Boolean Difference) ---
+# --- 1. Patios (lista + area) ---
 patios_list = [p for p in safe_list(patio_raw) if p is not None]
 patio_area_total = 0.0
-huella_bruta = area_curve(huella_retiros) if huella_retiros else 0.0
+for patio in patios_list:
+    patio_area_total += area_curve(patio)
 
-if huella_retiros is not None and patios_list:
-    for patio in patios_list:
-        patio_area_total += area_curve(patio)
 
-    diff_curves = rg.Curve.CreateBooleanDifference(huella_retiros, patios_list, TOLERANCIA)
+def envelope_final(huella):
+    """Aplica la resta de patios a una huella; devuelve (curva, area)."""
+    if huella is None:
+        return None, 0.0
+    if not patios_list:
+        return huella, area_curve(huella)
+    try:
+        diff = rg.Curve.CreateBooleanDifference(huella, patios_list, TOLERANCIA)
+        if diff and len(diff) &gt; 0:
+            joined = rg.Curve.JoinCurves(diff, TOLERANCIA)
+            return (joined if len(joined) &gt; 1 else joined[0]), \
+                   max(0.0, sum([area_curve(c) for c in diff]))
+    except:
+        pass
+    return huella, max(0.0, area_curve(huella) - patio_area_total)
 
-    if diff_curves and len(diff_curves) &gt; 0:
-        joined = rg.Curve.JoinCurves(diff_curves, TOLERANCIA)
-        envelope_curve = joined if len(joined) &gt; 1 else joined[0]
-        ocupacion_real = max(0.0, sum([area_curve(c) for c in diff_curves]))
+# --- 2. Retiros base por lado (v06) + override del operador (v08.2) ---
+# v08.2: la clasificacion confirmada en 1b·1c manda sobre la geometrica;
+# se casa por cardinal (normal saliente del lado respecto al centroide).
+_centroide_lote = None
+if lot_polygon is not None and frente_override:
+    _vpre = _vertices_curva(lot_polygon)
+    if _vpre:
+        _npre = len(_vpre)
+        _centroide_lote = (sum(v.X for v in _vpre) / _npre,
+                           sum(v.Y for v in _vpre) / _npre)
+
+retiros_base = {}
+for lado in lados:
+    idx = lado.get("id", 0)
+    cls = lado.get("clasificacion", "Lateral")
+    if _centroide_lote is not None:
+        try:
+            _dx = float(lado.get("dx", 0.0) or 0.0)
+            _dy = float(lado.get("dy", 0.0) or 0.0)
+            _mx = float(lado.get("mx", 0.0) or 0.0)
+            _my = float(lado.get("my", 0.0) or 0.0)
+            _card = _cardinal_lado(_dx, _dy, _mx, _my,
+                                   _centroide_lote[0], _centroide_lote[1])
+            if _card in frente_override:
+                cls = FRENTE_A_CLASIFICACION[frente_override[_card]]
+        except Exception:
+            pass
+    if cls == "Frontal":
+        retiros_base[idx] = antejardin
+    elif cls == "Posterior":
+        retiros_base[idx] = retiro_posterior
+    elif cls == "EspacioPublico":
+        retiros_base[idx] = 0.0
     else:
-        envelope_curve = huella_retiros
-        ocupacion_real = max(0.0, huella_bruta - patio_area_total)
-else:
-    envelope_curve = huella_retiros
-    ocupacion_real = huella_bruta
+        retiros_base[idx] = retiro_lateral
 
-# --- 3. Validacion y Indices ---
+# --- 3. Envelopes por piso (v08: Sutherland-Hodgman por sub-segmento) ---
+huellas_por_piso = []
+areas_por_piso = []
+vertices_lote = _vertices_curva(lot_polygon) if lot_polygon is not None else []
+if lot_polygon is not None and vertices_lote:
+    for nv in range(1, pisos_finales + 1):
+        subs = _subsegmentos_piso(
+            nv, lados, vertices_lote, retiros_base, vecinos_por_lado,
+            altura_vecinos_m, empate_lateral_min, nsr_coef,
+            pisos_finales, floor_h, voladizo_frontal, empate_activo)
+        pts = _recortar_puntos(vertices_lote, subs)
+        if pts is None:
+            huellas_por_piso.append(None)
+            areas_por_piso.append(0.0)
+            continue
+        h = _curva_desde_puntos(pts)
+        if h is None:
+            huellas_por_piso.append(None)
+            areas_por_piso.append(0.0)
+            continue
+        env, area = envelope_final(h)
+        huellas_por_piso.append(env)
+        areas_por_piso.append(area)
+else:
+    huellas_por_piso = []
+
+envelope_por_piso = huellas_por_piso
+if envelope_por_piso:
+    envelope_curve = envelope_por_piso[0]
+ocupacion_real = areas_por_piso[0] if areas_por_piso else 0.0
+
+# Desglose por piso: retiro lateral maximo por lado (para diagnostico)
+escalonados = []
+for nv in range(1, pisos_finales + 1):
+    h_piso = nv * floor_h
+    r_sismica = separacion_sismica_piso(h_piso, nsr_coef) \
+        if (pisos_finales &gt; 3 and nv &gt; 1) else 0.0
+    retiro_max = 0.0
+    for i, lado in enumerate(lados):
+        if lado.get("clasificacion", "Lateral") != "Lateral":
+            continue
+        lid = lado.get("id", i)
+        r_l = 0.0
+        if empate_activo:
+            if lid in vecinos_por_lado:
+                r_l = max([retiro_lateral_empate(h_piso, v[0], empate_lateral_min)
+                           for v in vecinos_por_lado[lid]] or [0.0])
+            else:
+                r_l = retiro_lateral_empate(h_piso, altura_vecinos_m, empate_lateral_min)
+        retiro_max = max(retiro_max, r_l, r_sismica)
+    if retiro_max &gt; 0:
+        escalonados.append(nv)
+
+try:
+    retiros_por_piso = json.dumps([
+        {"piso": i + 1, "altura_m": round((i + 1) * floor_h, 2),
+         "area_m2": round(areas_por_piso[i], 2),
+         "escalonado": (i + 1) in escalonados,
+         "voladizo_frontal_m": round(voladizo_frontal if i &gt; 0 else 0.0, 2),
+         "vecinos_por_lado": {str(k): [round(v[0], 2) for v in vs]
+                               for k, vs in vecinos_por_lado.items()}}
+        for i in range(pisos_finales)
+    ], ensure_ascii=False)
+except:
+    retiros_por_piso = "[]"
+
+# --- 4. Validacion y Indices ---
 valido = ocupacion_real &lt; area_lote - 0.01 and ocupacion_real &gt; 0.0
 
 if io_user &gt; 0:
@@ -1680,29 +2299,68 @@ elif tratamiento in ("Desarrollo", "Mejoramiento"):
 else:
     io_maximo = 0.70
 
-# --- 4. GFA (Gross Floor Area) ---
-gfa_total = ocupacion_real * pisos_finales
-ic_real = (ocupacion_real / area_lote * ic_maximo) if area_lote &gt; 0 else 0.0
+# --- 5. GFA ESCALONADO (suma de areas por piso) e indices ---
+gfa_total = sum(areas_por_piso)
+ic_real = (gfa_total / area_lote) if area_lote &gt; 0 else 0.0
+
+gfa_base = ocupacion_real * pisos_finales
 
 if valido:
-    mensaje = "NORMATIVA v06 | OK | Lote: {:.1f}m2 | Ocup: {:.1f}m2 | IO {:.2f} | IC {:.2f} (+{}) | Alt {:.1f}m | {} pisos | GFA: {:.1f}m2 | Patios {:.1f}m2 | Tipo:{} | Antejardin {:.1f}m (via {:.1f}m) | Lat {:.1f}m | Post {:.1f}m{}".format(
+    empate_txt = "NO aplica (sin lado posterior): solo sismica 2%xh" \
+        if not empate_activo else "activo (lado posterior)"
+    mensaje = ("NORMATIVA v08.1 | OK | Lote: {:.1f}m2 | Ocup: {:.1f}m2 | IO {:.2f} | "
+               "IC {:.2f} (+{}) | Alt {:.1f}m | {} pisos | GFA escalonado: {:.1f}m2 "
+               "(base {:.1f}m2) | Escalonados: {} pisos | "
+               "Voladizo frontal {:.2f}m (piso 2+) | Vecinos por lado: {} lados, {} vecinos | "
+               "Empate 1.9.c: {} | "
+               "Patios {:.1f}m2 | Tipo:{} | Antejardin {:.1f}m (via {:.1f}m) | "
+               "Lat {:.1f}m | Post {:.1f}m{}").format(
         area_lote, ocupacion_real, io_maximo, ic_real, pisos_extra, altura_total,
-        pisos_finales, gfa_total, patio_area_total, tipologia, antejardin,
+        pisos_finales, gfa_total, gfa_base, len(escalonados),
+        voladizo_frontal, len(vecinos_por_lado), total_vecinos, empate_txt,
+        patio_area_total, tipologia, antejardin,
         ancho_via_m, retiro_lateral, retiro_posterior,
         " (empate)" if empate_posterior else "")
 else:
-    mensaje = "NORMATIVA v06 | ERROR DE VALIDACION | Ocupacion ({:.1f}) &gt;= Area bruta ({:.1f})".format(
+    mensaje = "NORMATIVA v08.1 | ERROR DE VALIDACION | Ocupacion ({:.1f}) &gt;= Area bruta ({:.1f})".format(
         ocupacion_real, area_lote)
+
+if altura_vecinos_m &lt;= 0:
+    warnings.append(
+        "sin altura_vecinos_m -&gt; sin escalonamiento lateral (SECCION 1.9.c)")
 
 if warnings:
     mensaje += " | AVISOS: " + "; ".join(warnings)
 </item>
                     <item name="Description" type_name="gh_string" type_code="10">================================================================================
-F1_ETAPA2_NORMATIVA_v06.py - Retiros + Patios + Indices + Piso Adicional
+F1_ETAPA2_NORMATIVA_v08.py - Retiros + Patios + Indices + Piso Adicional
                             + Ancho de via con respaldo desde LADOS
+                            + ENVELOPE ESCALONADO por pisos superiores
+                            + VECINOS CON ALTURAS VARIABLES por lateral
 Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
+SUBVERSIONES INTERNAS (v08.x: iteraciones sin cambio de version general):
+  v08.1 (2026-08-16): correccion normativa del operador - el empate
+volumetrico lateral (Anexo 5, SECCION 1.9.c) aplica UNICAMENTE a
+predios con lado POSTERIOR (lote interior/fondo). Para predios con
+dos laterales y al menos una esquina (sin lado posterior) NO aplica:
+con vecinos construidos rige SIEMPRE el aislamiento sismorresistente
+(NSR-10 A.6.5, 2% x h). Entrada nueva `aplica_empate_lateral`
+(Boolean, override) + auto-deteccion por la clasificacion del LADOS
+(presencia de lado "Posterior"). Sin lado posterior, el retiro
+lateral = SOLO sismica 2% x h (caso A: GFA 1.501,2 m2 en el
+estimador; 1.469,2 m2 en el canvas con patio 9,0 m2).
+  v08.2 (2026-08-23): regla de lote de esquina (2+ lados via/EP -&gt; sin
+aislamiento posterior; la esquina interior lleva patio 3x3) +
+puente frente_override: entrada frente_override_json {cardinal:
+frente} (salida de F0_LOAD_PROYECTO v01.4); la clasificacion del
+operador manda sobre la geometrica, casada por cardinal (normal
+saliente del lado).
+Regla de versionado: la version general (v08 -&gt; v09) SOLO cambia con cambios
+mayores (contrato de entradas/salidas o algoritmo central); las iteraciones
+internas se registran como subversiones v08.x en este encabezado (el mensaje
+del componente reporta la subversion en curso).
 CALCULO:
   1. Descontar retiro FRONTAL (antejardin) del lado frontal del lote
   2. NO descontar retiro en lados EspacioPublico (0m)
@@ -1715,89 +2373,173 @@ con empate volumetrico (vecino posterior de 3+ pisos sin aislamiento,
 SECCION 5.4.c) el retiro posterior = 0 en la huella
   5. Restar el patio (desde vertice N) del perimetro restante (Boolean Diff)
   6. Calcular pisos base (Decreto 555/2021) y aplicar PISO ADICIONAL
-  7. Calcular GFA (Gross Floor Area) maximo para Fase 2
+  7. ESCALONAMIENTO EN PISOS SUPERIORES (v07/v08.1): cuando la edificacion supera la
+altura de las edificaciones colindantes sin aislamiento lateral (Anexo 5
+POT, SECCION 1.9.c - Empates de aislamientos laterales), los pisos por
+encima del nivel de empate se retiran con aislamiento lateral =
+max(1/5 x altura desde el nivel de empate, minimo del empate). Se toma el
+MAYOR entre ese retiro y la separacion sismica NSR-10 A.6.5 (Tabla
+A.6.5-1: 1-3% de la altura por piso) cuando aplica (&gt;3 pisos, amenaza
+intermedia/alta, colindancia con predio). NO aplica en lados que
+colindan con via publica o espacio publico (excepcion A.6.5).
+NOTA v08.1 (correccion normativa del operador): la SECCION 1.9.c (empate
+volumetrico lateral) aplica SOLO a predios con lado POSTERIOR (lote
+interior/fondo). Para predios con dos laterales y al menos una esquina
+(sin lado posterior) NO aplica: con vecinos construidos rige SIEMPRE el
+aislamiento de las normas SISMORRESISTENTES (NSR-10 A.6.5, 2% x h).
+Entrada aplica_empate_lateral (Boolean): override manual; sin cablear,
+auto-deteccion por la clasificacion del LADOS (presencia de lado
+Posterior).
+  8. Calcular GFA ESCALONADO = suma de las areas de los envelopes por piso
+(Fase 2) y emitir envelope_por_piso para Fase 3 (masa escalonada).
+  9. VOLADIZOS (v07, Anexo 5 POT SECCION 1.13): en pisos diferentes del
+primero, la fachada frontal puede sobresalir del paramento de
+construccion sobre el antejardin/APAUP segun el perfil vial (SECCION
+1.13.b): &lt;=6m no se permite; &gt;6-10m 0,60m; &gt;10-15m 0,80m; &gt;15-22m
+1,00m; &gt;22m/malla arterial 1,50m. El voladizo SE contabiliza en el
+indice de construccion (GFA) en pisos != 1 y NO en el area ocupada
+(definicion de Voladizo). NO se permite sobre cesiones publicas para
+parques/equipamientos ni EEP (lados EspacioPublico), ni sobre
+aislamientos laterales (lados Lateral). Implementacion: en pisos 2+ el
+retiro frontal del envelope se reduce a (antejardin - voladizo).
+ 10. VECINOS CON ALTURAS VARIABLES POR LATERAL (v08): NO todos los vecinos
+tienen la misma altura y sobre un mismo lado del predio puede haber
+VARIOS vecinos (como se modela en Fase 2). La entrada
+`vecinos_por_lado_json` define por cada lado Lateral la lista de vecinos
+(altura y longitud opcional). El retiro de empate (SECCION 1.9.c) se
+calcula POR SEGMENTO con la altura del vecino de ese segmento (el retiro
+del piso crece donde el vecino es mas bajo); el lado se subdivide en
+tantos sub-segmentos como vecinos (longitudes proporcionales si no se
+informan). El recorte de la huella pasa a SEMIPLANOS por sub-segmento
+(cajas exteriores + BooleanDifference), robusto en poligonos concavos
+(reemplaza al desplazamiento por interseccion de lineas, que solo es
+estable en convexos). Sin la entrada, el comportamiento es identico al
+v07 (altura_vecinos_m global).
 NOTA NORMATIVA (antejardin / retiro frontal):
-  En Consolidacion el antejardin se exige segun el mapa CU-5.5
-  "Dimensionamiento de Antejardines" (Resolucion SDP 1631/2023). Cuando el
-  mapa no determina la dimension, aplica la norma vigente antes del Decreto
-  555/2021 (regla historica: vias &lt; 12m -&gt; 3,00m; 12-20m -&gt; 5,00m; &gt;=20m -&gt;
-  7,00m, parametrizable en FRONTAL_POR_ANCHO_VIA). La entrada antejardin_m
-  permite fijar el valor oficial del mapa CU-5.5 por sector.
-  En esquineros el mapa permite reducir a 2,00m por el lado de mayor
-  dimension (usar antejardin_m para casos puntuales).
-NOTA NORMATIVA (tipologia aislada):
-  La tipologia aislada y su aislamiento lateral dependen de la
-  reglamentacion (mapas CU-5.4.2 a CU-5.4.33 - Edificabilidad): lateral =
-  1/5 de la altura en metros, minimo 4,00m (3,00m solo en Mejoramiento
-  Integral). Se exige desde el segundo piso o el nivel de empate.
+En Consolidacion el antejardin se exige segun el mapa CU-5.5
+"Dimensionamiento de Antejardines" (Resolucion SDP 1631/2023). Cuando el
+mapa no determina la dimension, aplica la norma vigente antes del Decreto
+555/2021 (regla historica: vias &lt; 12m -&gt; 3,00m; 12-20m -&gt; 5,00m; &gt;=20m -&gt;
+7,00m, parametrizable en FRONTAL_POR_ANCHO_VIA). La entrada antejardin_m
+permite fijar el valor oficial del mapa CU-5.5 por sector.
+En esquineros el mapa permite reducir a 2,00m por el lado de mayor
+dimension (usar antejardin_m para casos puntuales).
+NOTA NORMATIVA (empate volumetrico lateral, SECCION 1.9.c - v07):
+"Cuando el proyecto supere la altura de las edificaciones colindantes sin
+aislamiento lateral existentes a la fecha [555/2021], con altura superior a
+la definida en los mapas CU-5.4.2 a CU-5.4.33, la edificacion de mayor
+altura debe prever aislamiento lateral por el costado que colinde con la
+edificacion de menor altura, calculado a partir de la altura de la menor."
+Dimension minima del aislamiento lateral: 1/5 de la altura en metros que
+alcance la edificacion medida desde el nivel de empate (SECCION 1.9.b /
+1.9.c), con minimo parametrizable (empate_lateral_min_m, default 3,00m).
+La separacion sismica NSR-10 A.6.5 (Tabla A.6.5-1, &gt;3 pisos) se suma a la
+comparacion: se toma el MAYOR valor entre el retiro POT y la separacion
+sismica del piso (s_i = coeficiente x h_i).
 NOTA NORMATIVA (empate volumetrico posterior):
-  "En predios que colinden posteriormente con predios en los que a la fecha
-  de entrada en vigencia del Decreto Distrital 555 de 2021, existan
-  edificaciones de tres (3) o mas pisos sin aislamiento posterior, se
-  permite prever empate volumetrico con la altura de dichas edificaciones,
-  a partir de cuyo nivel se exige aislamiento posterior reglamentario
-  aplicado a la altura maxima de la edificacion." (Anexo 5, SECCION 5.4.c)
-  Entrada empate_posterior_pisos: pisos del vecino posterior existente.
-  Si &gt;= 3: retiro posterior = 0 en la huella (el aislamiento se exige solo
-  por encima de la altura del vecino).
+"En predios que colinden posteriormente con predios en los que a la fecha
+de entrada en vigencia del Decreto Distrital 555 de 2021, existan
+edificaciones de tres (3) o mas pisos sin aislamiento posterior, se
+permite prever empate volumetrico con la altura de dichas edificaciones,
+a partir de cuyo nivel se exige aislamiento posterior reglamentario
+aplicado a la altura maxima de la edificacion." (Anexo 5, SECCION 5.4.c)
+Entrada empate_posterior_pisos: pisos del vecino posterior existente.
+Si &gt;= 3: retiro posterior = 0 en la huella (el aislamiento se exige solo
+por encima de la altura del vecino).
+NOTA NORMATIVA (vecinos con alturas variables, SECCION 1.9.c - v08):
+El empate volumetrico lateral se calcula contra las edificaciones
+colindantes EXISTENTES por cada costado. Cuando un lateral colinda con
+VARIOS vecinos de alturas DIFERENTES, el retiro por piso se aplica por
+SEGMENTO: cada sub-segmento del lado usa la altura de su vecino (el retiro
+resultante es mayor donde el vecino es mas bajo, que es el caso mas
+desfavorable para el proyecto). La subdivision del lado se hace con las
+longitudes informadas o proporcional al numero de vecinos. Los lados
+Lateral sin vecinos informados usan altura_vecinos_m (global, v07).
 ENTRADAS:
-  lot_polygon (Curve)            - Lote simplificado
-  sides_table_json (String)      - Clasificacion (F1_ETAPA2_LADOS_v03)
-  patio_curves (Curve[])         - Patio(s) (F1_ETAPA2_PATIO_v02)
-  altura_max_pot (Number)        - [OBSOLETO] Se mantiene para no romper canvas
-  tratamiento (String)           - Tratamiento urbanistico
-  rango_edificabilidad (String)  - Rango "1".."5" (tolerante a etiquetas)
-  floor_height_user (Number)     - Altura entrepiso [m]
-  io_maximo_user (Number)        - IO normativo (override)
-  piso_adicional (bool)          - True si se acoge al incentivo normativo
-  tipo_bonificacion (String)     - "NINGUNO" | "VIS" | "VIP" | "COMUNAL" |
+lot_polygon (Curve)            - Lote simplificado
+sides_table_json (String)      - Clasificacion (F1_ETAPA2_LADOS_v03)
+patio_curves (Curve[])         - Patio(s) (F1_ETAPA2_PATIO_v02)
+altura_max_pot (Number)        - [OBSOLETO] Se mantiene para no romper canvas
+tratamiento (String)           - Tratamiento urbanistico
+rango_edificabilidad (String)  - Rango "1".."5" (tolerante a etiquetas)
+floor_height_user (Number)     - Altura entrepiso [m]
+io_maximo_user (Number)        - IO normativo (override)
+piso_adicional (bool)          - True si se acoge al incentivo normativo
+tipo_bonificacion (String)     - "NINGUNO" | "VIS" | "VIP" | "COMUNAL" |
 "EQUIPAMIENTO" | "EQUIPAMENTO+COMUNAL"
-  tipologia (String)             - "Continua" (default) | "Aislada". Si es nula
+tipologia (String)             - "Continua" (default) | "Aislada". Si es nula
 o vacia, se deriva de reglamentacion_json.
-  ancho_via_m (Number)           - Ancho de via del frente [m] (medido entre
+ancho_via_m (Number)           - Ancho de via del frente [m] (medido entre
 bordes opuestos del perfil vial TOTAL;
 entrada del operador). Precedencia v06:
 operador &gt; LADOS_v06 (sides_data) &gt;
 reglamentacion &gt; 0 (default).
-  antejardin_m (Number)          - Override del retiro frontal [m] (valor
+antejardin_m (Number)          - Override del retiro frontal [m] (valor
 oficial del mapa CU-5.5 si se conoce).
 Si 0/nulo, se deriva de reglamentacion_json
 o de la regla por ancho de via.
-  empate_posterior_pisos (Number)- Pisos del vecino posterior existente
+empate_posterior_pisos (Number)- Pisos del vecino posterior existente
 (&gt;=3 activa empate volumetrico)
-  reglamentacion_json (String)   - JSON de reglamentacion (salida de
+altura_vecinos_m (Number)      - [v07] Altura de las edificaciones
+colindantes (nivel de empate lateral,
+SECCION 1.9.c). Si 0/nulo: sin
+escalonamiento + aviso.
+empate_lateral_min_m (Number)  - [v07] Minimo del aislamiento lateral por
+empate (default 3,00m).
+voladizo_frontal_m (Number)    - [v07] Override del voladizo frontal [m]
+(SECCION 1.13.b). Si 0/nulo: se deriva del
+perfil vial (tabla 1.13.b, columna con
+antejardin). Aplica en pisos != 1, solo en
+lados Frontal (via).
+vecinos_por_lado_json (String) - [v08] Vecinos por lateral con alturas
+variables. JSON con dos formatos:
+(a) {"&lt;id_lado&gt;": [altura_m, ...], ...}
+(b) {"lados": [{"id": &lt;id&gt;,
+"vecinos": [{"altura_m": ..,
+"longitud_m": ..}]}], ...}
+Cada lado Lateral listado se subdivide en
+tantos sub-segmentos como vecinos. Si no
+llega: comportamiento v07 (altura_vecinos_m
+global). El id del lado = indice del
+segmento del poligono (sides_table_json).
+frente_override_json (String)  - [v08.2] Override de frente por cardinal
+(salida de F0_LOAD_PROYECTO v01.4):
+{"&lt;cardinal&gt;": "via"|"via_no_frontal"|
+"predio"|"espacio_publico"}. La clasificacion
+confirmada por el operador manda sobre la
+geometrica; se casa por cardinal (normal
+saliente del lado). Sin cablear: se usa la
+clasificacion geometrica del LADOS.
+reglamentacion_json (String)   - JSON de reglamentacion (salida de
 F1_ETAPA1_CONTEXTO_v02: pot_data con
 tipologia/ancho_via_m/antejardin_m).
 Cadena de derivacion: operador &gt;
 reglamentacion &gt; default + aviso.
 SALIDAS:
-  envelope_curve (Curve/List)    - Huella fisica con retiros y patio restado
-  gfa_total (Number)             - Area Bruta Construida TOTAL (incl. piso extra)
-  ocupacion_real, io_maximo, ic_real, ic_maximo,
-  altura_total, pisos_finales, valido (bool), mensaje
+envelope_curve (Curve/List)    - Huella del PISO 1 (base, con retiros y
+patio). Compatibilidad con F1_EXPORTAR_GFA
+y el contrato v06.
+envelope_por_piso (List)       - [v07] Curva de ocupacion POR PISO
+(escalonada + voladizos en pisos
+superiores). Fase 3 (VOLUM_GENERADOR_v07+)
+la consume.
+retiros_por_piso (String)      - [v07] JSON con el desglose por piso:
+altura, retiro lateral aplicado, voladizo,
+area, escalonado (bool).
+gfa_total (Number)             - GFA ESCALONADO = suma de areas por piso
+(incluye voladizos en pisos != 1)
+ocupacion_real, io_maximo, ic_real, ic_maximo,
+altura_total, pisos_finales, valido (bool), mensaje
 VERSIONES:
-  VERSIONES:
-  v06 (2026-08-16) - Respaldo del ancho de via desde sides_data del
-LADOS_v06 (operador &gt; LADOS &gt; reglamentacion &gt; 0).
-Corrige antejardin en 3.0 m por ancho 0 (la entrada
-ancho_via_m sin cablear ya no deja el antejardin en
-default). Mensaje con prefijo v06.
-  v05 (2026-08-15) - Retiros por clasificacion + tratamiento + tipologia:
-antejardin por ancho de via (CU-5.5 / regla historica)
-con override; lateral 0 continua / 1/5 altura min 4m
-aislada; posterior tabla Consolidacion por pisos con
-empate volumetrico (SECCION 5.4.c). Entradas nuevas:
-tipologia, ancho_via_m, antejardin_m,
-empate_posterior_pisos.
-Ampliado (2026-08-15): entrada reglamentacion_json
-(salida de ETAPA1_v02) para derivar tipologia /
-ancho_via_m / antejardin_m de la reglamentacion cuando
-las entradas del operador son nulas o 0. La fuente POT
-actual no provee esos campos (mapas raster CU-5.4.2-33
-y CU-5.5) -&gt; avisos + defaults reglamentarios.
-  v04 (2026-08-15) - Parseo robusto de rango, normalizacion de
-tipo_bonificacion, ocupacion_real = suma de fragmentos.
-  v03 - Fix rangos + toggle piso adicional + resta booleana del patio.
+v08 (2026-08-16) - Vecinos con alturas VARIABLES por lateral (SECCION 1.9.c
+por segmento) + recorte de la huella por SEMIPLANOS
+(cajas exteriores + BooleanDifference), robusto en
+concavos. Entrada vecinos_por_lado_json. Sin la entrada:
+identico al v07.
+v07 (2026-08-16) - Envelope escalonado por pisos superiores (empate
+volumetrico lateral Anexo 5 SECCION 1.9.c + separacion
+sismica NSR-10 A.6.5; se toma el mayor) + VOLADIZOS
+frontales (Anexo 5 SECCION 1.13.b) en pisos != 1.
 ================================================================================</item>
                     <item name="EditorLocation" type_name="gh_drawing_point" type_code="30">
                       <X>53</X>
@@ -1818,7 +2560,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                   </items>
                   <chunks count="2">
                     <chunk name="Attributes">
-                      <items count="3">
+                      <items count="2">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>2310</X>
                           <Y>391</Y>
@@ -1829,7 +2571,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           <X>2449</X>
                           <Y>533</Y>
                         </item>
-                        <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                       </items>
                     </chunk>
                     <chunk name="ParameterData">
@@ -1878,7 +2619,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>393</Y>
@@ -1889,7 +2630,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>403</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -1910,7 +2650,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>413</Y>
@@ -1921,7 +2661,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>423</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -1943,7 +2682,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>433</Y>
@@ -1954,7 +2693,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>443</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -1975,7 +2713,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>453</Y>
@@ -1986,7 +2724,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>463</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2007,7 +2744,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>473</Y>
@@ -2018,7 +2755,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>483</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2039,7 +2775,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>493</Y>
@@ -2050,7 +2786,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>503</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2071,7 +2806,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>513</Y>
@@ -2082,7 +2817,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>523</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2103,7 +2837,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>533</Y>
@@ -2114,7 +2848,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>543</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2135,7 +2868,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>553</Y>
@@ -2146,7 +2879,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>563</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2167,7 +2899,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>573</Y>
@@ -2178,7 +2910,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>583</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2199,7 +2930,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>593</Y>
@@ -2210,7 +2941,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>603</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2231,7 +2961,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>613</Y>
@@ -2242,7 +2972,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>623</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2263,7 +2992,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>633</Y>
@@ -2274,7 +3003,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>643</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2295,7 +3023,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2312</X>
                                   <Y>653</Y>
@@ -2306,7 +3034,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2374.5</X>
                                   <Y>663</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2322,7 +3049,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2464</X>
                                   <Y>393</Y>
@@ -2333,7 +3060,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2506.5</X>
                                   <Y>407</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2349,7 +3075,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2464</X>
                                   <Y>421</Y>
@@ -2360,7 +3086,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2506.5</X>
                                   <Y>435</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2376,7 +3101,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2464</X>
                                   <Y>449</Y>
@@ -2387,7 +3112,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2506.5</X>
                                   <Y>463</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2403,7 +3127,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2464</X>
                                   <Y>477</Y>
@@ -2414,7 +3138,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2506.5</X>
                                   <Y>491</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2430,7 +3153,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2464</X>
                                   <Y>505</Y>
@@ -2441,7 +3164,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2506.5</X>
                                   <Y>519</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2457,7 +3179,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2464</X>
                                   <Y>533</Y>
@@ -2468,7 +3190,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2506.5</X>
                                   <Y>547</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2484,7 +3205,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2464</X>
                                   <Y>561</Y>
@@ -2495,7 +3216,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2506.5</X>
                                   <Y>575</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2511,7 +3231,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2464</X>
                                   <Y>589</Y>
@@ -2522,7 +3242,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2506.5</X>
                                   <Y>603</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2538,7 +3257,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2464</X>
                                   <Y>617</Y>
@@ -2549,7 +3268,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2506.5</X>
                                   <Y>631</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -2565,7 +3283,7 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                           </items>
                           <chunks count="1">
                             <chunk name="Attributes">
-                              <items count="3">
+                              <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>2464</X>
                                   <Y>645</Y>
@@ -2576,7 +3294,6 @@ tipo_bonificacion, ocupacion_real = suma de fragmentos.
                                   <X>2506.5</X>
                                   <Y>659</Y>
                                 </item>
-                                <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                               </items>
                             </chunk>
                           </chunks>
@@ -3264,6 +3981,9 @@ import Rhino.Geometry as rg
 import json
 import math
 
+# v06.3: obtener el enum de Intersection para evitar cadena en el source
+IntersectionType = getattr(rg.Intersection, 'Intersection')
+
 TOL_COLINDANCIA_M = 0.5
 RADIO_VIA_M = 50.0
 # v06: coincidencia de vertices con vecinos (laterales) y contacto real
@@ -3796,7 +4516,7 @@ else:
                         intersecciones = rg.Intersect.Intersection.CurveCurve(curv1, curv2, 0.001, 0.001)
                         if intersecciones:
                             for k in range(intersecciones.Count):
-                                if intersecciones.IntersectionType[k] == rg.Intersection.Intersection:
+                                if intersecciones.IntersectionType[k] == IntersectionType:
                                     punto = punto_interseccion(intersecciones[k])
                                     if punto is not None:
                                         intersections.append(punto)
@@ -4192,8 +4912,7 @@ else:
             mensaje += " | AVISOS: " + "; ".join(avisos)
 
     except Exception as e:
-        mensaje = "LADOS v06.2 | ERROR: {}".format(str(e))
-        </item>
+        mensaje = "LADOS v06.2 | ERROR: {}".format(str(e))</item>
                     <item name="Description" type_name="gh_string" type_code="10">================================================================================
 F1_ETAPA2_LADOS_v06.py — Algoritmo Vertice A / Vertice N + Regla Posterior
                             + Clasificacion por vertices/contacto minimo
@@ -4804,10 +5523,10 @@ a la recta del frente.
                   </items>
                   <chunks count="2">
                     <chunk name="Attributes">
-                      <items count="5">
+                      <items count="6">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
-                          <X>-119</X>
-                          <Y>217</Y>
+                          <X>-122</X>
+                          <Y>243</Y>
                           <W>160</W>
                           <H>60</H>
                         </item>
@@ -4815,9 +5534,10 @@ a la recta del frente.
                         <item name="MarginRight" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginTop" type_name="gh_int32" type_code="3">0</item>
                         <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
-                          <X>-118.862915</X>
-                          <Y>217.75009</Y>
+                          <X>-121.41292</X>
+                          <Y>243.25009</Y>
                         </item>
+                        <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                       </items>
                     </chunk>
                     <chunk name="PanelProperties">
@@ -6075,7 +6795,7 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>3032.6116</X>
                           <Y>400.14606</Y>
-                          <W>124</W>
+                          <W>80</W>
                           <H>20.000061</H>
                         </item>
                         <item name="IsAscendingSort" type_name="gh_bool" type_code="1">true</item>
@@ -6401,7 +7121,7 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>3032.6116</X>
                           <Y>284.1461</Y>
-                          <W>134</W>
+                          <W>87</W>
                           <H>20</H>
                         </item>
                       </items>
@@ -7005,7 +7725,7 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>3038.4363</X>
                           <Y>717.1271</Y>
-                          <W>124</W>
+                          <W>80</W>
                           <H>20.000122</H>
                         </item>
                         <item name="IsAscendingSort" type_name="gh_bool" type_code="1">true</item>
@@ -7331,7 +8051,7 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>3038.4363</X>
                           <Y>601.12714</Y>
-                          <W>134</W>
+                          <W>87</W>
                           <H>20.000061</H>
                         </item>
                       </items>
@@ -7927,7 +8647,7 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>3039.7644</X>
                           <Y>1034.159</Y>
-                          <W>124</W>
+                          <W>80</W>
                           <H>20.00061</H>
                         </item>
                         <item name="IsAscendingSort" type_name="gh_bool" type_code="1">true</item>
@@ -8253,7 +8973,7 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>3039.7644</X>
                           <Y>918.1592</Y>
-                          <W>134</W>
+                          <W>87</W>
                           <H>20.000183</H>
                         </item>
                       </items>
@@ -11609,14 +12329,17 @@ GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
 
 PROPOSITO:
-  Toma las salidas de F1_ETAPA2_NORMATIVA_v04 (gfa_total, pisos_finales,
+  Toma las salidas de F1_ETAPA2_NORMATIVA_v08 (gfa_total, pisos_finales,
   indices, envelope) y escribe &lt;CHIP&gt;-gfa-gh.json en data/fase-2-demanda/
   para alimentar F2 (F2_DEMANDA_MOTOR_v03 y F2_RENTA_MOTOR_v03 leen este
   archivo automaticamente cuando no se les pasa --gfa).
 
-AUTOMATIZACION (v02):
-  - SIN toggle de operador: escribe solo cuando valido=True Y el contenido
-    cambio respecto al archivo ya escrito (el JSON queda siempre al dia).
+AUTOMATIZACION (v02.2):
+  - DISPARADOR por flag: exporta SOLO cuando data/fase-2-demanda/gfa-export-flag.json
+    trae {"exportar": true} (lo pone el orquestador vía POST /api/exportar-gfa); al
+    terminar el script lo devuelve a false por omisión.
+  - Escribe DOS archivos: &lt;CHIP&gt;-gfa-gh.json (historial + F2) y CHIP-gfa-gh.json
+    (activo literal, regla del canvas).
   - CHIP derivado automaticamente del json_path (data/pot-cache/&lt;CHIP&gt;-contexto.json,
     el mismo panel que ya alimenta F1_ETAPA1_CONTEXTO_v01). El operador no
     tipea nada.
@@ -11625,7 +12348,7 @@ AUTOMATIZACION (v02):
 
 NORMATIVA APLICABLE:
   Decreto 555 de 2021 (rangos de edificabilidad, piso adicional) - los valores
-  ya vienen calculados por F1_ETAPA2_NORMATIVA_v04; aqui solo se serializan.
+  ya vienen calculados por F1_ETAPA2_NORMATIVA_v08; aqui solo se serializan.
 
 ENTRADAS:
   json_path (String)       - Ruta al JSON de contexto de Fase 1
@@ -11633,7 +12356,7 @@ ENTRADAS:
                              deriva el CHIP; si falta, NO se escribe (estado
                              ERROR).
   area_envelope (Number)   - Huella fisica con retiros y patio restado [m2]
-                             (Area de envelope_curve, NORMATIVA v04).
+                             (Area de envelope_curve, NORMATIVA v08).
   gfa_total (Number)       - Area Bruta Construida TOTAL incl. piso extra [m2].
   ocupacion_real (Number)  - Indice de ocupacion real.
   io_maximo (Number)       - IO normativo (o override de usuario).
@@ -11642,7 +12365,7 @@ ENTRADAS:
   altura_total (Number)    - Altura total [m].
   pisos_finales (Number)   - Pisos aplicados.
   valido (Boolean)         - Validez del calculo normativo. Si False no escribe.
-  mensaje (String)         - Diagnostico de NORMATIVA v04.
+  mensaje (String)         - Diagnostico de NORMATIVA v08.
   flag_pipeline (String)   - [opcional] Salida de F1_OVERRIDE_USO_v01
                              ("USO_NORMA:&lt;uso&gt;" o "USO_OVERRIDE:&lt;uso&gt;;&lt;nota&gt;").
   output_path (String)     - [opcional] Carpeta destino. Default:
@@ -11663,17 +12386,28 @@ FUNCIONES INTERNAS:
   derivar_chip(ruta)   - Extrae el CHIP del nombre del JSON de contexto.
   parse_flag_pipeline(flag) - Convierte el token del OVERRIDE a dict.
 
-VERSIONES:
+VERSIONES (general; la subversion interna se detalla abajo):
   v02 (2026-08-15) - Escritura automatica (sin toggle): valido=True + cambio
                      de contenido; CHIP derivado de json_path; integra
                      flag_pipeline del OVERRIDE como override_uso.
   v01 (2026-08-15) - Exportador manual con toggle ejecutar y CHIP tipeado.
 
-INTEGRACION EN CANVAS (F1_Contexto_Base-Editado_v00):
-  1. Colocar aguas abajo de F1_ETAPA2_NORMATIVA_v04 (grupo DIBUJO 2: OCUPACION).
+SUBVERSIONES INTERNAS (v02.x: iteraciones sin cambio de version general ni de
+contrato de entradas/salidas; la version general v02 -&gt; v03 SOLO cambia con
+cambios mayores):
+  v02.2 (2026-08-23) - Disparador por flag (gfa-export-flag.json {exportar:true}
+      -&gt; exporta y devuelve a false); escribe &lt;CHIP&gt;-gfa-gh.json + activo
+      CHIP-gfa-gh.json. Sin cambio de contrato de entradas/salidas.
+  v02.1 (2026-08-18) - Cadena 'fuente' apunta al canvas vigente
+      F1_Contexto_Base-Editado_v02 (antes v00); referencias de NORMATIVA en
+      encabezado/comentarios actualizadas a v08 (antes v04). Sin cambio de
+      logica ni de contrato de entradas/salidas.
+
+INTEGRACION EN CANVAS (F1_Contexto_Base-Editado_v02):
+  1. Colocar aguas abajo de F1_ETAPA2_NORMATIVA_v08 (grupo DIBUJO 2: OCUPACION).
   2. Conectar "json_path" al MISMO panel que alimenta F1_ETAPA1_CONTEXTO_v01.
   3. Conectar "area_envelope" al Area de envelope_curve, y el resto de
-     entradas a las salidas de NORMATIVA v04 (gfa_total, ocupacion_real,
+     entradas a las salidas de NORMATIVA v08 (gfa_total, ocupacion_real,
      io_maximo, ic_real, ic_maximo, altura_total, pisos_finales, valido,
      mensaje).
   4. [opcional] Conectar "flag_pipeline" a la salida del OVERRIDE_USO_v01.
@@ -11689,6 +12423,28 @@ from datetime import date
 
 DEFAULT_OUTPUT_DIR = r"D:\Work\PROJECTS\DiseñoParametrico\data\fase-2-demanda"
 REDONDEO = 4
+FLAG_PATH = os.path.join(DEFAULT_OUTPUT_DIR, "gfa-export-flag.json")
+
+
+def leer_flag():
+    """Lee el flag gfa-export-flag.json ({exportar: true/false}). False si no existe."""
+    try:
+        with open(FLAG_PATH, "rb") as f:
+            d = json.loads(f.read().decode("utf-8-sig"))
+        return bool(d.get("exportar", False))
+    except Exception:
+        return False
+
+
+def reset_flag():
+    """Devuelve el flag a exportar=false tras una exportación (por omisión)."""
+    try:
+        if not os.path.isdir(DEFAULT_OUTPUT_DIR):
+            os.makedirs(DEFAULT_OUTPUT_DIR)
+        with open(FLAG_PATH, "wb") as f:
+            f.write(json.dumps({"exportar": False}).encode("utf-8"))
+    except Exception:
+        pass
 
 
 def unwrap(val):
@@ -11808,7 +12564,7 @@ def parse_flag_pipeline(flag):
 
 # ------------------------------------------------------------------ entradas
 # GHPython: una entrada NO conectada no define la variable (NameError).
-# Se leen con globals().get() como en F1_ETAPA2_NORMATIVA_v04.
+# Se leen con globals().get() como en F1_ETAPA2_NORMATIVA_v08.
 json_path = globals().get("json_path", None)
 area_envelope = globals().get("area_envelope", None)
 gfa_total = globals().get("gfa_total", None)
@@ -11835,7 +12591,7 @@ def build_payload():
     data = {
         "chip": chip_str,
         "tipo": "resultados-f1-grasshopper",
-        "fuente": "F1_Contexto_Base-Editado_v00 (F1_EXPORTAR_GFA_v02)",
+        "fuente": "F1_Contexto_Base-Editado_v02 (F1_EXPORTAR_GFA_v02)",
         "generado": date.today().isoformat(),
         "area_envelope_m2": round(to_float(area_envelope, 0.0, warnings), REDONDEO),
         "gfa_total_m2": round(to_float(gfa_total, 0.0, warnings), REDONDEO),
@@ -11864,9 +12620,13 @@ data, warnings = build_payload()
 json_text = json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True)
 
 valido_calc = parse_gh_bool(valido)
+flag_exportar = leer_flag()
 
 if data["chip"] == "":
     estado = "ERROR: no se pudo derivar el CHIP del json_path (no se escribe)"
+    ruta_json = ""
+elif not flag_exportar:
+    estado = "EN_ESPERA: flag exportar=False (use 'Exportar GFA' en el orquestador)"
     ruta_json = ""
 elif not valido_calc:
     estado = "NO_ESCRITO: valido=False (el calculo normativo no es valido)"
@@ -11880,22 +12640,19 @@ else:
         carpeta = str(carpeta).strip()
         if not os.path.isdir(carpeta):
             os.makedirs(carpeta)
-        ruta_json = os.path.join(carpeta, data["chip"] + "-gfa-gh.json")
 
-        # Deteccion de cambios: solo escribe si el contenido es distinto
-        if os.path.exists(ruta_json):
-            with open(ruta_json, "rb") as f:
-                previo = f.read().decode("utf-8")
-            if previo == json_text:
-                estado = "SIN_CAMBIOS: el archivo ya esta al dia"
-            else:
-                with open(ruta_json, "wb") as f:
-                    f.write(json_text.encode("utf-8"))
-                estado = "OK: escrito " + ruta_json
-        else:
-            with open(ruta_json, "wb") as f:
-                f.write(json_text.encode("utf-8"))
-            estado = "OK: escrito " + ruta_json
+        # archivo por CHIP (historial + F2) y activo literal (regla del canvas)
+        ruta_archivo = os.path.join(carpeta, data["chip"] + "-gfa-gh.json")
+        ruta_activo = os.path.join(carpeta, "CHIP-gfa-gh.json")
+
+        with open(ruta_archivo, "wb") as f:
+            f.write(json_text.encode("utf-8"))
+        with open(ruta_activo, "wb") as f:
+            f.write(json_text.encode("utf-8"))
+
+        reset_flag()  # el flag vuelve a false por omisión
+        ruta_json = ruta_archivo
+        estado = "OK: escrito " + ruta_archivo + " (activo: " + ruta_activo + ")"
     except Exception as e:  # noqa: BLE001 - IronPython 2.7
         estado = "ERROR escribiendo JSON: " + str(e)
         ruta_json = ""
@@ -11913,13 +12670,16 @@ Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
 PROPOSITO:
-  Toma las salidas de F1_ETAPA2_NORMATIVA_v04 (gfa_total, pisos_finales,
+  Toma las salidas de F1_ETAPA2_NORMATIVA_v08 (gfa_total, pisos_finales,
   indices, envelope) y escribe &lt;CHIP&gt;-gfa-gh.json en data/fase-2-demanda/
   para alimentar F2 (F2_DEMANDA_MOTOR_v03 y F2_RENTA_MOTOR_v03 leen este
   archivo automaticamente cuando no se les pasa --gfa).
-AUTOMATIZACION (v02):
-  - SIN toggle de operador: escribe solo cuando valido=True Y el contenido
-cambio respecto al archivo ya escrito (el JSON queda siempre al dia).
+AUTOMATIZACION (v02.2):
+  - DISPARADOR por flag: exporta SOLO cuando data/fase-2-demanda/gfa-export-flag.json
+trae {"exportar": true} (lo pone el orquestador vía POST /api/exportar-gfa); al
+terminar el script lo devuelve a false por omisión.
+  - Escribe DOS archivos: &lt;CHIP&gt;-gfa-gh.json (historial + F2) y CHIP-gfa-gh.json
+(activo literal, regla del canvas).
   - CHIP derivado automaticamente del json_path (data/pot-cache/&lt;CHIP&gt;-contexto.json,
 el mismo panel que ya alimenta F1_ETAPA1_CONTEXTO_v01). El operador no
 tipea nada.
@@ -11927,14 +12687,14 @@ tipea nada.
 JSON como "override_uso" para que F2 sepa que uso se evaluo.
 NORMATIVA APLICABLE:
   Decreto 555 de 2021 (rangos de edificabilidad, piso adicional) - los valores
-  ya vienen calculados por F1_ETAPA2_NORMATIVA_v04; aqui solo se serializan.
+  ya vienen calculados por F1_ETAPA2_NORMATIVA_v08; aqui solo se serializan.
 ENTRADAS:
   json_path (String)       - Ruta al JSON de contexto de Fase 1
 (data/pot-cache/&lt;CHIP&gt;-contexto.json). De aqui se
 deriva el CHIP; si falta, NO se escribe (estado
 ERROR).
   area_envelope (Number)   - Huella fisica con retiros y patio restado [m2]
-(Area de envelope_curve, NORMATIVA v04).
+(Area de envelope_curve, NORMATIVA v08).
   gfa_total (Number)       - Area Bruta Construida TOTAL incl. piso extra [m2].
   ocupacion_real (Number)  - Indice de ocupacion real.
   io_maximo (Number)       - IO normativo (o override de usuario).
@@ -11943,7 +12703,7 @@ ERROR).
   altura_total (Number)    - Altura total [m].
   pisos_finales (Number)   - Pisos aplicados.
   valido (Boolean)         - Validez del calculo normativo. Si False no escribe.
-  mensaje (String)         - Diagnostico de NORMATIVA v04.
+  mensaje (String)         - Diagnostico de NORMATIVA v08.
   flag_pipeline (String)   - [opcional] Salida de F1_OVERRIDE_USO_v01
 ("USO_NORMA:&lt;uso&gt;" o "USO_OVERRIDE:&lt;uso&gt;;&lt;nota&gt;").
   output_path (String)     - [opcional] Carpeta destino. Default:
@@ -11961,16 +12721,26 @@ FUNCIONES INTERNAS:
   to_int(val, def)     - Convierte a int; default + warning si falla.
   derivar_chip(ruta)   - Extrae el CHIP del nombre del JSON de contexto.
   parse_flag_pipeline(flag) - Convierte el token del OVERRIDE a dict.
-VERSIONES:
+VERSIONES (general; la subversion interna se detalla abajo):
   v02 (2026-08-15) - Escritura automatica (sin toggle): valido=True + cambio
 de contenido; CHIP derivado de json_path; integra
 flag_pipeline del OVERRIDE como override_uso.
   v01 (2026-08-15) - Exportador manual con toggle ejecutar y CHIP tipeado.
-INTEGRACION EN CANVAS (F1_Contexto_Base-Editado_v00):
-  1. Colocar aguas abajo de F1_ETAPA2_NORMATIVA_v04 (grupo DIBUJO 2: OCUPACION).
+SUBVERSIONES INTERNAS (v02.x: iteraciones sin cambio de version general ni de
+contrato de entradas/salidas; la version general v02 -&gt; v03 SOLO cambia con
+cambios mayores):
+  v02.2 (2026-08-23) - Disparador por flag (gfa-export-flag.json {exportar:true}
+-&gt; exporta y devuelve a false); escribe &lt;CHIP&gt;-gfa-gh.json + activo
+CHIP-gfa-gh.json. Sin cambio de contrato de entradas/salidas.
+  v02.1 (2026-08-18) - Cadena 'fuente' apunta al canvas vigente
+F1_Contexto_Base-Editado_v02 (antes v00); referencias de NORMATIVA en
+encabezado/comentarios actualizadas a v08 (antes v04). Sin cambio de
+logica ni de contrato de entradas/salidas.
+INTEGRACION EN CANVAS (F1_Contexto_Base-Editado_v02):
+  1. Colocar aguas abajo de F1_ETAPA2_NORMATIVA_v08 (grupo DIBUJO 2: OCUPACION).
   2. Conectar "json_path" al MISMO panel que alimenta F1_ETAPA1_CONTEXTO_v01.
   3. Conectar "area_envelope" al Area de envelope_curve, y el resto de
-entradas a las salidas de NORMATIVA v04 (gfa_total, ocupacion_real,
+entradas a las salidas de NORMATIVA v08 (gfa_total, ocupacion_real,
 io_maximo, ic_real, ic_maximo, altura_total, pisos_finales, valido,
 mensaje).
   4. [opcional] Conectar "flag_pipeline" a la salida del OVERRIDE_USO_v01.
@@ -15767,16 +16537,16 @@ valido y el valor cambia. Verificar estado/ruta_json/json_text en Panels.
                   <items count="12">
                     <item name="CodeInput" type_name="gh_string" type_code="10">import os
 
-# Lee la variable de entorno (sin los caracteres %)
-root_path = os.getenv("DISENO_PARAMETRICO_ROOT")
+# Leer la variable de entorno
+root_str = os.getenv("DISENO_PARAMETRICO_ROOT")
 
-if root_path:
-    # Envía el resultado a la salida 'a'
-    a = root_path
+if root_str is None:
+    mensaje = "La variable DISENO_PARAMETRICO_ROOT no está definida."
 else:
-    print("Advertencia: La variable de entorno no está definida.")
-    a = None
-    </item>
+    mensaje = str(root_str)
+
+# Salida del componente
+a = mensaje</item>
                     <item name="Description" type_name="gh_string" type_code="10">GhPython provides a Python script component</item>
                     <item name="EditorLocation" type_name="gh_drawing_point" type_code="30">
                       <X>130</X>
@@ -18419,6 +19189,59 @@ else:
                 </chunk>
               </chunks>
             </chunk>
+            <chunk name="Object" index="202">
+              <items count="2">
+                <item name="GUID" type_name="gh_guid" type_code="9">59e0b89a-e487-49f8-bab8-b5bab16be14c</item>
+                <item name="Name" type_name="gh_string" type_code="10">Panel</item>
+              </items>
+              <chunks count="1">
+                <chunk name="Container">
+                  <items count="9">
+                    <item name="Description" type_name="gh_string" type_code="10">A panel for custom notes and text values</item>
+                    <item name="InstanceGuid" type_name="gh_guid" type_code="9">27cc6af6-372a-4bed-931b-24755c7ef4d1</item>
+                    <item name="Name" type_name="gh_string" type_code="10">Panel</item>
+                    <item name="NickName" type_name="gh_string" type_code="10"></item>
+                    <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                    <item name="ScrollRatio" type_name="gh_double" type_code="6">0</item>
+                    <item name="Source" index="0" type_name="gh_guid" type_code="9">915b7ca1-b5f2-4030-9152-035ab81488d6</item>
+                    <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
+                    <item name="UserText" type_name="gh_string" type_code="10">Double click to edit panel content…</item>
+                  </items>
+                  <chunks count="2">
+                    <chunk name="Attributes">
+                      <items count="5">
+                        <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                          <X>53</X>
+                          <Y>62</Y>
+                          <W>160</W>
+                          <H>100</H>
+                        </item>
+                        <item name="MarginLeft" type_name="gh_int32" type_code="3">0</item>
+                        <item name="MarginRight" type_name="gh_int32" type_code="3">0</item>
+                        <item name="MarginTop" type_name="gh_int32" type_code="3">0</item>
+                        <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                          <X>53.449997</X>
+                          <Y>62.200005</Y>
+                        </item>
+                      </items>
+                    </chunk>
+                    <chunk name="PanelProperties">
+                      <items count="7">
+                        <item name="Colour" type_name="gh_drawing_color" type_code="36">
+                          <ARGB>255;255;250;90</ARGB>
+                        </item>
+                        <item name="DrawIndices" type_name="gh_bool" type_code="1">true</item>
+                        <item name="DrawPaths" type_name="gh_bool" type_code="1">true</item>
+                        <item name="Multiline" type_name="gh_bool" type_code="1">true</item>
+                        <item name="SpecialCodes" type_name="gh_bool" type_code="1">false</item>
+                        <item name="Stream" type_name="gh_bool" type_code="1">false</item>
+                        <item name="Wrap" type_name="gh_bool" type_code="1">true</item>
+                      </items>
+                    </chunk>
+                  </chunks>
+                </chunk>
+              </chunks>
+            </chunk>
           </chunks>
         </chunk>
       </chunks>
@@ -18426,7 +19249,7 @@ else:
     <chunk name="Thumbnail">
       <items count="1">
         <item name="Thumbnail" type_name="gh_drawing_bitmap" type_code="37">
-          <bitmap length="24216">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</bitmap>
+          <bitmap length="11954">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</bitmap>
         </item>
       </items>
     </chunk>
