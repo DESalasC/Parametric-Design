@@ -605,7 +605,42 @@ def _modalidad_desde_data(data):
     return _modalidad_dueno_lote(data.get("aporte_lote"), data.get("pago_parcial_pct"))
 
 
+def _ruta_parametros_f2_mercado(chip, dias_frescura=60):
+    """Parametros de mercado sincronizados desde MercadoViviendaBogota.
+
+    Busca en data/fase-2-demanda/mercado/ el archivo
+    parametros_<chip>_f2mercado_*.json mas reciente (generado por el paso
+    F2_SINCRONIZAR_MERCADO_v01.py). Solo lo acepta si su
+    meta.mercado.fecha_captura_origen tiene <= dias_frescura dias; en caso
+    contrario devuelve None y la cadena de prioridad sigue con los parametros
+    curados del proyecto (fallback retrocompatible).
+    """
+    import glob
+    import datetime
+    dir_mercado = os.path.join(ROOT, "data", "fase-2-demanda", "mercado")
+    candidatos = sorted(
+        glob.glob(os.path.join(dir_mercado, "parametros_{}_f2mercado_*.json".format(chip))),
+        reverse=True,
+    )
+    for ruta in candidatos:
+        try:
+            with open(ruta, "r", encoding="utf-8") as f:
+                datos = json.load(f)
+            fecha_captura = ((datos.get("meta") or {}).get("mercado") or {}).get("fecha_captura_origen")
+            if not fecha_captura:
+                continue
+            origen = datetime.date.fromisoformat(str(fecha_captura)[:10])
+            if (datetime.date.today() - origen).days <= dias_frescura:
+                return ruta
+        except Exception:
+            continue
+    return None
+
+
 def _ruta_parametros_f2_venta(chip):
+    cand_mercado = _ruta_parametros_f2_mercado(chip)
+    if cand_mercado:
+        return cand_mercado
     for cand in (os.path.join(F2_VENTA_DIR, "parametros_{}_mercado2026.json".format(chip)),
                  os.path.join(F2_VENTA_DIR, "parametros_{}_venta.json".format(chip)),
                  os.path.join(F2_VENTA_DIR, "parametros_{}.json".format(chip))):
