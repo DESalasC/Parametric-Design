@@ -1,0 +1,14 @@
+El skill/agente que se desarrolló para cambiar/modificar la configuración de AutoClaw existe y está aquí:
+
+C:\Users\Dario Salas\.openclaw-autoclaw\workspace\skills\openclaw-agent-config\SKILL.md
+
+Nombre: openclaw-agent-config
+Descripción: Crear/editar agentes y config de OpenClaw/AutoClaw de forma durable: capas (settings.json, openclaw.json, runtime), backup, verificación y smoke.
+Estructura: además del SKILL.md, incluye subcarpetas references\ y scripts\.
+Última modificación: 11/09/2026 12:44 p.m.
+Puntos clave que cubre el skill (por si te sirve de contexto):
+
+Modelo de capas de la configuración: %APPDATA%\autoclaw\settings.json (fuente de verdad durable, clave agents), openclaw.json (base generada por la app, se revierte si se edita a mano) y openclaw.runtime.json (snapshot de runtime).
+Regla de oro: no editar openclaw.json ni openclaw.runtime.json a mano; la inscripción durable vive en settings.json.agents.
+Procedimiento A: alta/edición durable de agentes (respaldo → editar entrada agents → validar JSON UTF-8 sin BOM → verificar).
+Incluye también el alta vía UI de la app y procedimientos de verificación/smoke.

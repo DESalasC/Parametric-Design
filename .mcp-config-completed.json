@@ -1,0 +1,73 @@
+{
+  "$schema": "https://modelcontextprotocol.io/config",
+  "name": "Parametric Design Project - Complete MCP Validation System",
+  "version": "1.0.0",
+
+  // ✅ Sistema 1: Filesystem Server (Acceso seguro a archivos locales)
+  "mcpServers": {
+    "@modelcontextprotocol/server-filesystem": {
+      "url": "~/.local/share/mcp/bin/@modelcontextprotocol+server-filesystem@0.6.2.tgz",
+      "args": ["/usr/local/bin/node"],
+      "env": {}
+    },
+
+    // ✅ Sistema 2: File Picker (Selección manual de archivos/assets)
+    "@anthropics/mcp-file-picker": {
+      "command": "/usr/bin/env",
+      "args": ["bash", "-c", "./scripts/mcp-file-picker.sh"],
+      "env": {}
+    },
+
+    // ✅ Sistema 3: Design Sync Server (Sincronización con claude.ai design-systems)
+    "@anthropics/mcp-design-server": {
+      "url": "~/.local/share/mcp/bin/@anthropics+mcp-design@0.4.0.tgz",
+      "args": ["/usr/local/bin/node"],
+      "env": {}
+    },
+
+    // ✅ Sistema 4: Wikipedia Server (Referencias técnicas y documentación)
+    "@modelcontextprotocol/server-wikipedia": {
+      "url": "~/.local/share/mcp/bin/@modelcontextprotocol+server-wikipedia@latest.tgz",
+      "args": ["/usr/local/bin/node"],
+      "env": {}
+    },
+
+    // ✅ Sistema 5: Everything Validator Server (API unificada para validación)
+    "mcp-everything-adapter": {
+      "command": "/bin/bash",
+      "args": ["-c", "./scripts/mcp-everything-validate.sh"],
+      "env": {
+        "MCP_CONFIG_PATH": ".mcp-config-completed.json"
+      }
+    },
+
+    // ✅ Sistema 6: Custom Parametric Analysis Server (Personalizado para proyecto)
+    "parametric-design-analyzer": {
+      "command": "/usr/bin/env",
+      "args": ["bash", "-c", "./scripts/mcp-parametric-analysis.sh"],
+      "env": {}
+    }
+  },
+
+  // ⚠️ Admin override warnings (variables que indican configuración forzada)
+  "adminOverrideWarnings": [
+    {
+      "variable": "ALLOWED_MCP_SERVERS",
+      "description": "Allowlist de servidores MCP aprobados por administración",
+      "severity": "warning"
+    },
+    {
+      "variable": "RESTRICTED_MCP_PATHS",
+      "description": "Paths restringidos por política institucional",
+      "severity": "error"
+    }
+  ],
+
+  // 🛡️ Security flags para validación automática
+  "securityFlags": {
+    "noWriteAccess": true,
+    "strictPathSecurity": true,
+    "autoSanitization": true,
+    "sandboxMode": true
+  }
+}

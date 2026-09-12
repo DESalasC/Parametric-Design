@@ -4,7 +4,7 @@
 
 | Archivo | Rol |
 |---|---|
-| `F1_Contexto_Base-Editado_v01.gh` / `.ghx` | **Canvas maestro** de Fase 1 (renombrado de v00 por el usuario el 2026-08-15; validado 2026-08-15: `F1_ETAPA2_NORMATIVA_v04` + `F1_EXPORTAR_GFA_v02` cargados, rango de pisos corregido con Value List entre comillas) |
+| `F1_CONTEXTO_v10.gh` / `.ghx` | **Canvas maestro** de Fase 1 (renombrado de v00 por el usuario el 2026-08-15; validado 2026-08-15: `F1_ETAPA2_NORMATIVA_v04` + `F1_EXPORTAR_GFA_v02` cargados, rango de pisos corregido con Value List entre comillas) |
 | `DiseñoParametrico_BaseConexiones.ghx` | Referencia de conexiones del canvas |
 | `test_panel.ghx` / `.json` | Panel de prueba / referencia de componentes |
 

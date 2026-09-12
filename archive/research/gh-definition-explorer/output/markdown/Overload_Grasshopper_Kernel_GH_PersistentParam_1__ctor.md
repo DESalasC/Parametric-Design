@@ -1,0 +1,48 @@
+# Overload_Grasshopper_Kernel_GH_PersistentParam_1__ctor
+
+﻿ GH\_PersistentParam(T) Constructor 
+
+Grasshopper API
+
+[Grasshopper API](../html/723c01da-9986-4db2-8f53-6f3a7494df75.htm "Grasshopper API")
+
+[Grasshopper.Kernel](../html/N_Grasshopper_Kernel.htm "Grasshopper.Kernel")
+
+[GH\_PersistentParam(T) Class](../html/T_Grasshopper_Kernel_GH_PersistentParam_1.htm "GH_PersistentParam(T) Class")
+
+[GH\_PersistentParam(T) Constructor](../html/Overload_Grasshopper_Kernel_GH_PersistentParam_1__ctor.htm "GH_PersistentParam(T) Constructor ")
+
+[GH\_PersistentParam(T) Constructor (GH\_InstanceDescription)](../html/M_Grasshopper_Kernel_GH_PersistentParam_1__ctor.htm "GH_PersistentParam(T) Constructor (GH_InstanceDescription)")
+
+[GH\_PersistentParam(T) Constructor (GH\_InstanceDescription, Boolean)](../html/M_Grasshopper_Kernel_GH_PersistentParam_1__ctor_1.htm "GH_PersistentParam(T) Constructor (GH_InstanceDescription, Boolean)")
+
+[GH\_PersistentParam(T) Constructor (String, String, String, String, String)](../html/M_Grasshopper_Kernel_GH_PersistentParam_1__ctor_2.htm "GH_PersistentParam(T) Constructor (String, String, String, String, String)")
+
+![Click or drag to resize](../icons/TocOpen.gif "Click or drag to resize")![Click or drag to resize](../icons/TocClose.gif "Click or drag to resize")
+
+|  |
+| --- |
+| GH\_PersistentParamAddLanguageSpecificTextSet("LST51B5859C\_0?cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=(");TAddLanguageSpecificTextSet("LST51B5859C\_1?cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)"); Constructor |
+
+![](../icons/SectionExpanded.png)Overload List
+
+|  | Name | Description |
+| --- | --- | --- |
+| Protected method | [GH\_PersistentParamAddLanguageSpecificTextSet("LST51B5859C\_2?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST51B5859C\_3?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");(GH\_InstanceDescription)](M_Grasshopper_Kernel_GH_PersistentParam_1__ctor.htm) | Initializes a new instance of the [GH\_PersistentParamAddLanguageSpecificTextSet("LST51B5859C\_4?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST51B5859C\_5?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_PersistentParam_1.htm) class |
+| Protected method | [GH\_PersistentParamAddLanguageSpecificTextSet("LST51B5859C\_6?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST51B5859C\_7?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");(GH\_InstanceDescription, Boolean)](M_Grasshopper_Kernel_GH_PersistentParam_1__ctor_1.htm) | **Obsolete.**  Initializes a new instance of the [GH\_PersistentParamAddLanguageSpecificTextSet("LST51B5859C\_8?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST51B5859C\_9?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_PersistentParam_1.htm) class |
+| Protected method | [GH\_PersistentParamAddLanguageSpecificTextSet("LST51B5859C\_10?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST51B5859C\_11?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");(String, String, String, String, String)](M_Grasshopper_Kernel_GH_PersistentParam_1__ctor_2.htm) | Initializes a new instance of the [GH\_PersistentParamAddLanguageSpecificTextSet("LST51B5859C\_12?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST51B5859C\_13?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");](T_Grasshopper_Kernel_GH_PersistentParam_1.htm) class |
+
+[Top](#PageHeader)
+
+![](../icons/SectionExpanded.png)See Also
+
+#### Reference
+
+[GH\_PersistentParamAddLanguageSpecificTextSet("LST51B5859C\_14?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");TAddLanguageSpecificTextSet("LST51B5859C\_15?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;"); Class](T_Grasshopper_Kernel_GH_PersistentParam_1.htm)
+
+[Grasshopper.Kernel Namespace](N_Grasshopper_Kernel.htm)
+
+Grasshopper for Rhino 8.33.26188.13000 (2026-07-07)  
+Copyright © 2009-2026 Robert McNeel & Associates
+
+[Report wishes and bugs at discourse.mcneel.com](https://discourse.mcneel.com/c/grasshopper)

@@ -1,0 +1,83 @@
+# M_Grasshopper_GUI_GH_Animator_PointFAnimator
+
+﻿ GH\_Animator.PointFAnimator Method (PointF, PointF)
+
+Grasshopper API
+
+[Grasshopper API](../html/723c01da-9986-4db2-8f53-6f3a7494df75.htm "Grasshopper API")
+
+[Grasshopper.GUI](../html/N_Grasshopper_GUI.htm "Grasshopper.GUI")
+
+[GH\_Animator Class](../html/T_Grasshopper_GUI_GH_Animator.htm "GH_Animator Class")
+
+[GH\_Animator Methods](../html/Methods_T_Grasshopper_GUI_GH_Animator.htm "GH_Animator Methods")
+
+[PointFAnimator Method](../html/Overload_Grasshopper_GUI_GH_Animator_PointFAnimator.htm "PointFAnimator Method ")
+
+[PointFAnimator Method (PointF, PointF)](../html/M_Grasshopper_GUI_GH_Animator_PointFAnimator.htm "PointFAnimator Method (PointF, PointF)")
+
+[PointFAnimator Method (PointF, PointF, Int32)](../html/M_Grasshopper_GUI_GH_Animator_PointFAnimator_2.htm "PointFAnimator Method (PointF, PointF, Int32)")
+
+[PointFAnimator Method (PointF, PointF, DateTime, DateTime)](../html/M_Grasshopper_GUI_GH_Animator_PointFAnimator_1.htm "PointFAnimator Method (PointF, PointF, DateTime, DateTime)")
+
+![Click or drag to resize](../icons/TocOpen.gif "Click or drag to resize")![Click or drag to resize](../icons/TocClose.gif "Click or drag to resize")
+
+|  |
+| --- |
+| GH\_AnimatorAddLanguageSpecificTextSet("LST27C96D2C\_0?cpp=::|nu=.");PointFAnimator Method (PointF, PointF) |
+
+**Namespace:**
+ [Grasshopper.GUI](N_Grasshopper_GUI.htm)  
+**Assembly:**
+ Grasshopper (in Grasshopper.dll)
+
+![](../icons/SectionExpanded.png)Syntax
+
+[C#](#)
+
+[VB](#)
+
+[Copy](# "Copy")
+
+```
+public static GH_Animator<PointF> PointFAnimator(
+	PointF A,
+	PointF B
+)
+```
+
+```
+Public Shared Function PointFAnimator ( 
+	A As PointF,
+	B As PointF
+) As GH_Animator(Of PointF)
+```
+
+AddLanguageTabSet("ID0EBCA");
+
+#### Parameters
+
+A
+:   Type: [System.DrawingAddLanguageSpecificTextSet("LST27C96D2C\_1?cs=.|vb=.|cpp=::|nu=.|fs=.");PointF](https://docs.microsoft.com/dotnet/api/system.drawing.pointf)
+
+B
+:   Type: [System.DrawingAddLanguageSpecificTextSet("LST27C96D2C\_2?cs=.|vb=.|cpp=::|nu=.|fs=.");PointF](https://docs.microsoft.com/dotnet/api/system.drawing.pointf)
+
+#### Return Value
+
+Type: [GH\_Animator](T_Grasshopper_GUI_GH_Animator_1.htm)AddLanguageSpecificTextSet("LST27C96D2C\_3?cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=(");[PointF](https://docs.microsoft.com/dotnet/api/system.drawing.pointf)AddLanguageSpecificTextSet("LST27C96D2C\_4?cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)");
+
+![](../icons/SectionExpanded.png)See Also
+
+#### Reference
+
+[GH\_Animator Class](T_Grasshopper_GUI_GH_Animator.htm)
+
+[PointFAnimator Overload](Overload_Grasshopper_GUI_GH_Animator_PointFAnimator.htm)
+
+[Grasshopper.GUI Namespace](N_Grasshopper_GUI.htm)
+
+Grasshopper for Rhino 8.33.26188.13000 (2026-07-07)  
+Copyright © 2009-2026 Robert McNeel & Associates
+
+[Report wishes and bugs at discourse.mcneel.com](https://discourse.mcneel.com/c/grasshopper)
