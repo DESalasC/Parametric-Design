@@ -99,6 +99,12 @@ VERSIONES:
   v06.3 (2026-08-24) - Override manual de setback por lado que limita con vía
                        para controlar exactamente qué lados tienen retiro
                        según regulaciones UPZ/UPL específicas.
+  v06.4 (2026-09-15) - PRIORIDAD via/EP sobre la medianería por vértices: un
+                       lado "pegado a la vía" (contacto por longitud ≥ 0.30
+                       o vértices coincidentes con vecinos) se clasifica
+                       Frontal/EspacioPublico y NO recibe aislamiento lateral.
+                       Corrige el caso "no frente pegado a la vía" que restaba
+                       área útil del primer piso y tumbaba la prueba de F2.
   v05 (2026-08-16) - Ancho de via TOTAL del perfil vial (poligono de via,
                      incluye andenes). Los andenes dejan de usarse para
                      medir. Renombrado desde v04 por cambio de concepto.
@@ -839,9 +845,31 @@ else:
             d_n = dist_min_lado_a_curvas(p1, p2, vecinos_list)
 
             motivo_lado = ""
-            # 4a) Lateral por VERTICES COINCIDENTES con vecinos (< 0.10 m):
-            #     la medianeria gana aunque haya una via cerca sin contacto
-            if lado_lateral_por_vertices(p1, p2, vecinos_list):
+            # 4) Contacto con via/EP por LONGITUD MINIMA (fraccion del lado).
+            #    v06.4 (2026-09-15): se evalua SIEMPRE y TIENE PRIORIDAD sobre la
+            #    medianeria por vertices. Un lado "pegado a la via" es FRENTE (o
+            #    EP), NO medianeria: no debe recibir aislamiento lateral. (Bug: la
+            #    regla 4a forzaba toca_via=False y Lateral aunque el lado estuviera
+            #    sobre la via, restando area util del primer piso y tumbando F2.)
+            f_v, f_e, f_n = fracciones_contacto(
+                p1, p2, vias_list, ep_list, vecinos_list)
+            bordea_via = f_v >= CONTACTO_MIN_FRACCION
+            bordea_ep = f_e >= CONTACTO_MIN_FRACCION
+            if bordea_via:
+                toca_via = True
+                toca_ep = False
+                toca_vecino = f_n >= CONTACTO_MIN_FRACCION
+                cat = "Frontal"
+                motivo_lado = "contacto via {:.0%}".format(f_v)
+            elif bordea_ep:
+                toca_via = False
+                toca_ep = True
+                toca_vecino = f_n >= CONTACTO_MIN_FRACCION
+                cat = "EspacioPublico"
+                motivo_lado = "contacto EP {:.0%}".format(f_e)
+            elif lado_lateral_por_vertices(p1, p2, vecinos_list):
+                # 4a) Medianeria por VERTICES COINCIDENTES con vecinos (< 0.10 m):
+                #     SOLO cuando el lado NO bordea via/EP
                 toca_via = False
                 toca_ep = False
                 toca_vecino = True
@@ -851,19 +879,11 @@ else:
                 f_e = 0.0
                 f_n = 1.0
             else:
-                # 4b) Contacto por LONGITUD MINIMA (fraccion del lado)
-                f_v, f_e, f_n = fracciones_contacto(
-                    p1, p2, vias_list, ep_list, vecinos_list)
+                # 4b) Clasificacion por contacto minimo
                 toca_via = f_v >= CONTACTO_MIN_FRACCION
                 toca_ep = f_e >= CONTACTO_MIN_FRACCION
                 toca_vecino = f_n >= CONTACTO_MIN_FRACCION
-                if toca_via:
-                    cat = "Frontal"
-                    motivo_lado = "contacto via {:.0%}".format(f_v)
-                elif toca_ep:
-                    cat = "EspacioPublico"
-                    motivo_lado = "contacto EP {:.0%}".format(f_e)
-                elif toca_vecino:
+                if toca_vecino:
                     cat = "Lateral"
                     motivo_lado = "contacto vecino {:.0%}".format(f_n)
                 else:
