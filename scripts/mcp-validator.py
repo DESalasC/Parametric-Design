@@ -1,500 +1,341 @@
 #!/usr/bin/env python3
 """
-MCP Validator System - Schema Enforcement & Runtime Validation
-===============================================================
+MCP config validator (standalone CLI)
+=====================================
 
-This script implements a complete MCP validation system with:
-1. Automatic path and command validation
-2. Schema enforcement at runtime
-3. CLI flag conflict detection
-4. Admin override detection
+Validates a Claude Code / MCP style config file (``.mcp.json``). It does NOT
+implement the MCP protocol: it is a lint/validation tool you run on demand.
+
+Checks performed per server entry:
+  1. Required fields: ``command`` (string), ``args`` (list of strings).
+  2. Command resolution: absolute/relative paths are checked for existence;
+     bare names are resolved via ``PATH`` (``shutil.which``).
+  3. Dangerous CLI flags inside ``args`` (``--plugin-url``, ``--load-config``,
+     ``--no-*-mcp-servers``, ...).
+  4. Environment variables: valid key syntax, non-empty string values, and a
+     warning when a key looks like it carries a credential.
+  5. Admin / policy override detection in ``env`` keys.
+
+The config may contain ``//`` and ``/* */`` comments (JSONC), like the sample
+``.mcp.json`` shipped with the project.
+
+Usage:
+    python scripts/mcp-validator.py .mcp.json
+    python scripts/mcp-validator.py .mcp.json --strict -o report.json
+
+Exit codes:
+    0 -> no errors (warnings allowed unless --strict)
+    1 -> at least one server has errors
+    2 -> config could not be loaded / parsed
 """
 
+from __future__ import annotations
+
+import argparse
 import json
 import os
-import sys
 import re
+import shutil
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from datetime import datetime
-from enum import Enum
-from dataclasses import dataclass
+
+VALIDATOR_VERSION = "2.0.0"
+SCHEMA_VERSION = "2024-10"
+
+# ---------------------------------------------------------------------------
+# Patterns
+# ---------------------------------------------------------------------------
+
+DANGEROUS_FLAG_PATTERNS: List[Tuple[re.Pattern, str]] = [
+    (re.compile(r"--plugin-url", re.I), "CLI flag may cause plugin conflicts"),
+    (re.compile(r"--load-config", re.I), "Config loading flag detected - potential security concern"),
+    (re.compile(r"--no-.*mcp-servers", re.I), "Flag may disable critical MCP functionality"),
+    (re.compile(r"--debug(=\S*)?\b.*true", re.I), "Debug mode may expose sensitive information"),
+]
+
+ENV_KEY_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+SECRET_KEY_RE = re.compile(r"(token|secret|password|passwd|api[_-]?key|bearer|authorization|credential)", re.I)
+ADMIN_OVERRIDE_RE = re.compile(r"(ALLOWED_MCP_SERVERS|REJECT.*MCP.*SERVER|^ADMIN_|_OVERRIDE$|^FORCE.*_)", re.I)
+
+PATH_EXT_RE = re.compile(r"\.(exe|py|sh|bat|cmd|ps1|js|mjs|cjs)$", re.I)
+
+PATH_LIKE_CHARS = ("/", "\\")
+PATH_LIKE_EXT = PATH_EXT_RE
 
 
-# ============================================
-# ENUMS Y CLASES PARA VALIDACIÓN
-# ============================================
+# ---------------------------------------------------------------------------
+# JSONC loader (tolerates // and /* */ comments + BOM)
+# ---------------------------------------------------------------------------
 
-class ValidationErrorType(Enum):
-    PATH_NOT_FOUND = "path_not_found"
-    COMMAND_NOT_EXECUTABLE = "command_not_executable"
-    MISSING_REQUIRED_FIELD = "missing_required_field"
-    INVALID_ARGUMENT_TYPE = "invalid_argument_type"
-    CLASH_FLAG_DETECTED = "cli_flag_conflict"
-    ADMIN_OVERRIDE = "admin_override"
-
-
-@dataclass
-class ValidationResult:
-    """Representa resultados de validación para un servidor MCP"""
-
-    server_name: str
-    command: Optional[str]
-    args: List[str]
-    env_vars: Dict[str, str]
-    path_valid: bool
-    schema_valid: bool
-    flag_conflicts: List[str]
-    admin_overrides: List[str]
-    errors: List[Dict]
-    warnings: List[Dict]
-
-    def is_valid(self) -> bool:
-        """Verificar si el resultado es válido"""
-        return not self.errors and not self.flag_conflicts
-
-    def summary(self, short=False) -> str:
-        """Generar resumen para resultados de validación"""
-        status = "✅ VALID" if self.is_valid() else "❌ INVALID"
-        path_status = "✓ Path OK" if self.path_valid else "✗ Path MISSING"
-        schema_status = "✓ Schema OK" if self.schema_valid else "⚠ Schema ERROR"
-
-        result_lines = [f"{status} | {path_status} | {schema_status}"]
-        if not short:
-            for i, conflict in enumerate(self.flag_conflicts):
-                result_lines.append(f"  - ⚠️ Flag conflict: {conflict}")
-            for override in self.admin_overrides:
-                result_lines.append(f"  - ⚠️ Admin override: {override}")
-        return "\n".join(result_lines)
+def loads_jsonc(text: str) -> Any:
+    """Parse JSON that may contain // and /* */ comments."""
+    text = text.lstrip("\ufeff")
+    out: List[str] = []
+    i, n = 0, len(text)
+    in_str = False
+    esc = False
+    while i < n:
+        c = text[i]
+        if in_str:
+            out.append(c)
+            if esc:
+                esc = False
+            elif c == "\\":
+                esc = True
+            elif c == '"':
+                in_str = False
+            i += 1
+            continue
+        if c == '"':
+            in_str = True
+            out.append(c)
+            i += 1
+            continue
+        if c == "/" and i + 1 < n and text[i + 1] == "/":
+            i += 2
+            while i < n and text[i] not in "\r\n":
+                i += 1
+            continue
+        if c == "/" and i + 1 < n and text[i + 1] == "*":
+            i += 2
+            while i + 1 < n and not (text[i] == "*" and text[i + 1] == "/"):
+                i += 1
+            i += 2
+            continue
+        out.append(c)
+        i += 1
+    return json.loads("".join(out))
 
 
-# ============================================
-# SISTEMA DE VALIDACIÓN PRINCIPAL
-# ============================================
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
-class MCPreprocessorSystem:
-    """Sistema principal de validación para configuración MCP"""
+def resolve_command(command: str) -> Tuple[str, Optional[str]]:
+    """Resolve a command string.
 
-    SCHEMA_VERSION = "2024-10"
-    DANGEROUS_PATTERNS = {
-        r"(?i)--plugin-url": "CLI flag may cause plugin conflicts",
-        r"(?i)--load-config": "Config loading flag detected - potential security concern",
-        r"(?i)--no-mcp-servers": "Critical functionality disabled",
-        r"(?i)^--debug.*true$": "Debug mode may expose sensitive information",
-    }
+    Returns (kind, resolved) where kind is ``"path"`` or ``"which"`` and
+    ``resolved`` is the resolved absolute path or ``None`` when not found.
+    """
+    expanded = os.path.expanduser(command)
+    looks_like_path = (
+        any(sep in command for sep in PATH_LIKE_CHARS)
+        or PATH_LIKE_EXT.search(command) is not None
+        or command.startswith("~")
+    )
+    if looks_like_path:
+        p = Path(expanded)
+        return "path", (str(p) if p.exists() else None)
+    found = shutil.which(command)
+    return "which", found
 
-    ADMIN_OVERRIDE_PATTERNS = {
-        r".*(ALLOWED|MFA|RESTRICT).*": "Policy allowlist override detected",
-        r".*(ADMIN_OVERRIDES).*": "Admin override configuration detected",
-    }
 
-    SPECIAL_CHARACTERS = ['"', "'", '"', '\\']
+def _err(code: str, title: str, message: str = "") -> Dict[str, str]:
+    return {"code": code, "title": title, "message": message}
 
-    def __init__(self, config_path: str):
-        self.config_path = Path(config_path)
-        self.config: Optional[Dict] = None
-        self.validation_results: List[ValidationResult] = []
-        self.validation_timestamp = datetime.utcnow().isoformat() + "Z"
 
-    def load_config(self) -> bool:
-        """Cargar configuración MCP desde archivo"""
-        if not self.config_path.exists():
-            print(f"[ERROR] Configuration file not found: {self.config_path}")
-            return False
+# ---------------------------------------------------------------------------
+# Validation
+# ---------------------------------------------------------------------------
 
-        try:
-            with open(self.config_path, 'r', encoding='utf-8') as f:
-                content = f.read()
+def validate_server(name: str, cfg: Any) -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+    errors: List[Dict[str, str]] = []
+    warnings: List[Dict[str, str]] = []
 
-            # Validar sintaxis JSON
-            self.config = json.loads(content)
-
-            # Estructura básica de validación contra schema
-            if not isinstance(self.config.get('mcpServers'), dict):
-                print("[ERROR] Invalid MCP configuration: missing mcpServers object")
-                return False
-
-            server_count = len(self.config['mcpServers'])
-            print(f"[INIT] Loaded {server_count} MCP servers from {self.config_path}")
-            return True
-
-        except json.JSONDecodeError as e:
-            print(f"[ERROR] Invalid JSON in configuration file: {e}")
-            return False
-        except Exception as e:
-            print(f"[ERROR] Unexpected error loading config: {e}")
-            return False
-
-    def expand_environment_variable(self, path: str) -> str:
-        """Expandir variables de entorno y tildes en paths"""
-        import os as builtin_os
-
-        # Reemplazar tildes con home directory
-        expanded = path.replace('~', builtin_os.environ.get('HOME', builtin_os.path.dirname(builtin_os.expanduser('~'))))
-
-        # Expandir $HOME (no $USER porque podría contener caracteres especiales)
-        expanded = re.sub(r'\$HOME$', '$HOME', expanded)
-
-        return expanded
-
-    def validate_path_and_command(self, server_name: str, server_config: Dict) -> Tuple[List[Dict], List[Dict]]:
-        """Validar existencia y ejecutabilidad de paths y comandos"""
-        errors = []
-        warnings = []
-
-        if not isinstance(server_config.get('command'), str):
-            errors.append({
-                "code": "missing_command_field",
-                "title": "Missing Required Field: command",
-                "message": f"Server {server_name} is missing required field: 'command'",
-            })
-            return errors, warnings
-
-        command = server_config['command']
-
-        # Expandir variables de entorno usando regex seguro (no shell expansion para evitar inyección)
-        expanded_command = self.expand_environment_variable(command)
-
-        exists = False
-        is_executable = False
-
-        try:
-            if os.path.exists(expanded_command):
-                exists = True
-
-                # Verificar si es un archivo regular o alias/executable simulado
-                stat_info = Path(expanded_command).stat()
-
-                # En Windows, verificar que no sea una URL de registro invalida (para 'reg query' type patterns)
-                if expanded_command.startswith('https://'):
-                    warnings.append({
-                        "code": "cli_flag_registry_url",
-                        "title": "Registry URL Detected",
-                        "message": f"Argument appears to be a registry-style URL for '{server_name}' - verify intent"
-                    })
-
-                # Verificar si tiene ejecutables (permisos Unix)
-                if os.access(expanded_command, os.R_OK):
-                    is_executable = True
-
-            else:
-                errors.append({
-                    "code": "path_not_found",
-                    "title": f"Command not found: {expanded_command}",
-                    "message": f"The path for '{command}' does not exist on this file system. Consider using absolute paths."
-                })
-
-        except Exception as e:
-            errors.append({
-                "code": "path_validation_error",
-                "title": f"Failed to validate command path: {expanded_command}",
-                "message": str(e)
-            })
-
+    if not isinstance(cfg, dict):
+        errors.append(_err(
+            "invalid_server_config",
+            f"Server '{name}' configuration is not an object",
+            f"got {type(cfg).__name__}",
+        ))
         return errors, warnings
 
-    def enforce_schema_at_runtime(self, server_config: Optional[Dict]) -> List[str]:
-        """Enforcement del schema completo en tiempo de ejecución"""
-        errors = []
-
-        if not server_config:
-            # Verificar si es un objeto vacío válido o no configurado
-            if not isinstance(server_config, dict):
-                # Validar que sea null/void type y convertir a {} para evitar crashes
-                server_config = {}
-            else:
-                errors.append({
-                    "code": "invalid_server_config",
-                    "message": "Server configuration is invalid"
-                })
-
-        # Verificar campos obligatorios usando isinstance para null checking seguro
-        if not isinstance(server_config.get('command'), str):
-            errors.append({
-                "code": "missing_required_field",
-                "title": f"Schema validation: Missing required field 'command', got type: {type(server_config.get('command')).__name__}",
-            })
-
-        # Validar tipo de args (array o null/void según sea necesario)
-        if not isinstance(
-                server_config.get("args"),
-                list and len(
-                    ) == 0
-                ) and None:
-            # Verificar que sea array o lista vacía/None
-            pass
-
-        # Validar contenido de args para escaping correcte (JSON, shell)
-        if isinstance(server_config.get('args'), list):
-            for i, arg in enumerate(server_config.get('args', [])):
-                if not isinstance(arg, str):
-                    errors.append({
-                        "code": f"args_invalid_value_{i}",
-                        "title": f"Invalid argument at index {i}",
-                        "message": f"Argument must be a string. Found: {type(arg).__name__}"
-                    })
-                elif any(char in arg for char in self.SPECIAL_CHARACTERS):
-                    errors.append({
-                        "code": "args_need_escaping",
-                        "title": f"Special characters in argument at index {i}",
-                        "message": f"Argument contains special characters: {arg}"
-                    })
-
-        # Validar variables de entorno (objeto o null/void por seguridad)
-        if isinstance(server_config.get('env'), dict):
-            for key, value in server_config.get('env', {}).items():
-                # Clave no-string → no env vars como identificadores
-                import builtins as builtin
-                try:
-                    builtin.__all__ or None  # Verificar si es identificador válido en Python
-                    if not re.match(r'^[A-Z_][A-Z0-9_]*$', key):
-                        errors.append({
-                            "code": f"env_invalid_key",
-                            "title": f"Invalid environment variable key: {key}",
-                            "message": keys should follow the format VAR_NAME, uppercase with underscores only"
-                        })
-
-                    if not isinstance(value, str) or not value.strip():
-                        errors.append({
-                            "code": f"env_invalid_value",
-                            "title": f"Invalid environment variable value for {key}",
-                            "message": f"The value must be a non-empty string. Got: {type(value).__name__}"
-                        })
-
-                    # Alerta sobre datos sensibles (pero no mostrar contenido completo)
-                    elif is_secret(key, value) or contains_potential_secrets(value):
-                        errors.append({
-                            "code": "env_sensitive_data",
-                            "title": f"Sensitive data detected in env var {key}",
-                            "message": f"Environment variable {key} appears to contain sensitive credentials. Ensure secure handling."
-                        })
-
-                except:
-                    pass
-
-        return errors
-
-    def detect_cli_flag_conflicts(self, server_config: Dict) -> List[str]:
-        """Detectar conflictos potenciales en CLI flags"""
-        conflicts = []
-
-        if not isinstance(server_config.get('args'), list):
-            return conflicts
-
-        # Verificar patrones peligrosos usando re.match con compilación segura (no shell interp)
-        dangerous_flags = [
-            r"(?i)--plugin-url=",
-            r"(?i)--load-config",
-            r"(?i)--debug.*true",
-            r"(?i)^--no-\w*-mcp-servers$",
-            r"(?i)^(\$\{|\`)([^\\`]+)(\`)",  # Variable interp / backtick interpolation → inseguro
-        ]
-
-        for i, arg in enumerate(server_config.get('args', [])):
-            if not isinstance(arg, str):
-                continue
-
-            # Verificar contra patrones peligrosos
-            for flag_pattern, description in self.DANGEROUS_PATTERNS.items():
-                if re.search(flag_pattern, arg):
-                    conflicts.append({
-                        "argument_index": i,
-                        "matching_argument": arg[:100] + "..." if len(arg) > 100 else arg,
-                        "description": description,
-                        "pattern_matched": flag_pattern
-                    })
-
-            # Verificar patrones de flags que deshabilitan funcionalidad (usar match seguro sin eval/compile)
-            safe_regex = re.compile(r"(?i)^--(no-)?disable.*mcp", re.IGNORECASE)
-            if safe_regex.match(arg):
-                conflicts.append({
-                    "argument_index": i,
-                    "matching_argument": arg[:100] + "..." if len(arg) > 100 else arg,
-                    "description": f"Argument '{arg}' disables critical MCP functionality",
-                })
-
-        return [conflict.get('description', 'Unknown conflict') for conflict in conflicts]
-
-    def detect_admin_overrides(self, server_config: Dict) -> List[str]:
-        """Detectar variables de entorno que indican admin overrides"""
-        overrides = []
-
-        safe_regex_patterns = {
-            r".*ALLOWED_MCP_SERVERS.*": "Policy allowlist override",
-            r".*REJECT.*MCP.*SERVER.*": "Policy rejectlist detected",
-            r".*ADMIN.*OVR.*": "Admin-specific override setting",
-        }
-
-        if not isinstance(server_config.get('env'), dict):
-            return overrides
-
-        for key, value in server_config.get('env', {}).items():
-            if not isinstance(value, str):
-                continue
-
-            # Verificar si la clave de variable es admin-controlled
-            if any(pattern for pattern in safe_regex_patterns.keys()):
-                for regex_pattern, description in safe_regex_patterns.items():
-                    if re.search(regex_pattern, key, flags=0):
-                        overrides.append({
-                            "environment_variable": key,
-                            "value_preview": value[:10] + "..." if len(value) > 10 else value,
-                            "description": description
-                        })
-
-        # Alerta para variables numéricas/booleanas forzadas (OVERRIDE_* style vars)
-        override_forced_key_match = re.compile(r"(?i)^FORCE.*_")
-        if override_forced_key_match.match(key):
-            overrides.append({
-                "environment_variable": key,
-                "value_preview": str(value)[:10] + "..." if isinstance(value, (int, float)) or not isinstance(value, str) else value[:15] + "...",
-                "description": f"Variable '{key}' appears to force configuration overrides from an admin policy"
-            })
-
-        return overrides
-
-    def validate_server(self, server_name: str, server_config: Dict) -> ValidationResult:
-        """Ejecutar validación completa para servidor MCP"""
-        errors = []
-        warnings = []
-
-        # Fase 1: Validar paths y comandos
-        path_errors, path_warnings = self.validate_path_and_command(server_name, server_config)
-        errors.extend(path_errors)
-        warnings.extend(path_warnings)
-
-        # Fase 2: Enforcement del schema
-        schema_errors = self.enforce_schema_at_runtime(server_config)
-        if isinstance(schema_errors, list):
-            for error in schema_errors:
-                if isinstance(error, str):
-                    pass  # Legacy-style string errors (ignored)
-                else:
-                    errors.append(error)
-
-        # Fase 3: Detectar conflictos CLI flags
-        flag_conflicts = self.detect_cli_flag_conflicts(server_config)
-        for conflict in flag_conflicts:
-            if isinstance(conflict, str):
-                pass  # Legacy-style (ignored)
-
-        # Fase 4: Detectar Admin overrides
-        admin_overrides = self.detect_admin_overrides(server_config)
-        for override in admin_overrides:
-            if isinstance(override, dict):
-                pass  # Legacy-style dict (ignored)
-
-        return ValidationResult(
-            server_name=server_name,
-            command=server_config.get('command'),
-            args=server_config.get('args', []),
-            env_vars=server_config.get('env', {}),
-            path_valid=not any(e for e in errors if 'e' in str(e).lower() + "path"),
-            schema_valid=all(
-                not (isinstance(err, dict) and err.get("title", "").startswith(f"Schema validation:"))
-                for err in errors
-            ),
-            flag_conflicts=flag_conflicts,
-            admin_overrides=admin_overrides,
-            errors=errors,
-            warnings=warnings
-        )
-
-    def validate_all_servers(self) -> List[ValidationResult]:
-        """Ejecutar validación completa sobre todos los servidores MCP"""
-        if not isinstance(self.config, dict):
-            return []
-
-        self.validation_results = []
-        for server_name, server_config in self.config.get('mcpServers', {}).items():
-            result = self.validate_server(server_name, server_config)
-            self.validation_results.append(result)
-
-        return self.validation_results
-
-    def generate_report(self, output_path: Optional[str] = None) -> Dict:
-        """Generar reporte JSON de resultados de validación"""
-        report = {
-            "metadata": {
-                "validator_version": "1.0.0",
-                "schema_version": self.SCHEMA_VERSION,
-                "timestamp": self.validation_timestamp,
-                "config_file": str(self.config_path),
-                "total_servers": len(self.validation_results),
-            },
-            "summary": {
-                "servers_verified": sum(1 for r in self.validation_results if r.is_valid()),
-                "total_errors": sum(len(r.errors) for r in self.validation_results),
-                "total_flag_conflicts": sum(len(r.flag_conflicts) for r in self.validation_results),
-                "admin_overrides_found": sum(len(r.admin_overrides) for r in self.validation_results),
-            },
-            "detailed_results": [r.summary(short=True) if 'short' not in report['metadata'] else True for r in self.validation_results]
-        }
-
-        # Save a path si está especificado
-        if output_path:
-            with open(output_path, 'w') as f:
-                json.dump(report, f, indent=2)
-
-        return report
-
-
-# ============================================
-# FUNCIÓN PRINCIPAL DE EJECUCIÓN
-# ============================================
-
-def main():
-    """Entrypoint para CLI"""
-    import argparse
-
-    parser = argparse.ArgumentParser(description='MCP Validator System')
-    parser.add_argument('config_path', help='Path al archivo de configuración MCP (e.g., .mcp.json)')
-    parser.add_argument('-o', '--output', help='Generar reporte JSON a este path')
-    parser.add_argument('--strict', action='store_true', help='Modo estricto: fallar en warnings')
-
-    args = parser.parse_args()
-
-    # Inicializar sistema de validación
-    validator = MCPreprocessorSystem(config_path=args.config_path)
-
-    # Cargar configuración
-    if not validator.load_config():
-        sys.exit(1)
-
-    # Validar todos los servidores MCP
-    results = validator.validate_all_servers()
-
-    # Mostrar resultados por consola
-    print("\n" + "="*60)
-    print("MCP VALIDATION RESULTS")
-    print("=" * 60)
-
-    for i, result in enumerate(results):
-        print(f"\nServer: {result.server_name}")
-        print(result.summary(short=True))
-
-        # Detalle errors si hay errores
-        if result.errors:
-            print("\nErrors:")
-            for error in result.errors[:5]:  # Mostrar máximo de 5 errors por terminal
-                print(f"  - [{error.get('code', 'unknown')}] {error.get('title', str(error))}")
-
-    # Resumen completo
-    total_verified = sum(1 for r in results if r.is_valid()) or 0
-    if total_verified == len(results):
-        print("\n✓ All servers validated successfully")
-        sys.exit(0)
-    elif total_verified > 0:
-        print(f"\n⚠ {total_verified}/{len(results)} servers valid, some issues detected")
-        sys.exit(1)
+    # --- command -----------------------------------------------------------
+    command = cfg.get("command")
+    if not isinstance(command, str) or not command.strip():
+        errors.append(_err(
+            "missing_required_field",
+            "Missing required field 'command'",
+            f"got {type(command).__name__}",
+        ))
     else:
-        print("\n✗ Validation failed for all servers")
-        sys.exit(2)
+        kind, resolved = resolve_command(command)
+        if resolved is None:
+            errors.append(_err(
+                "command_not_found",
+                f"Command not found: {command!r}",
+                "not resolvable as a path nor on PATH" if kind == "which" else "path does not exist",
+            ))
+        elif kind == "path" and os.name != "nt" and not os.access(resolved, os.X_OK):
+            warnings.append(_err(
+                "command_not_executable",
+                f"Command is not executable: {resolved}",
+                "missing execute bit",
+            ))
+
+    # --- args --------------------------------------------------------------
+    args = cfg.get("args")
+    if args is None:
+        pass
+    elif not isinstance(args, list):
+        errors.append(_err(
+            "invalid_argument_type",
+            "'args' must be a list",
+            f"got {type(args).__name__}",
+        ))
+    else:
+        for i, arg in enumerate(args):
+            if not isinstance(arg, str):
+                errors.append(_err(
+                    f"args_invalid_value_{i}",
+                    f"Argument at index {i} is not a string",
+                    f"got {type(arg).__name__}",
+                ))
+                continue
+            for rx, desc in DANGEROUS_FLAG_PATTERNS:
+                if rx.search(arg):
+                    errors.append(_err(
+                        "cli_flag_conflict",
+                        f"Dangerous flag in args[{i}]: {arg}",
+                        desc,
+                    ))
+
+    # --- env ---------------------------------------------------------------
+    env = cfg.get("env")
+    if env is not None:
+        if not isinstance(env, dict):
+            errors.append(_err(
+                "invalid_env_type",
+                "'env' must be an object",
+                f"got {type(env).__name__}",
+            ))
+        else:
+            for key, value in env.items():
+                skey = str(key)
+                if not ENV_KEY_RE.match(skey):
+                    errors.append(_err(
+                        "env_invalid_key",
+                        f"Invalid environment variable key: {skey}",
+                        "use VAR_NAME (letters, digits, underscore)",
+                    ))
+                if not isinstance(value, str) or not value.strip():
+                    errors.append(_err(
+                        "env_invalid_value",
+                        f"Invalid value for environment variable {skey}",
+                        f"value must be a non-empty string, got {type(value).__name__}",
+                    ))
+                elif SECRET_KEY_RE.search(skey):
+                    warnings.append(_err(
+                        "env_sensitive_data",
+                        f"Possible credential in environment variable {skey}",
+                        "ensure secure handling",
+                    ))
+                if ADMIN_OVERRIDE_RE.search(skey):
+                    warnings.append(_err(
+                        "admin_override",
+                        f"Admin/policy override variable detected: {skey}",
+                        "verify this override is intentional",
+                    ))
+
+    return errors, warnings
+
+
+def validate_config(config: Any) -> List[Dict[str, Any]]:
+    servers = config.get("mcpServers") if isinstance(config, dict) else None
+    if not isinstance(servers, dict):
+        return []
+    results: List[Dict[str, Any]] = []
+    for name, cfg in servers.items():
+        errors, warnings = validate_server(name, cfg)
+        results.append({
+            "server": name,
+            "errors": errors,
+            "warnings": warnings,
+            "valid": not errors,
+        })
+    return results
+
+
+# ---------------------------------------------------------------------------
+# Reporting / CLI
+# ---------------------------------------------------------------------------
+
+def build_report(config_path: str, results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    return {
+        "metadata": {
+            "validator_version": VALIDATOR_VERSION,
+            "schema_version": SCHEMA_VERSION,
+            "config_file": str(config_path),
+            "total_servers": len(results),
+        },
+        "summary": {
+            "valid_servers": sum(1 for r in results if r["valid"]),
+            "invalid_servers": sum(1 for r in results if not r["valid"]),
+            "total_errors": sum(len(r["errors"]) for r in results),
+            "total_warnings": sum(len(r["warnings"]) for r in results),
+        },
+        "results": results,
+    }
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description="MCP config validator (standalone)")
+    parser.add_argument("config_path", help="Path to the MCP config file (e.g. .mcp.json)")
+    parser.add_argument("-o", "--output", help="Write a JSON report to this path")
+    parser.add_argument("--strict", action="store_true", help="Treat warnings as failures")
+    parser.add_argument("--quiet", action="store_true", help="Only print the summary line")
+    args = parser.parse_args(argv)
+
+    path = Path(args.config_path)
+    if not path.exists():
+        print(f"[ERROR] Configuration file not found: {path}")
+        return 2
+    try:
+        config = loads_jsonc(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, ValueError) as exc:
+        print(f"[ERROR] Invalid JSON in {path}: {exc}")
+        return 2
+
+    if not isinstance(config, dict) or not isinstance(config.get("mcpServers"), dict):
+        print("[ERROR] Invalid MCP config: missing 'mcpServers' object")
+        return 2
+
+    results = validate_config(config)
+    report = build_report(str(path), results)
+
+    total = len(results)
+    invalid = report["summary"]["invalid_servers"]
+    warnings_total = report["summary"]["total_warnings"]
+
+    if not args.quiet:
+        print("=" * 60)
+        print("MCP VALIDATION RESULTS")
+        print("=" * 60)
+        print(f"Config : {path}")
+        print(f"Servers: {total}")
+        for r in results:
+            status = "[ OK ]" if r["valid"] else "[FAIL]"
+            print(f"\n{status} {r['server']}")
+            for e in r["errors"]:
+                print(f"    ERROR   [{e['code']}] {e['title']}")
+            for w in r["warnings"]:
+                print(f"    WARNING [{w['code']}] {w['title']}")
+
+    print("-" * 60)
+    print(f"Summary: {total - invalid}/{total} valid, "
+          f"{report['summary']['total_errors']} error(s), {warnings_total} warning(s)")
 
     if args.output:
-        report = validator.generate_report(args.output)
-        print(f"\nReport saved to: {args.output}")
+        Path(args.output).write_text(json.dumps(report, indent=2), encoding="utf-8")
+        print(f"Report saved to: {args.output}")
+
+    if invalid:
+        return 1
+    if args.strict and warnings_total:
+        return 1
+    return 0
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

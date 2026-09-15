@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<AttributeFile Mv="1" Sv="2">
+	<PlatformSign>22359</PlatformSign>
+	<RegisteredAttributes>
+		<NumberOfRegisteredAttributes>1</NumberOfRegisteredAttributes>
+		<Attributes Type="Layers">
+			<RefID>1279351090</RefID>
+			<Layer Idx="1" Name="00-00-10_Lote_proyecto">
+				<OdbObj Mv="2" Sv="0">
+					<OdbRef>
+						<guid>126261C8-0A6F-46B4-98AE-783BC8BD2CA8</guid>
+					</OdbRef>
+					<CreaTime>23970</CreaTime>
+					<ModiTime>23972</ModiTime>
+				</OdbObj>
+				<Name>00-00-10_Lote_proyecto</Name>
+				<Index>1</Index>
+				<Flags/>
+				<ModiTime>1164398284</ModiTime>
+				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+				<ReadOnly>false</ReadOnly>
+				<ConnectionClassId>1</ConnectionClassId>
+				</Layer>
+			<Layer Idx="2" Name="00-20-20_Elementos_entorno_urbano">
+				<OdbObj Mv="2" Sv="0">
+					<OdbRef>
+						<guid>CCFDEB5A-9086-472F-A43E-18E6E9E22273</guid>
+					</OdbRef>
+					<CreaTime>23970</CreaTime>
+					<ModiTime>23972</ModiTime>
+				</OdbObj>
+				<Name>00-20-20_Elementos_entorno_urbano</Name>
+				<Index>2</Index>
+				<Flags/>
+				<ModiTime>1164398284</ModiTime>
+				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+				<ReadOnly>false</ReadOnly>
+				<ConnectionClassId>1</ConnectionClassId>
+				</Layer>
+			<Layer Idx="3" Name="00-20-30_Ejes_vias">
+				<OdbObj Mv="2" Sv="0">
+					<OdbRef>
+						<guid>B7A14FC2-A470-499E-9A9B-E6F7E6821C45</guid>
+					</OdbRef>
+					<CreaTime>23970</CreaTime>
+					<ModiTime>23972</ModiTime>
+				</OdbObj>
+				<Name>00-20-30_Ejes_vias</Name>
+				<Index>3</Index>
+				<Flags/>
+				<ModiTime>1164398284</ModiTime>
+				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+				<ReadOnly>false</ReadOnly>
+				<ConnectionClassId>1</ConnectionClassId>
+				</Layer>
+			<Layer Idx="4" Name="70-50-10_Zonas_verdes_publicas">
+				<OdbObj Mv="2" Sv="0">
+					<OdbRef>
+						<guid>1E73E6C1-23DC-430A-9545-ECC1840252AC</guid>
+					</OdbRef>
+					<CreaTime>23970</CreaTime>
+					<ModiTime>23972</ModiTime>
+				</OdbObj>
+				<Name>70-50-10_Zonas_verdes_publicas</Name>
+				<Index>4</Index>
+				<Flags/>
+				<ModiTime>1164398284</ModiTime>
+				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+				<ReadOnly>false</ReadOnly>
+				<ConnectionClassId>1</ConnectionClassId>
+				</Layer>
+			<Layer Idx="5" Name="70-30-20_Andenes_preexistentes">
+				<OdbObj Mv="2" Sv="0">
+					<OdbRef>
+						<guid>0B72DD4F-A54C-4055-ADEB-001C54EB6464</guid>
+					</OdbRef>
+					<CreaTime>23970</CreaTime>
+					<ModiTime>23972</ModiTime>
+				</OdbObj>
+				<Name>70-30-20_Andenes_preexistentes</Name>
+				<Index>5</Index>
+				<Flags/>
+				<ModiTime>1164398284</ModiTime>
+				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+				<ReadOnly>false</ReadOnly>
+				<ConnectionClassId>1</ConnectionClassId>
+				</Layer>
+			<Layer Idx="6" Name="10-20-10_Topografia">
+				<OdbObj Mv="2" Sv="0">
+					<OdbRef>
+						<guid>A10E80FA-299B-4FB7-91ED-63512D2C32A1</guid>
+					</OdbRef>
+					<CreaTime>23970</CreaTime>
+					<ModiTime>23972</ModiTime>
+				</OdbObj>
+				<Name>10-20-10_Topografia</Name>
+				<Index>6</Index>
+				<Flags/>
+				<ModiTime>1164398284</ModiTime>
+				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+				<ReadOnly>false</ReadOnly>
+				<ConnectionClassId>1</ConnectionClassId>
+				</Layer>
+			<Layer Idx="7" Name="70-20-20_Perimetros_vecinos">
+				<OdbObj Mv="2" Sv="0">
+					<OdbRef>
+						<guid>825695D4-5EBE-4A6F-A92A-96F974236156</guid>
+					</OdbRef>
+					<CreaTime>23970</CreaTime>
+					<ModiTime>23972</ModiTime>
+				</OdbObj>
+				<Name>70-20-20_Perimetros_vecinos</Name>
+				<Index>7</Index>
+				<Flags/>
+				<ModiTime>1164398284</ModiTime>
+				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+				<ReadOnly>false</ReadOnly>
+				<ConnectionClassId>1</ConnectionClassId>
+				</Layer>
+			<Layer Idx="8" Name="70-20-30_Volumetrias_vecinas">
+				<OdbObj Mv="2" Sv="0">
+					<OdbRef>
+						<guid>9306FB2A-3CDB-4BCC-9AAB-634D6806F9A9</guid>
+					</OdbRef>
+					<CreaTime>23970</CreaTime>
+					<ModiTime>23972</ModiTime>
+				</OdbObj>
+				<Name>70-20-30_Volumetrias_vecinas</Name>
+				<Index>8</Index>
+				<Flags/>
+				<ModiTime>1164398284</ModiTime>
+				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+				<ReadOnly>false</ReadOnly>
+				<ConnectionClassId>1</ConnectionClassId>
+				</Layer>
+			<Layer Idx="9" Name="00-10-20_Elementos_referencia">
+				<OdbObj Mv="2" Sv="0">
+					<OdbRef>
+						<guid>F52AD501-83F2-4EC2-B827-0D4CD12C7FC9</guid>
+					</OdbRef>
+					<CreaTime>23970</CreaTime>
+					<ModiTime>23972</ModiTime>
+				</OdbObj>
+				<Name>00-10-20_Elementos_referencia</Name>
+				<Index>9</Index>
+				<Flags/>
+				<ModiTime>1164398284</ModiTime>
+				<RegMemoTable MemoNumber="0" Mv="1" Sv="0"/>
+				<ReadOnly>false</ReadOnly>
+				<ConnectionClassId>1</ConnectionClassId>
+				</Layer>
+		</Attributes>
+		<Attributes Type="Composites">
+			<RefID>1129791794</RefID>
+		</Attributes>
+		<Attributes Type="Dimension Standards">
+			<RefID>1398033970</RefID>
+		</Attributes>
+		<Attributes Type="Fills">
+			<RefID>1179208755</RefID>
+		</Attributes>
+		<Attributes Type="Layer Combinations">
+			<RefID>1279479602</RefID>
+		</Attributes>
+		<Attributes Type="Lines">
+			<RefID>1279872562</RefID>
+		</Attributes>
+		<Attributes Type="Surfaces">
+			<RefID>1296127026</RefID>
+		</Attributes>
+		<Attributes Type="Pens">
+			<RefID>1347699276</RefID>
+		</Attributes>
+		<Attributes Type="Zone Categories">
+			<RefID>1380795186</RefID>
+		</Attributes>
+		<Attributes Type="Issue Styles">
+			<RefID>1297306713</RefID>
+		</Attributes>
+		<Attributes Type="Profiles">
+			<RefID>1347571526</RefID>
+		</Attributes>
+		<Attributes Type="MEP Systems">
+			<RefID>1296388179</RefID>
+		</Attributes>
+		<Attributes Type="Operation Profiles">
+			<RefID>1162104656</RefID>
+		</Attributes>
+		<Attributes Type="Renovation Override Styles">
+			<RefID>1196381778</RefID>
+		</Attributes>
+		<Attributes Type="Building Materials">
+			<RefID>1112359252</RefID>
+		</Attributes>
+	</RegisteredAttributes>
+	<Folders>
+		<TypeRoot RefID="1279351090"/>
+	</Folders>
+</AttributeFile>

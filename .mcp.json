@@ -2,50 +2,5 @@
   "$schema": "https://modelcontextprotocol.io/config",
   "name": "Parametric Design Project MCP Configuration",
   "version": "1.0.0",
-  "mcpServers": {
-    // Sistema 1: Python Schema Validator (Schema enforcement at runtime)
-    "python-validator": {
-      "command": "python3",
-      "args": ["-u", "./scripts/mcp-validator.py", "./.mcp.json"],
-      "env": {
-        "REPORT_DIR": ".mcp-validation-reports"
-      }
-    },
-
-    // Sistema 2: Bash CLI Validator (Paths y comandos)
-    "cli-validator": {
-      "command": "/bin/bash",
-      "args": ["-c", "./scripts/mcp-validate-cli.sh --validate ./.mcp.json"],
-      "env": {}
-    },
-
-    // Sistema 3: Shell Validator Basic (Iniciar sistema)
-    "shell-validator": {
-      "command": "/bin/bash",
-      "args": ["-c", "./scripts/mcp-validate.sh --init ./.mcp.json"],
-      "env": {}
-    }
-  },
-
-  // Flags de seguridad para validación automática
-  "securityFlags": {
-    "noWriteAccess": true,
-    "strictPathSecurity": true,
-    "autoSanitization": true,
-    "sandboxMode": true
-  },
-
-  // Variables que indican admin overrides
-  "adminOverrideWarnings": [
-    {
-      "variable": "ALLOWED_MCP_SERVERS",
-      "description": "Allowlist de servidores MCP aprobados por administración",
-      "severity": "warning"
-    },
-    {
-      "variable": "RESTRICTED_MCP_PATHS",
-      "description": "Paths restringidos por política institucional",
-      "severity": "error"
-    }
-  ]
+  "mcpServers": {}
 }
