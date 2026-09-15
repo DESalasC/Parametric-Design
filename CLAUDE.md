@@ -63,7 +63,7 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
    - `70-30-20_Andenes_preexistentes` — Andenes y espacio público peatonal
    - `10-20-10_Topografia` — Curvas de nivel y puntos topográficos
    - `70-20-20_Perimetros_vecinos` — Perímetros de predios vecinos
-   - `70-20-30_Volumetrias_vecinas` — Morphs de construcciones existentes en predios vecinos (manual)
+   - `70-20-30_Volumetrias_vecinas` — Morphs de construcciones existentes en predios vecinos (ruta primaria: **contexto50**; ruta manual: opcional/fallback)
    - `00-10-20_Elementos_referencia` — Líneas de referencia y ejes auxiliares
 
 ### Pipeline Fase 1 — Dos Etapas (v26)
@@ -75,7 +75,9 @@ fetch-urban-context-v6 → JSON → F1_ETAPA1_CONTEXTO (GH Python)
   → Live Connection: crear layers + enviar geometría a ArchiCAD
   → MANUAL en ArchiCAD: clasificar lotes de vías, ejes, andenes,
     zonas verdes, predios vecinos en layers especiales
-  → MANUAL: construir volumetrías existentes de vecinos (Morph)
+  → Vecinos: RUTA PRIMARIA `contexto50` (FETCH 50 m → JSON → F1_ETAPA3_CONTEXTO50/F1_CONTEXTO50_BUILD)
+    → RUTA MANUAL (opcional/fallback): construir volumetrías de vecinos (Morph) si no hay
+      información adecuada para resolverlo por contexto50
 ```
 
 #### ETAPA 2: Geometría clasificada → ocupación y patios
@@ -218,7 +220,7 @@ DiseñoParametrico/
 ## Limitaciones conocidas
 
 - **Puerto 19723 (AutoClaw vs ArchiCAD)**: AutoClaw escritorio hardcodea 127.0.0.1:19723 y lo reclama al rato de inactividad de Grasshopper/ArchiCAD. La Live Connection de GH (AC_*) solo conecta por 19723, por lo que el workaround de mover ArchiCAD a 19724 (`cambiar_puerto_archicad.ps1`) SOLO sirve para la JSON/Python API (paquete `archicad`, F3_StorySync). Para operar el canvas: `diagnostico_puerto_19723.ps1 -Liberar` o cerrar/reabrir AutoClaw en orden (ArchiCAD -> Grasshopper -> AutoClaw).
-- **Vecinos**: modelado manual (no hay modelo 3D público de Bogotá).
+- **Vecinos (política 2026-09-15)**: la ruta **primaria** es **contexto50** (extrae construcciones en radio 50 m de la geobase `bd_uaecd.gpkg`/REST → `<CHIP>-contexto50.json` → `F1_ETAPA3_CONTEXTO50_v01`/`F1_CONTEXTO50_BUILD_v01a` produce huellas y volúmenes). La ruta **manual** en ArchiCAD (Morph, capa `70-20-30_Volumetrias_vecinas`) queda como **opcional/fallback** para cuando no exista información adecuada para resolverlo por contexto50. Los volúmenes de contexto50 son insumo de **análisis sísmico NSR-10, asoleación y ambiental (F4)**; **no** son insumo de F2 (motor de demanda). En el canvas `F1_Contexto_Base-Editado_v03`, el toggle que gobierna `bake`+`exportar` (creación de objetos en Rhino) está **apagado por defecto**: el componente entrega `volumenes`/`huellas` sin escribir en el documento.
 - **Lotes curvos**: NO soportados en `ANALISIS_VECINOS` (requiere polilínea).
 - **POT**: 191 campos en `.gpkg`, solo ~30 relevantes (ver `config/field-whitelist.json`).
 - **Altura POT**: El campo `ALTURA` en la capa `Area_elevacion_maxima` del .gdb NO es altura de edificación en metros. Es cota absoluta o código. El script lo deja como `null` y guarda el crudo en `altura_maxima_raw`. La altura real se define en pisos en el Decreto 555/2021.
