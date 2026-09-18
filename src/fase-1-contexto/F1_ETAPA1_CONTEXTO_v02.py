@@ -66,6 +66,8 @@ import json
 import io
 import os
 import math
+import System.IO
+import System.Text
 
 
 def unwrap(val):
@@ -206,15 +208,26 @@ if not json_path or not os.path.exists(json_path):
     mensaje = "ETAPA1 | ERROR: No se encontro el JSON: {}".format(json_path)
 else:
     try:
-        # Lectura tolerante: utf-8 primero, latin-1/cp1252 como respaldo
-        # (evita "'unknown' codec can't decode byte 0xf3" cuando el JSON fue
-        #  escrito con la codepage de Windows en lugar de utf-8).
-        with open(json_path, 'rb') as f:
-            raw_bytes = f.read()
-        try:
-            data = json.loads(raw_bytes.decode('utf-8'))
-        except Exception:
-            data = json.loads(raw_bytes.decode('latin-1'))
+        # Función para leer JSON soportando rutas y contenidos con tildes y eñes en IronPython
+        def leer_json_seguro(ruta):
+            """Lee archivos JSON soportando rutas y contenidos con tildes y eñes en IronPython."""
+            if not ruta or not System.IO.File.Exists(str(ruta)):
+                raise Exception("El archivo no existe en la ruta especificada: {}".format(ruta))
+
+            # 1. Intento con UTF-8
+            try:
+                contenido = System.IO.File.ReadAllText(str(ruta), System.Text.Encoding.UTF8)
+                return json.loads(contenido)
+            except Exception as e_utf8:
+                # 2. Fallback a codificación por defecto de Windows (CP1252 / Latin-1)
+                try:
+                    contenido = System.IO.File.ReadAllText(str(ruta), System.Text.Encoding.Default)
+                    return json.loads(contenido)
+                except Exception as e_default:
+                    raise Exception("Error al decodificar el archivo: {} | {}".format(e_utf8, e_default))
+
+        # Uso principal:
+        data = leer_json_seguro(json_path)
 
         # --- Anclaje: vertice SE del lote (min Y, max X) ---
         lote_verts = data.get("lote_objetivo", {}).get("vertices_3d_local", [])
