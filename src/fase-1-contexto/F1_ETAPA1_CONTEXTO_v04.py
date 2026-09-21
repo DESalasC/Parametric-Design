@@ -1,6 +1,6 @@
 """
 ================================================================================
-F1_ETAPA1_CONTEXTO_v04.py — Etapa 1: Datos en bruto → Geometria + Capas
+F1_ETAPA1_CONTEXTO_v04.1.py — Etapa 1: Datos en bruto → Geometria + Capas
 Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
@@ -14,14 +14,7 @@ PROPOSITO:
   (vias, andenes, zonas verdes, predios vecinos) en los layers creados,
   y se construyen los Morphs de volumetrias vecinas.
 
-CAMBIOS v04 (2026-09-17):
-  CORRECCION DE CODIFICACION: Funcion leer_json_seguro para soportar rutas y
-  contenidos con tildes y eñes en IronPython, resolviendo error "'unknown' codec
-  can't decode byte 0xf3".
-
-  MEJORA DE DEBUG: Mensajes de error más detallados para diagnóstico de problemas
-  de encoding y estructura JSON.
-
+CAMBIOS v04.1 (2026-09-21):
   GARANTIA DEL LAYER DEL LOTE: el layer "00-00-10_Lote_proyecto" queda
   asegurado en layers_json con merge defensivo (si faltara en la lista
   estandar se re-inserta como primer elemento) y se expone la salida
@@ -45,7 +38,8 @@ ENTRADAS:
 SALIDAS (agrupadas por capa destino):
   LOTE:        lot_curve (Curve) + lot_area (Number)
   VECINOS:     vecinos_curves (Curve[]) — capa "predios vecinos"
-  VIAS:        vias_oficiales (Curve[]) — capa 00-20-20_Elementos_entorno_urbano
+  VIAS:        vias_oficiales (Curve[]) — capa 00-20-20_Elementos_entorno_urbano (áreas de vía)
+  EJES_VIAS:   ejes_vias_curves (Curve[]) — capa 00-20-30_Ejes_vias (ejes de vía)
   ESPACIOS:    espacios_publicos (Curve[]) — capa 70-50-10_Zonas_verdes_publicas
   TOPO:        topo_mesh (Mesh) — capa 10-20-10_Topografia
   NORMATIVA:   altura_max_pot, tratamiento, rango_edificabilidad,
@@ -59,7 +53,8 @@ SALIDAS (agrupadas por capa destino):
 
 CAPAS ARCHICAD (creadas via Tapir):
   00-00-10_Lote_proyecto
-  00-20-20_Elementos_entorno_urbano   (vias)
+  00-20-20_Elementos_entorno_urbano   (áreas de vía)
+  00-20-30_Ejes_vias                  (ejes de vía)
   70-50-10_Zonas_verdes_publicas      (parques/plazas)
   70-30-20_Andenes_preexistentes
   10-20-10_Topografia
@@ -68,6 +63,7 @@ CAPAS ARCHICAD (creadas via Tapir):
   00-20-20_Foto_Aerea_Referencia
 ================================================================================
 """
+
 
 import Rhino.Geometry as rg
 import json
@@ -209,7 +205,8 @@ json_path = str(unwrap(json_path_raw)).strip("[]'\" ") if json_path_raw else ""
 lot_curve = None
 lot_area = 0.0
 vecinos_curves = []
-vias_oficiales = []
+vias_oficiales = []  # Áreas de vía (para capa 00-20-20_Elementos_entorno_urbano)
+ejes_vias_curves = []  # Ejes de vía (para capa 00-20-30_Ejes_vias)
 espacios_publicos = []
 topo_mesh = None
 altura_max_pot = 11.4
@@ -275,17 +272,45 @@ else:
             if crv:
                 vecinos_curves.append(crv)
 
-        # --- VIAS ---
-        vias_oficiales = []
+        # --- VIAS (Ejes de vía y áreas de vía) ---
+        ejes_vias_curves = []
+        vias_oficiales_buffered = []
+
         for via in data.get("vias_oficiales", []):
             coords = via.get("coordenadas_local", [])
+            ancho_via = to_float_safe(via.get("ancho"), 0.0)
+
             if len(coords) >= 2:
+                # Crear la polilínea central (eje de vía)
                 poly = rg.Polyline()
                 for c in coords:
                     poly.Add(c[0] - dx, c[1] - dy, c[2] - dz)
                 poly_curve = rg.PolylineCurve(poly)
                 nurbs_curve = polyline_to_nurbs(poly_curve)  # Convert to NURBS for better ArchiCAD compatibility
-                vias_oficiales.append(nurbs_curve)
+                ejes_vias_curves.append(nurbs_curve)
+
+                # Generar área de vía si hay ancho disponible
+                if ancho_via > 0:
+                    try:
+                        # Crear polilínea con ancho (buffer)
+                        buffered_poly = poly.Buffer(ancho_via / 2.0)
+                        if buffered_poly is not None:
+                            # Convertir a curva si es necesario
+                            if isinstance(buffered_poly, rg.PolylineCurve):
+                                buffered_nurbs = polyline_to_nurbs(buffered_poly)
+                                vias_oficiales_buffered.append(buffered_nurbs)
+                            elif isinstance(buffered_poly, rg.NurbsCurve):
+                                vias_oficiales_buffered.append(buffered_poly)
+                    except Exception as e:
+                        # Si falla el buffer, al menos dejamos el eje
+                        print("WARNING: No se pudo generar buffer para vía: {}".format(str(e)))
+                        # Aún así agregamos el eje como área mínima (línea muy delgada)
+                        vias_oficiales_buffered.append(nurbs_curve)
+                else:
+                    # Si no hay ancho, usar el eje como referencia mínima
+                    vias_oficiales_buffered.append(nurbs_curve)
+
+        vias_oficiales = vias_oficiales_buffered
 
         # --- ESPACIOS PUBLICOS ---
         espacios_publicos = []

@@ -1,0 +1,52 @@
+Found GH_IO.Serialization.GH_Archive
+Constructors:
+Void .ctor()
+
+Methods (public instance):
+Void AddMessage(GH_IO.Serialization.GH_Message)
+Void AddMessage(System.String, GH_IO.Serialization.GH_Message_Type)
+Boolean AppendObject(GH_IO.GH_ISerializable, System.String)
+Void ClearMessages()
+Void CreateNewRoot(Boolean)
+GH_IO.Serialization.GH_IWriter CreateTopLevelNode(System.String)
+Boolean Deserialize_Binary(Byte[])
+Boolean Deserialize_Xml(System.String)
+Boolean Equals(System.Object)
+Boolean ExtractObject(GH_IO.GH_ISerializable, System.String)
+System.String get_FileName()
+GH_IO.Serialization.GH_Chunk get_GetRootNode()
+Boolean get_IsBinaryPath()
+Boolean get_IsPath()
+Boolean get_IsXmlPath()
+System.Collections.Generic.List`1[GH_IO.Serialization.GH_Message] get_Messages()
+System.String get_Path()
+GH_IO.Serialization.GH_Message_Type get_WorstCaseMessageType()
+Int32 GetHashCode()
+System.Type GetType()
+Int32 MessageCount()
+Int32 MessageCount(Boolean, Boolean, Boolean)
+Boolean ReadFromFile(System.String)
+Byte[] Serialize_Binary()
+System.String Serialize_Xml()
+Void set_Path(System.String)
+System.Windows.Forms.DialogResult ShowMessageLog()
+System.String ToString()
+Boolean WriteToFile(System.String, Boolean, Boolean)
+
+Methods (public static):
+GH_IO.Types.GH_Version get_GH_IO_Version()
+System.String get_GrasshopperBinaryExtension()
+System.String get_GrasshopperUserExtension()
+System.String get_GrasshopperXmlExtension()
+Boolean OpenFileDialog(System.String, System.String ByRef, System.Collections.Generic.List`1[System.String])
+Boolean SaveFileDialog(System.String, System.String ByRef, System.Collections.Generic.List`1[System.String])
+
+Properties:
+System.String FileName
+GH_IO.Serialization.GH_Chunk GetRootNode
+Boolean IsBinaryPath
+Boolean IsPath
+Boolean IsXmlPath
+System.Collections.Generic.List`1[GH_IO.Serialization.GH_Message] Messages
+System.String Path
+GH_IO.Serialization.GH_Message_Type WorstCaseMessageType
