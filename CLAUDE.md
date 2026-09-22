@@ -214,7 +214,7 @@ DiseñoParametrico/
 
 > **Documentación:** la única fuente de documentación es el vault de Obsidian
 > `D:\Work\NOTES\obsidian-vault\` (índice: `00-index\mapa-conocimiento.md`). `docs/` solo conserva los resúmenes de cierre y de sesión
-> (`docs/cierre/`, `docs/sesiones/`); la documentación detallada vive en el vault. El nombre oficial del proyecto es
+> (`docs/cierre/`, `docs/sesiones/`; guías, instructivos y contratos del canvas: vault `10-arquitectura/`); la documentación detallada vive en el vault. El nombre oficial del proyecto es
 > `DiseñoParametrico` (con ñ); usarlo consistentemente en toda la documentación.
 
 ## Limitaciones conocidas

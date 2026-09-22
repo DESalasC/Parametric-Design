@@ -173,7 +173,7 @@ cada componente por predio (esquema `<CHIP>`). Se pasó a la regla del **activo 
   botón "Exportar GFA", tarjeta de archivos (activos vs fuera del canvas).
 - **GHPython `F1_EXPORTAR_GFA_v02.py` (v02.2)**: disparador por `gfa-export-flag.json`;
   escribe `<CHIP>-gfa-gh.json` + `CHIP-gfa-gh.json`; resetea el flag a `false`.
-- **Docs**: `ARCHIVOS_INTERCAMBIO.md` + `docs/archivos-intercambio-canonicos.md` (regla
+- **Docs**: `ARCHIVOS_INTERCAMBIO.md` + `10-arquitectura/archivos-intercambio-canonicos.md` (vault) (regla
   activo/archivo) + este instructivo.
 - **`.gitignore`**: activos de runtime (`gfa-export-flag.json`, `casos/CASO/`).
 

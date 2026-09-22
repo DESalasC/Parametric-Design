@@ -75,7 +75,7 @@ bloques A/B/C/D y fases 0–4 con las decisiones del operador:
 - **C4 (⏸ bloqueado)**: puerto 19723 — pendiente de respuesta de soporte técnico.
 - **C5 (⏸ diferido)**: verificación en vivo de subagentes `fcc-claude`
   (proxy `fcc-server` 8082). Se retoma más tarde.
-- **C6 (✅ evaluado)**: ver `docs/2026-09-15-c6-plugins-mcp-evaluacion.md`.
+- **C6 (✅ evaluado)**: ver `10-arquitectura/2026-09-15-c6-plugins-mcp-evaluacion.md` (vault).
 
 ## Bloque D — Higiene documental / drift (✅ ejecutado)
 
@@ -98,7 +98,7 @@ bloques A/B/C/D y fases 0–4 con las decisiones del operador:
 | Parche toggle bake/exportar | `scripts/utilities/patch-ghx-bake-exportar-off.py` |
 | Tests de helpers | `src/fase-1-contexto/tests/test_contexto50_helpers.py` |
 | Congelado del canvas | `gh-definitions/_archive/congelado-2026-09-15/` |
-| Evaluación C6 | `docs/2026-09-15-c6-plugins-mcp-evaluacion.md` |
+| Evaluación C6 | `10-arquitectura/2026-09-15-c6-plugins-mcp-evaluacion.md` (vault) |
 
 ## Pendientes
 

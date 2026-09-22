@@ -5,7 +5,7 @@
 Este documento es el único manual estable del proyecto DiseñoParametrico.
 La versión del canvas y los scripts se controlan mediante:
 - Git (historial de commits)
-- Tabla única de versiones vigentes (ver `docs/10-arquitectura/estado-avance-disenoparametrico.md`)
+- Tabla única de versiones vigentes (ver `D:\Work\NOTES\obsidian-vault\10-arquitectura\estado-avance-disenoparametrico.md`)
 
 Para verificar la correspondencia entre el canvas embebido en los archivos .gh y los scripts .py vigentes,
 consulte la sección de trazabilidad en el estado-avance.

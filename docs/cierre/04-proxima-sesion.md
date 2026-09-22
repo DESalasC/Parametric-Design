@@ -85,7 +85,7 @@ Handoff posterior al cierre "noche". Se resolvieron varios pendientes y se intro
 - `POST /api/activar-chip` (auto al cambiar CHIP) y `POST /api/activar-caso` (auto al cambiar caso).
 - Exportación GFA por flag `gfa-export-flag.json` (`true` → exporta → `false`),
   `F1_EXPORTAR_GFA_v02.py` v02.2.
-- Docs: `docs/instructivo-cableado-canvas.md`, `docs/archivos-intercambio-canonicos.md`,
+- Docs: vault `10-arquitectura/instructivo-cableado-canvas.md` y `10-arquitectura/archivos-intercambio-canonicos.md`,
   `src/orquestador/ARCHIVOS_INTERCAMBIO.md`.
 
 ### Pendiente (orden sugerido)
