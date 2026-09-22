@@ -29,6 +29,11 @@ CAMBIOS v04.1 (2026-09-21):
   CU-5.4.2-33 y CU-5.5, raster) -> las salidas quedan vacias/0 hasta que
   la fuente los provea; NORMATIVA_v05 avisa y usa los defaults.
 
+  AMPLIACIÓN DE VÍAS (2026-09-21): se procesan vias oficiales, secundarias,
+  terciarias y peatonales. Se separan los ejes de vía (centerlines) de las
+  áreas de vía (buffered polygons). Se añaden salidas específicas para
+  ejes de vía peatonales y se crea una capa adicional para ellos.
+
   COMPATIBILIDAD ARCHICAD: Curvas 2D en lugar de PolylineCurve para mejor
   compatibilidad con ArchiCAD Tapir.
 
@@ -40,6 +45,7 @@ SALIDAS (agrupadas por capa destino):
   VECINOS:     vecinos_curves (Curve[]) — capa "predios vecinos"
   VIAS:        vias_oficiales (Curve[]) — capa 00-20-20_Elementos_entorno_urbano (áreas de vía)
   EJES_VIAS:   ejes_vias_curves (Curve[]) — capa 00-20-30_Ejes_vias (ejes de vía)
+  PEATONALES:  peatonales_curves (Curve[]) — capa 70-30-10_Peatonales (ejes peatonales)
   ESPACIOS:    espacios_publicos (Curve[]) — capa 70-50-10_Zonas_verdes_publicas
   TOPO:        topo_mesh (Mesh) — capa 10-20-10_Topografia
   NORMATIVA:   altura_max_pot, tratamiento, rango_edificabilidad,
@@ -55,6 +61,7 @@ CAPAS ARCHICAD (creadas via Tapir):
   00-00-10_Lote_proyecto
   00-20-20_Elementos_entorno_urbano   (áreas de vía)
   00-20-30_Ejes_vias                  (ejes de vía)
+  70-30-10_Peatonales                 (ejes peatonales)
   70-50-10_Zonas_verdes_publicas      (parques/plazas)
   70-30-20_Andenes_preexistentes
   10-20-10_Topografia
@@ -63,7 +70,6 @@ CAPAS ARCHICAD (creadas via Tapir):
   00-20-20_Foto_Aerea_Referencia
 ================================================================================
 """
-
 
 import Rhino.Geometry as rg
 import json
@@ -207,6 +213,7 @@ lot_area = 0.0
 vecinos_curves = []
 vias_oficiales = []  # Áreas de vía (para capa 00-20-20_Elementos_entorno_urbano)
 ejes_vias_curves = []  # Ejes de vía (para capa 00-20-30_Ejes_vias)
+peatonales_curves = []  # Ejes peatonales (para capa 70-30-10_Peatonales)
 espacios_publicos = []
 topo_mesh = None
 altura_max_pot = 11.4
@@ -227,10 +234,10 @@ LAYERS_ARCHICAD = [
     {"nombre": "00-00-10_Lote_proyecto", "color": 1, "visible": True},
     {"nombre": "00-20-20_Elementos_entorno_urbano", "color": 2, "visible": True},
     {"nombre": "00-20-30_Ejes_vias", "color": 8, "visible": True},
+    {"nombre": "70-30-10_Peatonales", "color": 10, "visible": True},  # Nuevo capa para ejes peatonales
     {"nombre": "70-50-10_Zonas_verdes_publicas", "color": 3, "visible": True},
     {"nombre": "70-30-20_Andenes_preexistentes", "color": 4, "visible": True},
     {"nombre": "10-20-10_Topografia", "color": 5, "visible": True},
-    {"nombre": "70-20-20_Perimetros_vecinos", "color": 9, "visible": True},
     {"nombre": "70-20-30_Volumetrias_vecinas", "color": 6, "visible": True},
     {"nombre": "00-10-20_Elementos_referencia", "color": 7, "visible": True},
     {"nombre": "00-20-20_Foto_Aerea_Referencia", "color": 5, "visible": True},
@@ -272,45 +279,69 @@ else:
             if crv:
                 vecinos_curves.append(crv)
 
-        # --- VIAS (Ejes de vía y áreas de vía) ---
-        ejes_vias_curves = []
-        vias_oficiales_buffered = []
+        # --- PROCESAMIENTO DE VÍAS Y PEATONALES ---
+        # Definimos los grupos de vías que queremos procesar
+        # Cada grupo es una tupla: (clave_json, tipo)
+        # tipo: 'vial' para vías de motor (oficiales, secundarias, terciarias)
+        #       'peonal' para peatonales
+        road_groups = [
+            ("vias_oficiales", "vial"),
+            ("vias_secundarias", "vial"),
+            ("vias_terciarias", "vial"),
+            ("peatonales", "peonal")
+        ]
 
-        for via in data.get("vias_oficiales", []):
-            coords = via.get("coordenadas_local", [])
-            ancho_via = to_float_safe(via.get("ancho"), 0.0)
+        # Listas para acumular resultados
+        ejes_vias_curves = []  # Ejes de vía de motor (para capa 00-20-30_Ejes_vias)
+        vias_oficiales = []    # Áreas de vía de motor (para capa 00-20-20_Elementos_entorno_urbano)
+        peatonales_curves = [] # Ejes peatonales (para capa 70-30-10_Peatonales)
+        # Nota: no se acumulan áreas peatonales por ahora, pero se podría añadir si se necesita
 
-            if len(coords) >= 2:
-                # Crear la polilínea central (eje de vía)
-                poly = rg.Polyline()
-                for c in coords:
-                    poly.Add(c[0] - dx, c[1] - dy, c[2] - dz)
-                poly_curve = rg.PolylineCurve(poly)
-                nurbs_curve = polyline_to_nurbs(poly_curve)  # Convert to NURBS for better ArchiCAD compatibility
-                ejes_vias_curves.append(nurbs_curve)
+        for group_key, group_type in road_groups:
+            if group_key not in data:
+                continue
+            group_data = data[group_key]
+            if not isinstance(group_data, list):
+                continue
 
-                # Generar área de vía si hay ancho disponible
-                if ancho_via > 0:
-                    try:
-                        # Crear polilínea con ancho (buffer)
-                        buffered_poly = poly.Buffer(ancho_via / 2.0)
-                        if buffered_poly is not None:
-                            # Convertir a curva si es necesario
-                            if isinstance(buffered_poly, rg.PolylineCurve):
-                                buffered_nurbs = polyline_to_nurbs(buffered_poly)
-                                vias_oficiales_buffered.append(buffered_nurbs)
-                            elif isinstance(buffered_poly, rg.NurbsCurve):
-                                vias_oficiales_buffered.append(buffered_poly)
-                    except Exception as e:
-                        # Si falla el buffer, al menos dejamos el eje
-                        print("WARNING: No se pudo generar buffer para vía: {}".format(str(e)))
-                        # Aún así agregamos el eje como área mínima (línea muy delgada)
-                        vias_oficiales_buffered.append(nurbs_curve)
-                else:
-                    # Si no hay ancho, usar el eje como referencia mínima
-                    vias_oficiales_buffered.append(nurbs_curve)
+            for via in group_data:
+                coords = via.get("coordenadas_local", [])
+                ancho_via = to_float_safe(via.get("ancho"), 0.0)
 
-        vias_oficiales = vias_oficiales_buffered
+                if len(coords) >= 2:
+                    # Crear la polilínea central (eje de vía)
+                    poly = rg.Polyline()
+                    for c in coords:
+                        poly.Add(c[0] - dx, c[1] - dy, c[2] - dz)
+                    poly_curve = rg.PolylineCurve(poly)
+                    nurbs_curve = polyline_to_nurbs(poly_curve)  # Convert to NURBS for better ArchiCAD compatibility
+
+                    if group_type == "vial":
+                        # Para vías de motor: el eje va a ejes_vias_curves
+                        ejes_vias_curves.append(nurbs_curve)
+                        # El área de vía (si hay ancho) va a vias_oficiales
+                        if ancho_via > 0:
+                            try:
+                                buffered_poly = poly.Buffer(ancho_via / 2.0)
+                                if buffered_poly is not None:
+                                    if isinstance(buffered_poly, rg.PolylineCurve):
+                                        buffered_nurbs = polyline_to_nurbs(buffered_poly)
+                                        vias_oficiales.append(buffered_nurbs)
+                                    elif isinstance(buffered_poly, rg.NurbsCurve):
+                                        vias_oficiales.append(buffered_poly)
+                            except Exception as e:
+                                print("WARNING: No se pudo generar buffer para vía {}: {}".format(
+                                    via.get("codigo", "desconocido"), str(e)))
+                                # Aún así agregamos el eje como área mínima (línea muy delgada)
+                                vias_oficiales.append(nurbs_curve)
+                        else:
+                            # Si no hay ancho, usar el eje como referencia mínima
+                            vias_oficiales.append(nurbs_curve)
+                    else:  # group_type == "peonal"
+                        # Para peatonales: el eje va a peatonales_curves
+                        peatonales_curves.append(nurbs_curve)
+                        # Nota: por ahora no se procesan áreas peatonales, pero se podría hacer de manera similar
+                        # si se necesitara en el futuro.
 
         # --- ESPACIOS PUBLICOS ---
         espacios_publicos = []
@@ -338,8 +369,13 @@ else:
         # --- REGLAMENTACION JSON (para NORMATIVA_v05) ---
         # Deriva de la reglamentacion lo que la fuente POT provea:
         # hoy ancho: null y sin tipologia/antejardin (mapas raster).
-        anchos = [to_float_safe(v.get("ancho"), 0.0)
-                  for v in data.get("vias_oficiales", [])]
+        # Nota: ahora consideramos todas las vías (oficiales, secundarias, terciarias) para el ancho_via_oficial_m
+        all_road_groups = [("vias_oficiales", "vial"), ("vias_secundarias", "vial"), ("vias_terciarias", "vial")]
+        anchos = []
+        for group_key, _ in all_road_groups:
+            if group_key in data and isinstance(data[group_key], list):
+                for v in data[group_key]:
+                    anchos.append(to_float_safe(v.get("ancho"), 0.0))
         anchos = [a for a in anchos if a > 0]
         ancho_via_oficial_m = min(anchos) if anchos else 0.0
         tipologia_oficial = str(pd.get("tipologia", "") or "").strip()
@@ -363,8 +399,8 @@ else:
         layers_json = json.dumps(LAYERS_ARCHICAD)
 
         chip = meta.get("chip", "DESCONOCIDO")
-        mensaje = "ETAPA1 v04 | CHIP: {} | Area: {:.1f}m2 | Vecinos: {} | Vias: {} | EP: {} | Origen: ({:.1f}, {:.1f}) | Lote_layer: {} | Reg: ancho_via={} tipologia={}".format(
-            chip, lot_area, len(vecinos_curves), len(vias_oficiales),
+        mensaje = "ETAPA1 v04 | CHIP: {} | Area: {:.1f}m2 | Vecinos: {} | Vias motor: {} | Vias peatonales: {} | EP: {} | Origen: ({:.1f}, {:.1f}) | Lote_layer: {} | Reg: ancho_via={} tipologia={}".format(
+            chip, lot_area, len(vecinos_curves), len(ejes_vias_curves), len(peatonales_curves),
             len(espacios_publicos), dx, dy,
             "OK" if layer_lote_ok else "FALTA",
             ancho_via_oficial_m or "sin dato",
