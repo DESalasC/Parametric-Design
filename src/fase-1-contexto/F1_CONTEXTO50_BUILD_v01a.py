@@ -83,6 +83,7 @@ OUT_DIR = r"D:\Work\PROJECTS\DiseñoParametrico\exports\contexto50"
 MIN_AREA_EDIFICIO_M2 = 15.0       # [m2] area minima para volumen de vecino
 MAX_COMPACIDAD = 6.0              # per^2/(4*pi*area): >6 = anden/muro/cinta
 CTX1_HERMANO = "CHIP-contexto.json"  # lote objetivo (convencion canvas)
+POT_CACHE = os.path.join(os.environ.get("DISENO_PARAMETRICO_ROOT", ""), "data", "pot-cache")
 
 
 # ------------------------------------------------------------------ utilidades
@@ -115,6 +116,11 @@ def to_float(val, default):
         return float(val)
     except (TypeError, ValueError):
         return default
+
+
+def _existe(path):
+    """Verifica si un path existe (wrapper para os.path.exists)."""
+    return os.path.exists(path) if path else False
 
 
 def leer_json(path):
@@ -367,7 +373,15 @@ def extruir(crv, altura):
 # ENTRADAS (a prueba de GH: unwrap + tipos seguros)
 # ==============================================================================
 _raw_path = unwrap(globals().get("json_path", None))
-in_json_path = str(_raw_path).strip("[]'\" ") if _raw_path is not None else ""
+json_path_param = str(_raw_path).strip("[]'\" ") if _raw_path is not None else ""
+
+# Check for canonical file first (for orchestrator-managed workflow)
+canonical_path = os.path.join(POT_CACHE, "contexto50-actual.json")
+in_json_path = canonical_path if _existe(canonical_path) else json_path_param
+
+# Fallback logic: if canonical doesn't exist or is empty, use parameter
+if not in_json_path or not _existe(in_json_path):
+    in_json_path = json_path_param
 in_bake = parse_bool(globals().get("bake", False))
 in_exportar = parse_bool(globals().get("exportar", False))
 in_altura_override = to_float(globals().get("altura_piso", None), None)

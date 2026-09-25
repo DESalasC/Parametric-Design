@@ -97,6 +97,17 @@ def _guardar_parametros(params):
         json.dump(params, f, indent=2, ensure_ascii=False)
 
 
+def _copy_file(src, dst):
+    """Copy file from src to dst, creating directories as needed."""
+    try:
+        if _existe(src):
+            shutil.copy2(src, dst)
+            return True
+    except Exception as e:
+        print("WARNING: Failed to copy {} to {}: {}".format(src, dst, str(e)))
+    return False
+
+
 def _ruta_parametros_f2_mercado(chip, dias_frescura=60):
     """Parametros de mercado sincronizados desde MercadoViviendaBogota.
 
@@ -129,6 +140,50 @@ def _ruta_parametros_f2_mercado(chip, dias_frescura=60):
     return None
 
 
+def _validar_contexto_fresco(chip, tipo_contexto):
+    """Valida si el archivo de contexto es fresco (contiene el chip actual).
+
+    Args:
+        chip: Chip actual a validar contra
+        tipo_contexto: "contexto" o "contexto50"
+
+    Returns:
+        tuple: (es_fresco, mensaje) donde es_fresco es booleano y mensaje es string
+    """
+    if tipo_contexto == "contexto":
+        nombre_archivo = "contexto-actual.json"
+    elif tipo_contexto == "contexto50":
+        nombre_archivo = "contexto50-actual.json"
+    else:
+        return False, "Tipo de contexto desconocido"
+
+    ruta_archivo = os.path.join(POT_CACHE, nombre_archivo)
+
+    if not _existe(ruta_archivo):
+        return False, "Archivo no existe"
+
+    try:
+        with io.open(ruta_archivo, "r", encoding="utf-8") as f:
+            contenido = json.load(f)
+
+        # Verificar si el chip en el archivo coincide con el chip actual
+        chip_archivo = ""
+        if isinstance(contenido, dict):
+            metadata = contenido.get("metadata", {})
+            if isinstance(metadata, dict):
+                chip_archivo = str(metadata.get("chip", ""))
+
+        if chip_archivo == chip:
+            return True, "Datos actualizados para chip {}".format(chip)
+        elif chip_archivo == "":
+            return False, "Archivo inicializado (esperando datos)"
+        else:
+            return False, "Datos obsoletos (chip: {})".format(chip_archivo)
+
+    except Exception as e:
+        return False, "Error al leer archivo: {}".format(str(e))
+
+
 def _detectar_parametros(chip, tipo):
     """Busca el parametros.json mas adecuado para el chip (venta o renta)."""
     if tipo == "renta":
@@ -153,9 +208,13 @@ def detectar_estado(chip, caso):
     return {
         "f1_contexto": {
             "tipo": "auto",
-            "estado": "hecho" if _existe(os.path.join(POT_CACHE, chip + "-contexto.json")) else "falta",
-            "artefacto": "data/pot-cache/{}-contexto.json".format(chip),
+            "estado": "hecho" if _existe(os.path.join(POT_CACHE, "contexto-actual.json")) else "falta",
+            "artefacto": "data/pot-cache/contexto-actual.json",
             "comando": [PY, os.path.join(ROOT, "scripts", "utilities", "fetch-urban-context-v6.py"), "--chip", chip],
+            "post_comando": lambda: _copy_file(
+                os.path.join(POT_CACHE, chip + "-contexto.json"),
+                os.path.join(POT_CACHE, "contexto-actual.json")
+            ) if _existe(os.path.join(POT_CACHE, chip + "-contexto.json")) else None,
         },
         "f1_gfa": {
             "tipo": "manual",
@@ -192,6 +251,20 @@ def detectar_estado(chip, caso):
             "estado": "manual",
             "artefacto": "Morphs nativos en ArchiCAD (sesión abierta de Rhino)",
             "comando": None,
+        },
+        "f1_contexto50": {
+            "tipo": "auto",
+            "estado": "hecho" if _existe(os.path.join(POT_CACHE, "contexto50-actual.json")) else "falta",
+            "artefacto": "data/pot-cache/contexto50-actual.json",
+            "comando": [PY, os.path.join(ROOT, "src", "fase-1-contexto", "F1_CONTEXTO50_FETCH_v01.py"),
+                      "--chip", chip,
+                      "--ctx", os.path.join(POT_CACHE, chip + "-contexto.json"),
+                      "--out", POT_CACHE],
+            "post_comando": lambda: _copy_file(
+                os.path.join(POT_CACHE, chip + "-contexto50.json"),
+                os.path.join(POT_CACHE, "contexto50-actual.json")
+            ) if _existe(os.path.join(POT_CACHE, chip + "-contexto50.json")) else None,
+            "depends_on": ["f1_contexto"],
         },
     }
 
@@ -312,12 +385,43 @@ def _modo_run(args):
     }
     _guardar_parametros(params_nuevos)
 
+    # Initialize blank canonical context files if they don't exist
+    contexto_blank = json.dumps({
+        "metadata": {"chip": "", "origen_sirgas": {"x": 0, "y": 0, "z": 0}},
+        "lote_objetivo": {"vertices_3d_local": []},
+        "vias_oficiales": [],
+        "espacios_publicos": [],
+        "vecinos": []
+    }, indent=2)
+
+    contexto50_blank = json.dumps({
+        "metadata": {"chip": "", "radio_m": 0, "altura_por_piso_m": 0},
+        "edificios": []
+    }, indent=2)
+
+    contexto_path = os.path.join(POT_CACHE, "contexto-actual.json")
+    contexto50_path = os.path.join(POT_CACHE, "contexto50-actual.json")
+
+    if not _existe(contexto_path):
+        with io.open(contexto_path, "w", encoding="utf-8") as f:
+            f.write(contexto_blank)
+
+    if not _existe(contexto50_path):
+        with io.open(contexto50_path, "w", encoding="utf-8") as f:
+            f.write(contexto50_blank)
+
     estado = detectar_estado(chip, caso)
+    if args.refresh:
+        # Force refresh of context steps by marking them as 'falta'
+        for paso_key in ["f1_contexto", "f1_contexto50"]:
+            if paso_key in estado:
+                estado[paso_key]["estado"] = "falta"
     _imprimir_estado(estado, chip, caso, modo)
 
     # 2. pasos automáticos
     pasos_auto = [
         ("f1_contexto", "F1 fetch contexto", lambda: _ejecutar(estado["f1_contexto"]["comando"])),
+        ("f1_contexto50", "F1 fetch contexto 50m", lambda: _ejecutar(estado["f1_contexto50"]["comando"])),
         ("f2_venta", "F2 motor venta", None) if modo in ("venta", "mixto") else None,
         ("f2_renta", "F2 motor renta", None) if modo in ("renta", "mixto") else None,
         ("f3_distribucion", "F3 distribución", lambda: _ejecutar(estado["f3_distribucion"]["comando"])),
@@ -353,6 +457,13 @@ def _modo_run(args):
                 if resp != "s":
                     print("Detenido por el operador.")
                     sys.exit(1)
+
+            # Execute post-comando callback if defined
+            if ok and "post_comando" in estado[clave] and estado[clave]["post_comando"]:
+                try:
+                    estado[clave]["post_comando"]()
+                except Exception as e:
+                    print("WARNING: Post-comando failed for {}: {}".format(clave, str(e)))
 
     # 3. pasos manuales (guiados)
     manuales = [
@@ -559,6 +670,7 @@ def main():
     parser.add_argument("--gfa", type=float, default=None, help="Override de GFA (m2)")
     parser.add_argument("--costo-lote", type=float, default=None, help="Override costo de lote (COP)")
     parser.add_argument("--yes", action="store_true", help="No pedir confirmaciones")
+    parser.add_argument("--refresh", action="store_true", help="Forzar actualización de contexto ignorando el estado actual")
     args = parser.parse_args()
 
     if args.status:

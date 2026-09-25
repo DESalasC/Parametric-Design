@@ -23,6 +23,33 @@
         }
       },
       "ultima_edicion": "2026-08-25 10:56"
+    },
+    "AAA0127AZPA": {
+      "area_m2": 315,
+      "precio_suelo_m2": 2000000,
+      "impuestos_escritura_pct": 4,
+      "costo_lote_total_cop": 1000000000,
+      "costos_blandos_pct": 15,
+      "marketing_ventas_pct": 4,
+      "escenarios": {
+        "A_VIS": {
+          "precio_venta_m2": 4727444,
+          "costo_construccion_m2": 2300000
+        },
+        "B_ESTANDAR": {
+          "precio_venta_m2": 7200000,
+          "costo_construccion_m2": 3000000
+        },
+        "C_LUJO": {
+          "precio_venta_m2": 12000000,
+          "costo_construccion_m2": 4300000
+        },
+        "D_MIXTO": {
+          "precio_venta_m2": null,
+          "costo_construccion_m2": null
+        }
+      },
+      "ultima_edicion": "2026-09-23 10:08"
     }
   }
 }

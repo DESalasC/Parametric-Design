@@ -2,15 +2,178 @@
   "nombre": "",
   "chip": "AAA0127AZPA",
   "variables": {
-    "tipologia": "Aislada"
+    "tipologia": "Continua",
+    "piso_adicional": true,
+    "tipo_bonificacion": "Servicios",
+    "floor_height_user": 3.8,
+    "antejardin_decision": "Según reglamentación",
+    "antejardin_m": 0,
+    "voladizo_frontal_m": 0.6,
+    "tratamiento": "Consolidación",
+    "caso": "A",
+    "alineacion_nucleo": "1"
+  },
+  "modalidad_dueno_lote": {
+    "tipo": "aporte_completo",
+    "pago_parcial_pct": 30
   },
   "usos": [
-    "Vivienda"
+    "Vivienda (unifamiliar, bifamiliar, multifamiliar, colectiva)",
+    "Comercio al por menor (mediana y gran superficie)"
   ],
   "modos": [
     "venta"
   ],
   "escenarios": [
-    "C_LUJO"
-  ]
+    "B_ESTANDAR"
+  ],
+  "vecinos_por_lado": {
+    "chip": "AAA0127AZPA",
+    "crs": "ESRI:102233",
+    "azimuth_norte_grados": 189.41145413566696,
+    "n_lados": 4,
+    "n_predios_colindantes": 3,
+    "colindantes": [
+      {
+        "chip": "009130083015",
+        "longitud_colindancia_total_m": 25.2
+      },
+      {
+        "chip": "009130083017",
+        "longitud_colindancia_total_m": 25.21
+      },
+      {
+        "chip": "009130083029",
+        "longitud_colindancia_total_m": 12.5
+      }
+    ],
+    "nota": "Clasificación automática (frente_fuente='auto'). Las vías provienen de vias_oficiales (Eje_vial, INCOMPLETO: calles no digitalizadas pueden quedar como 'predio'); algunas zonas verdes están en 'vecinos' y no en 'espacios_publicos'. El operador debe confirmar/corregir 'frente' por lado (frente_override).",
+    "lados": [
+      {
+        "lado_id": 1,
+        "cardinal": "Sur",
+        "frente": "predio",
+        "frente_fuente": "auto",
+        "frente_override": null,
+        "azimut_grados": 189.5,
+        "segmentos": [
+          1,
+          2
+        ],
+        "segmentos_vecinos": {
+          "1": [
+            "009130083029"
+          ],
+          "2": [
+            "009130083029"
+          ]
+        },
+        "longitud_m": 12.5,
+        "n_vecinos": 1,
+        "vecinos": [
+          {
+            "chip": "009130083029",
+            "nombre": "Sur1",
+            "altura_m": null,
+            "pisos": null,
+            "longitud_colindancia_m": 12.5
+          }
+        ],
+        "cardinal_label": "Sur",
+        "vecinos_manuales": []
+      },
+      {
+        "lado_id": 3,
+        "cardinal": "Occidente",
+        "frente": "predio",
+        "frente_fuente": "auto",
+        "frente_override": "via_no_frontal",
+        "azimut_grados": 279.4,
+        "segmentos": [
+          3,
+          4,
+          5
+        ],
+        "segmentos_vecinos": {
+          "3": [
+            "009130083015"
+          ],
+          "4": [
+            "009130083015"
+          ],
+          "5": [
+            "009130083015"
+          ]
+        },
+        "longitud_m": 25.2,
+        "n_vecinos": 1,
+        "vecinos": [
+          {
+            "chip": "009130083015",
+            "nombre": "Occidente1",
+            "altura_m": null,
+            "pisos": null,
+            "longitud_colindancia_m": 25.2
+          }
+        ],
+        "cardinal_label": "Occidente",
+        "vecinos_manuales": []
+      },
+      {
+        "lado_id": 6,
+        "cardinal": "Norte",
+        "frente": "via",
+        "frente_fuente": "auto",
+        "frente_override": null,
+        "azimut_grados": 9.5,
+        "segmentos": [
+          6
+        ],
+        "segmentos_vecinos": {},
+        "longitud_m": 12.5,
+        "n_vecinos": 0,
+        "vecinos": [],
+        "cardinal_label": "Norte",
+        "vecinos_manuales": []
+      },
+      {
+        "lado_id": 7,
+        "cardinal": "Oriente",
+        "frente": "predio",
+        "frente_fuente": "auto",
+        "frente_override": null,
+        "azimut_grados": 99.4,
+        "segmentos": [
+          7,
+          8,
+          0
+        ],
+        "segmentos_vecinos": {
+          "0": [
+            "009130083017"
+          ],
+          "7": [
+            "009130083017"
+          ],
+          "8": [
+            "009130083017"
+          ]
+        },
+        "longitud_m": 25.2,
+        "n_vecinos": 1,
+        "vecinos": [
+          {
+            "chip": "009130083017",
+            "nombre": "Oriente1",
+            "altura_m": null,
+            "pisos": null,
+            "longitud_colindancia_m": 25.21
+          }
+        ],
+        "cardinal_label": "Oriente",
+        "vecinos_manuales": []
+      }
+    ]
+  },
+  "crear_estructura": false
 }

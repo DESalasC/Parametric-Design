@@ -296,12 +296,22 @@ stats_json = "{}"
 mensaje = ""
 ok = False
 
+# Get json_path parameter with fallback to canonical file
 raw_path = globals().get("json_path", None)
-json_path = str(unwrap(raw_path)).strip("[]'\" ") if raw_path is not None else ""
+json_path_param = str(unwrap(raw_path)).strip("[]'\" ") if raw_path is not None else ""
+
+# Check for canonical file first (for orchestrator-managed workflow)
+canonical_path = os.path.join(POT_CACHE, "contexto50-actual.json")
+json_path = canonical_path if _existe(canonical_path) else json_path_param
+
+# Fallback logic: if canonical doesn't exist or is empty, use parameter
+if not json_path or not _existe(json_path):
+    json_path = json_path_param
+
 escribir_stats = parse_bool(globals().get("escribir_stats", False))
 stats_path = unwrap(globals().get("stats_path", None))
 
-if not json_path or not os.path.exists(json_path):
+if not json_path or not _existe(json_path):
     mensaje = "ETAPA3 v01 | ERROR: no se encontro el JSON de contexto50: {0}".format(json_path)
 else:
     try:
