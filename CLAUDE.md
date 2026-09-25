@@ -142,23 +142,24 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
 22. Convención de 命名: `MAYUS_FASE_VERBO_vNN.py` (ej: `F1_CONTEXTO_v09.py`).
 23. Python externo: type hints obligatorios, ruff, mypy.
 24. GHPython: sin type hints (IronPython 2.7).
-25. La adquisición del lote se hace mediante el CHIP del predio usando el script scripts/utilities/fetch-urban-context-v6.py.
-26. El script genera un JSON en 'data/pot-cache/<CHIP>-contexto.json' con coordenadas locales (0,0,0) + metadatos SIRGAS + topografía.
-27. Los scripts GHPython de la Fase 1 SOLO deben leer este JSON. Si el JSON no existe, el pipeline debe detenerse e indicar al usuario que ejecute el script de fetch primero.
-28. La topografía maneja dos estados: 'ESTIMADA' (raster público) y 'REAL' (levantamiento). El sistema debe actualizarse dinámicamente cuando el estado cambie a REAL.
+25. Dentro del encabezado de cada archivo, debe ir el nombre y la version o sub version (ej: `F1_CONTEXTO_v09.1.py`), deben ir listadas las variables de entrada y de salida explicadas brevemente y las conexiones de entrada y de salida de cada una de esas variables. Tambien deben mantener uns textos con los ultimos tres cambios del archivo explicando la situación presentada y la respuesta para cumplir el requerimiento o arreglo del código.
+26. La adquisición del lote se hace mediante el CHIP del predio usando el script scripts/utilities/fetch-urban-context-v6.py.
+27. El script genera un JSON en 'data/pot-cache/<CHIP>-contexto.json' con coordenadas locales (0,0,0) + metadatos SIRGAS + topografía.
+28. Los scripts GHPython de la Fase 1 SOLO deben leer este JSON. Si el JSON no existe, el pipeline debe detenerse e indicar al usuario que ejecute el script de fetch primero.
+29. La topografía maneja dos estados: 'ESTIMADA' (raster público) y 'REAL' (levantamiento). El sistema debe actualizarse dinámicamente cuando el estado cambie a REAL.
 
 ### Datos
-29. Archivo POT fuente: `D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg`
-30. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `gpkg-to-cache.py`).
-31. Whitelist de campos: `config/field-whitelist.json` (~30 campos de 2455 totales).
-32. Vecinos: modelado manual en Archicad (Morph), validar con `validate-neighbors.py` antes de pasar a GH.
+30. Archivo POT fuente: `D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg`
+31. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `gpkg-to-cache.py`).
+32. Whitelist de campos: `config/field-whitelist.json` (~30 campos de 2455 totales).
+33. Vecinos: modelado manual en Archicad (Morph), validar con `validate-neighbors.py` antes de pasar a GH.
 
 ### Modelos IA
-33. Modelo primario: `qwen2.5-coder:14b` (9 GB VRAM).
-34. Si Rhino.Compute activo: cambiar a `qwen2.5:7b` (5 GB VRAM) para no saturar.
-35. Fallback emergencia: `llama3.2:3b`.
-36. Claude Code enruta vía fcc-server en `http://127.0.0.1:8787`.
-37. **Ubicación de modelos**: `D:\Users\Work\.ollama\models\` (por defecto de Ollama con perfil Work en D:). Variable `OLLAMA_MODELS` apunta ahí.
+34. Modelo primario: `qwen2.5-coder:14b` (9 GB VRAM).
+35. Si Rhino.Compute activo: cambiar a `qwen2.5:7b` (5 GB VRAM) para no saturar.
+36. Fallback emergencia: `llama3.2:3b`.
+37. Claude Code enruta vía fcc-server en `http://127.0.0.1:8787`.
+38. **Ubicación de modelos**: `D:\Users\Work\.ollama\models\` (por defecto de Ollama con perfil Work en D:). Variable `OLLAMA_MODELS` apunta ahí.
 
 ## Comandos útiles
 
