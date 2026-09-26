@@ -175,5 +175,6 @@
       }
     ]
   },
-  "crear_estructura": false
+  "crear_estructura": false,
+  "caso": "A"
 }
