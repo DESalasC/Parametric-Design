@@ -26,8 +26,13 @@ from pyproj import Transformer
 
 warnings.filterwarnings('ignore', category=UserWarning)
 
-GPKG_PATH = r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg"
-POT_GDB_PATH = r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\POT\POT_Decreto_555_2021_Bogota_D_C.gdb"
+# Rutas por defecto (hardcodeadas como fallback); se sobreescriben con --gpkg / --pot-gdb o variables de entorno
+GPKG_PATH_DEFAULT = r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg"
+POT_GDB_PATH_DEFAULT = r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\POT\POT_Decreto_555_2021_Bogota_D_C.gdb"
+
+# Variables de entorno (prefijo POT_ para consistencia con CLAUDE.md)
+GPKG_PATH = os.environ.get("POT_GPKG_PATH", GPKG_PATH_DEFAULT)
+POT_GDB_PATH = os.environ.get("POT_GDB_PATH", POT_GDB_PATH_DEFAULT)
 
 CRS_TARGET = "ESRI:102233"
 CRS_METRIC = "EPSG:3116"
@@ -177,8 +182,15 @@ def generate_lote_topo_points(poly):
     return points
 
 
-def main(chip, output_dir="data/pot-cache"):
+def main(chip, output_dir="data/pot-cache", gpkg_path=None, pot_gdb_path=None):
     print(f"--- Iniciando fetch de contexto para CHIP: {chip} ---")
+
+    # Permitir override de rutas via argumentos
+    global GPKG_PATH, POT_GDB_PATH
+    if gpkg_path:
+        GPKG_PATH = gpkg_path
+    if pot_gdb_path:
+        POT_GDB_PATH = pot_gdb_path
 
     if not os.path.exists(GPKG_PATH):
         raise FileNotFoundError(f"No se encontro la geobase en: {GPKG_PATH}")
@@ -492,7 +504,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--chip", required=True)
     parser.add_argument("--output-dir", default="data/pot-cache")
+    parser.add_argument("--gpkg", default=None, help="Ruta a bd_uaecd.gpkg (override)")
+    parser.add_argument("--pot-gdb", default=None, help="Ruta a POT.gdb (override)")
     args = parser.parse_args()
     project_root = os.environ.get("DISENO_PARAMETRICO_ROOT", os.getcwd())
     out_dir = os.path.join(project_root, args.output_dir) if not os.path.isabs(args.output_dir) else args.output_dir
-    main(args.chip, out_dir)
+    main(args.chip, out_dir, gpkg_path=args.gpkg, pot_gdb_path=args.pot_gdb)

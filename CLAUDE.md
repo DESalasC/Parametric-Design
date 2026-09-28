@@ -149,10 +149,15 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
 29. La topografía maneja dos estados: 'ESTIMADA' (raster público) y 'REAL' (levantamiento). El sistema debe actualizarse dinámicamente cuando el estado cambie a REAL.
 
 ### Datos
-30. Archivo POT fuente: `D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg`
-31. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `gpkg-to-cache.py`).
-32. Whitelist de campos: `config/field-whitelist.json` (~30 campos de 2455 totales).
-33. Vecinos: modelado manual en Archicad (Morph), validar con `validate-neighbors.py` antes de pasar a GH.
+30. Archivo POT fuente (geobase): `bd_uaecd.gpkg` — **NO versionado**. Ubicación configurable vía:
+    - Variable de entorno `POT_GPKG_PATH` (recomendado)
+    - Argumento `--gpkg` en scripts fetch
+    - Default histórico: `D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg`
+    - **Ubicación recomendada portable**: `data/geobase/bd_uaecd.gpkg` (copiar manualmente)
+31. POT GDB: `POT_Decreto_555_2021_Bogota_D_C.gdb` — igual que arriba, variable `POT_GDB_PATH`.
+32. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `fetch-urban-context-v6.py`).
+33. Whitelist de campos: `config/field-whitelist.json` (~30 campos de 2455 totales).
+34. Vecinos: modelado manual en Archicad (Morph), validar con `validate-neighbors.py` antes de pasar a GH.
 
 ### Modelos IA
 34. Modelo primario: `qwen2.5-coder:14b` (9 GB VRAM).
@@ -169,10 +174,22 @@ powershell scripts\rhino-compute\start-compute.ps1
 powershell scripts\rhino-compute\stop-compute.ps1
 powershell scripts\rhino-compute\health-check.ps1
 
-# POT
+# Contexto Fase 1 — Orquestador unificado (RECOMENDADO)
+python scripts\utilities\fetch-contexto-completo.py --chip AAA0240ZXJH --gpkg data\geobase\bd_uaecd.gpkg
+python scripts\utilities\fetch-contexto-completo.py --chip NUEVO_CHIP --radio 75 --altura-piso 3.0 --fuente gpkg --gpkg %POT_GPKG_PATH%
+# Solo contexto base (Paso 1)
+python scripts\utilities\fetch-contexto-completo.py --chip AAA0240ZXJH --solo-base --gpkg %POT_GPKG_PATH%
+# Solo contexto 50m (Paso 2, requiere contexto base previo)
+python scripts\utilities\fetch-contexto-completo.py --chip AAA0240ZXJH --solo-50
+
+# POT (scripts individuales)
+python scripts\utilities\fetch-urban-context-v6.py --chip AAA0240ZXJH --output-dir data\pot-cache --gpkg %POT_GPKG_PATH%
 python scripts\utilities\gpkg-to-cache.py --lot data\lotes-ejemplo\lote-chapinero.json
 python scripts\utilities\gpkg-to-cache.py --list-layers
 python scripts\utilities\gpkg-to-cache.py --show-fields <layer_name> --limit 1
+
+# Contexto 50m individual
+python src\fase-1-contexto\F1_CONTEXTO50_FETCH_v01.py --chip AAA0240ZXJH --radio 50 --ctx data\pot-cache\AAA0240ZXJH-contexto.json --out data\pot-cache --gpkg %POT_GPKG_PATH%
 
 # Vecinos
 python scripts\utilities\validate-neighbors.py --input data\neighbors\vecinos.3dm

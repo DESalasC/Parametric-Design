@@ -37,6 +37,9 @@ import sys
 CRS_TARGET = "ESRI:102233"          # MAGNA_Ciudad_Bogota (igual que fetch-urban-context-v6)
 GPKG_DEFAULT = r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg"
 ALTURA_PISO_DEF = 3.80              # ALTURA_PISO_M del pipeline (fetch-urban-context-v6.py:36)
+
+# Variable de entorno para hacer portable la ruta de la geobase
+GPKG_PATH = os.environ.get("POT_GPKG_PATH", GPKG_DEFAULT)
 REST = ("https://serviciosgis.catastrobogota.gov.co/arcgis/rest/services/"
         "catastro/construccion/MapServer/0/query")
 
@@ -133,7 +136,7 @@ def main():
     ap_.add_argument("--altura-piso", type=float, default=ALTURA_PISO_DEF)
     ap_.add_argument("--ctx", default=None)
     ap_.add_argument("--out", default=".")
-    ap_.add_argument("--gpkg", default=GPKG_DEFAULT)
+    ap_.add_argument("--gpkg", default=GPKG_PATH)
     ap_.add_argument("--fuente", choices=["gpkg", "rest"], default="gpkg")
     ap_.add_argument("--marco", choices=["canvas", "json"], default="canvas")
     args = ap_.parse_args()

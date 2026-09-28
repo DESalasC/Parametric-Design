@@ -18,8 +18,8 @@ PASO 2: F1_CONTEXTO50_FETCH_v01.py
   → genera data/pot-cache/<CHIP>-contexto50.json + .geojson
 
 USO (desde la raíz del proyecto o vía orquestador):
-  python scripts/utilities/fetch-contexto-completo.py --chip AAA0240ZXJH
-  python scripts/utilities/fetch-contexto-completo.py --chip AAA0240ZXJH --radio 75 --out data/pot-cache
+  python scripts/utilities/fetch-contexto-completo.py --chip AAA0240ZXJH --gpkg <ruta_gpkg>
+  python scripts/utilities/fetch-contexto-completo.py --chip AAA0240ZXJH --radio 75 --out data/pot-cache --gpkg <ruta_gpkg>
 """
 
 import argparse
@@ -31,14 +31,14 @@ import subprocess
 def run_step(cmd, cwd, label):
     """Ejecuta un subcomando y propaga el código de salida."""
     print(f"\n{'='*60}")
-    print(f"▶ {label}")
+    print(f">>> {label}")
     print(f"   Comando: {' '.join(cmd)}")
     print(f"{'='*60}")
     result = subprocess.run(cmd, cwd=cwd)
     if result.returncode != 0:
-        print(f"\n❌ FALLO en {label} (código {result.returncode})")
+        print(f"\n[FALLO] {label} (codigo {result.returncode})")
     else:
-        print(f"\n✅ OK: {label}")
+        print(f"\n[OK] {label}")
     return result.returncode
 
 
@@ -63,6 +63,9 @@ def main():
         "--marco", choices=["canvas", "json"], default="canvas", help="Marco de salida contexto50 (default: canvas)"
     )
     parser.add_argument(
+        "--gpkg", default=os.environ.get("POT_GPKG_PATH", ""), help="Ruta a bd_uaecd.gpkg (default: $POT_GPKG_PATH)"
+    )
+    parser.add_argument(
         "--solo-base", action="store_true", help="Solo ejecutar Paso 1 (contexto base)"
     )
     parser.add_argument(
@@ -83,6 +86,16 @@ def main():
             print(f"ERROR: No se encuentra {name} en {s}")
             return 1
 
+    # Validar GPKG si se usa fuente gpkg
+    if not args.solo_50 and args.fuente == "gpkg":
+        gpkg_path = args.gpkg
+        if not gpkg_path:
+            print("ERROR: Se requiere --gpkg o variable de entorno POT_GPKG_PATH para fuente gpkg")
+            return 1
+        if not os.path.exists(gpkg_path):
+            print(f"ERROR: No existe la geobase: {gpkg_path}")
+            return 1
+
     # Archivo de contexto base que generará el Paso 1
     ctx_base = os.path.join(out_dir_abs, f"{args.chip}-contexto.json")
 
@@ -93,6 +106,8 @@ def main():
             "--chip", args.chip,
             "--output-dir", out_dir_abs,
         ]
+        if args.gpkg:
+            cmd1.extend(["--gpkg", args.gpkg])
         rc = run_step(cmd1, project_root, "PASO 1: fetch-urban-context-v6 (contexto base)")
         if rc != 0:
             return rc
@@ -100,7 +115,7 @@ def main():
     # ── PASO 2: Contexto 50m ───────────────────────────────────────────────
     if not args.solo_base:
         if not os.path.exists(ctx_base):
-            print(f"\n❌ ERROR: No existe el contexto base requerido: {ctx_base}")
+            print(f"\n[ERROR] No existe el contexto base requerido: {ctx_base}")
             print("   Ejecuta primero sin --solo-50 o genera el contexto base por separado.")
             return 1
 
@@ -114,15 +129,17 @@ def main():
             "--fuente", args.fuente,
             "--marco", args.marco,
         ]
+        if args.gpkg:
+            cmd2.extend(["--gpkg", args.gpkg])
         rc = run_step(cmd2, project_root, "PASO 2: F1_CONTEXTO50_FETCH_v01 (contexto 50m)")
         if rc != 0:
             return rc
 
     print(f"\n{'='*60}")
-    print(f"🎯 CONTEXTO COMPLETO GENERADO para CHIP {args.chip}")
-    print(f"   📁 {ctx_base}")
-    print(f"   📁 {os.path.join(out_dir_abs, f'{args.chip}-contexto50.json')}")
-    print(f"   📁 {os.path.join(out_dir_abs, f'{args.chip}-contexto50.geojson')}")
+    print(f"CONTEXTO COMPLETO GENERADO para CHIP {args.chip}")
+    print(f"   {ctx_base}")
+    print(f"   {os.path.join(out_dir_abs, f'{args.chip}-contexto50.json')}")
+    print(f"   {os.path.join(out_dir_abs, f'{args.chip}-contexto50.geojson')}")
     print(f"{'='*60}")
     return 0
 
