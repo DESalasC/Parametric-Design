@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
-F1_ETAPA3_CONTEXTO50_v01.py — Etapa 3 (opcional): Volumetrías del contexto 50 m
+F1_ETAPA3_CONTEXTO50_v01.1.py — Etapa 3 (opcional): Volumetrías del contexto 50 m
 Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (componente "Script" clásico, IronPython 2.7)
 ================================================================================
@@ -22,6 +22,18 @@ PROPOSITO:
 REGLA DE ORO (AGENTS.md):
   El volumen debe coincidir en perímetro con la huella; por eso la extrusión
   usa EXACTAMENTE la misma polilínea cerrada que se publica como huella.
+
+CAMBIOS v01.1 (2026-09-28):
+  1. Agregada resolución defensiva del template "CHIP-contexto50.json": si el
+     input json_path contiene el template, busca en el directorio un archivo
+     *-contexto.json real (excluyendo CHIP-contexto.json) y deriva el nombre
+     del contexto50 correspondiente. Permite que el canvas use el template
+     sin modificar mientras el orquestador no cree el canónico.
+  2. Agregada constante POT_CACHE y función _existe() para soporte de la
+     resolución defensiva.
+  3. Compatibilidad con orquestador: prioridad a `contexto50-actual.json` (creado
+     por fetch-contexto-completo.py) > parámetro json_path > resolución defensiva.
+  4. Actualizada referencia al builder: `F1_CONTEXTO50_BUILD_v01b.py`.
 
 ENTRADA (la única imprescindible):
   json_path (String) — Ruta al <CHIP>-contexto50.json. Forma mínima del JSON
@@ -77,7 +89,7 @@ COMPATIBILIDAD: IronPython 2.7 (sin f-strings, sin pathlib, sin type hints,
                 sin walrus, sin shebang). `import Rhino.Geometry as rg`.
 
 RELACION CON EL RESTO DEL PIPELINE:
-  - El builder de Rhino `F1_CONTEXTO50_BUILD_v01.py` replica esta lógica en la
+  - El builder de Rhino `F1_CONTEXTO50_BUILD_v01b.py` replica esta lógica en la
     sesión abierta y exporta .3dm/.obj.
   - La capa `70-20-30_Volumetrias_vecinas` es la destino de los Morphs de
     vecinos (ver CLAUDE.md, "ArchiCAD Layers").
@@ -95,7 +107,13 @@ TOL_CIERRE = 0.01                 # [m] deduplicación y cierre de anillos
 DEFAULT_ALTURA_PISO_M = 2.0       # [m] altura de piso si el JSON no la trae
 DEFAULT_ALTURA_M = 3.0            # [m] fallback sin altura_m ni pisos (1 planta)
 LAYER_VECINOS = "70-20-30_Volumetrias_vecinas"
-FUENTE_STATS = "F1_ETAPA3_CONTEXTO50_v01"
+FUENTE_STATS = "F1_ETAPA3_CONTEXTO50_v01.1"
+POT_CACHE = os.path.join(os.environ.get("DISENO_PARAMETRICO_ROOT", ""), "data", "pot-cache")
+
+
+def _existe(path):
+    """Verifica si un path existe (wrapper para os.path.exists)."""
+    return os.path.exists(path) if path else False
 
 
 # ------------------------------------------------------------------ utilidades
@@ -307,6 +325,22 @@ json_path = canonical_path if _existe(canonical_path) else json_path_param
 # Fallback logic: if canonical doesn't exist or is empty, use parameter
 if not json_path or not _existe(json_path):
     json_path = json_path_param
+
+# DEFENSIVA: si el path contiene el template "CHIP", intentar resolver el CHIP real
+# desde el archivo hermano CHIP-contexto.json en el mismo directorio
+if json_path and "CHIP-contexto50.json" in json_path.upper():
+    try:
+        # Buscar archivo hermano CHIP-contexto.json en el mismo directorio
+        dir_base = os.path.dirname(json_path) or POT_CACHE
+        for f in os.listdir(dir_base):
+            if f.upper().endswith("-CONTEXTO.JSON") and not f.upper().startswith("CHIP-"):
+                chip_real = f[:-12]  # quitar "-contexto.json"
+                candidato = os.path.join(dir_base, chip_real + "-contexto50.json")
+                if _existe(candidato):
+                    json_path = candidato
+                    break
+    except Exception:
+        pass  # si falla, seguir con el path original (dará error claro después)
 
 escribir_stats = parse_bool(globals().get("escribir_stats", False))
 stats_path = unwrap(globals().get("stats_path", None))

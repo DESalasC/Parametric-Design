@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
-F1_CONTEXTO50_BUILD_v01a.py — Construcción de volumetrías vecinas en Rhino / GH
+F1_CONTEXTO50_BUILD_v01b.py — Construcción de volumetrías vecinas en Rhino / GH
 Proyecto: DisenoParametrico / Fase 1
 Componente GHPython (componente "Script" clásico, IronPython 2.7) para el canvas
 ArchiCAD–Grasshopper (Live Connection).
@@ -17,6 +17,15 @@ PROPOSITO:
 
   REGLA DE ORO (AGENTS.md): el volumen coincide en PERÍMETRO con la huella;
   la extrusión usa EXACTAMENTE la misma polilínea cerrada publicada.
+
+CAMBIOS v01b (2026-09-28):
+  1. Agregada resolución defensiva del template "CHIP-contexto50.json": si el
+     input json_path contiene el template, busca en el directorio un archivo
+     *-contexto.json real (excluyendo CHIP-contexto.json) y deriva el nombre
+     del contexto50 correspondiente. Permite que el canvas use el template
+     sin modificar mientras el orquestador no cree el canónico.
+  2. Compatibilidad con orquestador: prioridad a `contexto50-actual.json` (creado
+     por fetch-contexto-completo.py) > parámetro json_path > resolución defensiva.
 
 CORRECCIONES v01a (revisión 2026-09-13, alineada con F1_ETAPA3_CONTEXTO50_v01):
   1. `unwrap()` en TODAS las entradas: GH puede entregar la entrada como lista
@@ -382,6 +391,22 @@ in_json_path = canonical_path if _existe(canonical_path) else json_path_param
 # Fallback logic: if canonical doesn't exist or is empty, use parameter
 if not in_json_path or not _existe(in_json_path):
     in_json_path = json_path_param
+
+# DEFENSIVA: si el path contiene el template "CHIP", intentar resolver el CHIP real
+# desde el archivo hermano CHIP-contexto.json en el mismo directorio
+if in_json_path and "CHIP-contexto50.json" in in_json_path.upper():
+    try:
+        # Buscar archivo hermano CHIP-contexto.json en el mismo directorio
+        dir_base = os.path.dirname(in_json_path) or POT_CACHE
+        for f in os.listdir(dir_base):
+            if f.upper().endswith("-CONTEXTO.JSON") and not f.upper().startswith("CHIP-"):
+                chip_real = f[:-12]  # quitar "-contexto.json"
+                candidato = os.path.join(dir_base, chip_real + "-contexto50.json")
+                if _existe(candidato):
+                    in_json_path = candidato
+                    break
+    except Exception:
+        pass  # si falla, seguir con el path original (dará error claro después)
 in_bake = parse_bool(globals().get("bake", False))
 in_exportar = parse_bool(globals().get("exportar", False))
 in_altura_override = to_float(globals().get("altura_piso", None), None)

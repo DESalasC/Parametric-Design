@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-fetch-contexto-completo.py  — Orquestador unificado de Contexto (Fase 1)
+fetch-contexto-completo_v01.py  — Orquestador unificado de Contexto (Fase 1)
 ======================================================================
 Proyecto: DiseñoParametrico
 Propósito: Ejecuta en secuencia los dos pasos necesarios para obtener
@@ -16,6 +16,13 @@ PASO 2: F1_CONTEXTO50_FETCH_v01.py
   → lee el JSON del Paso 1 (--ctx) para conocer marco local y ancla
   → extrae construcciones de bd_uaecd.gpkg#Cons en radio 50 m
   → genera data/pot-cache/<CHIP>-contexto50.json + .geojson
+
+CAMBIOS v01 (2026-09-28):
+  1. Creación automática de archivo canónico `contexto50-actual.json` en
+     `data/pot-cache/` como copia del `<CHIP>-contexto50.json` generado.
+     Esto permite que los componentes GHPython (F1_CONTEXTO50_BUILD_v01b.py,
+     F1_ETAPA3_CONTEXTO50_v01.1.py) encuentren el archivo sin requerir
+     que el canvas tenga el CHIP hardcodeado.
 
 USO (desde la raíz del proyecto o vía orquestador):
   python scripts/utilities/fetch-contexto-completo.py --chip AAA0240ZXJH --gpkg <ruta_gpkg>
@@ -135,11 +142,23 @@ def main():
         if rc != 0:
             return rc
 
+    # ── Crear archivo canónico para el canvas (contexto50-actual.json) ─────────
+    ctx50_real = os.path.join(out_dir_abs, f"{args.chip}-contexto50.json")
+    ctx50_canonical = os.path.join(out_dir_abs, "contexto50-actual.json")
+    if os.path.exists(ctx50_real):
+        try:
+            import shutil
+            shutil.copy2(ctx50_real, ctx50_canonical)
+            print(f"   Canonico: {ctx50_canonical}")
+        except Exception as e:
+            print(f"   AVISO: No se pudo crear canonico: {e}")
+
     print(f"\n{'='*60}")
     print(f"CONTEXTO COMPLETO GENERADO para CHIP {args.chip}")
     print(f"   {ctx_base}")
-    print(f"   {os.path.join(out_dir_abs, f'{args.chip}-contexto50.json')}")
+    print(f"   {ctx50_real}")
     print(f"   {os.path.join(out_dir_abs, f'{args.chip}-contexto50.geojson')}")
+    print(f"   Canonico para canvas: {ctx50_canonical}")
     print(f"{'='*60}")
     return 0
 

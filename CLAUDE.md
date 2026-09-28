@@ -175,12 +175,12 @@ powershell scripts\rhino-compute\stop-compute.ps1
 powershell scripts\rhino-compute\health-check.ps1
 
 # Contexto Fase 1 — Orquestador unificado (RECOMENDADO)
-python scripts\utilities\fetch-contexto-completo.py --chip AAA0240ZXJH --gpkg data\geobase\bd_uaecd.gpkg
-python scripts\utilities\fetch-contexto-completo.py --chip NUEVO_CHIP --radio 75 --altura-piso 3.0 --fuente gpkg --gpkg %POT_GPKG_PATH%
+python scripts\utilities\fetch-contexto-completo_v01.py --chip AAA0240ZXJH --gpkg data\geobase\bd_uaecd.gpkg
+python scripts\utilities\fetch-contexto-completo_v01.py --chip NUEVO_CHIP --radio 75 --altura-piso 3.0 --fuente gpkg --gpkg %POT_GPKG_PATH%
 # Solo contexto base (Paso 1)
-python scripts\utilities\fetch-contexto-completo.py --chip AAA0240ZXJH --solo-base --gpkg %POT_GPKG_PATH%
+python scripts\utilities\fetch-contexto-completo_v01.py --chip AAA0240ZXJH --solo-base --gpkg %POT_GPKG_PATH%
 # Solo contexto 50m (Paso 2, requiere contexto base previo)
-python scripts\utilities\fetch-contexto-completo.py --chip AAA0240ZXJH --solo-50
+python scripts\utilities\fetch-contexto-completo_v01.py --chip AAA0240ZXJH --solo-50
 
 # POT (scripts individuales)
 python scripts\utilities\fetch-urban-context-v6.py --chip AAA0240ZXJH --output-dir data\pot-cache --gpkg %POT_GPKG_PATH%
