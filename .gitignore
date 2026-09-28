@@ -30,6 +30,9 @@ data/ideca-cache/*
 data/neighbors/*.3dm
 data/ghx-samples/
 
+# Geobases catastrales / POT (varios GB — descargar con scripts/utilities/descargar_geobase.py)
+data/geobase/
+
 # Cobertura
 .coverage
 
