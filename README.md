@@ -29,7 +29,7 @@ DiseñoParametrico/
 │   ├── pot-bogota/ nsr-10/      # Normativa estructurada (JSON)
 │   ├── ghx-samples/             # Corpus de muestras GHX (ladybug, tapir, archicad) — regenerable
 │   ├── lotes-ejemplo/ clima/ ideca-cache/ neighbors/ pot-geojson/
-├── gh-definitions/              # Canvas Grasshopper: F1_Contexto_Base-Editado_v02 (maestro) +
+├── gh-definitions/              # Canvas Grasshopper: F1_Contexto_Base-Editado_v03 (maestro; canvas operativo F1_CONTEXTO_v11) +
 │                                # referencias de conexión/componentes; versiones viejas en _archive\
 ├── scripts/                     # rhino-compute/ (start-stop-health) + utilities/
 ├── src/                         # Código por fase (ver tabla arriba); tests en tests/ raíz

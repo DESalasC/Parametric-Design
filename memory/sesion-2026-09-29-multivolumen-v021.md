@@ -36,5 +36,15 @@
   - Tests: 13 en `test_f3_bloques_usos`; suite completa **318/318**.
 - **Nota 3 (re-encaje canvas):** explicada al operador en la respuesta (qué es; posibilidades y limitaciones — envolvente F1, terreno MDT/organizado en ArchiCAD, crujía/núcleo, Morphs LC).
 
+## Adenda 2 (12:22) — skills de arquitectura revisadas; actualizaciones aprobadas
+- **Inventario de skills de arquitectura** (a pedido del operador): suite AgentKit (13, en `D:\Users\Work\.openclaw-autoclaw\skills` + scripts en `D:\Work\Scripts\AgentKit`), biblioteca Architect Skills (18, enlazada en el proyecto), 4 de proyecto (disenoparametrico, normativa-bogota, construccion-colombia, alexander-patterns) y `dparam-patch-ghx` (Claude Code). Estado: no cargadas como skills activas en la sesión AutoClaw (uso por ruta). El operador aprobó todos los puntos propuestos + los 2 hallazgos extras.
+- **Ejecutado:**
+  - **Skill `disenoparametrico` ACTUALIZADA** (`D:\Work\AI\skills\disenoparametrico\SKILL.md`; respaldo `.bak-20260929`): versiones vigentes (ETAPA1 v05, LADOS v06, NORMATIVA v08, EXPORTAR_GFA v02, F2/F3/F4), multivolumen v02.2, orquestador, agentes dparam-*, herramientas AgentKit, docs (vault + `docs\` + `memory\`). README raíz corregido (maestro v03; operativo v11).
+  - **Backup formalizado**: tareas de Windows 22:30–23:30 = vía principal (StartWhenAvailable ya activo, recuperan al encender); cron AutoClaw 23:00 **DESACTIVADO** (duplicaba D-Backup-AgentKit-H 23:15); red de seguridad 07:30 **corregida** (rutas ahora `H:\BACKUP\AgentKit\…`; antes miraba la ruta vieja `D:\Work\BACKUP`). Ojo: esa red viene fallando por 403 de auth del proxy (2 errores seguidos al 29-09).
+  - **Herramientas verificadas con corridas reales**: gh-bridge sobre `F1_CONTEXTO_v11.ghx` (319 objetos, 24 GUIDs, incluye `#21-F1_ETAPA1_CONTEXTO_v04.2.py`); html-to-pdf → `exports\F3_planos_AAA0030JKOE.pdf` (68 KB); f2-excel → `exports\F2_prefactibilidad_AAA0030JKOE.xlsx`; `vault_append.py` dry-run OK.
+  - **Agentes dparam-***: verificados (6 workspaces con AGENTS.md/roles; plan maestro v2; normativa solo-lectura con citas); documentados en la skill; uso pendiente de estreno.
+  - **Contraste diseño crujías** (building-typology / spatial-planning / fire-life-safety): doble crujía residencial fondo 12–15 m ↔ nuestro 13,4 m ✓; crujía única = NTG 0,72–0,78 (menos eficiente, más luz) — consistente con lote B (doble→máx 2; única→máx 4). Núcleo en extremo ≈ "side core" (libera área; cuidar distancias de evacuación).
+- Pendiente: validación del operador del orquestador → cierre con registro en vault vía `agentkit-obsidian`.
+
 ## Etiquetas
 #fase-3 #orquestador #multivolumen #v02.1 #orientacion #niveles-terreno #ancho-minimo
