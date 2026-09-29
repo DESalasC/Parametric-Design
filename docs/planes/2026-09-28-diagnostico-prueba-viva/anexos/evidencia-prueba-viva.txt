@@ -1,0 +1,97 @@
+ANEXO — Evidencia de la prueba viva y del diagnóstico
+Proyecto: DiseñoParamétrico — chip AAA0030JKOE (La Candelaria)
+Fecha: 2026-09-28 (noche) · Autor: sesión AutoClaw
+================================================================================
+
+E1. TRAZA REPORTADA (front-end, F2)
+--------------------------------------------------------------------------------
+[INFO] GFA desde Grasshopper F1 (D:\Work\PROJECTS\DiseñoParametrico\data\fase-2-demanda\AAA0030JKOE-gfa-gh.json): 1845.35 m2
+Traceback (most recent call last):
+  File "...\F2_DEMANDA_MOTOR_v03.py", line 1568, in <module>
+    sys.exit(main())
+  File "...\F2_DEMANDA_MOTOR_v03.py", line 1426, in main
+    res = run_scenario(gfa, cl, esc, fin)
+  File "...\F2_DEMANDA_MOTOR_v03.py", line 244, in run_scenario
+    nga = gfa * esc["eficiencia_nga"]
+KeyError: 'eficiencia_nga'
+
+E2. REPRODUCCIÓN LOCAL (AutoClaw, noche 2026-09-28)
+--------------------------------------------------------------------------------
+$ .venv\Scripts\python.exe F2_DEMANDA_MOTOR_v03.py --parametros parametros_AAA0030JKOE_mercado2026.json --chip AAA0030JKOE --pago-parcial 30 --sin-informe
+→ KeyError: 'eficiencia_nga' (exit=1)  [idéntico al reportado]
+
+$ ... --parametros parametros_AAA0127AZPA_mercado2026.json --chip AAA0127AZPA ...
+→ KeyError: 'eficiencia_nga' (exit=1)  [El Prado también falla con SU archivo mercado2026]
+
+Survey de escenarios:
+  parametros_AAA0030JKOE_mercado2026.json:
+     A_VIS efic · B_ESTANDAR efic · C_LUJO efic · D_MIXTO EMPTY · D_MIXTO_SALUD EMPTY · D_MIXTO_OFICINAS EMPTY
+  parametros_AAA0127AZPA_mercado2026.json:
+     A_VIS efic · B_ESTANDAR efic · C_LUJO efic · D_MIXTO EMPTY
+  parametros_entrada.json:
+     A_VIS efic · B_ESTANDAR efic · C_LUJO efic
+  data/fase-2-demanda/mercado/: parametros_AAA0127AZPA_f2mercado_2026-09.json (solo A/B/C; por eso El Prado no falla por la prioridad del servidor)
+
+E3. FLAGS (sin consumir al cierre de la prueba)
+--------------------------------------------------------------------------------
+data/pot-cache/lados-export-flag.json:
+  { "exportar": true, "chip": "AAA0030JKOE", "origen_solicitud": "servidor", "ts": "2026-09-28 22:42" }
+data/fase-2-demanda/gfa-export-flag.json:
+  {"exportar": true}
+
+E4. GFA LEÍDO POR F2 (obsoleto)
+--------------------------------------------------------------------------------
+data/fase-2-demanda/AAA0030JKOE-gfa-gh.json:
+  "generado": "2026-08-22", "gfa_total_m2": 1845.3473, "pisos_finales": 7,
+  "mensaje": "NORMATIVA v08.1 | OK | Lote: 946.3m2 | Ocup: 271.6m2 | IO 0.70 | IC 1.95 (+0) | Alt 21.0m | 7 pisos | GFA escalonado: 1845.3m2 (base 1901.0m2) | ..."
+  (previo a ADR-022: cap 5 pisos La Candelaria, empates por tramo).
+
+E5. TOPOGRAFÍA DEL LOTE B (fetch v7)
+--------------------------------------------------------------------------------
+AAA0030JKOE-contexto.json → topografia:
+  estado ESTIMADA · fuente Catastro_REST_API_MDT · version v2
+  muestreo: paso_interior_m 5.0, anillo_m 6.0
+  resumen: n_puntos 118/118 válidos · z_min 2634.52 · z_max 2650.65 · Δ 16.12 m · pendiente media 25.85% (14.49°)
+  malla_terreno: 118 puntos {x_local, y_local, z_local, tipo}
+lote_objetivo: solo "vertices_3d_local" (z por vértice) + area_m2 = 946.45
+
+E6. CONTEXTO 50 M DE B (para P2)
+--------------------------------------------------------------------------------
+contexto50-actual.json: metadata chip AAA0030JKOE · ancla_canvas_local (117.08, 75.0, z 14.52) · azimuth_norte 125.99°
+edificios: 90 — p.ej. {pisos: 2, altura_m: 7.6, criterio_altura "ConNPisos*3.80"} — SIN cota base (z_base) → volúmenes a z=0.
+
+E7. F3 DEL CASO B (corrió 22:42:58; usada como evidencia de cascada)
+--------------------------------------------------------------------------------
+casos/AAA0030JKOE/programa.json: escenario D_MIXTO · GFA 3312.575 · "Local comercial turístico 30% (21 unid)" + "Vivienda 70% (31 unid)".
+(El paso pipeline f3 se mostró ✗ por "omitido: F2 fallo" — cascada.)
+
+E8. REFERENCIAS TÉCNICAS DE LA LIVE CONNECTION (búsquedas 2026-09-28)
+--------------------------------------------------------------------------------
+- discourse.mcneel.com — hilo "Dxf to Archicad Mesh" (abr-2024): "The Archicad Mesh node requires the input: B (Curve) Boundary Curve of Archicad Mesh. It must be in a horizontal plane and closed".
+- community.graphisoft.com — "Grasshopper – ARCHICAD Live connection: Reference": "Mesh Necessary input: 3D points and a closed planar 2D curve for boundary".
+- grasshopper3d.com — hilo "Gismo and Archicad connection" (oct-2017): "Archicad Terrain component asks to the Boundary curve (the edge) be on horizontal plane and closed".
+- En el canvas, nodo "2D Polyline": Description = "Create a planar curve in an Archicad document".
+
+E9. COMPONENTE #113 (contrato vs código)
+--------------------------------------------------------------------------------
+#113-F1_ETAPA1_CONTEXTO_v04.py
+  PARAMS (canvas): lot_polygon, sides_table_json, patio_curves, altura_max_pot, tratamiento, rango_edificabilidad,
+                   floor_height_user, io_maximo_user, piso_adicional, tipo_bonificacion, tipologia, ancho_via_m,
+                   antejardin_m, empate_posterior_pisos → envelope_curve, gfa_total, ocupacion_real, io_maximo,
+                   ic_real, ic_maximo, altura_total, pisos_finales, valido, mensaje   [contrato NORMATIVA]
+  CODE de los 14.139 caracteres: "F1_ETAPA1_CONTEXTO_v04.py — Etapa 1…"  [NO calcula envelope] 
+  ⇒ envelope/GFA "sin fuente"; #125 no exporta (valido=False); flag GFA queda en true.
+
+E10. NUMERACIÓN #NN VOLÁTIL (riesgo de parches)
+--------------------------------------------------------------------------------
+El componente "Fancy Names" = "Escáner y Etiquetador Dinámico Universal": renombra TODOS los objetos como "#{contador}-{nombre}" por posición (X,Y). Los números cambian entre corridas del escáner (p.ej. el patch de contexto50 apuntaba a "#49-F1_CONTEXTO50_BUILD_v01b.py" y el canvas quedó con "#48-…"). ⇒ Anclar parches por GUID o marcadores de código.
+
+E11. VARIABLES / ENTORNO
+--------------------------------------------------------------------------------
+DISENO_PARAMETRICO_ROOT (User) = D:\Work\PROJECTS\DiseñoParametrico  [definida]
+(usada por PATIO v02.4 / BUILD para resolver rutas del proyecto; no fue causa del no-export).
+
+E12. PUERTO
+--------------------------------------------------------------------------------
+No existe "16723" en repo/vault; el conflicto documentado es "19723" (AutoClaw vs ArchiCAD Live Connection);
+script de apoyo: diagnostico_puerto_19723.ps1 (-Liberar). Confirmar con el operador.
