@@ -56,7 +56,7 @@ def test_intersection_namespace():
 
 def test_mensaje_v06():
     src = _fuente()
-    assert "LADOS v06.2 |" in src
+    assert "LADOS v06.5 |" in src
     assert "fr:" in src
     assert "aislamiento_tipo" in src
 
@@ -69,10 +69,10 @@ def test_helper_contacto_definido():
 
 
 def test_prefijo_error_v06():
-    """El prefijo del mensaje de error debe decir v06.1 (no v04 heredado)."""
+    """El prefijo del mensaje de error debe decir v06.5 (no v04 heredado)."""
     src = _fuente()
     assert "LADOS v04 | ERROR" not in src
-    assert "LADOS v06.2 | ERROR" in src
+    assert "LADOS v06.5 | ERROR" in src
 
 
 def test_version_v061_encabezado():
@@ -100,3 +100,18 @@ def test_cardinal_v062():
     assert '"cardinal": _cardinal_lado(' in src
     assert "MAX_ANCHO_VIA_M" in src
     assert 'l.get("cardinal", "?")' in src
+
+
+def test_hotfix_point_in_lot_v065():
+    """v06.5: point_in_lot debe estar DEFINIDA (la llamada existia sin def)."""
+    src = _fuente()
+    assert "def point_in_lot" in src
+    assert "if point_in_lot(pt, lot_vertices):" in src
+
+
+def test_simplificacion_colineal_v065():
+    """v06.5: simplificacion de lados colineales (giro < 2.5 grados)."""
+    src = _fuente()
+    assert "simplificar_colineales" in src
+    assert "UMBRAL_COLINEAL_GRADOS = 2.5" in src
+    assert "n_vertices_originales" in src

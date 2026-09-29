@@ -8,6 +8,7 @@ Valida (sin ejecutar el pipeline pesado):
   4) _generar_html produce un checklist HTML con los marcadores clave.
 """
 
+import json
 import os
 import sys
 
@@ -27,7 +28,7 @@ def test_mapa_caso_chip():
 
 def test_detectar_estado_estructura():
     estado = rp.detectar_estado("AAA0127AZPA", "A")
-    esperados = {"f1_contexto", "f1_gfa", "f2_venta", "f2_renta",
+    esperados = {"f1_contexto", "f1_contexto50", "f1_gfa", "f2_venta", "f2_renta",
                  "f3_distribucion", "f3_accesos", "f3_masa_rhino"}
     assert set(estado.keys()) == esperados
     for paso in estado.values():
@@ -76,3 +77,78 @@ def test_generar_html_marcadores():
     assert "AAA0127AZPA" in html
     # badges de estado presentes
     assert "badge" in html
+
+
+def test_copy_file_funciona(tmp_path):
+    """Fix 2026-09-28: _copy_file usa shutil (import agregado; antes fallaba
+    en silencio y los canonicos nunca se refrescaban)."""
+    src = tmp_path / "a.json"
+    dst = tmp_path / "b.json"
+    src.write_text('{"ok": true}', encoding="utf-8")
+    assert rp._copy_file(str(src), str(dst)) is True
+    assert dst.read_text(encoding="utf-8") == '{"ok": true}'
+
+
+def test_validar_contexto_fresco_chip(tmp_path, monkeypatch):
+    """El chip decide la frescura: archivo en blanco -> no fresco.
+    Base: activo del canvas CHIP-contexto.json o <chip>-contexto.json."""
+    monkeypatch.setattr(rp, "POT_CACHE", str(tmp_path))
+    (tmp_path / "CHIP-contexto.json").write_text(
+        '{"metadata": {"chip": ""}}', encoding="utf-8")
+    ok, _msg = rp._validar_contexto_fresco("AAA0240ZXJH", "contexto")
+    assert ok is False
+    (tmp_path / "CHIP-contexto.json").write_text(
+        '{"metadata": {"chip": "AAA0240ZXJH"}}', encoding="utf-8")
+    ok, _msg = rp._validar_contexto_fresco("AAA0240ZXJH", "contexto")
+    assert ok is True
+    # tambien vale el archivo por chip
+    (tmp_path / "CHIP-contexto.json").unlink()
+    (tmp_path / "AAA0240ZXJH-contexto.json").write_text(
+        '{"metadata": {"chip": "AAA0240ZXJH"}}', encoding="utf-8")
+    ok, _msg = rp._validar_contexto_fresco("AAA0240ZXJH", "contexto")
+    assert ok is True
+
+
+def test_detectar_estado_usa_frescura(tmp_path, monkeypatch):
+    """Arranque en frio (archivos en blanco): los pasos de contexto NO deben
+    figurar 'hecho' (antes se saltaba el fetch)."""
+    monkeypatch.setattr(rp, "POT_CACHE", str(tmp_path))
+    (tmp_path / "CHIP-contexto.json").write_text(
+        '{"metadata": {"chip": ""}}', encoding="utf-8")
+    (tmp_path / "contexto50-actual.json").write_text(
+        '{"metadata": {"chip": ""}}', encoding="utf-8")
+    estado = rp.detectar_estado("AAA0240ZXJH", "A")
+    assert estado["f1_contexto"]["estado"] == "falta"
+    assert estado["f1_contexto50"]["estado"] == "falta"
+    # con el archivo del chip presente -> hecho
+    (tmp_path / "AAA0240ZXJH-contexto.json").write_text(
+        '{"metadata": {"chip": "AAA0240ZXJH"}}', encoding="utf-8")
+    estado = rp.detectar_estado("AAA0240ZXJH", "A")
+    assert estado["f1_contexto"]["estado"] == "hecho"
+
+
+def test_estado_lados_patio(tmp_path, monkeypatch):
+    """F1.5 (2026-09-28): verificacion del diagnostico <CHIP>-lados.json."""
+    monkeypatch.setattr(rp, "POT_CACHE", str(tmp_path))
+    # sin archivo -> pendiente
+    r = rp.estado_lados_patio("AAA0240ZXJH")
+    assert r["existe"] is False and r["ok"] is False
+    # con diagnostico valido -> OK
+    data = {"schema": "lados_patio_diagnostico_v01", "chip": "AAA0240ZXJH",
+            "sides": {"total_lados": 4, "mensaje": ""},
+            "patio": {"count": 1, "mensaje": "PATIO v02.4 ok",
+                      "patios": [{"area_m2": 9.0, "claridad_m": 3.0}]}}
+    (tmp_path / "AAA0240ZXJH-lados.json").write_text(json.dumps(data), encoding="utf-8")
+    r = rp.estado_lados_patio("AAA0240ZXJH")
+    assert r["existe"] is True and r["ok"] is True
+    # area insuficiente -> REVISAR
+    data["patio"]["patios"][0]["area_m2"] = 8.0
+    (tmp_path / "AAA0240ZXJH-lados.json").write_text(json.dumps(data), encoding="utf-8")
+    r = rp.estado_lados_patio("AAA0240ZXJH")
+    assert r["existe"] is True and r["ok"] is False
+    # chip equivocado -> REVISAR
+    data["patio"]["patios"][0]["area_m2"] = 9.0
+    data["chip"] = "OTRO"
+    (tmp_path / "AAA0240ZXJH-lados.json").write_text(json.dumps(data), encoding="utf-8")
+    r = rp.estado_lados_patio("AAA0240ZXJH")
+    assert r["existe"] is True and r["ok"] is False

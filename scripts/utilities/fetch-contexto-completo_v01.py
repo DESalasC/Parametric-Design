@@ -49,6 +49,13 @@ def run_step(cmd, cwd, label):
     return result.returncode
 
 
+def _gpkg_candidato():
+    """2026-09-28: ruta portable de la geobase del proyecto (data/geobase)."""
+    cand = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                        "data", "geobase", "bd_uaecd.gpkg")
+    return cand if os.path.exists(cand) else ""
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Orquestador unificado: contexto base + contexto 50m"
@@ -70,7 +77,7 @@ def main():
         "--marco", choices=["canvas", "json"], default="canvas", help="Marco de salida contexto50 (default: canvas)"
     )
     parser.add_argument(
-        "--gpkg", default=os.environ.get("POT_GPKG_PATH", ""), help="Ruta a bd_uaecd.gpkg (default: $POT_GPKG_PATH)"
+        "--gpkg", default=os.environ.get("POT_GPKG_PATH") or _gpkg_candidato(), help="Ruta a bd_uaecd.gpkg (default: $POT_GPKG_PATH o data/geobase)"
     )
     parser.add_argument(
         "--solo-base", action="store_true", help="Solo ejecutar Paso 1 (contexto base)"

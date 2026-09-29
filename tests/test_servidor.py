@@ -15,6 +15,26 @@ sys.path.insert(0, SRC_DIR)
 import servidor as sv  # noqa: E402
 
 
+def _aislar_rutas(tmp_path, monkeypatch):
+    """Higiene 2026-09-28: redirige TODAS las rutas de escritura de servidor.py
+    a tmp_path, para que la suite no toque data/activo/proyecto.json ni otras
+    carpetas reales (antes los tests borraban el espejo activo real)."""
+    monkeypatch.setattr(sv, "PROYECTOS", str(tmp_path / "proyectos"))
+    monkeypatch.setattr(sv, "PROVISIONAL", str(tmp_path / "proyectos" / "_provisional"))
+    monkeypatch.setattr(sv, "ACTIVO_PROYECTO", str(tmp_path / "activo" / "proyecto.json"))
+    monkeypatch.setattr(sv, "ACTIVO_CONTEXTO", str(tmp_path / "pot-cache" / "CHIP-contexto.json"))
+    monkeypatch.setattr(sv, "ACTIVO_VECINOS", str(tmp_path / "pot-cache" / "CHIP-vecinos-por-lado.json"))
+    monkeypatch.setattr(sv, "SETBACK_OVERRIDE_RUTA", str(tmp_path / "pot-bogota" / "setback-override.json"))
+    monkeypatch.setattr(sv, "FINANCIERO_OVERRIDE_RUTA", str(tmp_path / "f2" / "financiero-override.json"))
+    monkeypatch.setattr(sv, "GFA_FLAG_RUTA", str(tmp_path / "f2" / "gfa-export-flag.json"))
+    monkeypatch.setattr(sv, "LADOS_FLAG_RUTA", str(tmp_path / "pot-cache" / "lados-export-flag.json"))
+    # crear carpetas base para escrituras directas de los tests
+    (tmp_path / "activo").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "pot-cache").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "pot-bogota").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "f2").mkdir(parents=True, exist_ok=True)
+
+
 def test_lotes():
     assert "AAA0127AZPA" in sv._lotes()
 
@@ -86,7 +106,8 @@ def test_financiero_con_fuentes():
     assert "D_MIXTO" in ids
 
 
-def test_guardar_provisional_y_crear_estructura():
+def test_guardar_provisional_y_crear_estructura(tmp_path, monkeypatch):
+    _aislar_rutas(tmp_path, monkeypatch)
     ruta, destino = sv._guardar_proyecto("", {"chip": "AAA0127AZPA"})
     assert "_provisional" in destino
     nombre = "TEST_Eliminar"
@@ -99,7 +120,8 @@ def test_guardar_provisional_y_crear_estructura():
         shutil.rmtree(os.path.join(sv.PROYECTOS, nombre), ignore_errors=True)
 
 
-def test_guardar_proyecto_escribe_espejo_activo():
+def test_guardar_proyecto_escribe_espejo_activo(tmp_path, monkeypatch):
+    _aislar_rutas(tmp_path, monkeypatch)
     contenido = {"chip": "AAA0127AZPA", "origen": "test_espejo"}
     ruta, destino = sv._guardar_proyecto("", contenido)
     try:
@@ -112,7 +134,8 @@ def test_guardar_proyecto_escribe_espejo_activo():
             os.remove(sv.ACTIVO_PROYECTO)
 
 
-def test_activar_chip_actualiza_espejo():
+def test_activar_chip_actualiza_espejo(tmp_path, monkeypatch):
+    _aislar_rutas(tmp_path, monkeypatch)
     # El espejo conserva el payload del formulario y actualiza el chip.
     with io.open(sv.ACTIVO_PROYECTO, "w", encoding="utf-8") as f:
         json.dump({"chip": "CHIP_VIEJO", "variables": {"tipologia": "Aislada"}}, f)
@@ -127,7 +150,8 @@ def test_activar_chip_actualiza_espejo():
             os.remove(sv.ACTIVO_PROYECTO)
 
 
-def test_http_smoke():
+def test_http_smoke(tmp_path, monkeypatch):
+    _aislar_rutas(tmp_path, monkeypatch)
     srv = HTTPServer(("127.0.0.1", 0), sv.Handler)
     t = threading.Thread(target=srv.serve_forever, daemon=True)
     t.start()
@@ -251,3 +275,12 @@ def test_modalidad_desde_data():
     assert sv._modalidad_desde_data({"aporte_lote": "venta_completa"}) == \
         {"tipo": "venta_completa", "pago_parcial_pct": 100.0}
     assert sv._modalidad_desde_data({}) == {"tipo": "participacion", "pago_parcial_pct": 30.0}
+
+
+def test_nuevo_chip_validacion_formato():
+    """2026-09-28: el disparador de CHIP nuevo valida el formato antes de fetch."""
+    r = sv._nuevo_chip("CHIPMALO")
+    assert r["ok"] is False
+    assert "Formato" in r["mensaje"]
+    r2 = sv._nuevo_chip("")
+    assert r2["ok"] is False

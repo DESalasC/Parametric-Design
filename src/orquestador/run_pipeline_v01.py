@@ -34,6 +34,14 @@ MAPA CASO -> CHIP (coherente con F3_DISTRIBUCION_v01):
   B       -> AAA0030JKOE
   B_SALUD -> AAA0030JKOE
   C       -> AAA0039KRMR
+
+CAMBIOS (2026-09-28):
+  - Fix: import shutil (la copia de canonicos fallaba en silencio).
+  - Fix: post_comando movido a la rama de exito (antes nunca se ejecutaba).
+  - Estado f1_contexto/f1_contexto50 por FRESCURA (chip en el archivo), no
+    por existencia: arranque en frio ya no salta el fetch.
+  - Fetch unificado: usa scripts/utilities/fetch-contexto-completo_v01.py
+    (--solo-base / --solo-50).
 ================================================================================
 """
 
@@ -42,11 +50,47 @@ import datetime
 import io
 import json
 import os
+import re
+import shutil
 import subprocess
 import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
-PY = os.path.join(ROOT, ".venv", "Scripts", "python.exe")
+
+
+def _candidatos_python():
+    """2026-09-28: interpretes candidatos (el .venv quedo con ruedas cp312 sobre 3.11)."""
+    cands = [sys.executable]
+    try:
+        p = subprocess.run(["py", "-0p"], capture_output=True, text=True, timeout=20)
+        for ln in (p.stdout or "").splitlines():
+            m = re.search(r"([A-Za-z]:\\.+?\.exe)", ln)
+            if m:
+                cands.append(m.group(1).strip())
+    except Exception:
+        pass
+    cands.append(r"D:\Users\Work\AppData\Local\Programs\Python\Python312\python.exe")
+    cands.append(r"C:\Program Files\Python311\python.exe")
+    cands.append(os.path.join(ROOT, ".venv", "Scripts", "python.exe"))
+    return cands
+
+
+def _elegir_python_pipeline():
+    """Primer interprete que importe numpy/pandas/geopandas/pyogrio (stack del fetch)."""
+    for c in _candidatos_python():
+        if not c or not os.path.exists(c) or not c.lower().endswith("python.exe"):
+            continue
+        try:
+            p = subprocess.run([c, "-c", "import numpy, pandas, geopandas, pyogrio"],
+                               capture_output=True, timeout=90)
+            if p.returncode == 0:
+                return c
+        except Exception:
+            continue
+    return os.path.join(ROOT, ".venv", "Scripts", "python.exe")
+
+
+PY = _elegir_python_pipeline()
 
 CASO_CHIP = {
     "A": "AAA0127AZPA",
@@ -151,37 +195,38 @@ def _validar_contexto_fresco(chip, tipo_contexto):
         tuple: (es_fresco, mensaje) donde es_fresco es booleano y mensaje es string
     """
     if tipo_contexto == "contexto":
-        nombre_archivo = "contexto-actual.json"
+        candidatos = [os.path.join(POT_CACHE, chip + "-contexto.json"),
+                      os.path.join(POT_CACHE, "CHIP-contexto.json")]
     elif tipo_contexto == "contexto50":
-        nombre_archivo = "contexto50-actual.json"
+        candidatos = [os.path.join(POT_CACHE, "contexto50-actual.json")]
     else:
         return False, "Tipo de contexto desconocido"
 
-    ruta_archivo = os.path.join(POT_CACHE, nombre_archivo)
+    mejor_msg = "Archivo no existe"
+    for ruta_archivo in candidatos:
+        if not _existe(ruta_archivo):
+            continue
+        try:
+            with io.open(ruta_archivo, "r", encoding="utf-8") as f:
+                contenido = json.load(f)
 
-    if not _existe(ruta_archivo):
-        return False, "Archivo no existe"
+            chip_archivo = ""
+            if isinstance(contenido, dict):
+                metadata = contenido.get("metadata", {})
+                if isinstance(metadata, dict):
+                    chip_archivo = str(metadata.get("chip", ""))
 
-    try:
-        with io.open(ruta_archivo, "r", encoding="utf-8") as f:
-            contenido = json.load(f)
+            if chip_archivo == chip:
+                return True, "Datos actualizados para chip {} ({})".format(
+                    chip, os.path.basename(ruta_archivo))
+            elif chip_archivo == "":
+                mejor_msg = "Archivo inicializado (esperando datos)"
+            else:
+                mejor_msg = "Datos obsoletos (chip: {})".format(chip_archivo)
 
-        # Verificar si el chip en el archivo coincide con el chip actual
-        chip_archivo = ""
-        if isinstance(contenido, dict):
-            metadata = contenido.get("metadata", {})
-            if isinstance(metadata, dict):
-                chip_archivo = str(metadata.get("chip", ""))
-
-        if chip_archivo == chip:
-            return True, "Datos actualizados para chip {}".format(chip)
-        elif chip_archivo == "":
-            return False, "Archivo inicializado (esperando datos)"
-        else:
-            return False, "Datos obsoletos (chip: {})".format(chip_archivo)
-
-    except Exception as e:
-        return False, "Error al leer archivo: {}".format(str(e))
+        except Exception as e:
+            mejor_msg = "Error al leer archivo: {}".format(str(e))
+    return False, mejor_msg
 
 
 def _detectar_parametros(chip, tipo):
@@ -208,12 +253,18 @@ def detectar_estado(chip, caso):
     return {
         "f1_contexto": {
             "tipo": "auto",
-            "estado": "hecho" if _existe(os.path.join(POT_CACHE, "contexto-actual.json")) else "falta",
-            "artefacto": "data/pot-cache/contexto-actual.json",
-            "comando": [PY, os.path.join(ROOT, "scripts", "utilities", "fetch-urban-context-v6.py"), "--chip", chip],
-            "post_comando": lambda: _copy_file(
-                os.path.join(POT_CACHE, chip + "-contexto.json"),
-                os.path.join(POT_CACHE, "contexto-actual.json")
+            "estado": "hecho" if _validar_contexto_fresco(chip, "contexto")[0] else "falta",
+            "artefacto": "data/pot-cache/CHIP-contexto.json (activo) | {}-contexto.json".format(chip),
+            "comando": [PY, os.path.join(ROOT, "scripts", "utilities", "fetch-contexto-completo_v01.py"), "--chip", chip, "--solo-base"],
+            "post_comando": lambda: (
+                _copy_file(
+                    os.path.join(POT_CACHE, chip + "-contexto.json"),
+                    os.path.join(POT_CACHE, "CHIP-contexto.json")
+                ),
+                _copy_file(
+                    os.path.join(POT_CACHE, chip + "-contexto.json"),
+                    os.path.join(POT_CACHE, "contexto-actual.json")
+                ),
             ) if _existe(os.path.join(POT_CACHE, chip + "-contexto.json")) else None,
         },
         "f1_gfa": {
@@ -254,12 +305,10 @@ def detectar_estado(chip, caso):
         },
         "f1_contexto50": {
             "tipo": "auto",
-            "estado": "hecho" if _existe(os.path.join(POT_CACHE, "contexto50-actual.json")) else "falta",
+            "estado": "hecho" if _validar_contexto_fresco(chip, "contexto50")[0] else "falta",
             "artefacto": "data/pot-cache/contexto50-actual.json",
-            "comando": [PY, os.path.join(ROOT, "src", "fase-1-contexto", "F1_CONTEXTO50_FETCH_v01.py"),
-                      "--chip", chip,
-                      "--ctx", os.path.join(POT_CACHE, chip + "-contexto.json"),
-                      "--out", POT_CACHE],
+            "comando": [PY, os.path.join(ROOT, "scripts", "utilities", "fetch-contexto-completo_v01.py"),
+                      "--chip", chip, "--solo-50"],
             "post_comando": lambda: _copy_file(
                 os.path.join(POT_CACHE, chip + "-contexto50.json"),
                 os.path.join(POT_CACHE, "contexto50-actual.json")
@@ -306,6 +355,56 @@ def _pedir(mensaje, default=""):
     return valor if valor else default
 
 
+def estado_lados_patio(chip):
+    """F1.5 (2026-09-28) - Verifica el diagnostico <CHIP>-lados.json del canvas v11.
+
+    El canvas lo genera cuando el servidor/orquestador pone el flag
+    data/pot-cache/lados-export-flag.json (componente PATIO v02.4).
+    Devuelve dict con comprobaciones minimas: chip correcto, lados >= 3,
+    patio >= 1, area >= 9 m2 y claridad >= 3 m (decision operador 2026-09-28).
+    """
+    ruta = os.path.join(POT_CACHE, chip + "-lados.json")
+    res = {"existe": False, "ok": False,
+           "artefacto": "data/pot-cache/{}-lados.json".format(chip),
+           "detalle": "sin diagnostico (use 'Exportar diagnostico lados+patio' en el canvas)",
+           "checks": []}
+    if not os.path.exists(ruta):
+        return res
+    res["existe"] = True
+    try:
+        with io.open(ruta, "r", encoding="utf-8") as f:
+            d = json.load(f)
+    except Exception as e:
+        res["detalle"] = "diagnostico ilegible: {}".format(str(e))
+        return res
+    checks = res["checks"]
+
+    def _chk(nombre, ok, detalle):
+        checks.append({"nombre": nombre, "ok": bool(ok), "detalle": detalle})
+
+    _chk("chip", str(d.get("chip")) == chip, "chip={}".format(d.get("chip")))
+    sides = d.get("sides") or {}
+    n_lados = sides.get("total_lados")
+    _chk("lados>=3", isinstance(n_lados, int) and n_lados >= 3, "total_lados={}".format(n_lados))
+    patio = d.get("patio") or {}
+    count = patio.get("count")
+    _chk("patio>=1", isinstance(count, int) and count >= 1, "count={}".format(count))
+    patios = patio.get("patios") or []
+    for i, p in enumerate(patios):
+        area = p.get("area_m2")
+        clar = p.get("claridad_m")
+        _chk("patio{}_area>=9".format(i),
+             area is not None and float(area) >= 9.0 - 1e-6, "area={}".format(area))
+        _chk("patio{}_claridad>=3".format(i),
+             clar is not None and float(clar) >= 3.0 - 1e-6, "claridad={}".format(clar))
+    msg = str(patio.get("mensaje") or "") + " " + str(sides.get("mensaje") or "")
+    _chk("sin_ERROR", "ERROR" not in msg, "")
+    res["ok"] = all(c["ok"] for c in checks)
+    res["detalle"] = "lados={} · patio={} · {}".format(
+        n_lados, count, "OK" if res["ok"] else "REVISAR")
+    return res
+
+
 # ------------------------------------------------------------------ status
 
 def _imprimir_estado(estado, chip, caso, modo):
@@ -314,9 +413,10 @@ def _imprimir_estado(estado, chip, caso, modo):
     print("CHIP: {} | CASO: {} | MODO: {}".format(chip, caso, modo))
     print("=" * 64)
     simbolos = {"hecho": "[OK]", "falta": "[  ]", "manual": "[??]"}
-    orden = ["f1_contexto", "f1_gfa", "f2_venta", "f2_renta", "f3_distribucion", "f3_accesos", "f3_masa_rhino"]
+    orden = ["f1_contexto", "f1_contexto50", "f1_gfa", "f2_venta", "f2_renta", "f3_distribucion", "f3_accesos", "f3_masa_rhino"]
     nombres = {
         "f1_contexto": "F1  Contexto normativo (fetch)",
+        "f1_contexto50": "F1  Contexto 50 m (fetch)",
         "f1_gfa": "F1  Exportar GFA (manual Rhino)",
         "f2_venta": "F2  Modelo financiero (venta)",
         "f2_renta": "F2  Modelo Build-to-Rent (renta)",
@@ -447,6 +547,14 @@ def _modo_run(args):
             ok, salida = fn()
         if ok:
             print("[OK] {} completado.".format(nombre))
+            # Post-comando (fix 2026-09-28: el bloque estaba dentro de la rama
+            # de fallo y nunca se ejecutaba; p.ej. copia <CHIP>-contexto.json
+            # -> contexto-actual.json).
+            if "post_comando" in estado[clave] and estado[clave]["post_comando"]:
+                try:
+                    estado[clave]["post_comando"]()
+                except Exception as e:
+                    print("WARNING: Post-comando failed for {}: {}".format(clave, str(e)))
         else:
             print("[ERROR] {} falló. Últimas líneas:".format(nombre))
             lineas = salida.strip().splitlines()
@@ -457,13 +565,6 @@ def _modo_run(args):
                 if resp != "s":
                     print("Detenido por el operador.")
                     sys.exit(1)
-
-            # Execute post-comando callback if defined
-            if ok and "post_comando" in estado[clave] and estado[clave]["post_comando"]:
-                try:
-                    estado[clave]["post_comando"]()
-                except Exception as e:
-                    print("WARNING: Post-comando failed for {}: {}".format(clave, str(e)))
 
     # 3. pasos manuales (guiados)
     manuales = [

@@ -33,7 +33,25 @@ def test_patio_colindantes_no_solo_lateral():
     s = _src("F1_ETAPA2_PATIO_v02.py")
     assert 'cat1 in ("Lateral", "Posterior")' in s
     assert 'cat2 in ("Lateral", "Posterior")' in s
-    assert "PATIO v02.1" in s
+    assert "PATIO v02.4" in s
+
+
+def test_patio_export_diagnostico_v024():
+    """v02.4: export del diagnostico lados/patio via flag (F1.5 del orquestador)."""
+    s = _src("F1_ETAPA2_PATIO_v02.py")
+    assert "lados-export-flag" in s
+    assert "lados_patio_diagnostico_v01" in s
+    assert "_exportar_diagnostico" in s
+
+
+def test_patio_garantias_v023():
+    """v02.3 (decision operador 2026-09-28): area >= 9 m2 y claridad >= 3 m;
+    simplificacion colineal 2.5 grados compartida con LADOS v06.5."""
+    s = _src("F1_ETAPA2_PATIO_v02.py")
+    assert "CLARIDAD_MINIMA_M = 3.0" in s
+    assert "AREA_MINIMA_M2 = 9.0" in s
+    assert "simplificar_colineales" in s
+    assert "UMBRAL_COLINEAL_GRADOS = 2.5" in s
 
 
 def test_normativa_esquina_sin_posterior():

@@ -1,0 +1,29 @@
+CORRECCIONES DE FRONT-END (solicitadas 2026-09-28 19:15) — verificación 19:2x
+=================================================================================
+
+1) ALTURA DE VECINOS: bloqueada en lados "vía (no frontal)" y "espacio público"
+   - Regla: en esos frentes NO hay edificación colindante -> no se especifica altura.
+   - UI (index.html): los inputs altura_m / pisos de "Detalle de vecinos" y de los
+     vecinos manuales se deshabilitan y limpian para esos lados; se muestra la marca
+     "(altura de vecinos: no aplica)" en la fila del lado. Al cambiar el frente
+     (select o clic en el plano) la regla se re-evalúa en vivo.
+   - Plano: las etiquetas de esos lados ahora dicen "(sin altura)" y la leyenda lo explica.
+     (El marcado gráfico del lado como espacio público / vía no frontal ya se hacía por clic:
+      ciclo indefinido -> vía -> vía (no frontal) -> predio/vecino -> espacio público -> libre.)
+   - Servidor (servidor.py, POST /api/vecinos-por-lado): al guardar, limpia altura_m/pisos
+     de vecinos y manuales en lados via_no_frontal / espacio_publico.
+   - Verificado con CHIP de prueba (AAA0000TEST, eliminado después): lado via_no_frontal
+     -> altura_m/pisos = null; lado predio -> 10 m / 3 pisos intactos.
+
+2) CHIP NUEVO como disparador de un proceso nuevo (sección "1 Predio (CHIP)")
+   - UI: campo de texto (formato 3 letras + 4 dígitos + 4 alfanuméricos) + botón
+     "Procesar CHIP nuevo" (Enter también). Al procesar: refresca la lista de CHIPs,
+     selecciona el nuevo y carga todas las secciones.
+   - Servidor: POST /api/nuevo-chip -> contexto base (fetch unificado) + contexto 50 m +
+     activación de archivos ACTIVO del canvas; devuelve los pasos.
+   - Verificado: CHIP inválido -> error de formato; CHIP existente (AAA0127AZPA) ->
+     "contexto ya existente / contexto50 ya existente / activar_chip OK" (sin refetch).
+   - QA visual headless (Edge): página carga completa; campo + botón visibles; sin errores JS
+     (node --check del bloque <script> también OK).
+
+Nota: recargar el navegador con Ctrl+F5 para tomar la nueva UI.

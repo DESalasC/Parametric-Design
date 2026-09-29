@@ -16,6 +16,17 @@
       "fuente": "Resolucion 00865/2006 + ficha de edificabilidad UPZ 41 Muzu | Ficha: G:\\Documentos\\UPZ_CONSOLIDACION\\041_Muzú\\Imágenes\\041 EDIFICABILIDAD-FIRMA.pdf | Resolucion: G:\\Documentos\\UPZ_CONSOLIDACION\\041_Muzú\\Decreto\\upz 41 muzu _resolucion 00865 15  septiembre 2006.PDF",
       "ultima_edicion": "2026-08-25 10:56",
       "tratamiento": "Renovación urbana"
+    },
+    "AAA0127AZPA": {
+      "rango_edificabilidad": "3",
+      "altura_maxima_pisos": 4,
+      "io_maximo": 0.7,
+      "tipologia": "Continua",
+      "tratamiento": "Consolidación",
+      "antejardin_min_m": 5,
+      "semisotano_permitido": false,
+      "voladizo_permitido": true,
+      "ultima_edicion": "2026-09-28 18:55"
     }
   }
 }

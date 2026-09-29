@@ -35,7 +35,10 @@ import os
 import sys
 
 CRS_TARGET = "ESRI:102233"          # MAGNA_Ciudad_Bogota (igual que fetch-urban-context-v6)
-GPKG_DEFAULT = r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg"
+# 2026-09-28: default PORTABLE -> env POT_GPKG_PATH > data/geobase del proyecto > ruta historica
+_ROOT_PROY = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+_GPKG_PROY = os.path.join(_ROOT_PROY, "data", "geobase", "bd_uaecd.gpkg")
+GPKG_DEFAULT = _GPKG_PROY if os.path.exists(_GPKG_PROY) else r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg"
 ALTURA_PISO_DEF = 3.80              # ALTURA_PISO_M del pipeline (fetch-urban-context-v6.py:36)
 
 # Variable de entorno para hacer portable la ruta de la geobase

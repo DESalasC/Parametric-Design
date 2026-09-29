@@ -1,0 +1,37 @@
+ADENDA — Correcciones tras la prueba del operador (Prado 18:58) — 2026-09-28 ~19:05
+====================================================================================
+
+Síntomas reportados (corrida UI, chip AAA0127AZPA):
+  ✗ f1_contexto50  ·  ✗ f1_lados_patio  ·  F3 sin resumen ("— pisos")
+
+Causas y correcciones:
+1) f1_contexto50: el fetch buscaba la geobase en la ruta vieja
+   (D:\Users\Dario Salas\...\bd_uaecd.gpkg) porque POT_GPKG_PATH estaba vacía
+   y ambos scripts tienen un fallback histórico. Fix aplicado:
+   - POT_GPKG_PATH / POT_GDB_PATH (scope User) restablecidas -> data/geobase del proyecto.
+   - Defaults PORTABLES en fetch-urban-context-v6.py, F1_CONTEXTO50_FETCH_v01.py
+     y fetch-contexto-completo_v01.py (env > data/geobase > ruta histórica).
+   - El servidor y run_pipeline ahora pasan --gpkg explícito cuando existe.
+   - Verificación: fetch 50 m del Prado OK -> AAA0127AZPA-contexto50.json + canónico
+     (contexto50-actual.json) regenerados.
+2) Intérprete: el .venv quedó con 432 binarios cp312 sobre Python 3.11
+   (numpy/pandas/geopandas/pyogrio fallan). F2/F3 NO dependen de numpy (motor
+   standalone), por eso corrían; el fetch sí depende. Fix aplicado:
+   - Selector de intérprete en servidor.py y run_pipeline_v01.py (primer python
+     con numpy+pandas+geopandas+pyogrio; orden: actual > py -3.12 > Python311 > .venv).
+   - Init-DP.ps1 elige igual al arrancar (eligió Python312).
+   - PENDIENTE (mantenimiento, no bloquea): reconstruir .venv (preferible con 3.12)
+     o reinstalar el set binario para 3.11.
+3) f1_lados_patio (Prado): no existía diagnóstico. Se generó ejecutando PATIO v02.4
+   (offline, mismo código) sobre AAA0127AZPA: lados=4, patio=1, área 9.0 m²,
+   claridad 3.0 m -> data/pot-cache/AAA0127AZPA-lados.json; /api/estado 6/6 checks OK.
+4) F3: el front-end ahora resuelve chip→caso (A/B/C) para el resumen (pisos/GFA).
+   Nota: F3 en modo chip seguirá ✗ con mensaje claro hasta que exista el escenario
+   D_MIXTO del chip en resultados_<CHIP>.json (el motor estándar produce A/B/C; los
+   casos A/B/C usan archivos dedicados; para el flujo del chip nuevo hay que
+   regenerar el mix). Antes se reportaba "OK" pese al error.
+
+Estado final verificado (19:1x):
+  - orquestador_v01 --status (Prado): todos los pasos automáticos en verde + F1.5 OK.
+  - Suite completa: 288/288.
+  - Front-end corriendo en http://127.0.0.1:8900 (arrancado con Init-DP + Python312).

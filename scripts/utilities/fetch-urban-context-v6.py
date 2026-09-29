@@ -26,9 +26,13 @@ from pyproj import Transformer
 
 warnings.filterwarnings('ignore', category=UserWarning)
 
-# Rutas por defecto (hardcodeadas como fallback); se sobreescriben con --gpkg / --pot-gdb o variables de entorno
-GPKG_PATH_DEFAULT = r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg"
-POT_GDB_PATH_DEFAULT = r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\POT\POT_Decreto_555_2021_Bogota_D_C.gdb"
+# Rutas por defecto (fallback); se sobreescriben con --gpkg / --pot-gdb o variables de entorno
+# 2026-09-28: default PORTABLE -> data/geobase del proyecto (la ruta historica queda como ultimo recurso)
+_ROOT_PROY = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+_GPKG_PROY = os.path.join(_ROOT_PROY, "data", "geobase", "bd_uaecd.gpkg")
+_GDB_PROY = os.path.join(_ROOT_PROY, "data", "geobase", "POT_Decreto_555_2021_Bogota_D_C.gdb")
+GPKG_PATH_DEFAULT = _GPKG_PROY if os.path.exists(_GPKG_PROY) else r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg"
+POT_GDB_PATH_DEFAULT = _GDB_PROY if os.path.exists(_GDB_PROY) else r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\POT\POT_Decreto_555_2021_Bogota_D_C.gdb"
 
 # Variables de entorno (prefijo POT_ para consistencia con CLAUDE.md)
 GPKG_PATH = os.environ.get("POT_GPKG_PATH", GPKG_PATH_DEFAULT)

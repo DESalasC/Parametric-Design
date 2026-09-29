@@ -1,0 +1,86 @@
+CHIP: AAA0240ZXJH
+Lote: 13 vertices (sin cierre)
+
+####################################################################################################
+# CASO: A0 | SIN-INJECT (repro error) lote 13v + 67 vias | lot_pts=13 | vias=67 | vecinos=74 | ep=13
+####################################################################################################
+--- LADOS mensaje ---
+LADOS v06.2 | ERROR: name 'point_in_lot' is not defined
+
+####################################################################################################
+# CASO: A | lote 13v + insumos completos [INJECT] | lot_pts=13 | vias=67 | vecinos=74 | ep=13
+####################################################################################################
+--- LADOS mensaje ---
+LADOS v06.2 | A=V1 N=V7 | Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V7 via PATIO_v02) | Vias:67 EP:13 Vec:74 Andenes:0 | Ancho via: 0.00m | Detalle: Oriente[L0]=[Lateral aisl:lateral v:5.80 ep:41.26 vec:0.00 fr:0.0/0.0/0.079 (sin contacto minimo)]; Sur[L1]=[Lateral aisl:lateral v:5.80 ep:41.22 vec:7.50 fr:0.0/0.0/0.0 (sin contacto minimo)]; Sur[L2]=[Lateral aisl:lateral v:5.84 ep:39.86 vec:0.00 fr:0.0/0.0/0.052 (sin contacto minimo)]; Occidente[L3]=[Lateral aisl:lateral v:6.08 ep:39.86 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Lateral aisl:lateral v:7.08 ep:40.85 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L5]=[Lateral aisl:lateral v:8.08 ep:41.83 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L6]=[Lateral aisl:lateral v:10.33 ep:44.06 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L7]=[Lateral aisl:lateral v:13.55 ep:47.28 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L8]=[Lateral aisl:lateral v:13.35 ep:47.44 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L9]=[Lateral aisl:lateral v:13.35 ep:48.70 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L10]=[Lateral aisl:lateral v:13.34 ep:48.71 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L11]=[Lateral aisl:lateral v:13.34 ep:48.72 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L12]=[Lateral aisl:lateral v:13.30 ep:48.72 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback
+V_A=1 V_N=7 es_esquina=False ancho=0.0
+vertice_n_points: 0 -> None
+vertice_n_method: None
+--- lados ---
+  L0 [  7.50m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.08 | d v/e/n=5.8/41.26/0.0 | compA=True compN=False
+  L1 [  1.80m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.00 | d v/e/n=5.8/41.22/7.5 | compA=True compN=False
+  L2 [ 11.50m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.05 | d v/e/n=5.84/39.86/0.0 | compA=False compN=False
+  L3 [  1.00m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=6.08/39.86/0.0 | compA=False compN=False
+  L4 [  1.00m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=7.08/40.85/0.0 | compA=False compN=False
+  L5 [  2.25m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=8.08/41.83/0.0 | compA=False compN=False
+  L6 [  3.25m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=10.33/44.06/0.0 | compA=False compN=True
+  L7 [  1.21m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.55/47.28/0.0 | compA=False compN=True
+  L8 [  9.63m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.35/47.44/0.0 | compA=False compN=False
+  L9 [  0.07m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.35/48.7/0.0 | compA=False compN=False
+  L10 [  0.54m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.34/48.71/0.0 | compA=False compN=False
+  L11 [  0.06m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.34/48.72/0.0 | compA=False compN=False
+  L12 [  1.80m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.3/48.72/0.0 | compA=False compN=False
+--- PATIO mensaje ---
+PATIO v02.1 | V_N=7 | Lados: Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Patio=3.00x3.00m (9.0 m2) | Generados: 1
+patios generados: 1
+  patio 0: 5 pts: (79.97,89.52) (77.96,87.30) (80.21,85.31) (82.22,87.53) (79.97,89.52)
+  area: 9.000 m2
+  todos los vertices dentro del lote: True
+
+####################################################################################################
+# CASO: B | lote 4 esquinas + insumos completos [INJECT] | lot_pts=4 | vias=67 | vecinos=74 | ep=13
+####################################################################################################
+--- LADOS mensaje ---
+LADOS v06.2 | A=V1 N=V3 | Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V3 via PATIO_v02) | Vias:67 EP:13 Vec:74 Andenes:0 | Ancho via: 0.00m | Detalle: Oriente[L0]=[Lateral aisl:lateral v:5.80 ep:41.26 vec:0.00 fr:0.0/0.0/0.079 (sin contacto minimo)]; Sur[L1]=[Lateral aisl:lateral v:5.80 ep:39.86 vec:0.00 fr:0.0/0.0/0.045 (sin contacto minimo)]; Occidente[L2]=[Lateral aisl:lateral v:6.08 ep:39.86 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L3]=[Lateral aisl:lateral v:13.30 ep:47.28 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback
+V_A=1 V_N=3 es_esquina=False ancho=0.0
+vertice_n_points: 0 -> None
+vertice_n_method: None
+--- lados ---
+  L0 [  7.50m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.08 | d v/e/n=5.8/41.26/0.0 | compA=True compN=False
+  L1 [ 13.30m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.04 | d v/e/n=5.8/39.86/0.0 | compA=True compN=False
+  L2 [  7.50m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=6.08/39.86/0.0 | compA=False compN=True
+  L3 [ 13.30m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.3/47.28/0.0 | compA=False compN=True
+--- PATIO mensaje ---
+PATIO v02.1 | V_N=3 | Lados: Lateral, Lateral, Lateral, Lateral | Patio=3.00x3.00m (9.0 m2) | Generados: 1
+patios generados: 1
+  patio 0: 5 pts: (79.97,89.52) (77.96,87.30) (80.21,85.31) (82.22,87.53) (79.97,89.52)
+  area: 9.000 m2
+  todos los vertices dentro del lote: True
+
+####################################################################################################
+# CASO: C | lote 13v + vias<=30m vecinos<=30m [INJECT] | lot_pts=13 | vias=2 | vecinos=17 | ep=2
+####################################################################################################
+--- LADOS mensaje ---
+LADOS v06.2 | A=V1 N=V7 | Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V7 via PATIO_v02) | Vias:2 EP:2 Vec:17 Andenes:0 | Ancho via: 0.00m | Detalle: Oriente[L0]=[Lateral aisl:lateral v:5.80 ep:41.26 vec:0.00 fr:0.0/0.0/0.079 (sin contacto minimo)]; Sur[L1]=[Lateral aisl:lateral v:5.80 ep:41.22 vec:7.50 fr:0.0/0.0/0.0 (sin contacto minimo)]; Sur[L2]=[Lateral aisl:lateral v:5.84 ep:39.86 vec:0.00 fr:0.0/0.0/0.052 (sin contacto minimo)]; Occidente[L3]=[Lateral aisl:lateral v:6.08 ep:39.86 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Lateral aisl:lateral v:7.08 ep:40.85 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L5]=[Lateral aisl:lateral v:8.08 ep:41.83 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L6]=[Lateral aisl:lateral v:10.33 ep:44.06 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L7]=[Lateral aisl:lateral v:13.55 ep:47.28 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L8]=[Lateral aisl:lateral v:13.35 ep:47.44 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L9]=[Lateral aisl:lateral v:13.35 ep:48.70 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L10]=[Lateral aisl:lateral v:13.34 ep:48.71 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L11]=[Lateral aisl:lateral v:13.34 ep:48.72 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L12]=[Lateral aisl:lateral v:13.30 ep:48.72 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback
+V_A=1 V_N=7 es_esquina=False ancho=0.0
+vertice_n_points: 0 -> None
+vertice_n_method: None
+--- lados ---
+  L0 [  7.50m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.08 | d v/e/n=5.8/41.26/0.0 | compA=True compN=False
+  L1 [  1.80m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.00 | d v/e/n=5.8/41.22/7.5 | compA=True compN=False
+  L2 [ 11.50m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.05 | d v/e/n=5.84/39.86/0.0 | compA=False compN=False
+  L3 [  1.00m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=6.08/39.86/0.0 | compA=False compN=False
+  L4 [  1.00m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=7.08/40.85/0.0 | compA=False compN=False
+  L5 [  2.25m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=8.08/41.83/0.0 | compA=False compN=False
+  L6 [  3.25m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=10.33/44.06/0.0 | compA=False compN=True
+  L7 [  1.21m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.55/47.28/0.0 | compA=False compN=True
+  L8 [  9.63m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.35/47.44/0.0 | compA=False compN=False
+  L9 [  0.07m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.35/48.7/0.0 | compA=False compN=False
+  L10 [  0.54m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.34/48.71/0.0 | compA=False compN=False
+  L11 [  0.06m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.34/48.72/0.0 | compA=False compN=False
+  L12 [  1.80m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.3/48.72/0.0 | compA=False compN=False
+--- PATIO mensaje ---
+PATIO v02.1 | V_N=7 | Lados: Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Patio=3.00x3.00m (9.0 m2) | Generados: 1
+patios generados: 1
+  patio 0: 5 pts: (79.97,89.52) (77.96,87.30) (80.21,85.31) (82.22,87.53) (79.97,89.52)
+  area: 9.000 m2
+  todos los vertices dentro del lote: True

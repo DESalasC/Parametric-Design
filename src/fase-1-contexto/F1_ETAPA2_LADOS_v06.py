@@ -99,7 +99,16 @@ VERSIONES:
   v06.3 (2026-08-24) - Override manual de setback por lado que limita con vía
                        para controlar exactamente qué lados tienen retiro
                        según regulaciones UPZ/UPL específicas.
-  v06.4 (2026-09-15) - PRIORIDAD via/EP sobre la medianería por vértices: un
+  v06.5 (2026-09-28) - HOTFIX + SIMPLIFICACION: (1) se define point_in_lot,
+                       que faltaba: la rama de intersecciones v06.3 lanzaba
+                       NameError cuando existen cruces via-via y abortaba TODA
+                       la clasificacion de lados (sides_table_json vacio
+                       -> patio sin generar). (2) Fusion de lados colineales:
+                       los vertices con giro < 2.5 grados se simplifican;
+                       los de giro >= 2.5 grados se mantienen, independiente
+                       del numero final de lados (decision operador
+                       2026-09-28; misma regla en PATIO v02.3).
+  v06.4 (2026-09-15) - PRIORIDAD via/EP sobre la medianeria por vertices: un
                        lado "pegado a la vía" (contacto por longitud ≥ 0.30
                        o vértices coincidentes con vecinos) se clasifica
                        Frontal/EspacioPublico y NO recibe aislamiento lateral.
@@ -143,6 +152,8 @@ MIN_ANCHO_VIA_M = 0.5
 # coordenadas; se descarta la muestra para no propagar el error a NORMATIVA.
 MAX_ANCHO_VIA_M = 100.0
 MUESTRAS_ANCHO = 7
+# v06.5: simplificacion de lados colineales (giro < umbral; decision 2026-09-28)
+UMBRAL_COLINEAL_GRADOS = 2.5
 
 # v06.2 - Nomenclatura cardinal (misma convencion que NORMATIVA_v08 y
 # vecinos_por_lado.py): Norte/Oriente/Sur/Occidente desde la normal saliente.
@@ -185,6 +196,96 @@ def safe_list(val):
     if val is None: return []
     if isinstance(val, list): return val
     return [val]
+
+
+def _giro_grados(p_prev, p, p_next):
+    """v06.5 - Angulo de giro (0-180) en p entre vector entrante y saliente.
+
+    0 = colineal recto; 180 = retorno.
+    """
+    ax = p.X - p_prev.X
+    ay = p.Y - p_prev.Y
+    bx = p_next.X - p.X
+    by = p_next.Y - p.Y
+    la = math.sqrt(ax * ax + ay * ay)
+    lb = math.sqrt(bx * bx + by * by)
+    if la < 1e-12 or lb < 1e-12:
+        return 0.0
+    cosang = (ax * bx + ay * by) / (la * lb)
+    if cosang > 1.0: cosang = 1.0
+    if cosang < -1.0: cosang = -1.0
+    return math.degrees(math.acos(cosang))
+
+
+def simplificar_colineales(vertices, umbral_grados=UMBRAL_COLINEAL_GRADOS):
+    """v06.5 - Fusiona vertices colineales o con giro < umbral (2.5 grados).
+
+    Decision operador 2026-09-28: se simplifican los vertices con variacion
+    de angulo INFERIOR a 2.5 grados; los de 2.5 grados o mas se mantienen,
+    independiente del numero final de lados. Elimina iterativamente el vertice
+    de MENOR giro bajo el umbral y recalcula (asi los angulos que superan el
+    umbral tras fusionar se conservan). Nunca baja de 3 vertices.
+    """
+    pts = []
+    for v in vertices:
+        if not pts or pts[-1].DistanceTo(v) > 1e-9:
+            pts.append(v)
+    if len(pts) > 1 and pts[0].DistanceTo(pts[-1]) < 1e-9:
+        pts.pop()
+    while len(pts) > 3:
+        n = len(pts)
+        mejor_i = -1
+        mejor_giro = None
+        for i in range(n):
+            g = _giro_grados(pts[(i - 1) % n], pts[i], pts[(i + 1) % n])
+            if g < umbral_grados and (mejor_giro is None or g < mejor_giro):
+                mejor_giro = g
+                mejor_i = i
+        if mejor_i < 0:
+            break
+        pts.pop(mejor_i)
+    return pts
+
+
+def point_in_lot(pt, vertices):
+    """v06.5 (hotfix) - Ray casting + deteccion de punto sobre el borde (0.1m).
+
+    Faltaba en v06: la llamada de la rama de intersecciones via-via (v06.3)
+    lanzaba NameError y abortaba la clasificacion completa. Misma semantica
+    que la version del patio legacy / PATIO v02.
+    """
+    n = len(vertices)
+    if n < 3: return False
+    px, py = pt.X, pt.Y
+    # 1) Ray casting estandar
+    count = 0
+    for i in range(n):
+        v1 = vertices[i]
+        v2 = vertices[(i + 1) % n]
+        if ((v1.Y > py) != (v2.Y > py)):
+            if (v2.Y - v1.Y) != 0:
+                x_int = v1.X + (py - v1.Y) * (v2.X - v1.X) / (v2.Y - v1.Y)
+                if px < x_int:
+                    count += 1
+    if (count % 2) == 1:
+        return True
+    # 2) Punto sobre el borde (distancia al segmento < 0.1m)
+    for i in range(n):
+        v1 = vertices[i]
+        v2 = vertices[(i + 1) % n]
+        dx = v2.X - v1.X
+        dy = v2.Y - v1.Y
+        l2 = dx * dx + dy * dy
+        if l2 < 1e-12:
+            continue
+        t = ((px - v1.X) * dx + (py - v1.Y) * dy) / l2
+        t = max(0.0, min(1.0, t))
+        cx = v1.X + t * dx
+        cy = v1.Y + t * dy
+        dist = math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
+        if dist < 0.1:
+            return True
+    return False
 
 
 def es_curva(obj):
@@ -598,6 +699,7 @@ if _lado_override_in is not None:
         pass
 
 lot_vertices = safe_list(lot_vertices_raw)
+n_vertices_brutos = len(lot_vertices)
 
 # v04: filtrar Guids / no-curvas (cables de Tapir mal conectados) sin crashear
 avisos = []
@@ -622,10 +724,12 @@ if lot_vertices_raw is not None and not isinstance(lot_vertices_raw, list):
                "CADA input geometrico (lot_vertices, vias_curves, ep_curves, "
                "vecinos_curves, andenes_curves) -> List Access + Flatten.")
 elif len(lot_vertices) < 3:
-    mensaje = "LADOS v06.2 | ERROR: Se necesitan >= 3 vertices ({} recibidos)".format(
+    mensaje = "LADOS v06.5 | ERROR: Se necesitan >= 3 vertices ({} recibidos)".format(
         len(lot_vertices))
 else:
     try:
+        # v06.5: simplificacion de lados colineales (giro < 2.5 grados)
+        lot_vertices = simplificar_colineales(lot_vertices, UMBRAL_COLINEAL_GRADOS)
         n = len(lot_vertices)
         cx = sum(v.X for v in lot_vertices) / n
         cy = sum(v.Y for v in lot_vertices) / n
@@ -1023,6 +1127,7 @@ else:
         sides_data = {
             "lados": lados,
             "total_lados": len(lados),
+            "n_vertices_originales": n_vertices_brutos,
             "vertice_a": vertice_a,
             "vertice_n": vertice_n,
             "distancias_vertices": [round(d, 2) for d in dist_vertices],
@@ -1067,8 +1172,8 @@ else:
             n_method = vertice_n_method if 'vertice_n_method' in locals() else "unknown"
             metodo_info = " | Método A/N: {}/{}".format(a_method, n_method)
 
-        mensaje = "LADOS v06.2 | A=V{} N=V{} | {} | Esq:{} | Posterior:{} ({}) | Vias:{} EP:{} Vec:{} Andenes:{} | Ancho via: {:.2f}m | Detalle: {}".format(
-            vertice_a, vertice_n, ", ".join(cats_final),
+        mensaje = "LADOS v06.5 | Verts {}->{} | A=V{} N=V{} | {} | Esq:{} | Posterior:{} ({}) | Vias:{} EP:{} Vec:{} Andenes:{} | Ancho via: {:.2f}m | Detalle: {}".format(
+            n_vertices_brutos, len(lot_vertices), vertice_a, vertice_n, ", ".join(cats_final),
             es_esquina,
             "SI" if idx_posterior is not None else "NO",
             motivo_posterior if idx_posterior is not None else "regla N-1 no aplica; patio en V{} via PATIO_v02".format(vertice_n),
@@ -1079,4 +1184,4 @@ else:
             mensaje += " | AVISOS: " + "; ".join(avisos)
 
     except Exception as e:
-        mensaje = "LADOS v06.2 | ERROR: {}".format(str(e))
+        mensaje = "LADOS v06.5 | ERROR: {}".format(str(e))

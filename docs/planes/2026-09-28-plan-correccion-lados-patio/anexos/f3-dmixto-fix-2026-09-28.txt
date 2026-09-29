@@ -1,0 +1,37 @@
+FIX F3 / D_MIXTO (2026-09-28 19:2x) — verificación 19:29
+================================================================
+
+Síntoma: "Generar masa (F3) para este CHIP" y el paso F3 del pipeline fallaban con:
+  "F3 no aplico (falta escenario D_MIXTO del chip o insumos).
+   ERROR: Sin escenario de uso mixto (D_MIXTO*) en resultados_AAA0127AZPA.json"
+
+Causa: el motor F2 estándar solo produce escenarios A/B/C; las corridas recientes
+del canónico resultados_AAA0127AZPA.json (p.ej. 19:25) no incluyen el escenario
+mixto (mix_usos_detalle) creado por las utilidades históricas. F3 lo requiere.
+
+Fix aplicado (F3_DISTRIBUCION_v01.py):
+  - buscar_resultados(chip): ahora prioriza el primer archivo del chip que CONTENGA
+    un escenario con mix_usos_detalle. Orden: canónico -> resultados_<CHIP>_* por
+    mtime desc. Sin mix en ninguno -> devuelve el canónico (error claro, como antes).
+  - Trazas: imprime "[resultados] usando: <archivo> | escenario: <esc>" y, si aplica,
+    "[escenario] sin D_MIXTO exacto; se usa: <esc>".
+  - Servidor: F2/F3 ahora se ejecutan con el intérprete seleccionado (Python 3.12);
+    rhino3dm instalado en ese intérprete -> la masa 3D F3_<CHIP>.3dm se exporta.
+
+Verificación (por el mismo camino del botón, POST /api/generar-f3):
+  ok=true · "[resultados] usando: resultados_AAA0127AZPA_gfa1461_cl800.json"
+  · balance 1218.1 · "[3dm] ...\casos\AAA0127AZPA\F3_AAA0127AZPA.3dm"
+  · "OK AAA0127AZPA: 5 niveles, huella 315 m², ascensores 1, nucleo 40 m²/piso"
+  · Resumen: GFA 1461.1 · 5 pisos · usos: Local comercial + Vivienda
+    (reparto vertical: Local 1 / Vivienda 2-5) · población 64 · accesos 2.
+  Salidas en src/fase-3-masa/casos/AAA0127AZPA/: programa.json, matriz_adyacencias.json,
+  layout_espacial.json, programa-areas.json, planos_AAA0127AZPA.html, accesos.json,
+  F3_AAA0127AZPA.3dm.
+
+Para AAA0240ZXJH: sigue fallando con mensaje claro (aún no existe su mix); cuando se
+decida la escala (GFA/CL), se genera su dataset con una utilidad equivalente a
+generar_caso_f3_gfa1461.py.
+
+Nota: caso A (Prado) usa el dataset aprobado gfa1461_cl800 (GFA 1.461,1 m², CL $800 M).
+Si se quiere un mix nuevo a la escala de la última corrida F2 (GFA 1265.39), es una
+decisión de modelado pendiente.

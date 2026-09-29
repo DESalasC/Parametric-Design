@@ -19,7 +19,14 @@ Endpoints:
   GET  /api/financiero?chip -> variables financieras + fuentes (base de decision)
   GET  /api/resultados?caso -> resultados existentes (programa-areas + accesos)
   GET  /api/proyectos     -> proyectos guardados
+  GET  /api/estado?chip&caso&modo -> estado del pipeline (pasos + lados/patio F1.5)
   POST /api/proyecto      -> guarda (nombre opcional -> _provisional) o crea estructura
+  POST /api/pipeline      -> ejecuta el pipeline completo (F1 + contexto50 + F2 segun modo + F3)
+  POST /api/exportar-lados -> flag para que el canvas exporte <CHIP>-lados.json (PATIO v02.4)
+  POST /api/nuevo-chip    -> dispara un proceso nuevo: contexto base + 50 m + activación del CHIP
+
+NOTA (puerto 19723): la validacion EN CANVAS (Live Connection GH-ArchiCAD) requiere
+que la sesion de AutoClaw este cerrada; los pasos de canvas se guian por artefacto.
 
 USO:
   .\\.venv\\Scripts\\python.exe src\\orquestador\\servidor.py [--puerto 8900]
@@ -32,11 +39,17 @@ import datetime
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
+
+try:
+    import run_pipeline_v01 as _rp  # estado_lados_patio (F1.5, 2026-09-28)
+except Exception:
+    _rp = None
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 ORQ_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -49,6 +62,9 @@ F2_VENTA_SCRIPT = os.path.join(F2_VENTA_DIR, "F2_DEMANDA_MOTOR_v03.py")
 F3_DIST_SCRIPT = os.path.join(F3_DIR, "F3_DISTRIBUCION_v01.py")
 F3_ACCESOS_SCRIPT = os.path.join(F3_DIR, "F3_ACCESOS_INTEGRADOR_v02.py")
 F1_FETCH_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-urban-context-v6.py")
+FETCH_COMPLETO_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-contexto-completo_v01.py")
+GPKG_DEFAULT = os.path.join(ROOT, "data", "geobase", "bd_uaecd.gpkg")
+LADOS_FLAG_RUTA = os.path.join(POT_CACHE, "lados-export-flag.json")
 PROYECTOS = os.path.join(ORQ_DIR, "proyectos")
 PROVISIONAL = os.path.join(PROYECTOS, "_provisional")
 NORMA_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "norma-override.json")
@@ -654,7 +670,7 @@ def _calcular_f2(chip, modalidad, gfa_m2=None, costo_lote_cop=None):
     pago = modalidad.get("pago_parcial_pct", 30.0)
     _persistir_modalidad_f2_entrada(chip, modalidad)
     parametros = _ruta_parametros_f2_venta(chip)
-    cmd = [sys.executable, F2_VENTA_SCRIPT, "--parametros", parametros, "--chip", chip,
+    cmd = [_python_pipeline(), F2_VENTA_SCRIPT, "--parametros", parametros, "--chip", chip,
            "--pago-parcial", str(pago)]
     if gfa_m2:
         cmd += ["--gfa", str(gfa_m2)]
@@ -665,6 +681,8 @@ def _calcular_f2(chip, modalidad, gfa_m2=None, costo_lote_cop=None):
                               encoding="utf-8", errors="replace", timeout=180)
         ok = proc.returncode == 0
         salida = ((proc.stdout or "") + (proc.stderr or "")).strip()
+        if ok and _salida_con_error(salida):
+            ok = False
     except Exception as ex:
         ok, salida = False, "ERROR: " + str(ex)
     resumen = None
@@ -692,14 +710,26 @@ def _calcular_f2(chip, modalidad, gfa_m2=None, costo_lote_cop=None):
     }
 
 
+def _caso_de_chip(chip):
+    """Mapea chip -> caso A/B/C (para el resumen F3 del front-end, 2026-09-28)."""
+    if _rp is not None:
+        for caso, ch in _rp.CASO_CHIP.items():
+            if ch == chip and caso != "B_SALUD":
+                return caso
+    return None
+
+
 def _generar_f3(chip, escenario="D_MIXTO"):
     """Ejecuta F3 (distribución + accesos) para un CHIP y devuelve el resumen."""
-    cmd = [sys.executable, F3_DIST_SCRIPT, "--chip", chip, "--escenario", escenario]
+    cmd = [_python_pipeline(), F3_DIST_SCRIPT, "--chip", chip, "--escenario", escenario]
     try:
         proc = subprocess.run(cmd, cwd=F3_DIR, capture_output=True, text=True,
                               encoding="utf-8", errors="replace", timeout=180)
         ok = proc.returncode == 0
         salida = ((proc.stdout or "") + (proc.stderr or "")).strip()
+        if ok and _salida_con_error(salida):
+            ok = False
+            salida = ("F3 no aplico (falta escenario D_MIXTO del chip o insumos). " + salida)
     except Exception as ex:
         ok, salida = False, "ERROR: " + str(ex)
     if ok:
@@ -710,45 +740,255 @@ def _generar_f3(chip, escenario="D_MIXTO"):
         except Exception:
             pass
     res = _resultados(chip)
-    res["chip"] = chip
+    if not (res or {}).get("pisos"):
+        caso = _caso_de_chip(chip)
+        if caso:
+            alt = _resultados(caso)
+            if (alt or {}).get("pisos"):
+                res = alt
+    if isinstance(res, dict):
+        res["chip"] = chip
     return {"ok": ok, "chip": chip, "salida": salida[-1500:], "resultados": res}
 
 
-def _pipeline(chip, modalidad, escenario="D_MIXTO"):
-    """Flujo completo F1 (contexto, si falta) -> F2 (venta con aporte) -> F3 (masa)."""
+def _salida_con_error(salida):
+    """2026-09-28: firmas de error comunes en las salidas de los motores."""
+    s = salida or ""
+    return ("Traceback (most recent call last)" in s) or \
+           ("Sin escenario de uso mixto" in s) or \
+           s.strip().startswith("ERROR")
+
+
+def _calcular_f2_renta(chip):
+    """Ejecuta F2 renta (build-to-rent) para un CHIP (2026-09-28)."""
+    script = os.path.join(F2_RENTA_DIR, "F2_RENTA_MOTOR_v03.py")
+    parametros = os.path.join(F2_RENTA_DIR, "parametros_{}_renta.json".format(chip))
+    if not os.path.exists(parametros):
+        parametros = os.path.join(F2_RENTA_DIR, "parametros_entrada.json")
+    cmd = [_python_pipeline(), script, "--parametros", parametros, "--chip", chip]
+    try:
+        proc = subprocess.run(cmd, cwd=F2_RENTA_DIR, capture_output=True, text=True,
+                              encoding="utf-8", errors="replace", timeout=180)
+        ok = proc.returncode == 0
+        salida = ((proc.stdout or "") + (proc.stderr or "")).strip()
+        if ok and _salida_con_error(salida):
+            ok = False
+    except Exception as ex:
+        ok, salida = False, "ERROR: " + str(ex)
+    return {"ok": ok, "salida": salida[-1500:]}
+
+
+def _candidatos_python():
+    """2026-09-28: interpretes candidatos (el .venv quedo con ruedas cp312 sobre 3.11)."""
+    cands = [sys.executable]
+    try:
+        p = subprocess.run(["py", "-0p"], capture_output=True, text=True, timeout=20)
+        for ln in (p.stdout or "").splitlines():
+            m = re.search(r"([A-Za-z]:\\.+?\.exe)", ln)
+            if m:
+                cands.append(m.group(1).strip())
+    except Exception:
+        pass
+    cands.append(r"D:\Users\Work\AppData\Local\Programs\Python\Python312\python.exe")
+    cands.append(r"C:\Program Files\Python311\python.exe")
+    cands.append(os.path.join(ROOT, ".venv", "Scripts", "python.exe"))
+    return cands
+
+
+_PY_PIPELINE_CACHE = {"ruta": None}
+
+
+def _python_pipeline():
+    """Primer interprete que importe el stack del fetch (numpy/pandas/geopandas/pyogrio)."""
+    if _PY_PIPELINE_CACHE["ruta"]:
+        return _PY_PIPELINE_CACHE["ruta"]
+    for c in _candidatos_python():
+        if not c or not os.path.exists(c) or not c.lower().endswith("python.exe"):
+            continue
+        try:
+            p = subprocess.run([c, "-c", "import numpy, pandas, geopandas, pyogrio"],
+                               capture_output=True, timeout=90)
+            if p.returncode == 0:
+                _PY_PIPELINE_CACHE["ruta"] = c
+                return c
+        except Exception:
+            continue
+    _PY_PIPELINE_CACHE["ruta"] = sys.executable
+    return sys.executable
+
+
+def _paso_fetch(nombre, args, artefacto):
+    """Ejecuta un paso del fetch unificado (fetch-contexto-completo_v01.py)."""
+    cmd = [_python_pipeline(), FETCH_COMPLETO_SCRIPT] + args
+    # 2026-09-28: pasar la geobase del proyecto explicitamente si existe
+    if os.path.exists(GPKG_DEFAULT) and "--gpkg" not in args:
+        cmd += ["--gpkg", GPKG_DEFAULT]
+    try:
+        proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True,
+                              encoding="utf-8", errors="replace", timeout=600)
+        ok = proc.returncode == 0 and (not artefacto or os.path.exists(artefacto))
+        salida = ((proc.stdout or "") + (proc.stderr or "")).strip()
+    except Exception as ex:
+        ok, salida = False, "ERROR: " + str(ex)
+    return {"ok": ok, "salida": salida[-800:]}
+
+
+def _verificar_lados(chip):
+    """F1.5 (2026-09-28): verifica el diagnostico <CHIP>-lados.json del canvas."""
+    if _rp is not None:
+        try:
+            return _rp.estado_lados_patio(chip)
+        except Exception:
+            pass
+    ruta = os.path.join(POT_CACHE, chip + "-lados.json")
+    if not os.path.exists(ruta):
+        return {"existe": False, "ok": False,
+                "detalle": "sin diagnostico (use 'Exportar diagnostico lados+patio' en el canvas)"}
+    return {"existe": True, "ok": False, "detalle": "diagnostico presente (verificacion detallada no disponible)"}
+
+
+def _nuevo_chip(chip):
+    """2026-09-28: dispara un proceso nuevo para un CHIP (contexto base + 50 m + activación).
+
+    Pensado para el campo 'CHIP nuevo' de la seccion 1 del front-end: descarga el
+    contexto del predio (fetch unificado), lo deja activo para el canvas y devuelve
+    los pasos. Formato esperado: 3 letras + 4 digitos + 4 alfanumericos (ej. AAA0240ZXJH).
+    """
+    chip = (chip or "").strip().upper()
+    if not re.match(r"^[A-Z]{3}[0-9]{4}[A-Z0-9]{4}$", chip or ""):
+        return {"ok": False, "chip": chip, "pasos": [],
+                "mensaje": "Formato de CHIP no valido (esperado: 3 letras + 4 digitos + 4 alfanumericos, ej. AAA0240ZXJH)."}
     pasos = []
+    ctx = os.path.join(POT_CACHE, chip + "-contexto.json")
+    base_ok = os.path.exists(ctx)
+    if base_ok:
+        pasos.append({"paso": "f1_contexto", "ok": True, "salida": "contexto ya existente"})
+    else:
+        p = _paso_fetch("f1_contexto", ["--chip", chip, "--solo-base"], ctx)
+        base_ok = p["ok"]
+        pasos.append({"paso": "f1_contexto", "ok": p["ok"], "salida": p["salida"]})
+
+    fifty_ok = False
+    if base_ok:
+        ctx50 = os.path.join(POT_CACHE, chip + "-contexto50.json")
+        ctx50_act = os.path.join(POT_CACHE, "contexto50-actual.json")
+        fresco50 = False
+        if os.path.exists(ctx50_act):
+            try:
+                with io.open(ctx50_act, "r", encoding="utf-8") as f:
+                    fresco50 = (json.load(f).get("metadata") or {}).get("chip") == chip
+            except Exception:
+                fresco50 = False
+        if os.path.exists(ctx50) and fresco50:
+            fifty_ok = True
+            pasos.append({"paso": "f1_contexto50", "ok": True, "salida": "contexto50 ya existente"})
+        else:
+            p50 = _paso_fetch("f1_contexto50", ["--chip", chip, "--solo-50"], ctx50_act)
+            fifty_ok = p50["ok"]
+            pasos.append({"paso": "f1_contexto50", "ok": p50["ok"], "salida": p50["salida"]})
+        try:
+            act = _activar_chip(chip)
+            pasos.append({"paso": "activar_chip", "ok": bool(act),
+                          "salida": "activos: " + ", ".join(sorted(act.keys()))})
+            act_ok = bool(act)
+        except Exception as ex:
+            act_ok = False
+            pasos.append({"paso": "activar_chip", "ok": False, "salida": str(ex)[:200]})
+    else:
+        act_ok = False
+    ok = bool(base_ok and fifty_ok and act_ok)
+    return {
+        "ok": ok, "chip": chip, "pasos": pasos,
+        "mensaje": ("Contexto listo y activo para el canvas. Siguiente: canvas (GFA) y pipeline."
+                    if ok else "Revisar los pasos con error (verifique que el CHIP exista en la geobase)."),
+    }
+
+
+def _pipeline(chip, modalidad, escenario="D_MIXTO", caso=None, modo="venta"):
+    """Pipeline completo (2026-09-28): activar -> F1 contexto + contexto50 ->
+    F2 venta (y renta segun modo) -> F3 -> verificacion F1.5 lados/patio."""
+    pasos = []
+
+    # 0) Archivos ACTIVOS (CHIP-*.json) para el canvas
+    try:
+        act = _activar_chip(chip)
+        pasos.append({"paso": "activar_chip", "ok": bool(act),
+                      "salida": "activos: " + ", ".join(sorted(act.keys()))})
+    except Exception as ex:
+        pasos.append({"paso": "activar_chip", "ok": False, "salida": str(ex)[:300]})
+    if caso:
+        try:
+            actc = _activar_caso(caso)
+            pasos.append({"paso": "activar_caso", "ok": bool(actc), "salida": "caso " + str(caso)})
+        except Exception as ex:
+            pasos.append({"paso": "activar_caso", "ok": False, "salida": str(ex)[:300]})
+
+    # 1) F1 contexto base (fetch unificado)
     ctx = os.path.join(POT_CACHE, chip + "-contexto.json")
     if os.path.exists(ctx):
         pasos.append({"paso": "f1_contexto", "ok": True, "salida": "contexto ya existente"})
     else:
-        try:
-            proc = subprocess.run([sys.executable, F1_FETCH_SCRIPT, "--chip", chip],
-                                  cwd=ROOT, capture_output=True, text=True,
-                                  encoding="utf-8", errors="replace", timeout=300)
-            ok1 = proc.returncode == 0 and os.path.exists(ctx)
-            sal1 = ((proc.stdout or "") + (proc.stderr or "")).strip()
-        except Exception as ex:
-            ok1, sal1 = False, "ERROR: " + str(ex)
-        pasos.append({"paso": "f1_contexto", "ok": ok1, "salida": sal1[-800:]})
+        p = _paso_fetch("f1_contexto", ["--chip", chip, "--solo-base"], ctx)
+        pasos.append({"paso": "f1_contexto", "ok": p["ok"], "salida": p["salida"]})
+        if p["ok"]:
+            _activar_chip(chip)  # refrescar activo base del canvas
 
+    # 2) F1 contexto 50 m (fetch unificado; deja contexto50-actual.json)
+    ctx50 = os.path.join(POT_CACHE, chip + "-contexto50.json")
+    ctx50_act = os.path.join(POT_CACHE, "contexto50-actual.json")
+    fresco50 = False
+    if os.path.exists(ctx50_act):
+        try:
+            with io.open(ctx50_act, "r", encoding="utf-8") as f:
+                fresco50 = (json.load(f).get("metadata") or {}).get("chip") == chip
+        except Exception:
+            fresco50 = False
+    if os.path.exists(ctx50) and fresco50:
+        pasos.append({"paso": "f1_contexto50", "ok": True, "salida": "contexto50 ya existente"})
+    else:
+        p = _paso_fetch("f1_contexto50", ["--chip", chip, "--solo-50"], ctx50_act)
+        pasos.append({"paso": "f1_contexto50", "ok": p["ok"], "salida": p["salida"]})
+
+    # 3) F2 venta (con modalidad)
     f2 = _calcular_f2(chip, modalidad)
     pasos.append({"paso": "f2_venta", "ok": f2["ok"], "salida": f2["salida"][-800:]})
 
+    # 3b) F2 renta (segun modo)
+    f2r = None
+    if modo in ("renta", "mixto"):
+        f2r = _calcular_f2_renta(chip)
+        pasos.append({"paso": "f2_renta", "ok": f2r["ok"], "salida": f2r["salida"][-800:]})
+
+    # 4) F3 distribucion (+ accesos dentro de _generar_f3)
     f3 = None
     if f2["ok"]:
         f3 = _generar_f3(chip, escenario)
         pasos.append({"paso": "f3_distribucion", "ok": f3["ok"], "salida": f3["salida"][-800:]})
     else:
-        pasos.append({"paso": "f3_distribucion", "ok": False, "salida": "omitido: F2 falló"})
+        pasos.append({"paso": "f3_distribucion", "ok": False, "salida": "omitido: F2 fallo"})
+
+    # 5) F1.5 lados/patio (verificacion del diagnostico del canvas)
+    lados = _verificar_lados(chip)
+    pasos.append({"paso": "f1_lados_patio (canvas)", "ok": lados["ok"],
+                  "salida": lados["detalle"]})
+
+    pasos.append({"paso": "canvas_manual", "ok": True,
+                  "salida": ("Pendiente MANUAL en canvas: LADOS/PATIO (exportar diagnostico), "
+                              "NORMATIVA/envelope, GFA y Morphs ArchiCAD. Nota: la Live Connection "
+                              "(19723) requiere AutoClaw cerrado.")})
 
     return {
         "chip": chip,
-        "completado": all(p["ok"] for p in pasos),
+        "caso": caso,
+        "modo": modo,
+        "completado": all(p["ok"] for p in pasos if p["paso"] not in ("canvas_manual", "f1_lados_patio (canvas)")),
         "pasos": pasos,
         "f2": {"modalidad_dueno_lote": f2["modalidad_dueno_lote"],
                "fraccion_aporte_pct": f2["fraccion_aporte_pct"],
                "resumen": f2["resumen"]},
+        "f2_renta": ({"ok": f2r["ok"]} if f2r else None),
         "f3": ({"resultados": f3["resultados"]} if f3 and f3["ok"] else None),
+        "lados_patio": lados,
     }
 
 
@@ -1369,6 +1609,22 @@ class Handler(BaseHTTPRequestHandler):
             caso = (q.get("caso") or ["A"])[0]
             self._send(200, {"ok": True, "resultados": _resultados(caso)})
             return
+        if parsed.path == "/api/estado":
+            chip = (q.get("chip") or [""])[0].strip()
+            caso = (q.get("caso") or ["A"])[0].strip() or "A"
+            modo = (q.get("modo") or ["mixto"])[0].strip() or "mixto"
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            try:
+                estado = _rp.detectar_estado(chip, caso) if _rp is not None else {}
+            except Exception:
+                estado = {}
+            pasos = [{"clave": k, "estado": v.get("estado"), "artefacto": v.get("artefacto")}
+                     for k, v in estado.items()]
+            self._send(200, {"ok": True, "chip": chip, "caso": caso, "modo": modo,
+                             "pasos": pasos, "lados_patio": _verificar_lados(chip)})
+            return
         if parsed.path == "/api/norma-override":
             chip = (q.get("chip") or [""])[0]
             ov = _norma_override_chip(chip) if chip else None
@@ -1443,9 +1699,20 @@ class Handler(BaseHTTPRequestHandler):
             if not chip:
                 self._json_error("chip requerido")
                 return
+            caso = (data.get("caso") or "").strip() or None
+            modo = (data.get("modo") or "venta").strip()
             res = _pipeline(chip, _modalidad_desde_data(data),
-                            data.get("escenario", "D_MIXTO"))
+                            data.get("escenario", "D_MIXTO"), caso=caso, modo=modo)
             self._send(200, {"ok": True, "pipeline": res})
+            return
+
+        if parsed.path == "/api/nuevo-chip":
+            chip = (data.get("chip") or "").strip().upper()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            res = _nuevo_chip(chip)
+            self._send(200 if res.get("ok") else 200, res)
             return
 
         if parsed.path == "/api/norma-override":
@@ -1488,6 +1755,17 @@ class Handler(BaseHTTPRequestHandler):
                 self._json_error("vecinos_por_lado requerido")
                 return
             vpl["chip"] = chip
+            # 2026-09-28: en lados 'via_no_frontal' / 'espacio_publico' la altura de
+            # vecinos no aplica (no hay edificacion colindante) -> se limpia al guardar
+            for _lado in (vpl.get("lados") or []):
+                _f = _lado.get("frente_override") or _lado.get("frente")
+                if _f in ("via_no_frontal", "espacio_publico"):
+                    for _v in (_lado.get("vecinos") or []):
+                        _v["altura_m"] = None
+                        _v["pisos"] = None
+                    for _v in (_lado.get("vecinos_manuales") or []):
+                        _v["altura_m"] = None
+                        _v["pisos"] = None
             vpl["_schema"] = "vecinos_por_lado_override_v01"
             vpl["_saved_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             ruta = _vecinos_override_ruta(chip)
@@ -1527,6 +1805,25 @@ class Handler(BaseHTTPRequestHandler):
                 return
             self._send(200, {"ok": True, "flag": ruta,
                              "mensaje": "Flag exportar=true escrito. El canvas exportará y lo devolverá a false."})
+            return
+
+        if parsed.path == "/api/exportar-lados":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            try:
+                os.makedirs(os.path.dirname(LADOS_FLAG_RUTA), exist_ok=True)
+                with io.open(LADOS_FLAG_RUTA, "w", encoding="utf-8") as f:
+                    json.dump({"exportar": True, "chip": chip,
+                               "origen_solicitud": "servidor",
+                               "ts": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")},
+                              f, indent=2, ensure_ascii=False)
+                self._send(200, {"ok": True, "flag": LADOS_FLAG_RUTA,
+                                 "mensaje": ("Flag lados-export escrito. El canvas (PATIO v02.4) "
+                                             "exportará <CHIP>-lados.json y lo devolverá a false.")})
+            except Exception as e:
+                self._json_error(str(e), 500)
             return
 
         self._json_error("ruta no encontrada", 404)

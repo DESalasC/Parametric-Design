@@ -1,0 +1,82 @@
+CHIP: AAA0240ZXJH
+Lote: 13 vertices (sin cierre)
+
+####################################################################################################
+# CASO: A0 | lote 13v + 67 vias (directo) | lot_pts=13 | vias=67 | vecinos=74 | ep=13
+####################################################################################################
+--- LADOS mensaje ---
+LADOS v06.5 | Verts 13->4 | A=V1 N=V3 | Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V3 via PATIO_v02) | Vias:67 EP:13 Vec:74 Andenes:0 | Ancho via: 0.00m | Detalle: Oriente[L0]=[Lateral aisl:lateral v:5.80 ep:41.26 vec:0.00 fr:0.0/0.0/0.079 (sin contacto minimo)]; Sur[L1]=[Lateral aisl:lateral v:5.80 ep:39.86 vec:0.00 fr:0.0/0.0/0.045 (sin contacto minimo)]; Occidente[L2]=[Lateral aisl:lateral v:6.08 ep:39.86 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L3]=[Lateral aisl:lateral v:13.30 ep:47.28 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback
+V_A=1 V_N=3 es_esquina=False ancho=0.0
+vertice_n_points: 0 -> None
+vertice_n_method: None
+--- lados ---
+  L0 [  7.50m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.08 | d v/e/n=5.8/41.26/0.0 | compA=True compN=False
+  L1 [  1.80m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.04 | d v/e/n=5.8/39.86/0.0 | compA=True compN=False
+  L2 [ 11.50m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=6.08/39.86/0.0 | compA=False compN=True
+  L3 [  1.00m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.3/47.28/0.0 | compA=False compN=True
+--- PATIO mensaje ---
+PATIO v02.3 | V_N=V3 | Verts 13->4 | Lados: Lateral, Lateral, Lateral, Lateral | Patio 3.00x3.00 m (area 9.00 m2; claridad 3.00 m) | Generados: 1 | Modo: fallback_V_N
+patios generados: 1
+  patio 0: 5 pts: (79.97,89.52) (82.20,87.51) (80.21,85.27) (77.98,87.28) (79.97,89.52)
+  area: 9.000 m2
+  todos los vertices dentro del lote: True
+
+####################################################################################################
+# CASO: A | lote 13v + insumos completos | lot_pts=13 | vias=67 | vecinos=74 | ep=13
+####################################################################################################
+--- LADOS mensaje ---
+LADOS v06.5 | Verts 13->4 | A=V1 N=V3 | Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V3 via PATIO_v02) | Vias:67 EP:13 Vec:74 Andenes:0 | Ancho via: 0.00m | Detalle: Oriente[L0]=[Lateral aisl:lateral v:5.80 ep:41.26 vec:0.00 fr:0.0/0.0/0.079 (sin contacto minimo)]; Sur[L1]=[Lateral aisl:lateral v:5.80 ep:39.86 vec:0.00 fr:0.0/0.0/0.045 (sin contacto minimo)]; Occidente[L2]=[Lateral aisl:lateral v:6.08 ep:39.86 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L3]=[Lateral aisl:lateral v:13.30 ep:47.28 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback
+V_A=1 V_N=3 es_esquina=False ancho=0.0
+vertice_n_points: 0 -> None
+vertice_n_method: None
+--- lados ---
+  L0 [  7.50m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.08 | d v/e/n=5.8/41.26/0.0 | compA=True compN=False
+  L1 [  1.80m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.04 | d v/e/n=5.8/39.86/0.0 | compA=True compN=False
+  L2 [ 11.50m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=6.08/39.86/0.0 | compA=False compN=True
+  L3 [  1.00m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.3/47.28/0.0 | compA=False compN=True
+--- PATIO mensaje ---
+PATIO v02.3 | V_N=V3 | Verts 13->4 | Lados: Lateral, Lateral, Lateral, Lateral | Patio 3.00x3.00 m (area 9.00 m2; claridad 3.00 m) | Generados: 1 | Modo: fallback_V_N
+patios generados: 1
+  patio 0: 5 pts: (79.97,89.52) (82.20,87.51) (80.21,85.27) (77.98,87.28) (79.97,89.52)
+  area: 9.000 m2
+  todos los vertices dentro del lote: True
+
+####################################################################################################
+# CASO: B | lote 4 esquinas + insumos completos | lot_pts=4 | vias=67 | vecinos=74 | ep=13
+####################################################################################################
+--- LADOS mensaje ---
+LADOS v06.5 | Verts 4->4 | A=V1 N=V3 | Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V3 via PATIO_v02) | Vias:67 EP:13 Vec:74 Andenes:0 | Ancho via: 0.00m | Detalle: Oriente[L0]=[Lateral aisl:lateral v:5.80 ep:41.26 vec:0.00 fr:0.0/0.0/0.079 (sin contacto minimo)]; Sur[L1]=[Lateral aisl:lateral v:5.80 ep:39.86 vec:0.00 fr:0.0/0.0/0.045 (sin contacto minimo)]; Occidente[L2]=[Lateral aisl:lateral v:6.08 ep:39.86 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L3]=[Lateral aisl:lateral v:13.30 ep:47.28 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback
+V_A=1 V_N=3 es_esquina=False ancho=0.0
+vertice_n_points: 0 -> None
+vertice_n_method: None
+--- lados ---
+  L0 [  7.50m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.08 | d v/e/n=5.8/41.26/0.0 | compA=True compN=False
+  L1 [ 13.30m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.04 | d v/e/n=5.8/39.86/0.0 | compA=True compN=False
+  L2 [  7.50m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=6.08/39.86/0.0 | compA=False compN=True
+  L3 [ 13.30m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.3/47.28/0.0 | compA=False compN=True
+--- PATIO mensaje ---
+PATIO v02.3 | V_N=V3 | Verts 4->4 | Lados: Lateral, Lateral, Lateral, Lateral | Patio 3.00x3.00 m (area 9.00 m2; claridad 3.00 m) | Generados: 1 | Modo: fallback_V_N
+patios generados: 1
+  patio 0: 5 pts: (79.97,89.52) (82.20,87.51) (80.21,85.27) (77.98,87.28) (79.97,89.52)
+  area: 9.000 m2
+  todos los vertices dentro del lote: True
+
+####################################################################################################
+# CASO: C | lote 13v + vias<=30m vecinos<=30m | lot_pts=13 | vias=2 | vecinos=17 | ep=2
+####################################################################################################
+--- LADOS mensaje ---
+LADOS v06.5 | Verts 13->4 | A=V1 N=V3 | Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V3 via PATIO_v02) | Vias:2 EP:2 Vec:17 Andenes:0 | Ancho via: 0.00m | Detalle: Oriente[L0]=[Lateral aisl:lateral v:5.80 ep:41.26 vec:0.00 fr:0.0/0.0/0.079 (sin contacto minimo)]; Sur[L1]=[Lateral aisl:lateral v:5.80 ep:39.86 vec:0.00 fr:0.0/0.0/0.045 (sin contacto minimo)]; Occidente[L2]=[Lateral aisl:lateral v:6.08 ep:39.86 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L3]=[Lateral aisl:lateral v:13.30 ep:47.28 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback
+V_A=1 V_N=3 es_esquina=False ancho=0.0
+vertice_n_points: 0 -> None
+vertice_n_method: None
+--- lados ---
+  L0 [  7.50m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.08 | d v/e/n=5.8/41.26/0.0 | compA=True compN=False
+  L1 [  1.80m] Lateral      | sin contacto minimo                | fr v/e/n=0.00/0.00/0.04 | d v/e/n=5.8/39.86/0.0 | compA=True compN=False
+  L2 [ 11.50m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=6.08/39.86/0.0 | compA=False compN=True
+  L3 [  1.00m] Lateral      | vertices coincidentes con vecino   | fr v/e/n=0.00/0.00/1.00 | d v/e/n=13.3/47.28/0.0 | compA=False compN=True
+--- PATIO mensaje ---
+PATIO v02.3 | V_N=V3 | Verts 13->4 | Lados: Lateral, Lateral, Lateral, Lateral | Patio 3.00x3.00 m (area 9.00 m2; claridad 3.00 m) | Generados: 1 | Modo: fallback_V_N
+patios generados: 1
+  patio 0: 5 pts: (79.97,89.52) (82.20,87.51) (80.21,85.27) (77.98,87.28) (79.97,89.52)
+  area: 9.000 m2
+  todos los vertices dentro del lote: True

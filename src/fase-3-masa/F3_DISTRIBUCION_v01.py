@@ -145,6 +145,7 @@ def _cargar_programa(resultados_file, escenario, gfa=None, lote_m2=None, huella_
             if x.get("mix_usos_detalle"):
                 esc = x
                 escenario = x["escenario_id"]
+                print("  [escenario] sin D_MIXTO exacto; se usa:", escenario)
                 break
     if esc is None:
         raise ValueError("Sin escenario de uso mixto (D_MIXTO*) en " + str(resultados_file))
@@ -173,19 +174,46 @@ def leer_programa(caso_id):
                             cfg.get("gfa"), cfg.get("lote_m2"), cfg.get("huella_m2"))
 
 
+def _tiene_mixto(ruta):
+    """2026-09-28: True si el JSON de resultados contiene un escenario de uso mixto
+    (mix_usos_detalle, p.ej. D_MIXTO*)."""
+    try:
+        with io.open(ruta, encoding="utf-8") as f:
+            paquete = json.load(f)
+        for x in (paquete.get("escenarios") or []):
+            if x.get("mix_usos_detalle"):
+                return True
+    except Exception:
+        return False
+    return False
+
+
 def buscar_resultados(chip):
-    """Localiza el JSON de resultados F2 de un CHIP. Prefiere el canonico
-    resultados_<CHIP>.json (ultima corrida); si no, el mas reciente resultados_<CHIP>_*."""
+    """Localiza el JSON de resultados F2 de un CHIP.
+
+    2026-09-28: prioriza un archivo que CONTENGA escenario de uso mixto (D_MIXTO*).
+    El motor F2 estandar solo produce A/B/C, por lo que las corridas recientes del
+    canonico pueden no traer el mix; en ese caso se usa el dataset dedicado del chip
+    (p.ej. resultados_<CHIP>_gfa1461_cl800.json, generado por las utilidades).
+    Orden: canonico -> resultados_<CHIP>_* por mtime desc; primer archivo con mix.
+    Si ninguno tiene mix, devuelve el canonico (el error queda claro en _cargar_programa).
+    """
     if not chip:
         return None
+    resultados_dir = FIN
     canonico = "resultados_" + chip + ".json"
-    if os.path.exists(os.path.join(FIN, canonico)):
-        return canonico
-    candidatos = [n for n in os.listdir(FIN)
-                  if n.endswith(".json") and n.startswith("resultados_" + chip + "_")]
+    candidatos = []
+    if os.path.exists(os.path.join(resultados_dir, canonico)):
+        candidatos.append(canonico)
+    otros = [n for n in os.listdir(resultados_dir)
+             if n.endswith(".json") and n.startswith("resultados_" + chip + "_")]
+    otros.sort(key=lambda n: os.path.getmtime(os.path.join(resultados_dir, n)), reverse=True)
+    candidatos.extend(otros)
     if not candidatos:
         return None
-    candidatos.sort(key=lambda n: os.path.getmtime(os.path.join(FIN, n)), reverse=True)
+    for n in candidatos:
+        if _tiene_mixto(os.path.join(resultados_dir, n)):
+            return n
     return candidatos[0]
 
 
@@ -193,6 +221,7 @@ def leer_programa_chip(chip, escenario="D_MIXTO"):
     nombre = buscar_resultados(chip)
     if not nombre:
         raise ValueError("Sin resultados F2 para el CHIP " + str(chip))
+    print("  [resultados] usando:", nombre, "| escenario:", escenario)
     return _cargar_programa(nombre, escenario)
 
 

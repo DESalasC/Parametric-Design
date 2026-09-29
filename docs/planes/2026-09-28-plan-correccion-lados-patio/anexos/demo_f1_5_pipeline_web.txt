@@ -1,0 +1,45 @@
+EVIDENCIA — F1.5 lados/patio + pipeline completo vía front-end (2026-09-28, tarde)
+==================================================================================
+
+1) Front-end unificado (orquestador_v01.py) activo en http://127.0.0.1:8900
+   — GET /api/lotes -> {"ok": true, ...}
+
+2) POST /api/exportar-lados  {"chip": "AAA0240ZXJH"}
+   -> {"ok": true, "flag": "...\\data\\pot-cache\\lados-export-flag.json"}
+   flag escrito: {"exportar": true, "chip": "AAA0240ZXJH", "origen_solicitud": "servidor", "ts": "2026-09-28 18:51"}
+
+3) Consumo del flag ejecutando el componente PATIO v02.4 (mismo código del canvas;
+   corrida offline con stubs — el canvas lo repetirá nativo al validarse):
+   PATIO v02.4 | V_N=V3 | Verts 13->4 | Lados: Lateral x4 | Patio 3.00x3.00 m
+     (area 9.00 m2; claridad 3.00 m) | Generados: 1 | Modo: fallback_V_N | Lados export OK
+   flag tras consumo: {"exportar": false, "chip": "AAA0240ZXJH", "ts": "2026-09-28 18:51:58"}
+   -> data/pot-cache/AAA0240ZXJH-lados.json
+      chip=AAA0240ZXJH · lados=4 · patio count=1 · area=9.0004 m2 · claridad=3.0 m · lado=3.0001 m
+
+4) GET /api/estado?chip=AAA0240ZXJH&caso=A&modo=mixto -> lados_patio:
+   {"existe": true, "ok": true, "detalle": "lados=4 - patio=1 - OK",
+    "checks": [chip OK, lados>=3 OK, patio>=1 OK, patio0_area>=9 OK (9.0004),
+               patio0_claridad>=3 OK (3.0), sin_ERROR OK]}
+
+5) Pipeline completo vía front-end (orquestador_v01.py --run --chip AAA0240ZXJH --caso A --modo mixto)
+   [OK] activar_chip    activos: contexto, proyecto, vecinos_por_lado (CHIP-*.json -> AAA0240ZXJH)
+   [OK] activar_caso    caso A
+   [OK] f1_contexto     contexto ya existente
+   [OK] f1_contexto50   contexto50 ya existente
+   [OK] f2_venta        corrida OK (resultados regenerados 18:53)
+   [OK] f2_renta        corrida OK
+   [!]  f3_distribucion F3 no aplicó: falta escenario D_MIXTO en resultados_AAA0240ZXJH.json
+        (hallazgo: el motor estándar produce A/B/C; los casos A/B/C usan archivos
+         dedicados con D_MIXTO*; para el chip nuevo hay que generar su escenario mixto
+         — equivalente a scripts/utilities/generar_caso_f3_gfa1461.py — o usar modo caso.
+         Se corrigió la detección: antes se reportaba OK pese al error.)
+   [OK] f1_lados_patio  lados=4 - patio=1 - OK
+   [OK] canvas_manual   nota: Live Connection (19723) requiere AutoClaw cerrado
+
+6) Notas
+   - Validación EN CANVAS pendiente: requiere cerrar AutoClaw (puerto 19723) y abrir
+     F1_CONTEXTO_v11 (mensajes esperados: LADOS v06.5 sin ERROR; PATIO v02.4 Generados: 1;
+     botón "Exportar diagnóstico lados+patio" para regenerar el <CHIP>-lados.json nativo).
+   - Activos del canvas quedaron apuntando al chip activo (AAA0240ZXJH): CHIP-contexto.json,
+     CHIP-vecinos-por-lado.json, data/activo/proyecto.json.
+   - Suite de tests completa: 288/288 en verde (incluye 6 conductuales del arnés CPython).
