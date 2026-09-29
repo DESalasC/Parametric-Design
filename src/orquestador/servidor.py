@@ -70,6 +70,8 @@ PROVISIONAL = os.path.join(PROYECTOS, "_provisional")
 NORMA_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "norma-override.json")
 FINANCIERO_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "financiero-override.json")
 SETBACK_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "setback-override.json")
+# 2026-09-28: dias para el aviso de GFA desactualizado en el pipeline (_gfa_gh_estado)
+ANTIGUEDAD_GFA_DIAS = 30
 
 # Archivos ACTIVOS (nombre literal "CHIP"): el canvas SIEMPRE lee/escribe estos,
 # sin editar el panel. El orquestador los sobreescribe al seleccionar el predio.

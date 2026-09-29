@@ -1387,7 +1387,7 @@ async function ejecutarPipeline(){
   const r = await api('/api/pipeline', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, modalidad_dueno_lote:{tipo:aporte, pago_parcial_pct:pago}, escenario:'D_MIXTO'}) });
   const p = r.pipeline;
   if(!r.ok || !p){ out.className='aviso error'; out.textContent = r.error || 'error'; return; }
-  const pasos = (p.pasos||[]).map(function(s){ return (s.ok?'✓':'✗') + ' ' + s.paso; }).join(' · ');
+  const pasos = (p.pasos||[]).map(function(s){ return (s.salida&&s.salida.indexOf('omitido')===0?'⚠':(s.ok?'✓':'✗')) + ' ' + s.paso; }).join(' · ');
   let html = '<b>' + (p.completado ? 'Pipeline completado' : 'Pipeline con fallos') + '</b> para ' + chip + '<br>' + pasos;
   if(p.lados_patio){ html += '<br>F1.5 lados/patio: ' + (p.lados_patio.ok ? '<b>OK</b>' : 'pendiente') + ' — ' + (p.lados_patio.detalle||''); }
   if(p.f2 && p.f2.resumen) html += '<br>F2: pago ' + (p.f2.modalidad_dueno_lote && p.f2.modalidad_dueno_lote.pago_parcial_pct != null ? p.f2.modalidad_dueno_lote.pago_parcial_pct : '\u2014') + '% / aporte ' + p.f2.fraccion_aporte_pct + '% · GFA ' + (p.f2.resumen.gfa_max_m2||'—') + ' m²';
@@ -1517,7 +1517,7 @@ async function procesarChipNuevo(){
     (lotes.lotes || []).forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
     sel.value = chip;
     sel.dispatchEvent(new Event('change'));
-    const pasos = (r.pasos || []).map(s => (s.ok ? '✓' : '✗') + ' ' + s.paso).join(' · ');
+    const pasos = (r.pasos || []).map(s => ((s.salida&&s.salida.indexOf('omitido')===0) ? '⚠' : (s.ok ? '✓' : '✗')) + ' ' + s.paso).join(' · ');
     if(av){ av.textContent = 'CHIP ' + chip + ' procesado. ' + pasos + (r.mensaje ? ' — ' + r.mensaje : ''); }
   } catch(e) {
     if(av){ av.textContent = 'Error: ' + e; }
