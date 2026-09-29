@@ -124,3 +124,27 @@ def test_a_normativa_respeta_confirmacion():
     # Norte (via) y Oriente (no_es_predio) no generan
     assert "0" not in out
     assert "1" not in out
+
+
+def test_ep_que_cubre_el_lote_no_clasifica_frentes():
+    """Un EP que se SUPERPONE al lote (p.ej. 'Pueblo Viejo', estructurante
+    propuesto con fragmentos sobre el predio) no debe voltear la clasificacion
+    de frentes a espacio_publico (regresion 2026-09-28)."""
+    lote = [(0, 0, 0), (20, 0, 0), (20, 20, 0), (0, 20, 0)]
+    vecino_norte = [(0, 20, 0), (20, 20, 0), (20, 30, 0), (0, 30, 0)]
+    ep_cubre = [(-5, -5, 0), (25, -5, 0), (25, 15, 0), (-5, 15, 0), (-5, -5, 0)]
+    ctx = {
+        "metadata": {"chip": "TEST", "origen_sirgas": {"crs": "ESRI:102233"},
+                     "azimuth_norte_grados": 0},
+        "lote_objetivo": {"vertices_3d_local": lote},
+        "vias_oficiales": [],
+        "espacios_publicos": [
+            {"nombre": "Pueblo Viejo", "fuente": "Parque", "tipo": "Parque",
+             "coordenadas_local": ep_cubre},
+        ],
+        "vecinos": [{"chip": "V1", "vertices_3d_local": vecino_norte}],
+    }
+    r = vpl.clasificar_vecinos_por_lado(ctx)
+    norte = [l for l in r["lados"] if l["cardinal"] == "Norte"]
+    assert norte and norte[0]["frente"] == "predio", [l["frente"] for l in r["lados"]]
+    assert "Pueblo Viejo" in r.get("eps_ignorados", [])

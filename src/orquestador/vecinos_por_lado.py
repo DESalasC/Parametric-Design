@@ -48,6 +48,7 @@ TOL_VIA_M = 12.0             # centro de la vía puede estar a media calzada + a
 MIN_FRACCION_VIA = 0.40
 TOL_EP_M = 1.0
 MIN_FRACCION_EP = 0.40
+MIN_EP_OVERLAP_M2 = 5.0       # 2026-09-28: overlap maximo lote-EP para que el EP cuente como frente
 TOL_COLINEAR_GRADOS = 10.0   # aristas consecutivas colineales se funden en un lado
 
 CARDINAL_BANDS = [
@@ -182,11 +183,22 @@ def clasificar_vecinos_por_lado(contexto: Dict,
             via_geoms.append(LineString([(float(x), float(y)) for x, y, _z in cl]))
     vias = unary_union(via_geoms) if via_geoms else None
 
+    # 2026-09-28: un espacio publico que CUBRE/CRUZA el lote (p. ej. "Parque
+    # Pueblo Viejo", estructurante PROPUESTO con fragmentos sobre el predio) no
+    # es un "frente" del lote y sesga la clasificacion -> se ignora (overlap).
     ep_polys: List[Polygon] = []
+    eps_ignorados: List[str] = []
     for e in contexto.get("espacios_publicos", []):
         p = _poly2d(e.get("coordenadas_local", []))
-        if p is not None:
-            ep_polys.append(p)
+        if p is None:
+            continue
+        try:
+            if p.intersection(lot_poly).area > MIN_EP_OVERLAP_M2:
+                eps_ignorados.append(str(e.get("nombre", "")))
+                continue
+        except Exception:
+            pass
+        ep_polys.append(p)
     eps = unary_union(ep_polys) if ep_polys else None
 
     vecinos: List[Tuple[str, Polygon]] = []
@@ -301,6 +313,7 @@ def clasificar_vecinos_por_lado(contexto: Dict,
         "azimuth_norte_grados": azimuth,
         "n_lados": len(lados_out),
         "n_predios_colindantes": len(colindantes_global),
+        "eps_ignorados": eps_ignorados,
         "colindantes": [{"chip": cv, "longitud_colindancia_total_m": round(ln, 2)}
                         for cv, ln in sorted(colindantes_global.items())],
         "nota": ("Clasificaci\u00f3n autom\u00e1tica (frente_fuente='auto'). Las v\u00edas provienen de "
