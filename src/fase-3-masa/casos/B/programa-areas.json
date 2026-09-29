@@ -1,7 +1,7 @@
 {
   "gfa_total": 3312.57,
-  "pisos": 6,
-  "area_por_piso": 651.7,
+  "pisos": 5,
+  "area_por_piso": 662.51,
   "programa_pisos": [
     {
       "piso": 1,
@@ -10,8 +10,8 @@
       "usos": [
         {
           "uso": "Local comercial",
-          "area_bruta": 594.1,
-          "area_neta": 504.99
+          "area_bruta": 604.91,
+          "area_neta": 514.17
         },
         {
           "uso": "Nucleo",
@@ -27,8 +27,8 @@
       "usos": [
         {
           "uso": "Local comercial",
-          "area_bruta": 594.1,
-          "area_neta": 504.99
+          "area_bruta": 604.91,
+          "area_neta": 514.17
         },
         {
           "uso": "Nucleo",
@@ -44,8 +44,8 @@
       "usos": [
         {
           "uso": "Vivienda",
-          "area_bruta": 594.1,
-          "area_neta": 463.4
+          "area_bruta": 604.91,
+          "area_neta": 471.83
         },
         {
           "uso": "Nucleo",
@@ -61,8 +61,8 @@
       "usos": [
         {
           "uso": "Vivienda",
-          "area_bruta": 594.1,
-          "area_neta": 463.4
+          "area_bruta": 604.91,
+          "area_neta": 471.83
         },
         {
           "uso": "Nucleo",
@@ -78,25 +78,8 @@
       "usos": [
         {
           "uso": "Vivienda",
-          "area_bruta": 594.1,
-          "area_neta": 463.4
-        },
-        {
-          "uso": "Nucleo",
-          "area_bruta": 57.6,
-          "area_neta": 57.6
-        }
-      ]
-    },
-    {
-      "piso": 6,
-      "altura_z": 15.6,
-      "altura_piso": 3.0,
-      "usos": [
-        {
-          "uso": "Vivienda",
-          "area_bruta": -3.5,
-          "area_neta": -2.73
+          "area_bruta": 604.9,
+          "area_neta": 471.82
         },
         {
           "uso": "Nucleo",

@@ -10,4 +10,4 @@ Pares incompatibles (segregar): 0
 ACCESOS POR USO:
 ----------------------------------------
   Local comercial    [publico] pisos=[1, 2] -> directo_fachada (Frontal)
-  Vivienda           [privado] pisos=[3, 4, 5, 6] -> independiente_nucleo (nucleo_vertical)
+  Vivienda           [privado] pisos=[3, 4, 5] -> independiente_nucleo (nucleo_vertical)

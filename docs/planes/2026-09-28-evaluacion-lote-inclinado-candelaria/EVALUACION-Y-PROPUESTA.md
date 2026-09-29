@@ -26,10 +26,10 @@
 | CHIP / catastro | `AAA0030JKOE` / 00310033519, KR 1 12 D 54 | norma-manual |
 | Área | **946,45 m²** (polígono geobase; perímetro 146,8 m, 30 vértices) — **válida** (el ~976 m² era aproximado; confirmado 2026-09-28) | `AAA0030JKOE-contexto.json` |
 | UPZ | 94 – La Candelaria | norma-manual |
-| Norma | Decreto **492/07** (PZCB): uso Residencial, **IO 0,70**; 3 pisos + 2 (**Nota N**) = **5 pisos**, altura máx. **10,0 m**; el predio **NO** es patrimonio (la GDB devolvía "CHB" por error) | norma-manual |
+| Norma | Decreto **492/07** (PZCB): uso Residencial, **IO 0,70**; 3 pisos + 2 (**Nota Ñ** — la ficha oficial la escribe Ñ; el norma-manual la citó como "N") = **5 pisos**, altura máx. **10,0 m**; el predio **NO** es patrimonio (la GDB devolvía "CHB" por error) | ficha 2020 + norma-manual |
 | Pendiente | **≈26,3 % (14,7°)**; desnivel **14,25 m** (máx 2 649,0 – mín 2 634,8); descenso hacia el **NO** (azimut de bajada ≈318°) | muestreo MDT (ver §A) |
 | Cotas de frentes | costado alto **≈2 647,1 m**; costado bajo **≈2 635,4 m** (**Δ 11,7 m**) | muestreo MDT |
-| Vías | **Dos carreras**; la **oriental en proceso de construcción** con el **Parque Pueblo Viejo** (PEMP, proyecto detonante 27) **al otro lado de la calle** (aclarado por el operador, 2026-09-28) | operador + PEMP |
+| Vías | **Dos carreras**; la **oriental en proceso de construcción** con el **Parque Pueblo Viejo** (PEMP, proyecto detonante 27) **al otro lado de la calle** (aclarado por el operador, 2026-09-28); **sin antejardín** en ambos frentes (al límite predial) | operador + PEMP |
 | Colindancia norte | Predio **Conservación Básica** (**2 pisos**, sobre los **primeros ~20 m** del lado norte — dato operador 2026-09-28; la consulta 2020 decía ~12 m) | operador + norma-manual |
 | Colindancia sur | Edificación de **5 pisos** sobre **~25 m** del lado sur (dato operador 2026-09-28) | operador |
 | Vías digitalizadas | **Incompletas** en `Eje_vial`: la clasificación automática marca E/O como "predio"; el override del operador existe para corregirlo | `VECINOS_POR_LADO.md` |
@@ -188,7 +188,7 @@ Clave de la Capa 3 (respuesta directa a "volúmenes con separaciones, no necesar
 5. **Anchos mínimos de separación — validado (2026-09-28; ver §4.2):** Consolidación = **2/5 de la altura promedio de los volúmenes que se aíslan, mínimo 6,00 m** (Anexo 5 §1.10.b). Para volúmenes de 4 pisos ⇒ **6,00 m**. Si el vacío ilumina/ventila, suman las reglas de patios (§1.12.b: lado ≥ 1/3 de la mayor altura, mín. 3 m) y §1.25.
 6. **Inmueble de conservación — DATO RECIBIDO (2026-09-28):** **2 pisos**, sobre los **primeros ~20 m del lado norte** (ubicación exacta a precisar en planos). Nota normativa: al ser <3 pisos, el empate volumétrico del §5.5.c no es exigible como tal → se mantiene como condición de diseño/régimen de conservación (validar con IDPC).
 7. **"Norma 3 pisos" del alzado PEMP** ("Carrera 1 entre Calle 12F y 12D", lámina EN-D1 P43.2): verificar si describe el contexto existente o restringe el frente oriental (vs ficha del predio: 5 pisos + Nota N).
-8. **Confirmación de fachadas "vía" (para overrides de B):** ¿se marcan **Oriente** (Carrera 1, en obra) **y Occidente** como las dos vías de acceso? (requerido para el override de frentes y el multi-frente de v09).
+8. **Frentes/vías — aclarado (2026-09-28):** las dos calles son **Occidente (construida, acceso actual)** y **Oriente (Carrera 1, en obra)**; **sin antejardín** en ninguna (frentes al límite). Los tramos de empate se **miden desde la calle occidental**: norte = primeros ~20 m (BIC, 2 p.) y sur = ~25 m (5 p.) desde el occidente. Queda aplicarlo como override de frentes en la UI.
 
 ### 2.7 Próximos pasos inmediatos (sugeridos)
 
@@ -244,6 +244,8 @@ Clave de la Capa 3 (respuesta directa a "volúmenes con separaciones, no necesar
 - **Fix del clasificador de vecinos** (`vecinos_por_lado.py`): ignora espacios públicos que **cubren el lote** (caso "Pueblo Viejo", estructurante propuesto con fragmentos sobre el predio) — evitaba que lados reales (Sur = predio ×5) se clasificaran como EP. Test de regresión añadido; suite **303/303**.
 - **Consulta normativa** (empates, separaciones, patios, entorno) con las fuentes locales del proyecto y del operador — resultados en **§4**.
 - **Datos de empate recibidos del operador (2026-09-28):** criterio **5 pisos**; conservación norte **2 pisos × ~20 m**; colindante sur **5 pisos × ~25 m** → registrados en §2.6/§4.1 y `anexos/insumos-operador-2026-09-28.json` (listos para NORMATIVA v09).
+- **Corrida B actualizada a 5 niveles (2026-09-28):** fix de precisión en `F3_DISTRIBUCION_v01` (tolerancia ceil 1e-9→1e-6 + huella sin redondeo — el redondeo a 662,5 daba 6 niveles por 0,075 m²); lote B/B_SALUD 931→**946,45**; regenerados `casos/B` y `casos/B_SALUD` (programa, layout, planos, `.3dm`) + accesos. Suite **303/303**.
+- **Registrados:** antejardín **0** (ambas vías, al límite), medición de tramos desde la calle occidental, y validación del **piso de bonificación** — ver §4.4.
 
 ---
 
@@ -262,6 +264,8 @@ La norma (Anexo 5 — Manual de normas comunes, actualizado por Decreto 466/2024
 **Datos de campo (operador, 2026-09-28):** inmueble colindante norte = **2 pisos**, sobre los **primeros ~20 m** del lado norte; colindante sur = edificación de **5 pisos** sobre **~25 m**. Con ello: (a) norte → empate parcial acotado a esos ~20 m y altura ~2 pisos; (b) sur → empate volumétrico hasta ~15 m en esos ~25 m (§5.5.c sí aplica: colindante ≥3 pisos). Nota: para el tramo norte (2 pisos <3), el empate no es exigible por §5.5.c — se mantiene como condición de diseño/IDPC.
 
 *Detalle estructurado: [`anexos/insumos-operador-2026-09-28.json`](anexos/insumos-operador-2026-09-28.json).*
+
+**Antecedentes IDPC (anteproyecto ago-2021, documentos del lote):** el esquema empató "con el predio norte en fachada", con un muro que "empata con el nivel de la **cumbrera** del predio N-2"; IDPC pidió que el aislamiento norte "sea más generoso con el inmueble N-2" y solicitó un **aislamiento adicional de 3,00 × 3,00 m**. → Incorporar como condicionantes del tramo BIC (empate a cumbrera + mayor generosidad norte + 3×3).
 
 ### 4.2 Separación entre volúmenes — validado
 
@@ -287,4 +291,13 @@ La norma (Anexo 5 — Manual de normas comunes, actualizado por Decreto 466/2024
 
 ---
 
-*Documento vivo — P0 ejecutado y validación normativa 2026-09-28 (ver §3–§4).*
+### 4.4 Piso adicional / de bonificación — validación (2026-09-28)
+
+- **Base normativa firme:** 3 pisos + 2 adicionales (**Nota Ñ**, Plano 094 Edificabilidad, Decreto 492/07) = **5 pisos** (ficha del lote 2020-01-29: "Edificable 3 pisos (dos adicionales a la altura básica)"; Nota Ñ: +2 pisos en manzanas con frentes/categoría reedificables — verificar cumplimiento de la condición de manzana).
+- **El "+1" del expediente = "posible piso de bonificación":** los documentos del lote (2020-2021) trabajaron un **piso adicional en la parte posterior del lote, costado oriental (sobre la Carrera 1ª este)**; las gestiones buscaban que "se pueda brindar el beneficio de un piso adicional" (IDU/Patrimonio); IDPC señaló que era **"arriesgado dar un veredicto sin las suficientes pruebas"**. → **No consta como derecho; se trata como escenario.**
+- **Servicios complementarios:** el PEMP sugiere apoyarse en el **Decreto 190/2004** para servicios que el PEMP no desarrolla (parqueos, salones comunales, cesiones B) — base usada por las propuestas NEOS para su cálculo de servicios.
+- **Decisión de modelo:** corrida **base = 5 niveles** (B y B_SALUD regeneradas); el **+1 queda como variante habilitable** (`piso_adicional`) en la parte posterior/oriental, para cuando IDPC/Patrimonio confirme. Retomar el punto con IDPC en el anteproyecto (memorando ago-2021 como antecedente).
+
+---
+
+*Documento vivo — P0 ejecutado y validación normativa 2026-09-28 (ver §3–§4.4).*

@@ -127,9 +127,9 @@ CASOS = {
           "lote_m2": 315.0, "huella_m2": 243.5162, "escenario": "D_MIXTO",
           "titulo": "A - El Prado (Suba) - envolvente F1 v06"},
     "B": {"resultados": "resultados_AAA0030JKOE.json", "gfa": 3312.575,
-          "lote_m2": 931.0, "escenario": "D_MIXTO", "titulo": "B — La Candelaria"},
+          "lote_m2": 946.45, "escenario": "D_MIXTO", "titulo": "B — La Candelaria"},
     "B_SALUD": {"resultados": "resultados_AAA0030JKOE.json", "gfa": 3312.575,
-                "lote_m2": 931.0, "escenario": "D_MIXTO_SALUD",
+                "lote_m2": 946.45, "escenario": "D_MIXTO_SALUD",
                 "titulo": "B — La Candelaria (variante salud)"},
     "C": {"resultados": "resultados_AAA0039KRMR.json", "gfa": 1100.0,
           "lote_m2": 356.96, "escenario": "D_MIXTO", "titulo": "C — Muzú (Puente Aranda)"},
@@ -232,10 +232,12 @@ def _titulo(caso_id):
 def distribuir_niveles(prog):
     """Huella = ocupacion x lote (o huella_m2 real de Fase 1 si viene en el caso);
     niveles = ceil(GFA/huella); reparto de usos."""
-    huella = prog.get("huella_m2") or round(prog["lote_m2"] * OCUPACION_POT, 1)
-    # tolerancia 1e-9: un cociente exactamente entero (p. ej. 6 losas de 243,5162 m2)
-    # no debe redondear al piso siguiente por error de punto flotante
-    niveles = max(2, math.ceil(prog["gfa_total"] / huella - 1e-9))
+    # 2026-09-28: sin redondeo a 1 decimal. Caso B: 946,45*0,70 = 662,515 -> x5 = 3312,575
+    # = GFA exacto; el redondeo a 662,5 hacia que ceil() diera 6 niveles (0,075 m2 de ruido).
+    huella = prog.get("huella_m2") or (prog["lote_m2"] * OCUPACION_POT)
+    # tolerancia 1e-6: un cociente casi entero no debe redondear al piso siguiente
+    # por ruido de punto flotante/redondeo de areas (2026-09-28: B daba 6 por 0,075 m2)
+    niveles = max(2, math.ceil(prog["gfa_total"] / huella - 1e-6))
     # Reparto vertical: usos publicos/salud abajo, vivienda arriba
     orden = {"Local comercial": 0, "Consultorios": 1, "Institucional salud": 1,
              "Hogar geriatrico": 2, "Oficinas": 2, "Vivienda": 9}

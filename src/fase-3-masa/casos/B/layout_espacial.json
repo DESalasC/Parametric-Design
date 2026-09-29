@@ -1,6 +1,6 @@
 {
-  "huella_m2": 651.7,
-  "niveles_total": 6,
+  "huella_m2": 662.515,
+  "niveles_total": 5,
   "nucleos": {
     "escaleras": {
       "cantidad": 2,
@@ -76,8 +76,7 @@
     "Vivienda": [
       3,
       4,
-      5,
-      6
+      5
     ]
   },
   "poblacion_estimada": {
@@ -93,10 +92,10 @@
       "usos": [
         "Local comercial"
       ],
-      "gfa_m2": 651.7,
+      "gfa_m2": 662.515,
       "nucleo_m2": 57.6,
       "nucleo_solidos_m2": 44.6,
-      "eficiencia_losa_pct": 91.2
+      "eficiencia_losa_pct": 91.3
     },
     {
       "nivel": 2,
@@ -105,10 +104,10 @@
       "usos": [
         "Local comercial"
       ],
-      "gfa_m2": 651.7,
+      "gfa_m2": 662.515,
       "nucleo_m2": 57.6,
       "nucleo_solidos_m2": 44.6,
-      "eficiencia_losa_pct": 91.2
+      "eficiencia_losa_pct": 91.3
     },
     {
       "nivel": 3,
@@ -117,10 +116,10 @@
       "usos": [
         "Vivienda"
       ],
-      "gfa_m2": 651.7,
+      "gfa_m2": 662.515,
       "nucleo_m2": 57.6,
       "nucleo_solidos_m2": 44.6,
-      "eficiencia_losa_pct": 91.2
+      "eficiencia_losa_pct": 91.3
     },
     {
       "nivel": 4,
@@ -129,10 +128,10 @@
       "usos": [
         "Vivienda"
       ],
-      "gfa_m2": 651.7,
+      "gfa_m2": 662.515,
       "nucleo_m2": 57.6,
       "nucleo_solidos_m2": 44.6,
-      "eficiencia_losa_pct": 91.2
+      "eficiencia_losa_pct": 91.3
     },
     {
       "nivel": 5,
@@ -141,22 +140,10 @@
       "usos": [
         "Vivienda"
       ],
-      "gfa_m2": 651.7,
+      "gfa_m2": 662.5,
       "nucleo_m2": 57.6,
       "nucleo_solidos_m2": 44.6,
-      "eficiencia_losa_pct": 91.2
-    },
-    {
-      "nivel": 6,
-      "z_base_m": 15.6,
-      "altura_m": 3.0,
-      "usos": [
-        "Vivienda"
-      ],
-      "gfa_m2": 54.1,
-      "nucleo_m2": 57.6,
-      "nucleo_solidos_m2": 44.6,
-      "eficiencia_losa_pct": -6.5
+      "eficiencia_losa_pct": 91.3
     }
   ]
 }

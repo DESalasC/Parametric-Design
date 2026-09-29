@@ -110,8 +110,8 @@ El `programa-areas.json` de F3_DISTRIBUCION incluye: `programa_pisos` (piso, `al
 | ID | Caso | Escenario F2 | Resultado |
 |---|---|---|---|
 | A | El Prado (Suba) | D_MIXTO (local 20% + vivienda 80%) | **6 niveles, huella 243,5 m² (real F1 v06), GFA 1.461,1 m² balanceado, núcleo descompuesto: circulación 31,8 m² (2 esc + 1 asc) + servicios 8,0 m², hueco real 48,6 m²/piso (5,4×9,0), disposición para v07** (regenerado 2026-08-16; D_MIXTO ROI 25,6% con CL $800 M) |
-| B | La Candelaria | D_MIXTO (local turístico 30% + vivienda 70%) | 6 niveles, huella 652 m², 2 ascensores, núcleo ~45 m²/piso |
-| B_SALUD | La Candelaria (variante) | D_MIXTO_SALUD (consultorios 25% + vivienda 75%) | 6 niveles; consultorios en N1-2, vivienda N3-6 |
+| B | La Candelaria | D_MIXTO (local turístico 30% + vivienda 70%) | 5 niveles, huella 662,5 m², 2 ascensores, núcleo ~45 m²/piso (corrida actualizada 2026-09-28; lote 946,45 m²) |
+| B_SALUD | La Candelaria (variante) | D_MIXTO_SALUD (consultorios 25% + vivienda 75%) | 5 niveles; consultorios en N1-2, vivienda en niveles superiores (corrida actualizada 2026-09-28) |
 | C | Muzú (Puente Aranda) | D_MIXTO (local 35% + vivienda VIS 65%) | 5 niveles, huella 250 m², 1 ascensor, núcleo ~40 m²/piso |
 
 ## Reglas incorporadas (primera instancia)

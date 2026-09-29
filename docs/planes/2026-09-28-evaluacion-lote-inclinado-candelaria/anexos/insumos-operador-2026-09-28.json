@@ -26,17 +26,34 @@
       "nota": "Colindante >=3 pisos: aplica el empate volumetrico del §5.5.c hasta su altura; por encima, aislamiento reglamentario (no aplicaria si el tope es 5 pisos y no se supera la altura del colindante)."
     }
   },
+  "frentes_y_antejardin": {
+    "vias": {"occidente": "calle construida (acceso actual)", "oriente": "Carrera 1 - en proceso de construccion (frente al Parque Pueblo Viejo)"},
+    "antejardin": "0 en ambas vias (frentes al limite predial; caracteristica del centro historico)",
+    "medicion_tramos": "los tramos de empate se miden desde la calle OCCIDENTAL (construida): norte ~20 m y sur ~25 m desde el occidente"
+  },
+  "piso_adicional": {
+    "base_norma": "3 pisos + 2 adicionales (Nota Ñ, Plano 094 Edificabilidad, Decreto 492/07) = 5 pisos",
+    "hallazgo": "El expediente del lote (2020-2021) persiguio un 'posible piso de bonificacion' (parte posterior del lote, costado oriental / sobre la Carrera 1a este); IDPC no dio veredicto ('arriesgado sin pruebas'). El PEMP sugiere apoyarse en el Decreto 190/2004 para servicios complementarios (parqueos, salones comunales).",
+    "decision_modelo": "Corrida base = 5 niveles (actualizada). El +1 queda como variante habilitable (piso_adicional) cuando IDPC/Patrimonio confirme.",
+    "referencias": ["Memorando IDPC 2021-08-05 (trabajos cande-7921.docx)", "Acta reunion Constructora NEOS 2021", "Actividades y Trabajos - Lote La Candelaria.ods", "Ficha Lote La Candelaria 2020-01-29 (Nota Ñ)"]
+  },
+  "corrida_b": {
+    "actualizada": "2026-09-28",
+    "resultado": "B y B_SALUD = 5 niveles; huella 662,515 m2; GFA 3312,575 m2",
+    "fix": "F3_DISTRIBUCION_v01: tolerancia ceil 1e-9 -> 1e-6 y huella sin redondeo (el redondeo a 662,5 generaba 6 niveles por 0,075 m2)"
+  },
   "norma_referencia": [
     "Anexo 5 (Decreto 466/2024): §1.6 (empates de alturas), §5.5.c (empates de aislamientos laterales - Consolidacion), §1.9.b (dimensionamiento lateral: 1/5 h, min 4,00 m), §1.10.b (aislamientos entre edificaciones: 2/5 h prom, min 6,00 m)",
     "NSR-10 A.6.5 (separacion sismica; rige el mayor con el retiro POT)"
   ],
   "pendientes": [
-    "Ubicacion exacta del tramo BIC en planos (direccion de los 'primeros 20 m').",
-    "Confirmar fachadas a marcar como 'via' (Oriente / Carrera 1 en obra; ¿Occidente?) para el override de frentes de B y el multi-frente de NORMATIVA v09.",
-    "Visto bueno IDPC/MinCultura del tratamiento de empate (anteproyecto - Nota N).",
-    "Alcance de la 'Norma 3 pisos' del alzado PEMP (Carrera 1 entre Calle 12F y 12D)."
+    "Aplicar en la UI los overrides de frentes/vias de B (Occidente/Este) y antejardin 0 (NORMATIVA v09).",
+    "Visto bueno IDPC/MinCultura del empate (cumbrera N-2) y del posible piso de bonificacion (anteproyecto - Nota Ñ).",
+    "Alcance de la 'Norma 3 pisos' del alzado PEMP (Carrera 1 entre Calle 12F y 12D).",
+    "Posicion exacta del tramo BIC sobre planos (inicio a 0 m del extremo occidental)."
   ],
   "evidencia": {
-    "mensaje_operador": "usemos 5 pisos como criterio, el inmueble tiene dos pisos de altura y esta por los primeros 20 metros del lado norte del predio. Por el lado sur hay una construccion de cinco pisos que tambien se desarrolla por unos 25 mts."
+    "mensaje_operador": "usemos 5 pisos como criterio, el inmueble tiene dos pisos de altura y esta por los primeros 20 metros del lado norte del predio. Por el lado sur hay una construccion de cinco pisos que tambien se desarrolla por unos 25 mts.",
+    "mensaje_operador_2": "En ambos casos la medida cuenta desde la calle al occidente del predio (la actualmente construida), sobre ninguna de las vias existe aislamiento de antejardin porque esa es una caracteristica de la zona historica, que en principio no se consideran antejardines, en la mayoria de los casos estan pegadas al limite del predio. Actualizar la corrida a 5 niveles, de todas maneras creo que el piso adicional de servicios sigue aplicando en este proyecto, pero por favor validar."
   }
 }
