@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests unitarios de las funciones de ayuda de F1_CONTEXTO50_BUILD_v01a.py.
+"""Tests unitarios de las funciones de ayuda de F1_CONTEXTO50_BUILD_v01b.py.
 
 Cubre directamente los helpers (leer_json, normalizar_vertices, altura_de,
 _es_horario, _area_compacidad, _punto_en_poligono, construir_huella, ...),
@@ -16,7 +16,7 @@ import sys
 import pytest
 
 sys.path.insert(0, os.path.dirname(__file__))
-from test_contexto50_build_v01a import (  # noqa: E402
+from test_contexto50_build import (  # noqa: E402
     JSON_REAL,
     SRC,
     _ejecutar_componente,

@@ -27,6 +27,15 @@ CAMBIOS v01b (2026-09-28):
   2. Compatibilidad con orquestador: prioridad a `contexto50-actual.json` (creado
      por fetch-contexto-completo.py) > parámetro json_path > resolución defensiva.
 
+CORRECCIONES v01c (2026-09-28, noche):
+  1. Fix de la resolución defensiva del template (introducida en v01b): la
+     condición ahora es case-insensitive (`"chip-contexto50.json" in
+     in_json_path.lower()`) y el corte del CHIP usa f[:-14] ("-contexto.json"
+     mide 14). Antes la rama nunca disparaba (patrón en minúsculas contra un
+     path en MAYÚSCULAS) y [:-12] derivaba "AAA...-c" (candidato inexistente).
+  2. Contraparte F1_ETAPA3_CONTEXTO50 (v01.2) sincronizada con el mismo fix y
+     paridad de exclusiones; re-embebido en el canvas v11 (F1_CONTEXTO_v11).
+
 CORRECCIONES v01a (revisión 2026-09-13, alineada con F1_ETAPA3_CONTEXTO50_v01):
   1. `unwrap()` en TODAS las entradas: GH puede entregar la entrada como lista
      de 1 ítem; antes `os.path.isfile("[u'...']")` fallaba y no salía nada.
@@ -394,13 +403,13 @@ if not in_json_path or not _existe(in_json_path):
 
 # DEFENSIVA: si el path contiene el template "CHIP", intentar resolver el CHIP real
 # desde el archivo hermano CHIP-contexto.json en el mismo directorio
-if in_json_path and "CHIP-contexto50.json" in in_json_path.upper():
+if in_json_path and "chip-contexto50.json" in in_json_path.lower():
     try:
         # Buscar archivo hermano CHIP-contexto.json en el mismo directorio
         dir_base = os.path.dirname(in_json_path) or POT_CACHE
         for f in os.listdir(dir_base):
             if f.upper().endswith("-CONTEXTO.JSON") and not f.upper().startswith("CHIP-"):
-                chip_real = f[:-12]  # quitar "-contexto.json"
+                chip_real = f[:-14]  # quitar "-contexto.json" (14 chars)
                 candidato = os.path.join(dir_base, chip_real + "-contexto50.json")
                 if _existe(candidato):
                     in_json_path = candidato

@@ -1,26 +1,46 @@
 # -*- coding: utf-8 -*-
-"""Tests de lógica para F1_CONTEXTO50_BUILD_v01a.py (componente GHPython).
+"""Tests de lógica para F1_CONTEXTO50_BUILD_v01b.py (componente GHPython).
 
-Ejecuta el script del componente con módulos Rhino/System simulados y el JSON
-real de contexto 50 m, verificando parsing, deduplicación, alturas y conteos.
+Ejecuta el script del componente con módulos Rhino/System simulados y copias
+aisladas del JSON real de contexto 50 m (con/sin hermano CHIP-contexto.json),
+verificando parsing, deduplicación, exclusiones, orientación, alturas y conteos.
 Corre en CPython (no requiere Rhino).
 """
 
 import io
 import json
 import os
+import shutil
 import sys
+import tempfile
 import types
 
 import pytest
 
 SRC = os.path.join(
-    os.path.dirname(__file__), "..", "F1_CONTEXTO50_BUILD_v01a.py"
+    os.path.dirname(__file__), "..", "F1_CONTEXTO50_BUILD_v01b.py"
 )
 JSON_REAL = os.path.join(
     r"D:\Work\PROJECTS\DiseñoParametrico", "data", "pot-cache",
     "AAA0240ZXJH-contexto50.json",
 )
+JSON_BASE_REAL = os.path.join(
+    r"D:\Work\PROJECTS\DiseñoParametrico", "data", "pot-cache",
+    "AAA0240ZXJH-contexto.json",
+)
+
+
+def _fixture_dir(con_hermano=True):
+    """Carpeta aislada con copias del fixture (no depender del pot-cache vivo).
+
+    Incluye contexto50 + (opcional) hermano `CHIP-contexto.json`, el nombre que
+    el componente espera para excluir las construcciones del predio objetivo.
+    """
+    d = tempfile.mkdtemp(prefix="dp_ctx50_fixture_")
+    shutil.copy2(JSON_REAL, os.path.join(d, "AAA0240ZXJH-contexto50.json"))
+    if con_hermano:
+        shutil.copy2(JSON_BASE_REAL, os.path.join(d, "CHIP-contexto.json"))
+    return d
 
 
 # ------------------------------------------------------------------ stubs Rhino
@@ -87,14 +107,26 @@ def _instalar_stubs():
     sys.modules["System.Drawing"] = drawing
 
 
-def _ejecutar_componente(json_path, altura_piso=None, bake=False, exportar=False):
+def _ejecutar_componente(json_path, altura_piso=None, bake=False, exportar=False,
+                         src=SRC, env_root=None):
     _instalar_stubs()
-    with io.open(SRC, "rb") as f:
+    with io.open(src, "rb") as f:
         fuente = f.read().decode("utf-8")
     ns = {"json_path": json_path, "bake": bake, "exportar": exportar}
     if altura_piso is not None:
         ns["altura_piso"] = altura_piso
-    exec(compile(fuente, SRC, "exec"), ns)
+    # Aislamiento: sin DISENO_PARAMETRICO_ROOT no se encuentra el canónico real
+    # (data/pot-cache/contexto50-actual.json) y manda el parámetro json_path.
+    viejo = os.environ.get("DISENO_PARAMETRICO_ROOT")
+    raiz = env_root or tempfile.mkdtemp(prefix="dp_ctx50_root_")
+    os.environ["DISENO_PARAMETRICO_ROOT"] = raiz
+    try:
+        exec(compile(fuente, src, "exec"), ns)
+    finally:
+        if viejo is None:
+            os.environ.pop("DISENO_PARAMETRICO_ROOT", None)
+        else:
+            os.environ["DISENO_PARAMETRICO_ROOT"] = viejo
     return ns
 
 
@@ -114,8 +146,9 @@ def test_json_real_existe():
 
 
 def test_66_volumenes_con_exclusiones():
-    """JSON real con hermano CHIP-contexto.json: 94 - 4 predio - 24 menores = 66."""
-    ns = _ejecutar_componente(JSON_REAL)
+    """Fixture con hermano CHIP-contexto.json: 94 - 4 predio - 24 menores = 66."""
+    d = _fixture_dir(con_hermano=True)
+    ns = _ejecutar_componente(os.path.join(d, "AAA0240ZXJH-contexto50.json"))
     assert len(ns["volumenes"]) == 66
     assert len(ns["huellas"]) == 66
     assert len(ns["alturas"]) == 66
@@ -131,7 +164,8 @@ def test_66_volumenes_con_exclusiones():
 def test_rangos_altura_coinciden_con_metadata():
     with io.open(JSON_REAL, "rb") as f:
         data = json.loads(f.read().decode("utf-8"))
-    ns = _ejecutar_componente(JSON_REAL)
+    d = _fixture_dir(con_hermano=True)
+    ns = _ejecutar_componente(os.path.join(d, "AAA0240ZXJH-contexto50.json"))
     assert abs(min(ns["alturas"]) - 3.8) < 1e-6
     assert abs(max(ns["alturas"]) - 19.0) < 1e-6
     assert max(ns["pisos"]) == data["metadata"]["conteo"]["pisos_max"]
@@ -151,38 +185,30 @@ def test_areas_shoelace_vs_area_m2():
 
 
 def test_json_path_envuelto_en_lista_se_acepta():
-    ns = _ejecutar_componente([JSON_REAL])  # GH puede enviar lista de 1
+    d = _fixture_dir(con_hermano=True)
+    ns = _ejecutar_componente([os.path.join(d, "AAA0240ZXJH-contexto50.json")])
     assert len(ns["volumenes"]) == 66
 
 
 def test_sin_ctx1_hermano_mantiene_94():
     """Sin CHIP-contexto.json hermano no hay exclusion por lote (solo menores)."""
-    tmp = os.path.join(os.path.dirname(__file__), "_tmp_ctx50_solo.json")
-    with io.open(JSON_REAL, "rb") as f:
-        raw = f.read()
-    with io.open(tmp, "wb") as f:
-        f.write(raw)
-    try:
-        ns = _ejecutar_componente(tmp)
-        assert len(ns["volumenes"]) == 68  # 94 - 26 menores (sin lote hermano)
-        assert "sin CHIP-contexto.json" in ns["mensaje"]
-    finally:
-        os.remove(tmp)
+    d = _fixture_dir(con_hermano=False)
+    ns = _ejecutar_componente(os.path.join(d, "AAA0240ZXJH-contexto50.json"))
+    assert len(ns["volumenes"]) == 68  # 94 - 26 menores (sin lote hermano)
+    assert "sin CHIP-contexto.json" in ns["mensaje"]
 
 
 def test_registro_defectuoso_no_mata_el_componente():
+    d = _fixture_dir(con_hermano=False)
     with io.open(JSON_REAL, "rb") as f:
         data = json.loads(f.read().decode("utf-8"))
     data["edificios"].append({"id": "ROTO", "vertices": "no-soy-una-lista"})
-    tmp = os.path.join(os.path.dirname(__file__), "_tmp_contexto50_roto.json")
+    tmp = os.path.join(d, "AAA0240ZXJH-contexto50.json")
     with io.open(tmp, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False)
-    try:
-        ns = _ejecutar_componente(tmp)
-        assert len(ns["volumenes"]) == 68  # 94 - 26 menores; el roto no mata
-        assert ns["mensaje"].count("Descartados 27") == 1
-    finally:
-        os.remove(tmp)
+    ns = _ejecutar_componente(tmp)
+    assert len(ns["volumenes"]) == 68  # 94 - 26 menores; el roto no mata
+    assert ns["mensaje"].count("Descartados 27") == 1
 
 
 def test_sin_json_path_mensaje_alerta():
@@ -200,17 +226,15 @@ def test_altura_piso_override_cuando_json_no_trae():
         {"id": "X", "vertices": [[0, 0], [10, 0], [10, 10], [0, 10]], "pisos": 2},
         {"id": "Y", "vertices": [[0, 0], [5, 0], [5, 5], [0, 5]]},
     ]
-    tmp = os.path.join(os.path.dirname(__file__), "_tmp_contexto50_override.json")
+    tmp = os.path.join(tempfile.mkdtemp(prefix="dp_ctx50_ovr_"),
+                       "AAA0240ZXJH-contexto50.json")
     with io.open(tmp, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False)
-    try:
-        ns = _ejecutar_componente(tmp, altura_piso=3.5)
-        assert abs(ns["alturas"][0] - 7.0) < 1e-6
-        assert ns["pisos"][0] == 2
-        assert abs(ns["alturas"][1] - 3.0) < 1e-6  # fallback DOCUMENTADO (1 planta)
-        assert ns["pisos"][1] == 1
-    finally:
-        os.remove(tmp)
+    ns = _ejecutar_componente(tmp, altura_piso=3.5)
+    assert abs(ns["alturas"][0] - 7.0) < 1e-6
+    assert ns["pisos"][0] == 2
+    assert abs(ns["alturas"][1] - 3.0) < 1e-6  # fallback DOCUMENTADO (1 planta)
+    assert ns["pisos"][1] == 1
 
 
 def test_anillo_horario_se_invierte_a_antihorario():
@@ -230,22 +254,20 @@ def test_anillo_horario_se_invierte_a_antihorario():
     assert s < 0, "el anillo real deberia ser horario (precondicion del test)"
 
     data["edificios"] = [ed]
-    tmp = os.path.join(os.path.dirname(__file__), "_tmp_contexto50_orient.json")
+    tmp = os.path.join(tempfile.mkdtemp(prefix="dp_ctx50_orient_"),
+                       "AAA0240ZXJH-contexto50.json")
     with io.open(tmp, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False)
-    try:
-        ns = _ejecutar_componente(tmp)
-        p3 = ns["huellas"][0].pts  # stub: [(x, y, z), ...] con cierre duplicado
-        u = p3[:-1]
-        s2 = 0.0
-        n2 = len(u)
-        for i in range(n2):
-            x1, y1 = u[i][0], u[i][1]
-            x2, y2 = u[(i + 1) % n2][0], u[(i + 1) % n2][1]
-            s2 += x1 * y2 - x2 * y1
-        assert s2 > 0, "la huella debe quedar antihoraria (normal +Z)"
-    finally:
-        os.remove(tmp)
+    ns = _ejecutar_componente(tmp)
+    p3 = ns["huellas"][0].pts  # stub: [(x, y, z), ...] con cierre duplicado
+    u = p3[:-1]
+    s2 = 0.0
+    n2 = len(u)
+    for i in range(n2):
+        x1, y1 = u[i][0], u[i][1]
+        x2, y2 = u[(i + 1) % n2][0], u[(i + 1) % n2][1]
+        s2 += x1 * y2 - x2 * y1
+    assert s2 > 0, "la huella debe quedar antihoraria (normal +Z)"
 
 
 def test_ironpython_27_compatible():
@@ -254,3 +276,12 @@ def test_ironpython_27_compatible():
         fuente = f.read().decode("utf-8")
     assert "f'" not in fuente and 'f"' not in fuente
     assert ":=" not in fuente
+
+
+def test_defensiva_template_resuelve_chip():
+    """Path template CHIP-contexto50.json -> resuelve <CHIP>-contexto50.json hermano."""
+    d = _fixture_dir(con_hermano=True)
+    shutil.copy2(JSON_BASE_REAL, os.path.join(d, "AAA0240ZXJH-contexto.json"))
+    ns = _ejecutar_componente(os.path.join(d, "CHIP-contexto50.json"))
+    assert len(ns["volumenes"]) == 66
+    assert "Volumenes 66/94" in ns["mensaje"]

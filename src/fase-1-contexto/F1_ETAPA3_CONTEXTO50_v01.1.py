@@ -35,6 +35,21 @@ CAMBIOS v01.1 (2026-09-28):
      por fetch-contexto-completo.py) > parámetro json_path > resolución defensiva.
   4. Actualizada referencia al builder: `F1_CONTEXTO50_BUILD_v01b.py`.
 
+CAMBIOS v01.2 (2026-09-28, noche):
+  1. Fix de la resolución defensiva del template: condición case-insensitive
+     (`"chip-contexto50.json" in json_path.lower()`; antes nunca disparaba) y
+     corte del CHIP f[:-14] ("-contexto.json" = 14 chars; antes [:-12] derivaba
+     "AAA...-c"). Mismo fix aplicado a F1_CONTEXTO50_BUILD.
+  2. Paridad con el builder (mismos resultados que el canvas): sentido
+     ANTIHORARIO forzado en `construir_huella` (los anillos del fetch vienen
+     horarios y la extrusión crecía hacia abajo) + EXCLUSIONES de contexto:
+     predio objetivo (centroide dentro del lote_objetivo del "CHIP-contexto.json"
+     hermano, transformado con ancla_canvas_local) y construcciones menores
+     (< 15 m² o compacidad > 6.0).
+  3. try/except por edificio: un registro defectuoso ya no corta la corrida.
+  4. Stats/mensaje alineados con el builder: "Descartados", "Excluidos: X predio
+     objetivo, Y andenes/menores" y nota de lote.
+
 ENTRADA (la única imprescindible):
   json_path (String) — Ruta al <CHIP>-contexto50.json. Forma mínima del JSON
   (el lector acepta chip/radio_m/altura_por_piso_m en la raíz O dentro de
@@ -81,6 +96,9 @@ LOGICA / COSAS QUE MANEJA:
     pisos, se usa DEFAULT_ALTURA_M = 3.0 m (una planta, DOCUMENTADO).
   - Huellas con < 3 vértices únicos: se descartan y se registran en el stats.
   - Multi-anillo (patio): solo se modela el anillo exterior (huecos no modelados).
+  - Exclusión de contexto: construcciones del predio objetivo (centroide dentro
+    del lote) y construcciones menores (< 15 m² o compacidad > 6.0).
+  - Sentido de anillo forzado a antihorario antes de extruir (normal +Z).
   - Tolerancia/cierre: se fuerza el cierre de la polilínea (MakeClosed) con
     TOL_CIERRE; la extrusión usa la MISMA curva publicada como huella.
 
@@ -90,7 +108,7 @@ COMPATIBILIDAD: IronPython 2.7 (sin f-strings, sin pathlib, sin type hints,
 
 RELACION CON EL RESTO DEL PIPELINE:
   - El builder de Rhino `F1_CONTEXTO50_BUILD_v01b.py` replica esta lógica en la
-    sesión abierta y exporta .3dm/.obj.
+    sesión abierta y exporta .3dm/.obj (paridad de resultados v01.2/v01c).
   - La capa `70-20-30_Volumetrias_vecinas` es la destino de los Morphs de
     vecinos (ver CLAUDE.md, "ArchiCAD Layers").
 ================================================================================
@@ -99,6 +117,7 @@ RELACION CON EL RESTO DEL PIPELINE:
 import Rhino.Geometry as rg
 import json
 import io
+import math
 import os
 
 
@@ -107,7 +126,10 @@ TOL_CIERRE = 0.01                 # [m] deduplicación y cierre de anillos
 DEFAULT_ALTURA_PISO_M = 2.0       # [m] altura de piso si el JSON no la trae
 DEFAULT_ALTURA_M = 3.0            # [m] fallback sin altura_m ni pisos (1 planta)
 LAYER_VECINOS = "70-20-30_Volumetrias_vecinas"
-FUENTE_STATS = "F1_ETAPA3_CONTEXTO50_v01.1"
+MIN_AREA_EDIFICIO_M2 = 15.0       # [m2] area minima para volumen de vecino
+MAX_COMPACIDAD = 6.0              # per^2/(4*pi*area): >6 = anden/muro/cinta
+CTX1_HERMANO = "CHIP-contexto.json"  # lote objetivo (convencion canvas)
+FUENTE_STATS = "F1_ETAPA3_CONTEXTO50_v01.2"
 POT_CACHE = os.path.join(os.environ.get("DISENO_PARAMETRICO_ROOT", ""), "data", "pot-cache")
 
 
@@ -178,9 +200,14 @@ def meta_get(data, key, default=None):
 
 
 def _pt_xy(v):
-    """Normaliza un vértice [x, y] o [x, y, z] a (x, y); None si inválido."""
+    """Normaliza un vértice [x, y] / [x, y, z] / {"x":.., "y":..} a (x, y)."""
     if v is None:
         return None
+    if isinstance(v, dict):
+        try:
+            return (float(v["x"]), float(v["y"]))
+        except Exception:
+            return None
     try:
         return (float(v[0]), float(v[1]))
     except (TypeError, ValueError, IndexError):
@@ -207,10 +234,94 @@ def normalizar_vertices(raw):
     return pts
 
 
+def _es_horario(pts):
+    """True si el anillo (x, y) esta en sentido horario (area con signo < 0)."""
+    s = 0.0
+    n = len(pts)
+    for i in range(n):
+        x1, y1 = pts[i]
+        x2, y2 = pts[(i + 1) % n]
+        s += x1 * y2 - x2 * y1
+    return s < 0.0
+
+
+def _area_compacidad(pts):
+    """(area m2, compacidad per^2/(4*pi*area)) de un anillo (x, y)."""
+    a = 0.0
+    per = 0.0
+    n = len(pts)
+    for i in range(n):
+        x1, y1 = pts[i]
+        x2, y2 = pts[(i + 1) % n]
+        a += x1 * y2 - x2 * y1
+        per += math.hypot(x2 - x1, y2 - y1)
+    area = abs(a) / 2.0
+    comp = (per * per) / (4.0 * math.pi * area) if area > 0 else 999.0
+    return area, comp
+
+
+def _punto_en_poligono(x, y, poly):
+    """Ray casting; poly = [(x, y), ...] sin punto de cierre repetido."""
+    dentro = False
+    n = len(poly)
+    j = n - 1
+    for i in range(n):
+        xi, yi = poly[i]
+        xj, yj = poly[j]
+        if ((yi > y) != (yj > y)) and (x < (xj - xi) * (y - yi) / ((yj - yi) or 1e-12) + xi):
+            dentro = not dentro
+        j = i
+    return dentro
+
+
+def cargar_lote_objetivo(json_path, data_c50):
+    """Lote del predio objetivo en el marco LOCAL del contexto50.
+
+    Lee el CHIP-contexto.json hermano (convencion canvas), toma
+    lote_objetivo.vertices_3d_local (marco ETAPA1) y lo transforma al marco
+    local del contexto50 restando metadata.ancla_canvas_local.
+    Devuelve ([(x, y), ...] o None, nota_diagnostico).
+    """
+    try:
+        carpeta = os.path.dirname(json_path or "")
+        ruta_ctx1 = os.path.join(carpeta, CTX1_HERMANO)
+        if not os.path.isfile(ruta_ctx1):
+            return None, "sin {0} en {1}".format(CTX1_HERMANO, carpeta)
+        c1 = leer_json(ruta_ctx1)
+        lo = c1.get("lote_objetivo") if isinstance(c1, dict) else None
+        pts = []
+        if isinstance(lo, dict):
+            for v in (lo.get("vertices_3d_local") or lo.get("vertices") or []):
+                p = _pt_xy(v)
+                if p is not None:
+                    pts.append(p)
+        if len(pts) < 3:
+            return None, "sin lote_objetivo valido en " + CTX1_HERMANO
+        if len(pts) >= 2 and abs(pts[0][0] - pts[-1][0]) <= TOL_CIERRE \
+                and abs(pts[0][1] - pts[-1][1]) <= TOL_CIERRE:
+            pts.pop()
+        meta = data_c50.get("metadata") if isinstance(data_c50, dict) else None
+        ancla = meta.get("ancla_canvas_local") if isinstance(meta, dict) else None
+        ax = to_float(ancla.get("x"), None) if isinstance(ancla, dict) else None
+        ay = to_float(ancla.get("y"), None) if isinstance(ancla, dict) else None
+        if ax is None or ay is None:
+            return pts, "sin ancla en metadata; lote asumido en mismo marco"
+        return [(p[0] - ax, p[1] - ay) for p in pts], ""
+    except Exception as e:
+        return None, "lote no cargado: {0}".format(str(e))
+
+
 def construir_huella(pts):
-    """Devuelve una PolylineCurve cerrada en Z=0 desde puntos (x, y) o None."""
+    """Devuelve una PolylineCurve cerrada en Z=0 desde puntos (x, y) o None.
+
+    Fuerza sentido ANTIHORARIO: Extrusion.Create extruye segun la normal del
+    plano de la curva; un anillo horario (como el que entrega el fetch GIS)
+    tiene normal -Z y el volumen crece DEBAJO del terreno.
+    """
     if not pts or len(pts) < 3:
         return None
+    if _es_horario(pts):
+        pts = list(reversed(pts))
     pl = rg.Polyline()
     for p in pts:
         pl.Add(p[0], p[1], 0.0)
@@ -267,23 +378,48 @@ def volumen_brep(brp):
     return 0.0
 
 
-def anillos_de(ed):
+def extraer_anillos(ed):
     """Anillos del edificio como listas de (x, y). El primero es la huella.
 
-    Acepta `anillos` (lista de anillos, forma de sub-02) con `vertices` como
-    respaldo; hoy el dato real trae 1 anillo y vertices == anillos[0].
+    Acepta la forma real del fetch (sub-02): `anillos` (lista de anillos) y
+    `vertices`; también variantes GeoJSON (`geometry.coordinates`).
     """
     out = []
-    rings_raw = ed.get("anillos", None)
-    if rings_raw:
-        for r in rings_raw:
-            pts = normalizar_vertices(r)
-            if len(pts) >= 3:
-                out.append(pts)
-    if not out:
-        pts = normalizar_vertices(ed.get("vertices", []))
-        if len(pts) >= 3:
-            out.append(pts)
+    rings_raw = None
+    if isinstance(ed, dict):
+        for k in ("anillos", "rings"):
+            if k in ed and isinstance(ed[k], list) and ed[k]:
+                rings_raw = ed[k]
+                break
+        if rings_raw:
+            for r in rings_raw:
+                pts = normalizar_vertices(r)
+                if len(pts) >= 3:
+                    out.append(pts)
+        if not out:
+            for k in ("vertices", "polygon", "coords", "coordenadas", "points", "puntos"):
+                if k in ed and isinstance(ed[k], list) and ed[k]:
+                    pts = normalizar_vertices(ed[k])
+                    if len(pts) >= 3:
+                        out.append(pts)
+                    break
+        if not out and isinstance(ed.get("geometry"), dict):
+            geom = ed["geometry"]
+            coords = geom.get("coordinates", None)
+            gtype = str(geom.get("type", ""))
+            if gtype == "Polygon" and coords:
+                for r in coords:
+                    pts = normalizar_vertices(r)
+                    if len(pts) >= 3:
+                        out.append(pts)
+                        break  # solo anillo exterior
+            elif gtype == "MultiPolygon" and coords:
+                for poly in coords:
+                    if poly:
+                        pts = normalizar_vertices(poly[0])
+                        if len(pts) >= 3:
+                            out.append(pts)
+                            break  # primer polígono, anillo exterior
     return out
 
 
@@ -328,13 +464,13 @@ if not json_path or not _existe(json_path):
 
 # DEFENSIVA: si el path contiene el template "CHIP", intentar resolver el CHIP real
 # desde el archivo hermano CHIP-contexto.json en el mismo directorio
-if json_path and "CHIP-contexto50.json" in json_path.upper():
+if json_path and "chip-contexto50.json" in json_path.lower():
     try:
         # Buscar archivo hermano CHIP-contexto.json en el mismo directorio
         dir_base = os.path.dirname(json_path) or POT_CACHE
         for f in os.listdir(dir_base):
             if f.upper().endswith("-CONTEXTO.JSON") and not f.upper().startswith("CHIP-"):
-                chip_real = f[:-12]  # quitar "-contexto.json"
+                chip_real = f[:-14]  # quitar "-contexto.json" (14 chars)
                 candidato = os.path.join(dir_base, chip_real + "-contexto50.json")
                 if _existe(candidato):
                     json_path = candidato
@@ -346,7 +482,7 @@ escribir_stats = parse_bool(globals().get("escribir_stats", False))
 stats_path = unwrap(globals().get("stats_path", None))
 
 if not json_path or not _existe(json_path):
-    mensaje = "ETAPA3 v01 | ERROR: no se encontro el JSON de contexto50: {0}".format(json_path)
+    mensaje = "ETAPA3 v01.2 | ERROR: no se encontro el JSON de contexto50: {0}".format(json_path)
 else:
     try:
         data = leer_json(json_path)
@@ -365,55 +501,80 @@ else:
         n_anillos_extra = 0
         descartados = []
         detalle = []
+        lote_local, nota_lote = cargar_lote_objetivo(json_path, data)
+        n_predio = 0
+        n_menores = 0
 
         for ed in edificios:
-            ed_id = str(ed.get("id", "") or "")
-            anillos = anillos_de(ed)
-            n_anillos = len(anillos)
-            if n_anillos > 1:
-                n_anillos_extra += 1
+            ed_id = ""
+            try:
+                if not isinstance(ed, dict):
+                    descartados.append("(registro no-dict)")
+                    continue
+                ed_id = str(ed.get("id", "") or "")
+                anillos = extraer_anillos(ed)
+                n_anillos = len(anillos)
+                if n_anillos > 1:
+                    n_anillos_extra += 1
 
-            if n_anillos < 1:
-                descartados.append(ed_id or "(sin id)")
-                continue
-            pts = anillos[0]  # huella exterior (los huecos no se modelan)
+                if n_anillos < 1:
+                    descartados.append(ed_id or "(sin id)")
+                    continue
+                pts = anillos[0]  # huella exterior (los huecos no se modelan)
 
-            crv = construir_huella(pts)
-            if crv is None:
-                descartados.append(ed_id or "(sin id)")
-                continue
+                # exclusion a): construcciones del predio de referencia
+                if lote_local is not None:
+                    cx = sum(pp[0] for pp in pts) / len(pts)
+                    cy = sum(pp[1] for pp in pts) / len(pts)
+                    if _punto_en_poligono(cx, cy, lote_local):
+                        n_predio += 1
+                        continue
 
-            altura, es_fallback = altura_de(ed, altura_por_piso)
-            if es_fallback:
-                n_fallback += 1
+                # exclusion b): construcciones menores (andenes/anexos/muretes)
+                area_prev, comp = _area_compacidad(pts)
+                if area_prev < MIN_AREA_EDIFICIO_M2 or comp > MAX_COMPACIDAD:
+                    n_menores += 1
+                    continue
 
-            brp = extruir(crv, altura)
+                crv = construir_huella(pts)
+                if crv is None:
+                    descartados.append(ed_id or "(sin id)")
+                    continue
 
-            area_m2 = area_curva(crv)
-            vol_m3 = volumen_brep(brp) if brp is not None else 0.0
+                altura, es_fallback = altura_de(ed, altura_por_piso)
+                if es_fallback:
+                    n_fallback += 1
 
-            huellas_curvas.append(crv)
-            if brp is not None:
-                volumenes.append(brp)
+                brp = extruir(crv, altura)
 
-            alturas.append(altura)
-            areas.append(area_m2)
-            volumen_total += vol_m3
+                area_m2 = area_curva(crv)
+                vol_m3 = volumen_brep(brp) if brp is not None else 0.0
 
-            detalle.append({
-                "id": ed_id,
-                "altura_m": round(altura, 3),
-                "pisos": to_float(ed.get("pisos"), None),
-                "area_m2": round(area_m2, 3),
-                "volumen_m3": round(vol_m3, 3),
-                "n_anillos": n_anillos,
-                "fuente": str(ed.get("fuente", "") or ""),
-                "cerrado": True,
-                "fallback_altura": es_fallback,
-            })
+                huellas_curvas.append(crv)
+                if brp is not None:
+                    volumenes.append(brp)
+
+                alturas.append(altura)
+                areas.append(area_m2)
+                volumen_total += vol_m3
+
+                detalle.append({
+                    "id": ed_id,
+                    "altura_m": round(altura, 3),
+                    "pisos": to_float(ed.get("pisos"), None),
+                    "area_m2": round(area_m2, 3),
+                    "volumen_m3": round(vol_m3, 3),
+                    "n_anillos": n_anillos,
+                    "fuente": str(ed.get("fuente", "") or ""),
+                    "cerrado": True,
+                    "fallback_altura": es_fallback,
+                })
+            except Exception as e_ed:
+                descartados.append("{0}: {1}".format(ed_id or "(sin id)", str(e_ed)))
 
         n_total = len(edificios)
         n_ok = len(huellas_curvas)
+        n_skip = n_predio + n_menores + len(descartados)
         area_total = sum(areas)
 
         if alturas:
@@ -439,6 +600,10 @@ else:
             "altura_promedio_m": round(altura_prom, 3),
             "altura_fallbacks": n_fallback,
             "edificios_con_anillos_extra": n_anillos_extra,
+            "excluidos_predio": n_predio,
+            "excluidos_menores": n_menores,
+            "descartados": len(descartados),
+            "nota_lote": nota_lote,
             "area_huellas_m2": round(area_total, 3),
             "volumen_total_m3": round(volumen_total, 3),
             "layer_destino": LAYER_VECINOS,
@@ -448,11 +613,14 @@ else:
 
         ok = n_ok > 0
         mensaje = (
-            "ETAPA3 v01 | CHIP {0} | R {1:.0f}m | Edificios {2}/{3} | "
-            "Alturas {4:.1f}-{5:.1f}m | Area huellas {6:.1f}m2 | "
-            "Vol {7:.1f}m3 | Fallbacks altura {8}"
-        ).format(chip or "?", radio_m, n_ok, n_total,
-                 altura_min, altura_max, area_total, volumen_total, n_fallback)
+            "ETAPA3 v01.2 | CHIP {0} | R {1:.0f}m | Edificios {2}/{3} | "
+            "Descartados {4} | Alturas {5:.1f}-{6:.1f}m | Area huellas {7:.1f}m2 | "
+            "Vol {8:.1f}m3 | Fallbacks altura {9} | Excluidos: {10} predio objetivo, {11} andenes/menores"
+        ).format(chip or "?", radio_m, n_ok, n_total, n_skip,
+                 altura_min, altura_max, area_total, volumen_total, n_fallback,
+                 n_predio, n_menores)
+        if nota_lote:
+            mensaje += " | lote: " + nota_lote
 
         # --- sidecar opcional (io.open utf-8, regla del proyecto) ---
         if escribir_stats and chip:
@@ -472,7 +640,7 @@ else:
 
     except Exception as e:
         ok = False
-        mensaje = "ETAPA3 v01 | ERROR al procesar el JSON: {0}".format(str(e))
+        mensaje = "ETAPA3 v01.2 | ERROR al procesar el JSON: {0}".format(str(e))
 
 try:
     ghenv.Component.Message = mensaje  # noqa: F821 - inyectado por Grasshopper

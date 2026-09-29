@@ -249,6 +249,12 @@ Clave de la Capa 3 (respuesta directa a "volúmenes con separaciones, no necesar
 - **Registrados:** antejardín **0** (ambas vías, al límite), medición de tramos desde la calle occidental, y validación del **piso de bonificación** — ver §4.4.
 - **Reglamentación base descargada y registrada en el vault (2026-09-28):** `30-referencia/pot-bogota/reglamentacion-base/` — POT 555, Anexo 5 (466/2024 + cartilla ilustrada), Anexo 6 Conservación, PZCB 492/07 + planos 094 + 172/2010, PEMP Res. 0088 + planos, FAQ SDP y mapas CU (PDFs originales + fichas `.md`; entrada añadida al mapa de conocimiento).
 
+### 2026-09-28 (noche) — Revisión de integración contexto50 + correcciones aplicadas
+
+- **Revisión del componente** `F1_ETAPA3_CONTEXTO50` frente al esquema de terreno inclinado: (a) la resolución defensiva del template estaba **muerta** (comparación case-sensitive que nunca disparaba + corte `[:-12]` sobre "-contexto.json" que mide 14); (b) **deriva ETAPA3↔builder** (faltaban: sentido antihorario, exclusiones predio objetivo/menores, try/except por edificio); (c) tests del linaje apuntando a `..._v01a.py` (renombrado a v01b en el cierre de hoy); (d) activos del canvas (`CHIP-contexto.json`) pendientes de activar para B.
+- **Correcciones aplicadas:** `F1_ETAPA3_CONTEXTO50` **v01.2** (fix defensiva + paridad con el builder: antihorario, exclusiones, try/except, stats/mensaje) · `F1_CONTEXTO50_BUILD_v01b` fix **v01c** (defensiva) · canvas v11 re-embebido (`scripts/utilities/patch-ghx-contexto50-defensiva.py`) y `.gh` regenerado · tests repuntados/aislados (`test_contexto50_build.py`, `test_contexto50_helpers.py`, nuevo `test_etapa3_contexto50.py` — 31/31).
+- **Encargo P2 añadido:** extender el fetch del contexto50 con **cota base por edificio** (`z_base_m` vía muestreo MDT) y consumirla en ETAPA3/BUILD (`z_base` de extrusión) para anclar los volúmenes vecinos al terreno real (hoy extruyen desde z=0; Δ 16,12 m en B).
+
 ---
 
 ## 4. Validación normativa y definiciones (2026-09-28)
