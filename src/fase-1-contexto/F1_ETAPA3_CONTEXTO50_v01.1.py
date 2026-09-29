@@ -50,6 +50,12 @@ CAMBIOS v01.2 (2026-09-28, noche):
   4. Stats/mensaje alineados con el builder: "Descartados", "Excluidos: X predio
      objetivo, Y andenes/menores" y nota de lote.
 
+CAMBIOS v01.3 (2026-09-28, noche 2):
+  1. COTA BASE POR EDIFICIO (z_base_m): la huella se eleva a la cota del registro
+     (agregada por scripts/utilities/anclar_contexto50_zbase.py con muestreo MDT) y
+     la extrusión parte de ahí; sin z_base_m, comportamiento idéntico al v01.2 (z=0).
+     Paridad con F1_CONTEXTO50_BUILD v01d (canvas).
+
 ENTRADA (la única imprescindible):
   json_path (String) — Ruta al <CHIP>-contexto50.json. Forma mínima del JSON
   (el lector acepta chip/radio_m/altura_por_piso_m en la raíz O dentro de
@@ -129,7 +135,7 @@ LAYER_VECINOS = "70-20-30_Volumetrias_vecinas"
 MIN_AREA_EDIFICIO_M2 = 15.0       # [m2] area minima para volumen de vecino
 MAX_COMPACIDAD = 6.0              # per^2/(4*pi*area): >6 = anden/muro/cinta
 CTX1_HERMANO = "CHIP-contexto.json"  # lote objetivo (convencion canvas)
-FUENTE_STATS = "F1_ETAPA3_CONTEXTO50_v01.2"
+FUENTE_STATS = "F1_ETAPA3_CONTEXTO50_v01.3"
 POT_CACHE = os.path.join(os.environ.get("DISENO_PARAMETRICO_ROOT", ""), "data", "pot-cache")
 
 
@@ -311,9 +317,10 @@ def cargar_lote_objetivo(json_path, data_c50):
         return None, "lote no cargado: {0}".format(str(e))
 
 
-def construir_huella(pts):
-    """Devuelve una PolylineCurve cerrada en Z=0 desde puntos (x, y) o None.
+def construir_huella(pts, z_base=0.0):
+    """Devuelve una PolylineCurve cerrada a la cota z_base desde puntos (x, y) o None.
 
+    v01.3: z_base = cota base del edificio (z_base_m; 0.0 si falta).
     Fuerza sentido ANTIHORARIO: Extrusion.Create extruye segun la normal del
     plano de la curva; un anillo horario (como el que entrega el fetch GIS)
     tiene normal -Z y el volumen crece DEBAJO del terreno.
@@ -324,8 +331,8 @@ def construir_huella(pts):
         pts = list(reversed(pts))
     pl = rg.Polyline()
     for p in pts:
-        pl.Add(p[0], p[1], 0.0)
-    pl.Add(pts[0][0], pts[0][1], 0.0)  # cierre explícito
+        pl.Add(p[0], p[1], z_base)
+    pl.Add(pts[0][0], pts[0][1], z_base)  # cierre explícito
     try:
         crv = rg.PolylineCurve(pl)
     except Exception:
@@ -482,7 +489,7 @@ escribir_stats = parse_bool(globals().get("escribir_stats", False))
 stats_path = unwrap(globals().get("stats_path", None))
 
 if not json_path or not _existe(json_path):
-    mensaje = "ETAPA3 v01.2 | ERROR: no se encontro el JSON de contexto50: {0}".format(json_path)
+    mensaje = "ETAPA3 v01.3 | ERROR: no se encontro el JSON de contexto50: {0}".format(json_path)
 else:
     try:
         data = leer_json(json_path)
@@ -501,6 +508,7 @@ else:
         n_anillos_extra = 0
         descartados = []
         detalle = []
+        z_bases = []
         lote_local, nota_lote = cargar_lote_objetivo(json_path, data)
         n_predio = 0
         n_menores = 0
@@ -536,7 +544,8 @@ else:
                     n_menores += 1
                     continue
 
-                crv = construir_huella(pts)
+                z_base = to_float(ed.get("z_base_m"), 0.0)
+                crv = construir_huella(pts, z_base)
                 if crv is None:
                     descartados.append(ed_id or "(sin id)")
                     continue
@@ -557,6 +566,8 @@ else:
                 alturas.append(altura)
                 areas.append(area_m2)
                 volumen_total += vol_m3
+                if z_base != 0.0:
+                    z_bases.append(z_base)
 
                 detalle.append({
                     "id": ed_id,
@@ -568,6 +579,7 @@ else:
                     "fuente": str(ed.get("fuente", "") or ""),
                     "cerrado": True,
                     "fallback_altura": es_fallback,
+                    "z_base_m": round(z_base, 2),
                 })
             except Exception as e_ed:
                 descartados.append("{0}: {1}".format(ed_id or "(sin id)", str(e_ed)))
@@ -613,12 +625,15 @@ else:
 
         ok = n_ok > 0
         mensaje = (
-            "ETAPA3 v01.2 | CHIP {0} | R {1:.0f}m | Edificios {2}/{3} | "
+            "ETAPA3 v01.3 | CHIP {0} | R {1:.0f}m | Edificios {2}/{3} | "
             "Descartados {4} | Alturas {5:.1f}-{6:.1f}m | Area huellas {7:.1f}m2 | "
             "Vol {8:.1f}m3 | Fallbacks altura {9} | Excluidos: {10} predio objetivo, {11} andenes/menores"
         ).format(chip or "?", radio_m, n_ok, n_total, n_skip,
                  altura_min, altura_max, area_total, volumen_total, n_fallback,
                  n_predio, n_menores)
+        if z_bases:
+            mensaje += " | z_base {0:.1f}-{1:.1f}m ({2} con cota)".format(
+                min(z_bases), max(z_bases), len(z_bases))
         if nota_lote:
             mensaje += " | lote: " + nota_lote
 
@@ -640,7 +655,7 @@ else:
 
     except Exception as e:
         ok = False
-        mensaje = "ETAPA3 v01.2 | ERROR al procesar el JSON: {0}".format(str(e))
+        mensaje = "ETAPA3 v01.3 | ERROR al procesar el JSON: {0}".format(str(e))
 
 try:
     ghenv.Component.Message = mensaje  # noqa: F821 - inyectado por Grasshopper

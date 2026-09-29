@@ -9,7 +9,8 @@ ArchiCAD–Grasshopper (Live Connection).
 PROPOSITO:
   Lee el JSON de contexto 50 m (<CHIP>-contexto50.json) y construye, por cada
   edificio vecino:
-    - la HUELLA como polilínea cerrada (Curve) en Z=0, y
+    - la HUELLA como polilínea cerrada (Curve) a la cota base del edificio
+      (z_base_m del registro; Z=0 si no existe), y
     - el VOLUMEN como Brep extruido y capado en +Z hasta su altura.
   La salida `volumenes` alimenta los componentes AC_* (Morphs) del
   Grasshopper-ArchiCAD Live Connection; `bake` la deja además en la capa
@@ -35,6 +36,13 @@ CORRECCIONES v01c (2026-09-28, noche):
      path en MAYÚSCULAS) y [:-12] derivaba "AAA...-c" (candidato inexistente).
   2. Contraparte F1_ETAPA3_CONTEXTO50 (v01.2) sincronizada con el mismo fix y
      paridad de exclusiones; re-embebido en el canvas v11 (F1_CONTEXTO_v11).
+
+MEJORAS v01d (2026-09-28, noche):
+  1. COTA BASE POR EDIFICIO (z_base_m): si el registro trae z_base_m (lo agrega
+     scripts/utilities/anclar_contexto50_zbase.py muestreando el MDT), la huella
+     se eleva a esa cota y la extrusión parte de ahí; sin z_base_m el comportamiento
+     es idéntico al v01c (z=0). Paridad con F1_ETAPA3_CONTEXTO50 (v01.3).
+     En lotes inclinados evita que todos los volúmenes queden al nivel 0.0.
 
 CORRECCIONES v01a (revisión 2026-09-13, alineada con F1_ETAPA3_CONTEXTO50_v01):
   1. `unwrap()` en TODAS las entradas: GH puede entregar la entrada como lista
@@ -340,9 +348,10 @@ def _es_horario(pts):
     return s < 0.0
 
 
-def construir_huella(pts):
-    """PolylineCurve cerrada en Z=0 desde [(x, y), ...]; None si no se puede.
+def construir_huella(pts, z_base=0.0):
+    """PolylineCurve cerrada a la cota z_base desde [(x, y), ...]; None si no se puede.
 
+    v01d: z_base = cota base del edificio (z_base_m del JSON; 0.0 si falta).
     Fuerza sentido ANTIHORARIO: Extrusion.Create extruye segun la normal del
     plano de la curva; un anillo horario (como el que entrega el fetch GIS)
     tiene normal -Z y el volumen crece DEBAJO del terreno.
@@ -353,8 +362,8 @@ def construir_huella(pts):
         pts = list(reversed(pts))
     pl = rg.Polyline()
     for p in pts:
-        pl.Add(p[0], p[1], 0.0)
-    pl.Add(pts[0][0], pts[0][1], 0.0)  # cierre explícito (regla de oro)
+        pl.Add(p[0], p[1], z_base)
+    pl.Add(pts[0][0], pts[0][1], z_base)  # cierre explícito (regla de oro)
     try:
         crv = rg.PolylineCurve(pl)
     except Exception:
@@ -464,6 +473,7 @@ else:
         n_predio = 0
         n_menores = 0
         descartados = []
+        zbs = []
 
         lote_local, nota_lote = cargar_lote_objetivo(in_json_path, data)
 
@@ -502,7 +512,8 @@ else:
                 if es_fallback:
                     n_fallback += 1
 
-                crv = construir_huella(pts)
+                z_base = to_float(ed.get("z_base_m"), 0.0)
+                crv = construir_huella(pts, z_base)
                 if crv is None:
                     descartados.append(ed_id or "(sin id)")
                     n_skip += 1
@@ -518,6 +529,7 @@ else:
                 huellas.append(crv)          # misma curva de la extrusión
                 alturas.append(altura)        # metros (regla #11)
                 pisos.append(p)
+                zbs.append(z_base)
                 ids.append(ed_id)
             except Exception as e_ed:
                 n_skip += 1
@@ -580,6 +592,9 @@ else:
             "CONTEXTO50_BUILD | CHIP {0} | R {1:.0f}m | Volumenes {2}/{3} | "
             "Descartados {4} | Alturas {5:.1f}-{6:.1f}m | Fallbacks {7}"
         ).format(chip, radio_m, len(volumenes), n_total, n_skip, a_min, a_max, n_fallback)
+        if any(zb != 0.0 for zb in zbs):
+            mensaje += " | z_base {0:.1f}-{1:.1f}m ({2} con cota)".format(
+                min(zbs), max(zbs), len(zbs))
         mensaje += " | Excluidos: {0} predio objetivo, {1} andenes/menores".format(
             n_predio, n_menores)
         if nota_lote:

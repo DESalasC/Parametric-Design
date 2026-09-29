@@ -285,3 +285,28 @@ def test_defensiva_template_resuelve_chip():
     ns = _ejecutar_componente(os.path.join(d, "CHIP-contexto50.json"))
     assert len(ns["volumenes"]) == 66
     assert "Volumenes 66/94" in ns["mensaje"]
+
+
+def test_z_base_v01d_mueve_y_conserva_perimetro():
+    """v01d: si el registro trae z_base_m, la huella/volumen parten de esa cota
+    sin cambiar el perimetro (XY identicos); sin z_base_m quedan en Z=0."""
+    d = _fixture_dir(con_hermano=False)
+    with io.open(JSON_REAL, "rb") as f:
+        data = json.loads(f.read().decode("utf-8"))
+    data["edificios"] = data["edificios"][:12]
+    tmp = os.path.join(d, "AAA0240ZXJH-contexto50.json")
+    with io.open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False)
+    ns0 = _ejecutar_componente(tmp)
+    for ed in data["edificios"]:
+        ed["z_base_m"] = 12.5
+    with io.open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False)
+    ns1 = _ejecutar_componente(tmp)
+    assert len(ns1["volumenes"]) == len(ns0["volumenes"]) > 0
+    h0 = ns0["huellas"][0].pts
+    h1 = ns1["huellas"][0].pts
+    assert [(p[0], p[1]) for p in h0] == [(p[0], p[1]) for p in h1]
+    assert all(abs(p[2] - 0.0) < 1e-9 for p in h0)
+    assert all(abs(p[2] - 12.5) < 1e-9 for p in h1)
+    assert "z_base 12.5-12.5m" in ns1["mensaje"]

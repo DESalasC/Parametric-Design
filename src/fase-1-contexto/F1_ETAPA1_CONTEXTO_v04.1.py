@@ -98,7 +98,7 @@ def polyline_from_coords(coords, dx, dy, dz):
         return None
     poly = rg.Polyline()
     for c in coords:
-        poly.Add(c[0] - dx, c[1] - dy, c[2] - dz)
+        poly.Add(c[0] - dx, c[1] - dy, 0.0)  # v04.2: plano horizontal (Live Connection)
     if not poly.IsClosed:
         poly.Add(poly[0])
     return rg.PolylineCurve(poly)
@@ -312,7 +312,7 @@ else:
                     # Crear la polilínea central (eje de vía)
                     poly = rg.Polyline()
                     for c in coords:
-                        poly.Add(c[0] - dx, c[1] - dy, c[2] - dz)
+                        poly.Add(c[0] - dx, c[1] - dy, 0.0)  # v04.2: plano horizontal (Live Connection)
                     poly_curve = rg.PolylineCurve(poly)
                     nurbs_curve = polyline_to_nurbs(poly_curve)  # Convert to NURBS for better ArchiCAD compatibility
 
