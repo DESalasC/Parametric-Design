@@ -70,21 +70,9 @@
         "C_LUJO": {
           "precio_venta_m2": 10500000,
           "costo_construccion_m2": 4800000
-        },
-        "D_MIXTO": {
-          "precio_venta_m2": null,
-          "costo_construccion_m2": null
-        },
-        "D_MIXTO_SALUD": {
-          "precio_venta_m2": null,
-          "costo_construccion_m2": null
-        },
-        "D_MIXTO_OFICINAS": {
-          "precio_venta_m2": null,
-          "costo_construccion_m2": null
         }
       },
-      "ultima_edicion": "2026-09-28 22:42"
+      "ultima_edicion": "2026-09-29 08:51"
     }
   }
 }
