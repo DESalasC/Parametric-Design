@@ -100,13 +100,22 @@ v02 (2026-09-29): `--usos` (filtro por usos de la sección 2 del orquestador, re
 el mix), `--bloques N`, `--bloques-distribucion`, `--bloques-separacion-m` (mín. 6,00 m),
 `--bloques-desnivel-m` → `bloques.json` (multivolumen).
 
+v02.1 (2026-09-29): orientación **referida al predio** (`automatico` | `paralelo_calle_acceso` |
+`perpendicular_calle_acceso` | `paralelo_lindero` + `--bloques-lindero` | `angulo` +
+`--bloques-angulo-ref`/`--bloques-angulo-grados`; modos v02 en compat), **niveles automáticos**
+`--bloques-desnivel auto` (B1 = ±0,00 en la calle de acceso → BN en el nivel final del lote,
+interpolando la topografía MDT; los intermedios se reparten uniformemente) y **ancho mínimo por
+programa** (núcleo + circulación + crujía de la unidad mayor; si no cabe se reduce N con aviso y
+`n_max_recomendado`). `--dry-run`/`--json` para propuestas sin escribir. Cada bloque informa
+`ancho_m`, `z_terreno_medio_m` y `unidades_estimadas` (mín-máx).
+
 | Salida | Contenido |
 |---|---|
 | `programa.json` | Usos del D_MIXTO con % GFA, área, unidades y unidad tipo |
 | `matriz_adyacencias.json` | Matriz 0-3 (Requerida/Deseable/Indiferente/Incompatible) con justificación funcional y normativa |
 | `layout_espacial.json` | Huella, niveles, reparto vertical, núcleos (escaleras/ascensores NSR-10), población |
 | `programa-areas.json` | **Esquema GH v04/v05 balanceado** (losas + volúmenes por piso) |
-| `bloques.json` | **v02**: multivolumen (n, distribución, separación, desnivel, `z_base_m` por bloque, franjas del lote; contrato para VOLUM v09) |
+| `bloques.json` | **v02.1**: multivolumen (n solicitado/ajustado, `orientacion` referida al predio, `niveles` Entrada→Salida, `ancho_min` por programa, avisos, franjas del lote y por bloque: `ancho_m`, `z_base_m`, `z_terreno_medio_m`, `unidades_estimadas`; contrato para VOLUM v09) |
 | `planos_<id>.html` | Planos esquemáticos SVG por nivel |
 | `F3_<id>.3dm` | Masa 3D (capas N1..Nn + NUCLEO), rhino3dm |
 

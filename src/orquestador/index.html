@@ -191,7 +191,7 @@
   <!-- ===== 4. Modelado ===== -->
   <div class="card">
     <h2><span class="seccion-num">4</span>Modelado (masa)</h2>
-    <div class="subtitulo">El modelado se genera a partir de lo solicitado en las secciones 2–3 (usos, normativa y escenarios). Aquí se ajustan núcleo y bloques (multivolumen) y se lanza la generación.</div>
+    <div class="subtitulo">El modelado se genera a partir de lo solicitado en las secciones 2–3 (usos, normativa y escenarios). Aquí se ajustan núcleo, orientación de los bloques (paralelo/perpendicular a la calle de acceso o a un lindero; niveles automáticos Entrada→Salida con la topografía) y se lanza la generación.</div>
     <div id="modelado-derivado" class="ayuda" style="margin-top:6px;"></div>
     <div id="vars-modelado"></div>
     <div id="caso-detalle" class="caso-titulo" style="display:none;"></div>
@@ -341,23 +341,76 @@ function recolectarBloques(){
   const num = parseInt(g('bloques_num') || '1', 10) || 1;
   const sep = parseFloat(g('bloques_separacion_m'));
   const desn = g('bloques_desnivel_m');
+  const ang = parseFloat(g('bloques_angulo_grados'));
+  const autoRaw = g('bloques_desnivel_auto');
+  const desnAuto = (autoRaw === null || autoRaw === undefined) ? true : String(autoRaw) !== 'false';
   return {
     n: Math.max(1, Math.min(6, num)),
-    distribucion: g('bloques_distribucion') || 'longitudinal',
+    distribucion: g('bloques_distribucion') || 'automatico',
+    lindero: g('bloques_lindero') || null,
+    angulo_ref: g('bloques_angulo_ref') || 'calle_acceso',
+    angulo_grados: isNaN(ang) ? 0.0 : ang,
     separacion_m: isNaN(sep) ? 6.0 : sep,
-    desnivel_m: (desn === '' || desn === null || isNaN(parseFloat(desn))) ? 0.0 : parseFloat(desn)
+    desnivel_auto: desnAuto,
+    desnivel_m: desnAuto ? null : ((desn === '' || desn === null || isNaN(parseFloat(desn))) ? 0.0 : parseFloat(desn))
   };
 }
+let _propTimer = null, _propSeq = 0;
 function actualizarModeladoDerivado(){
   const det = $('modelado-derivado');
   if(!det) return;
   const d = escenarioDerivado();
   const b = recolectarBloques();
-  det.innerHTML = 'Se modelará según §2–§3: escenario <b>' + d.escenario + '</b> · usos: <b>' +
-    (d.usos.join(', ') || '—') + '</b> · bloques: <b>' + b.n + '</b>' +
-    (b.n > 1 ? ' (a lo ' + (b.distribucion === 'transversal' ? 'ancho' : 'largo') + ', sep ' + b.separacion_m + ' m, desnivel ' + b.desnivel_m + ' m)' : '');
+  const chip = $('chip') ? $('chip').value : '';
+  const base = 'Se modelará según §2–§3: escenario <b>' + d.escenario + '</b> · usos: <b>' +
+    (d.usos.join(', ') || '—') + '</b> · bloques: <b>' + b.n + '</b>';
+  if(!chip){
+    det.innerHTML = base + ' <span class="fuente">(seleccione un predio para ver la propuesta de orientación y niveles)</span>';
+    return;
+  }
+  det.innerHTML = base + ' · <span class="fuente">calculando propuesta…</span>';
+  if(_propTimer) clearTimeout(_propTimer);
+  _propTimer = setTimeout(async function(){
+    const seq = ++_propSeq;
+    try{
+      const r = await api('/api/proponer-bloques', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ chip: chip, usos: d.usos, bloques: b }) });
+      if(seq !== _propSeq) return; // respuesta obsoleta
+      const p = (r && r.propuesta) || null;
+      const bl = (p && p.bloques) || null;
+      if(!r || !r.ok || !p || !p.ok || !bl){
+        const err = (p && p.error) || (r && r.error) || 'sin respuesta';
+        det.innerHTML = base + ' · <span class="fuente">orientación/niveles no disponibles (' + err + ')</span>';
+        return;
+      }
+      const o = bl.orientacion || {}; const ni = bl.niveles || {}; const am = bl.ancho_min || {};
+      let html = 'Se modelará según §2–§3: escenario <b>' + (p.escenario || d.escenario) + '</b> · usos: <b>' +
+        (p.usos_txt || d.usos.join(', ') || '—') + '</b>';
+      html += '<br>Bloques: <b>' + bl.n + '</b>';
+      if(bl.n_solicitado && bl.n_solicitado !== bl.n) html += ' <span style="color:#b45309;">(solicitados ' + bl.n_solicitado + ' → ajustado por ancho mínimo)</span>';
+      if(o.franja_descripcion) html += ' · ' + o.franja_descripcion;
+      if(o.reparto_descripcion) html += ' · ' + o.reparto_descripcion;
+      if(bl.n > 1 && ni.modo === 'auto' && ni.delta_m != null){
+        html += '<br>Niveles: <b>B1 en ±0,00</b> (calle de acceso, Entrada) → <b>B' + bl.n + ' en ' +
+          (ni.delta_m >= 0 ? '+' : '') + Number(ni.delta_m).toFixed(2) + ' m</b> (nivel final del lote, Salida); paso ' +
+          Number(ni.desnivel_m).toFixed(2) + ' m/bloque <span class="fuente">[' + (ni.fuente || 'topografía') + ']</span>';
+      } else if(bl.n > 1){
+        html += '<br>Niveles: paso manual <b>' + Number(bl.desnivel_m || 0).toFixed(2) + ' m/bloque</b> (B1 en ±0,00).';
+      }
+      if(am.ancho_min_m){
+        html += '<br><span class="fuente">Ancho mín. por bloque: <b>' + Number(am.ancho_min_m).toFixed(1) + ' m</b> = núcleo ' +
+          Number(am.nucleo_m).toFixed(1) + ' + 2×circulación ' + Number(am.circulacion_m).toFixed(1) + ' + crujía ' +
+          Number(am.crujia_min_m).toFixed(1) + ' (unidad máx. ' + am.unidad_max_m2 + ' m²) · máx. recomendado: <b>' +
+          (bl.n_max_recomendado || bl.n) + ' bloques</b>.</span>';
+      }
+      (bl.avisos || []).forEach(function(a){ html += '<br><span style="color:#b45309;">⚠ ' + a + '</span>'; });
+      det.innerHTML = html;
+    }catch(e){
+      if(seq !== _propSeq) return;
+      det.innerHTML = base + ' · <span class="fuente">orientación/niveles no disponibles (' + e + ')</span>';
+    }
+  }, 350);
 }
-
 function renderUsos(usos){
   const info = $('usos-info'); info.innerHTML = '';
   if(usos.upz || usos.tratamiento){
@@ -1408,8 +1461,20 @@ async function generarF3(){
   const r = await api('/api/generar-f3', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, usos:d.usos, bloques:bloques}) });
   if(!r.ok || !r.f3 || !r.f3.ok){ out.className='aviso error'; out.textContent = (r.f3 && r.f3.salida) || r.error || 'error'; return; }
   const res = r.f3.resultados || {};
+  const br = r.f3.bloques_resumen || null;
   let html = '<b>Masa generada para ' + chip + '</b> · escenario ' + (r.f3.escenario||'—') + ' · GFA ' + (res.gfa_total!=null ? res.gfa_total : '—') + ' m² · pisos ' + (res.pisos||'—');
-  if(bloques.n > 1) html += ' · <b>' + bloques.n + ' bloques</b> (sep ' + bloques.separacion_m + ' m, desnivel ' + bloques.desnivel_m + ' m)';
+  if(br){
+    const o = br.orientacion || {}; const ni = br.niveles || {};
+    if(br.n > 1){
+      html += ' · <b>' + br.n + ' bloques</b> (sep ' + (br.separacion_m||0) + ' m';
+      if(ni.modo === 'auto' && ni.delta_m != null) html += ', B1 ±0,00 → B' + br.n + ' ' + (ni.delta_m>=0?'+':'') + Number(ni.delta_m).toFixed(2) + ' m';
+      html += ')';
+    }
+    if(o.franja_descripcion) html += '<br>' + o.franja_descripcion;
+    (br.avisos||[]).forEach(function(a){ html += '<br><span style="color:#b45309;">⚠ ' + a + '</span>'; });
+  } else if(bloques.n > 1){
+    html += ' · <b>' + bloques.n + ' bloques</b> (sep ' + bloques.separacion_m + ' m)';
+  }
   out.className='aviso ok'; out.innerHTML = html;
   verResultados(chip);
 }

@@ -1,14 +1,57 @@
 {
   "chip": "AAA0030JKOE",
   "n": 1,
-  "distribucion": "longitudinal",
+  "n_solicitado": 1,
+  "n_max_recomendado": 2,
+  "distribucion": "automatico",
+  "orientacion": {
+    "modo": "automatico",
+    "referencia": "calle de acceso (Occidente-2)",
+    "franja_descripcion": "franjas paralelas a la calle de acceso (Occidente-2)",
+    "reparto_descripcion": "reparto desde la calle hacia el interior del lote (subiendo)",
+    "franja_dir_local_deg": 52.59,
+    "azimut_franja_deg": 37.4,
+    "azimut_reparto_deg": 127.4,
+    "calle_acceso": {
+      "lado_id": 25,
+      "cardinal_label": "Occidente-2",
+      "azimut_grados": 307.4,
+      "longitud_m": 14.98,
+      "frente_override": "via",
+      "via_cercana_nombre": "KR 2 E",
+      "via_cercana_dist_m": 45.5
+    }
+  },
+  "lindero": null,
+  "angulo": null,
   "azimut_grados": null,
   "separacion_m": 0.0,
   "separacion_min_norma_m": 6.0,
   "desnivel_m": 0.0,
-  "fuente_geometria": "lote_objetivo (franjas OBB) - AAA0030JKOE-contexto.json",
+  "niveles": {
+    "modo": "manual",
+    "desnivel_m": 0.0,
+    "entrada_m": null,
+    "salida_m": null,
+    "delta_m": null,
+    "fuente": "manual (paso entre bloques)"
+  },
+  "ancho_min": {
+    "ancho_min_m": 14.91,
+    "nucleo_m": 6.4,
+    "circulacion_m": 1.2,
+    "crujia_min_m": 6.11,
+    "crujia_por_uso": {
+      "Local comercial": 4.44,
+      "Vivienda": 6.11
+    },
+    "unidad_max_m2": 55.0,
+    "prof_ref_m": 9.0,
+    "formula": "ancho_min = nucleo + 2 x circulacion + crujia (unidad_max / prof_ref)"
+  },
+  "fuente_geometria": "lote_objetivo (franjas dirigidas 52.6 deg; ref: calle de acceso (Occidente-2)) - AAA0030JKOE-contexto.json; lados: AAA0030JKOE-vecinos-por-lado-override.json",
   "avisos": [],
-  "nota": "Parametros basicos de multivolumen (v02). Poligonos esquematicos; el canvas (VOLUM v09) los re-encaja en la envolvente F1 y a las cotas de terreno. z_base_m del bloque i = i x desnivel_m (negativo desciende).",
+  "nota": "Propuesta de multivolumen v02.1: franjas referidas al predio y ordenadas desde la entrada; z_base_m relativo a la cota de ENTRADA (B1 = 0.00); auto interpola la topografia MDT (Entrada -> nivel final del lote). Poligonos esquematicos: el canvas (VOLUM v09) los re-encaja en la envolvente F1. z_terreno_medio_m = MDT absoluto (m); z_local del marco del canvas = MDT - origen_sirgas.z.",
   "bloques": [
     {
       "id": "B1",
@@ -37,10 +80,6 @@
         [
           126.619,
           94.379
-        ],
-        [
-          130.02,
-          91.91
         ],
         [
           130.02,
@@ -77,10 +116,6 @@
         [
           112.662,
           78.11
-        ],
-        [
-          112.42,
-          78.28
         ],
         [
           112.42,
@@ -148,10 +183,24 @@
         ]
       ],
       "area_lote_m2": 946.45,
+      "ancho_m": 21.65,
       "huella_objetivo_m2": 662.51,
       "pisos": 5,
       "z_base_m": 0.0,
-      "gfa_objetivo_m2": 3312.55
+      "z_terreno_medio_m": 2643.07,
+      "gfa_objetivo_m2": 3312.55,
+      "unidades_estimadas": {
+        "Local comercial": {
+          "unidad_m2": 40.0,
+          "min": 24,
+          "max": 25
+        },
+        "Vivienda": {
+          "unidad_m2": 55.0,
+          "min": 42,
+          "max": 43
+        }
+      }
     }
   ]
 }

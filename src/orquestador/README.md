@@ -60,6 +60,14 @@ los parámetros de **bloques** (sección 4); el servidor deriva el escenario F2 
 `bloques.json` (multivolumen). El selector "Escenario pre-generado" queda solo como
 referencia para ver resultados ya generados.
 
+v02.1 (2026-09-29): el modelado se **refiere al predio** — la sección 4 permite elegir la
+orientación de los bloques (automático según la calle de acceso / paralelo / perpendicular /
+lindero / ángulo referido), los **niveles se proponen solos** con la topografía (B1 en ±0,00 en
+la calle de acceso → último bloque en el nivel final del lote) y cada bloque respeta un **ancho
+mínimo** derivado del programa (si no cabe, se ajusta N con aviso). La línea viva de la sección
+4 consulta `POST /api/proponer-bloques` (F3 `--dry-run`, sin escribir archivos) y muestra
+orientación, niveles, ancho mínimo y avisos antes de generar.
+
 ## Límite honesto
 
 Los pasos **manuales** (exportar GFA en Rhino, masa + Morphs en ArchiCAD) **no se

@@ -10,6 +10,25 @@ CAMBIOS v02 (2026-09-29):
     --bloques-separacion-m (min normativo 6,00 m, Anexo 5 1.10.b) y
     --bloques-desnivel-m (+ --bloques-azimut) -> casos/<id>/bloques.json
     (franjas del lote via OBB; contrato para el canvas VOLUM v09).
+
+CAMBIOS v02.1 (2026-09-29):
+  - ORIENTACION REFERIDA AL PREDIO: --bloques-distribucion pasa a
+    automatico | paralelo_calle_acceso | perpendicular_calle_acceso |
+    paralelo_lindero (+ --bloques-lindero) | angulo (+ --bloques-angulo-ref /
+    --bloques-angulo-grados). Las franjas se generan en la direccion real de la
+    calle de acceso o del lindero elegido (lados del predio: override del
+    operador si existe) y se ordenan desde la entrada hacia el interior; los
+    modos v02 (longitudinal/transversal/azimut) siguen aceptandose (compat).
+  - NIVELES AUTOMATICOS ENTRE CALLES: --bloques-desnivel auto (default) propone
+    la cota de cada bloque interpolando la topografia MDT del contexto: B1 =
+    0.00 en la calle de acceso (Entrada) y BN en el nivel final del lote (via
+    posterior o extremo opuesto, Salida); los bloques intermedios se reparten
+    uniformemente. Manual sigue disponible (--bloques-desnivel-m).
+  - ANCHO MINIMO POR PROGRAMA: cada franja debe alojar nucleo + circulacion +
+    crujia (unidad maxima del mix / profundidad de referencia); si el numero de
+    bloques pedido no cabe, se reduce y se avisa (n_max_recomendado), con el
+    desglose en bloques.json -> ancho_min. Cada bloque informa unidades
+    estimadas min-max segun el GFA del bloque.
 ================================================================================
 Toma el programa del escenario D_MIXTO (override de usuario) de cada caso y genera:
 
@@ -52,10 +71,14 @@ except ImportError:
 # shapely (opcional): corta los bloques del multivolumen sobre el poligono del lote
 try:
     from shapely.geometry import Polygon as _ShPolygon
+    from shapely.geometry import LineString as _ShLineString
+    from shapely.geometry import Point as _ShPoint
     from shapely import affinity as _sh_affinity
     _HAY_SHAPELY = True
 except ImportError:
     _ShPolygon = None
+    _ShLineString = None
+    _ShPoint = None
     _sh_affinity = None
     _HAY_SHAPELY = False
 
@@ -81,6 +104,11 @@ SERVICIOS_LARGO_M = 4.0
 UNID_POR_ASCENSOR = 40.0   # NSR-10 practica: 1 ascensor / ~40 unidades
 PERS_VIVIENDA = 2.5        # ocupantes por unidad de vivienda (promedio Bogota)
 PERS_SERVICIOS_M2 = 0.10   # 1 persona / 10 m2 (NSR-10 C.2.3 oficinas/servicios)
+
+# --------------------------------------------------------- multivolumen (v02.1)
+CIRC_MIN_M = 1.2           # circulacion minima por lado del nucleo (m)
+CRUJIA_PROF_REF_M = 9.0    # profundidad de referencia para derivar la crujia de una unidad (m)
+ANCHO_NUCLEO_FALLBACK_M = 6.4  # nucleo 2 escaleras + ascensor + servicios (si no hay layout)
 
 # --------------------------------------------------------- matriz de adyacencias
 # Niveles: 3 = Requerida, 2 = Deseable, 1 = Indiferente, 0 = Incompatible
@@ -441,80 +469,550 @@ def _leer_lote_local(chip):
     return None, None
 
 
-def _bandas_obb(pts, n, sep, azimut=None):
-    """v02: divide el lote en n franjas con separacion `sep` (rectangulo minimo
-    rotado; azimut en grados opcional). Devuelve (lista de dicts franja, aviso)."""
+def _leer_contexto_chip(chip):
+    """v02.1: contexto completo del CHIP (topografia, vias_oficiales, lote)."""
+    for nombre in ("{}-contexto.json".format(chip), "CHIP-contexto.json"):
+        ruta = os.path.join(ROOT, "data", "pot-cache", nombre)
+        if not os.path.exists(ruta):
+            continue
+        try:
+            with io.open(ruta, encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            continue
+    return None
+
+
+def _leer_lados_chip(chip):
+    """v02.1: lados del predio (override del operador si existe; si no, auto)."""
+    for nombre in ("{}-vecinos-por-lado-override.json".format(chip),
+                   "{}-vecinos-por-lado.json".format(chip),
+                   "CHIP-vecinos-por-lado.json"):
+        ruta = os.path.join(ROOT, "data", "pot-cache", nombre)
+        if not os.path.exists(ruta):
+            continue
+        try:
+            with io.open(ruta, encoding="utf-8") as f:
+                data = json.load(f)
+            lados = data.get("lados") or []
+            if lados:
+                return lados, ruta
+        except Exception:
+            continue
+    return [], None
+
+
+def _lado_por_cardinal(lados, cardinal):
+    """v02.1: lado cuyo cardinal empieza por `cardinal` (el mas largo si hay varios)."""
+    c = (cardinal or "").strip().lower()
+    if not c:
+        return None
+    cands = []
+    for l in (lados or []):
+        card = str(l.get("cardinal") or "").lower()
+        lbl = str(l.get("cardinal_label") or "").lower()
+        if card.startswith(c) or lbl.startswith(c):
+            cands.append(l)
+    if not cands:
+        return None
+    cands.sort(key=lambda l: float(l.get("longitud_m") or 0.0), reverse=True)
+    return cands[0]
+
+
+def _lado_calle_acceso(lados):
+    """v02.1: lado de la calle de acceso (frente_override='via' o frente='via')."""
+    cands = [l for l in (lados or [])
+             if l.get("frente_override") == "via" or l.get("frente") == "via"]
+    if not cands:
+        return None
+    cands.sort(key=lambda l: float(l.get("longitud_m") or 0.0), reverse=True)
+    return cands[0]
+
+
+def _lado_via_posterior(lados, lado_acceso):
+    """v02.1: via posterior (frente_override='via_no_frontal') opuesta a la de acceso."""
+    if not lado_acceso or lado_acceso.get("azimut_grados") is None:
+        return None
+    op = (float(lado_acceso["azimut_grados"]) + 180.0) % 360.0
+
+    def _dif(a, b):
+        d = abs((float(a) - float(b)) % 360.0)
+        return min(d, 360.0 - d)
+
+    cands = [l for l in (lados or [])
+             if l.get("frente_override") == "via_no_frontal"
+             and l.get("azimut_grados") is not None]
+    if not cands:
+        return None
+    cands.sort(key=lambda l: _dif(l["azimut_grados"], op))
+    return cands[0] if _dif(cands[0]["azimut_grados"], op) <= 75.0 else None
+
+
+def _dir_y_ancla_lado(lado, pts):
+    """v02.1: direccion media (grados locales) y punto medio del lado
+    (segmentos = indices de arista del poligono del lote)."""
+    n = len(pts)
+    dx = dy = mx = my = 0.0
+    k = 0
+    for s in (lado.get("segmentos") or []):
+        i = int(s) % n
+        a = pts[i]
+        b = pts[(i + 1) % n]
+        dx += b[0] - a[0]
+        dy += b[1] - a[1]
+        mx += (a[0] + b[0]) / 2.0
+        my += (a[1] + b[1]) / 2.0
+        k += 1
+    if k == 0:
+        return None, None
+    return math.degrees(math.atan2(dy, dx)) % 360.0, (mx / k, my / k)
+
+
+def _normal_interna(ang_lado, ancla, pts):
+    """v02.1: normal al lado que apunta hacia el INTERIOR del lote (grados locales)."""
+    if ang_lado is None or ancla is None or not pts:
+        return None
+    cx = sum(p[0] for p in pts) / float(len(pts))
+    cy = sum(p[1] for p in pts) / float(len(pts))
+    vx, vy = cx - ancla[0], cy - ancla[1]
+    for cand in (ang_lado + 90.0, ang_lado - 90.0):
+        nx, ny = math.cos(math.radians(cand)), math.sin(math.radians(cand))
+        if (nx * vx + ny * vy) > 0:
+            return cand % 360.0
+    return None
+
+
+def _azimut_de_local(ang_local):
+    """v02.1: angulo local -> azimut geografico del proyecto (0=norte, horario)."""
+    return (90.0 - float(ang_local)) % 360.0
+
+
+def _local_de_azimut(az):
+    """v02.1: azimut geografico -> angulo local (marco del contexto)."""
+    return (90.0 - float(az)) % 360.0
+
+
+def _ejes_obb_local(pts):
+    """v02.1: direcciones locales del eje largo y corto del OBB del lote."""
     poly = _ShPolygon(pts)
     if not poly.is_valid:
         poly = poly.buffer(0)
-    obb = poly.minimum_rotated_rectangle
-    oc = list(obb.exterior.coords)
-    lados = []
+    oc = list(poly.minimum_rotated_rectangle.exterior.coords)
+    lados_ = []
     for i in range(4):
         (x1, y1), (x2, y2) = oc[i], oc[i + 1]
-        lados.append((math.hypot(x2 - x1, y2 - y1), (x1, y1), (x2, y2)))
-    lados.sort(key=lambda t: t[0], reverse=True)
-    _largo, (x1, y1), (x2, y2) = lados[0]
-    ang = math.degrees(math.atan2(y2 - y1, x2 - x1))
-    if azimut is not None:
-        ang = float(azimut)
-    obb_r = _sh_affinity.rotate(obb, -ang, origin=oc[0], use_radians=False)
+        lados_.append((math.hypot(x2 - x1, y2 - y1),
+                       math.degrees(math.atan2(y2 - y1, x2 - x1)) % 360.0))
+    lados_.sort(key=lambda t: t[0], reverse=True)
+    return lados_[0][1], lados_[2][1]
+
+
+def _via_cercana(ctx, pts):
+    """v02.1: via oficial mas cercana al lote -> (nombre, distancia_m) o None."""
+    if not ctx or not _HAY_SHAPELY or not pts:
+        return None
+    poly = _ShPolygon(pts)
+    if not poly.is_valid:
+        poly = poly.buffer(0)
+    mejor = None
+    for v in (ctx.get("vias_oficiales") or []):
+        pares = []
+        for c in (v.get("coordenadas_local") or []):
+            try:
+                if isinstance(c, dict):
+                    pares.append((float(c.get("x")), float(c.get("y"))))
+                else:
+                    pares.append((float(c[0]), float(c[1])))
+            except Exception:
+                continue
+        pares = [p for p in pares if not (math.isnan(p[0]) or math.isnan(p[1]))]
+        if len(pares) < 2:
+            continue
+        try:
+            d = float(poly.distance(_ShLineString(pares)))
+        except Exception:
+            continue
+        nombre = str(v.get("nombre") or v.get("codigo") or "").strip()
+        if nombre and (mejor is None or d < mejor[1]):
+            mejor = (nombre, round(d, 1))
+    if mejor and mejor[1] <= 60.0:
+        return mejor
+    return None
+
+
+def _resumen_lado(lado, via=None):
+    """v02.1: resumen serializable de un lado (para bloques.json)."""
+    if not lado:
+        return None
+    out = {"lado_id": lado.get("lado_id"),
+           "cardinal_label": lado.get("cardinal_label") or lado.get("cardinal"),
+           "azimut_grados": lado.get("azimut_grados"),
+           "longitud_m": lado.get("longitud_m"),
+           "frente_override": lado.get("frente_override")}
+    if via:
+        out["via_cercana_nombre"] = via[0]
+        out["via_cercana_dist_m"] = via[1]
+    return out
+
+
+def _resolver_orientacion(pts, lados, dist, lindero_sel, ang_ref, ang_deg,
+                          azimut_in, lado_acc, via, avisos):
+    """v02.1: traduce el modo de distribucion (referencias del predio) a la
+    direccion local de las franjas (franja_local) y del reparto (reparto_local),
+    con descripciones para el operador. Sin datos del predio cae al eje del lote."""
+    acc_lbl = None
+    if lado_acc:
+        acc_lbl = lado_acc.get("cardinal_label") or "lado {}".format(lado_acc.get("lado_id"))
+        if via and via[1] is not None and via[1] <= 15.0:
+            acc_lbl = "{} ({})".format(acc_lbl, via[0])
+    res = {"modo": dist, "referencia": None, "ancla": None,
+           "franja_local": None, "reparto_local": None,
+           "desc_franja": "", "desc_reparto": "",
+           "calle_acceso": _resumen_lado(lado_acc, via)}
+
+    ang_acc, ancla_acc = (None, None)
+    if lado_acc and pts:
+        ang_acc, ancla_acc = _dir_y_ancla_lado(lado_acc, pts)
+
+    if dist in ("automatico", "paralelo_calle_acceso", "perpendicular_calle_acceso"):
+        if ang_acc is None:
+            eje_largo, eje_corto = _ejes_obb_local(pts)
+            avisos.append("Sin lado con frente a via (frente_override='via'); se usa el eje del lote.")
+            res["modo"] = "longitudinal"
+            res["franja_local"] = eje_corto
+            res["reparto_local"] = (eje_corto + 90.0) % 360.0
+            res["referencia"] = "eje corto del lote (sin calle de acceso)"
+            res["desc_franja"] = "franjas a lo largo del lote (sin referencia de via)"
+            res["desc_reparto"] = "reparto sobre el eje largo del lote"
+            return res
+        if dist == "perpendicular_calle_acceso":
+            res["reparto_local"] = ang_acc
+            res["franja_local"] = _normal_interna(ang_acc, ancla_acc, pts)
+            res["referencia"] = "calle de acceso ({})".format(acc_lbl)
+            res["desc_franja"] = "franjas perpendiculares a la calle de acceso ({})".format(acc_lbl)
+            res["desc_reparto"] = "reparto paralelo a la calle de acceso"
+        else:
+            res["franja_local"] = ang_acc
+            res["reparto_local"] = _normal_interna(ang_acc, ancla_acc, pts)
+            res["referencia"] = "calle de acceso ({})".format(acc_lbl)
+            res["desc_franja"] = "franjas paralelas a la calle de acceso ({})".format(acc_lbl)
+            res["desc_reparto"] = "reparto desde la calle hacia el interior del lote (subiendo)"
+        res["ancla"] = ancla_acc
+        return res
+
+    if dist == "paralelo_lindero":
+        lado = _lado_por_cardinal(lados, lindero_sel)
+        if lado and pts:
+            ang, ancla = _dir_y_ancla_lado(lado, pts)
+            lbl = lado.get("cardinal_label") or "lado {}".format(lado.get("lado_id"))
+            res["franja_local"] = ang
+            res["reparto_local"] = _normal_interna(ang, ancla, pts)
+            res["referencia"] = "lindero {}".format(lbl)
+            res["ancla"] = ancla
+            res["desc_franja"] = "franjas paralelas al lindero {}".format(lbl)
+            res["desc_reparto"] = "reparto desde el lindero hacia el interior del lote"
+            return res
+        eje_largo, eje_corto = _ejes_obb_local(pts)
+        avisos.append("Lindero '{}' no encontrado en los lados del predio; se usa el eje del lote.".format(lindero_sel))
+        res["modo"] = "longitudinal"
+        res["franja_local"] = eje_corto
+        res["reparto_local"] = (eje_corto + 90.0) % 360.0
+        res["referencia"] = "eje corto del lote"
+        res["desc_franja"] = "franjas a lo largo del lote"
+        res["desc_reparto"] = "reparto sobre el eje largo del lote"
+        return res
+
+    if dist == "angulo":
+        base_az = 0.0
+        ref_txt = "norte del plano"
+        ancla = None
+        if ang_ref == "calle_acceso" and ang_acc is not None:
+            base_az = _azimut_de_local(ang_acc)
+            ref_txt = "calle de acceso ({})".format(acc_lbl)
+            ancla = ancla_acc
+        elif ang_ref == "lindero":
+            lado = _lado_por_cardinal(lados, lindero_sel)
+            if lado and pts:
+                ang_l, ancla = _dir_y_ancla_lado(lado, pts)
+                base_az = _azimut_de_local(ang_l)
+                ref_txt = "lindero {}".format(lado.get("cardinal_label") or lado.get("lado_id"))
+            else:
+                avisos.append("Lindero '{}' no encontrado; angulo referido al norte.".format(lindero_sel))
+        franja_az = (base_az + float(ang_deg or 0.0)) % 360.0
+        res["franja_local"] = _local_de_azimut(franja_az)
+        res["reparto_local"] = (res["franja_local"] + 90.0) % 360.0
+        res["referencia"] = ref_txt
+        res["ancla"] = ancla
+        res["desc_franja"] = "franjas a {}° (horario) respecto a {}".format(round(float(ang_deg or 0.0), 1), ref_txt)
+        if ang_acc is not None:
+            rel = (franja_az - _azimut_de_local(ang_acc)) % 360.0
+            res["desc_franja"] += "; angulo respecto a la calle de acceso: {}°".format(round(rel, 1))
+        res["desc_reparto"] = "reparto perpendicular a las franjas"
+        return res
+
+    # compat v02: --bloques-azimut (angulo local del reparto)
+    if azimut_in is not None:
+        res["reparto_local"] = float(azimut_in) % 360.0
+        res["franja_local"] = (res["reparto_local"] + 90.0) % 360.0
+        res["referencia"] = "azimut local (compat v02)"
+        res["desc_franja"] = "franjas a {}° locales (compat v02)".format(round(float(azimut_in), 1))
+        res["desc_reparto"] = "reparto perpendicular a las franjas"
+        return res
+
+    if dist in ("longitudinal", "transversal"):
+        eje_largo, eje_corto = _ejes_obb_local(pts)
+        res["franja_local"] = eje_corto if dist == "longitudinal" else eje_largo
+        res["reparto_local"] = (res["franja_local"] + 90.0) % 360.0
+        res["referencia"] = "eje {} del lote".format("corto" if dist == "longitudinal" else "largo")
+        res["desc_franja"] = "franjas a lo {} del lote (compat v02)".format(
+            "largo" if dist == "longitudinal" else "ancho")
+        res["desc_reparto"] = "reparto sobre el eje {} del lote".format(
+            "largo" if dist == "longitudinal" else "corto")
+        return res
+
+    eje_largo, eje_corto = _ejes_obb_local(pts)
+    res["modo"] = "longitudinal"
+    res["franja_local"] = eje_corto
+    res["reparto_local"] = (eje_corto + 90.0) % 360.0
+    res["referencia"] = "eje corto del lote"
+    res["desc_franja"] = "franjas a lo largo del lote"
+    res["desc_reparto"] = "reparto sobre el eje largo del lote"
+    return res
+
+
+def _niveles_terreno_chip(ctx, pts, lado_entrada, lado_salida):
+    """v02.1: cotas MDT de ENTRADA (calle de acceso) y SALIDA (via posterior o
+    extremo opuesto del lote). perfil_lados.id = indice de arista del poligono.
+    Devuelve {'entrada_m','salida_m','delta_m','fuente'} o None."""
+    if not ctx or not pts:
+        return None
+    top = ctx.get("topografia") or {}
+    perf = {}
+    for p in (top.get("perfil_lados") or []):
+        try:
+            if p.get("z_media_m") is not None:
+                perf[int(p["id"])] = float(p["z_media_m"])
+        except Exception:
+            continue
+    if not perf:
+        return None
+
+    def _z_lado(lado):
+        segs = []
+        for s in ((lado or {}).get("segmentos") or []):
+            try:
+                s = int(s)
+            except Exception:
+                continue
+            if s in perf:
+                segs.append(s)
+        if not segs:
+            return None
+        return sum(perf[s] for s in segs) / len(segs)
+
+    z_ent = _z_lado(lado_entrada)
+    if z_ent is None:
+        return None
+    z_sal = _z_lado(lado_salida) if lado_salida is not None else None
+    fuente = "topografia.perfil_lados (MDT Catastro)"
+    if z_sal is None:
+        ang, ancla = _dir_y_ancla_lado(lado_entrada, pts)
+        inward = _normal_interna(ang, ancla, pts)
+        if inward is None:
+            return None
+        ux, uy = math.cos(math.radians(inward)), math.sin(math.radians(inward))
+        n = len(pts)
+        proys = []
+        for i in range(n):
+            a, b = pts[i], pts[(i + 1) % n]
+            mx, my = (a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0
+            proys.append(mx * ux + my * uy)
+        pmax = max(proys)
+        segs = [i for i, p in enumerate(proys) if p >= pmax - 3.0 and i in perf]
+        if not segs:
+            return None
+        z_sal = sum(perf[s] for s in segs) / len(segs)
+        fuente += " (salida = extremo opuesto del lote)"
+    else:
+        fuente += " (salida = via posterior)"
+    return {"entrada_m": round(z_ent, 2), "salida_m": round(z_sal, 2),
+            "delta_m": round(z_sal - z_ent, 2), "fuente": fuente}
+
+
+def _ancho_min_programa(prog, layout=None):
+    """v02.1: ancho minimo de bloque para alojar el programa basico:
+    nucleo + 2 x circulacion + crujia de la unidad mas grande del mix."""
+    bloque = ((layout or {}).get("nucleos") or {}).get("bloque") or {}
+    ancho_nucleo = float(bloque.get("ancho_m") or ANCHO_NUCLEO_FALLBACK_M)
+    unidades = [(c.get("uso"), float(c.get("unidad_m2") or 0.0))
+                for c in (prog.get("componentes") or [])]
+    unidades = [(u, a) for u, a in unidades if a > 0]
+    crujia_por_uso = {u: round(a / CRUJIA_PROF_REF_M, 2) for u, a in unidades}
+    unidad_max = max([a for _u, a in unidades], default=0.0)
+    crujia_min = round(max(unidad_max / CRUJIA_PROF_REF_M, 4.0), 2)
+    ancho_min = round(ancho_nucleo + 2.0 * CIRC_MIN_M + crujia_min, 2)
+    return {
+        "ancho_min_m": ancho_min,
+        "nucleo_m": round(ancho_nucleo, 2),
+        "circulacion_m": CIRC_MIN_M,
+        "crujia_min_m": crujia_min,
+        "crujia_por_uso": crujia_por_uso,
+        "unidad_max_m2": round(unidad_max, 1),
+        "prof_ref_m": CRUJIA_PROF_REF_M,
+        "formula": "ancho_min = nucleo + 2 x circulacion + crujia (unidad_max / prof_ref)",
+    }
+
+
+def _unidades_bloque(prog, gfa_bloque):
+    """v02.1: unidades estimadas min-max por uso para el GFA de un bloque."""
+    out = {}
+    for c in (prog.get("componentes") or []):
+        u = float(c.get("unidad_m2") or 0.0)
+        if u <= 0 or not c.get("num_unidades"):
+            continue
+        gfa_u = float(gfa_bloque) * float(c.get("pct_gfa") or 0.0)
+        n_min = int(math.floor(gfa_u / u + 1e-9))
+        n_max = int(math.ceil(gfa_u / u - 1e-9))
+        out[c["uso"]] = {"unidad_m2": round(u, 1), "min": n_min, "max": max(n_min, n_max)}
+    return out
+
+
+def _bandas_dir(pts, n, sep, franja_dir_deg, malla_pts=None):
+    """v02.1: divide el lote en n franjas cuya direccion LARGA es `franja_dir_deg`
+    (grados locales); el reparto es perpendicular a esa direccion con separacion
+    `sep` entre franjas. Devuelve (franjas, aviso). Cada franja incluye el ancho
+    (lado corto de su OBB), el centro y la cota media local de la malla MDT."""
+    poly = _ShPolygon(pts)
+    if not poly.is_valid:
+        poly = poly.buffer(0)
+    obb_r = _sh_affinity.rotate(poly, -float(franja_dir_deg), origin=(0, 0), use_radians=False)
     br = list(obb_r.exterior.coords)
     xmin = min(p[0] for p in br); xmax = max(p[0] for p in br)
     ymin = min(p[1] for p in br); ymax = max(p[1] for p in br)
-    usable = (xmax - xmin) - (n - 1) * sep
+    usable = (ymax - ymin) - (n - 1) * sep
     if usable <= 0.5:
         return [], ("AVISO: {} bloques con separacion {:.2f} m no caben en "
-                    "{:.1f} m; se reduce a 1 bloque.".format(n, sep, xmax - xmin))
-    ancho = usable / n
+                    "{:.1f} m; se reduce a 1 bloque.".format(n, sep, ymax - ymin))
+    alto = usable / n
     franjas = []
-    x = xmin
+    y = ymin
     for _i in range(n):
-        rect = _ShPolygon([(x, ymin), (x + ancho, ymin), (x + ancho, ymax), (x, ymax)])
-        rect = _sh_affinity.rotate(rect, ang, origin=oc[0], use_radians=False)
+        rect = _ShPolygon([(xmin, y), (xmax, y), (xmax, y + alto), (xmin, y + alto)])
+        rect = _sh_affinity.rotate(rect, float(franja_dir_deg), origin=(0, 0), use_radians=False)
         inter = poly.intersection(rect)
         if inter.is_empty or inter.area < 5.0:
-            x += ancho + sep
+            y += alto + sep
             continue
         coords = list(inter.exterior.coords)
         if coords and coords[0] == coords[-1]:
             coords = coords[:-1]
+        sc = list(inter.minimum_rotated_rectangle.exterior.coords)
+        lados_s = [math.hypot(sc[k + 1][0] - sc[k][0], sc[k + 1][1] - sc[k][1])
+                   for k in range(4)]
+        ancho = min(lados_s)
+        z_med = None
+        if malla_pts:
+            zs = [p[2] for p in malla_pts if inter.contains(_ShPoint(p[0], p[1]))]
+            if zs:
+                z_med = round(sum(zs) / len(zs), 2)
         franjas.append({"poligono_local": [[round(px, 3), round(py, 3)] for px, py in coords],
-                        "area": float(inter.area)})
-        x += ancho + sep
+                        "area": float(inter.area),
+                        "ancho_m": round(float(ancho), 2),
+                        "centro": [round(inter.centroid.x, 2), round(inter.centroid.y, 2)],
+                        "z_medio_local_m": z_med})
+        y += alto + sep
     return franjas, ""
 
 
-def generar_bloques(chip, prog, huella, niveles, cfg):
-    """v02: parametros basicos del multivolumen para bloques.json.
+def generar_bloques(chip, prog, huella, niveles, cfg, layout=None):
+    """v02.1: propuesta de multivolumen referida al predio (ver CAMBIOS v02.1).
 
-    cfg: {n, distribucion, separacion_m, desnivel_m, azimut_grados}. Geometria
-    esquematica (franjas recortadas del lote; separacion minima normativa 6,00 m
-    - Anexo 5 1.10.b). El canvas (VOLUM v09) la re-encaja en la envolvente F1 y
-    en las cotas de terreno."""
-    n = max(1, min(6, int(cfg.get("n") or 1)))
-    dist = (cfg.get("distribucion") or "longitudinal").strip().lower()
+    cfg: {n, distribucion, lindero, angulo_ref, angulo_grados, separacion_m,
+    desnivel_auto, desnivel_m, azimut_grados}. Franjas dirigidas por la calle de
+    acceso o el lindero elegido (o ejes del lote en compat v02); ordenadas desde
+    la entrada hacia el interior; z_base_m relativo a la cota de ENTRADA (B1 =
+    0.00); el modo auto interpola la topografia MDT (Entrada -> Salida)."""
+    n_req = max(1, min(6, int(cfg.get("n") or 1)))
+    dist = (cfg.get("distribucion") or "automatico").strip().lower()
     sep = float(cfg.get("separacion_m") if cfg.get("separacion_m") is not None else 6.0)
-    desn = float(cfg.get("desnivel_m") or 0.0)
-    azimut = cfg.get("azimut_grados")
+    azimut_in = cfg.get("azimut_grados")
+    lindero_sel = cfg.get("lindero")
+    ang_ref = (cfg.get("angulo_ref") or "calle_acceso").strip().lower()
+    ang_deg = float(cfg.get("angulo_grados") or 0.0)
+    desn_auto = bool(cfg.get("desnivel_auto"))
+    desn_man = cfg.get("desnivel_m")
+    if isinstance(desn_man, str):
+        try:
+            desn_man = float(desn_man)
+        except ValueError:
+            desn_man = None
+    if desn_auto:
+        desn_man = None
+    if not desn_auto and desn_man is None:
+        desn_man = 0.0
     SEP_MIN = 6.0
     avisos = []
-    if n > 1 and sep < SEP_MIN:
+    if n_req > 1 and sep < SEP_MIN:
         avisos.append("Separacion {:.2f} m < minimo 6.00 m (Anexo 5 1.10.b); "
                       "se usa {:.2f} m.".format(sep, SEP_MIN))
         sep = SEP_MIN
-    pts, ruta_lote = _leer_lote_local(chip)
+
+    # --- datos del predio (lote, lados, topografia, via de acceso)
+    pts, ruta_ctx_lote = _leer_lote_local(chip)
+    ctx = _leer_contexto_chip(chip)
+    lados, ruta_lados = _leer_lados_chip(chip)
+    lado_acc = _lado_calle_acceso(lados)
+    lado_post = _lado_via_posterior(lados, lado_acc)
+    via = _via_cercana(ctx, pts) if (ctx and pts) else None
+    malla = None
+    z_ref_lote = None
+    if ctx:
+        malla = [(p["x_local"], p["y_local"], p["z_local"])
+                 for p in ((ctx.get("topografia") or {}).get("malla_terreno") or [])
+                 if p.get("z_local") is not None]
+        z_ref_lote = (((ctx.get("metadata") or {}).get("origen_sirgas") or {}).get("z"))
+
+    orient = _resolver_orientacion(pts, lados, dist, lindero_sel, ang_ref, ang_deg,
+                                   azimut_in, lado_acc, via, avisos)
+    ancho_min = _ancho_min_programa(prog, layout)
+
+    # --- geometria: franjas dirigidas + reduccion por ancho minimo
     fuente = "esquema (cuadrado de referencia)"
     franjas = []
-    if pts and _HAY_SHAPELY:
-        franjas, aviso = _bandas_obb(pts, n, sep, azimut)
-        if aviso:
-            avisos.append(aviso)
+    n = n_req
+    first_fail = None
+    if pts and _HAY_SHAPELY and orient["franja_local"] is not None:
+        while True:
+            franjas, av = _bandas_dir(pts, n, sep, orient["franja_local"], malla)
+            if av:
+                avisos.append(av)
+                n = 1
+                franjas, _ = _bandas_dir(pts, 1, sep, orient["franja_local"], malla)
+                break
+            angostas = [f["ancho_m"] for f in franjas
+                        if f["ancho_m"] < ancho_min["ancho_min_m"] - 0.05]
+            if not angostas or n <= 1:
+                break
+            if first_fail is None:
+                first_fail = min(angostas)
+            n -= 1
         if franjas:
-            fuente = "lote_objetivo (franjas OBB) - {}".format(
-                os.path.basename(ruta_lote or ""))
+            if len(franjas) < n:
+                n = len(franjas)
+            fuente = "lote_objetivo (franjas dirigidas {:.1f} deg; ref: {}) - {}".format(
+                orient["franja_local"], orient["referencia"] or "eje del lote",
+                os.path.basename(ruta_ctx_lote or ""))
+            if ruta_lados:
+                fuente += "; lados: {}".format(os.path.basename(ruta_lados))
         else:
             n = 1
+    if n < n_req and franjas:
+        extra = ("; franja mas angosta al solicitado: {:.1f} m".format(first_fail)
+                 if first_fail is not None else "")
+        avisos.append("Bloques solicitados: {} -> usados {} por ancho minimo por programa "
+                      "({:.1f} m = nucleo {:.1f} + 2x circulacion {:.1f} + crujia {:.1f}){}.".format(
+                          n_req, n, ancho_min["ancho_min_m"], ancho_min["nucleo_m"],
+                          ancho_min["circulacion_m"], ancho_min["crujia_min_m"], extra))
     if not franjas:
         ref = math.sqrt(max(float(prog.get("lote_m2") or huella or 1.0), 1.0))
         usable = ref - (n - 1) * sep
@@ -526,30 +1024,114 @@ def generar_bloques(chip, prog, huella, niveles, cfg):
                                    [round(x + ancho, 3), 0.0],
                                    [round(x + ancho, 3), round(ref, 3)],
                                    [round(x, 3), round(ref, 3)]],
-                "area": round(ancho * ref, 2)})
+                "area": round(ancho * ref, 2),
+                "ancho_m": round(min(ancho, ref), 2),
+                "centro": [round(x + ancho / 2.0, 2), round(ref / 2.0, 2)],
+                "z_medio_local_m": None})
             x += ancho + sep
+
+    # --- orden desde la entrada (ancla) hacia el interior
+    ancla = orient.get("ancla")
+    if ancla is not None and len(franjas) > 1:
+        franjas.sort(key=lambda f: math.hypot(f["centro"][0] - ancla[0],
+                                              f["centro"][1] - ancla[1]))
+    if len(franjas) > n and n > 0:
+        franjas = franjas[:n]
+
+    # --- niveles: auto (topografia Entrada -> Salida) o manual
+    terreno = _niveles_terreno_chip(ctx, pts, lado_acc, lado_post) if (ctx and pts) else None
+    niveles_info = {"modo": "manual",
+                    "desnivel_m": (desn_man if len(franjas) > 1 else 0.0),
+                    "entrada_m": None, "salida_m": None, "delta_m": None,
+                    "fuente": "manual (paso entre bloques)"}
+    z_rel = [0.0] * len(franjas)
+    if len(franjas) > 1:
+        if desn_auto:
+            if terreno and terreno.get("delta_m") is not None:
+                paso = terreno["delta_m"] / float(len(franjas) - 1)
+                z_rel = [round(paso * i, 2) for i in range(len(franjas))]
+                niveles_info = {"modo": "auto", "desnivel_m": round(paso, 2),
+                                "entrada_m": terreno["entrada_m"],
+                                "salida_m": terreno["salida_m"],
+                                "delta_m": terreno["delta_m"],
+                                "fuente": terreno["fuente"]}
+            else:
+                avisos.append("Sin topografia/lado de salida para niveles automaticos; "
+                              "se usa paso 0.00 m (use --bloques-desnivel-m para override).")
+        else:
+            z_rel = [round(desn_man * i, 2) for i in range(len(franjas))]
+            if terreno and terreno.get("delta_m") is not None:
+                niveles_info.update({"entrada_m": terreno["entrada_m"],
+                                     "salida_m": terreno["salida_m"],
+                                     "delta_m": terreno["delta_m"]})
+
+    # --- ensamble de bloques
     area_total = sum(f["area"] for f in franjas) or 0.0
     bloques = []
     for i, f in enumerate(franjas):
         huella_i = round(huella * f["area"] / area_total, 2) if area_total else 0.0
+        gfa_i = round(huella_i * niveles, 2)
+        z_terreno_abs = None
+        if f.get("z_medio_local_m") is not None and z_ref_lote is not None:
+            z_terreno_abs = round(float(f["z_medio_local_m"]) + float(z_ref_lote), 2)
         bloques.append({
             "id": "B{}".format(i + 1), "orden": i + 1,
             "poligono_local": f["poligono_local"],
             "area_lote_m2": round(f["area"], 2),
+            "ancho_m": f.get("ancho_m"),
             "huella_objetivo_m2": huella_i,
             "pisos": niveles,
-            "z_base_m": round(i * desn, 2),
-            "gfa_objetivo_m2": round(huella_i * niveles, 2),
+            "z_base_m": z_rel[i],
+            "z_terreno_medio_m": z_terreno_abs,
+            "gfa_objetivo_m2": gfa_i,
+            "unidades_estimadas": _unidades_bloque(prog, gfa_i),
         })
+
+    # --- n max recomendado por ancho (para la UI)
+    n_max = len(franjas)
+    if pts and _HAY_SHAPELY and orient["franja_local"] is not None and len(franjas) >= 1:
+        try:
+            for n_try in range(len(franjas) + 1, 7):
+                fj, av = _bandas_dir(pts, n_try, sep, orient["franja_local"], malla)
+                if av or not fj:
+                    break
+                if all(x["ancho_m"] >= ancho_min["ancho_min_m"] - 0.05 for x in fj):
+                    n_max = n_try
+                else:
+                    break
+        except Exception:
+            pass
+
+    orient_json = {
+        "modo": orient["modo"],
+        "referencia": orient["referencia"],
+        "franja_descripcion": orient["desc_franja"],
+        "reparto_descripcion": orient["desc_reparto"],
+        "franja_dir_local_deg": (round(orient["franja_local"], 2)
+                                 if orient["franja_local"] is not None else None),
+        "azimut_franja_deg": (round(_azimut_de_local(orient["franja_local"]), 1)
+                              if orient["franja_local"] is not None else None),
+        "azimut_reparto_deg": (round(_azimut_de_local(orient["reparto_local"]), 1)
+                               if orient["reparto_local"] is not None else None),
+        "calle_acceso": orient.get("calle_acceso"),
+    }
+    nota = ("Propuesta de multivolumen v02.1: franjas referidas al predio y ordenadas desde "
+            "la entrada; z_base_m relativo a la cota de ENTRADA (B1 = 0.00); auto interpola la "
+            "topografia MDT (Entrada -> nivel final del lote). Poligonos esquematicos: el canvas "
+            "(VOLUM v09) los re-encaja en la envolvente F1. z_terreno_medio_m = MDT absoluto (m); "
+            "z_local del marco del canvas = MDT - origen_sirgas.z.")
     return {
-        "chip": chip, "n": len(bloques), "distribucion": dist,
-        "azimut_grados": azimut,
+        "chip": chip, "n": len(bloques), "n_solicitado": n_req, "n_max_recomendado": n_max,
+        "distribucion": dist, "orientacion": orient_json,
+        "lindero": lindero_sel,
+        "angulo": ({"referencia": ang_ref, "grados": ang_deg} if dist == "angulo" else None),
+        "azimut_grados": azimut_in,
         "separacion_m": (sep if len(bloques) > 1 else 0.0),
-        "separacion_min_norma_m": SEP_MIN, "desnivel_m": desn,
-        "fuente_geometria": fuente, "avisos": avisos,
-        "nota": ("Parametros basicos de multivolumen (v02). Poligonos esquematicos; el canvas "
-                 "(VOLUM v09) los re-encaja en la envolvente F1 y a las cotas de terreno. "
-                 "z_base_m del bloque i = i x desnivel_m (negativo desciende)."),
+        "separacion_min_norma_m": SEP_MIN,
+        "desnivel_m": ((niveles_info.get("desnivel_m") or 0.0) if len(bloques) > 1 else 0.0),
+        "niveles": niveles_info,
+        "ancho_min": ancho_min,
+        "fuente_geometria": fuente, "avisos": avisos, "nota": nota,
         "bloques": bloques,
     }
 
@@ -762,6 +1344,8 @@ def exportar_programa_areas(carpeta, prog, layout, matriz, bloques=None):
         doc["bloques"] = {"n": bloques.get("n"), "distribucion": bloques.get("distribucion"),
                           "separacion_m": bloques.get("separacion_m"),
                           "desnivel_m": bloques.get("desnivel_m"),
+                          "orientacion": (bloques.get("orientacion") or {}).get("franja_descripcion"),
+                          "niveles_modo": (bloques.get("niveles") or {}).get("modo"),
                           "resumen": [{"id": b["id"], "pisos": b["pisos"],
                                        "z_base_m": b["z_base_m"],
                                        "area_lote_m2": b["area_lote_m2"]}
@@ -773,47 +1357,20 @@ def exportar_programa_areas(carpeta, prog, layout, matriz, bloques=None):
 
 
 # ------------------------------------------------------------------ main
-def main():
-    parser = argparse.ArgumentParser(description="F3 distribución espacial (masa)")
-    parser.add_argument("caso_id", nargs="?", default=None,
-                        help="Caso pre-generado: A | B | B_SALUD | C")
-    parser.add_argument("--chip", default=None,
-                        help="CHIP del lote (genera el caso desde resultados F2)")
-    parser.add_argument("--escenario", default="D_MIXTO",
-                        help="Escenario F2 a distribuir (default D_MIXTO)")
-    parser.add_argument("--usos", default=None,
-                        help="Usos de la seccion 2 (separados por coma); filtra el mix")
-    parser.add_argument("--bloques", type=int, default=1,
-                        help="Numero de bloques del multivolumen (1-6; default 1)")
-    parser.add_argument("--bloques-distribucion", default="longitudinal",
-                        choices=["longitudinal", "transversal"],
-                        help="Eje del reparto de bloques (default longitudinal)")
-    parser.add_argument("--bloques-separacion-m", type=float, default=6.0,
-                        help="Separacion entre bloques en m (min normativo 6.0)")
-    parser.add_argument("--bloques-desnivel-m", type=float, default=0.0,
-                        help="Desnivel vertical entre bloques en m (default 0)")
-    parser.add_argument("--bloques-azimut", type=float, default=None,
-                        help="Azimut (grados) del reparto; default eje largo del lote")
-    args = parser.parse_args()
+def _computar(args):
+    """v02.1: calcula programa/layout/bloques sin escribir archivos.
 
+    En modo --json el stdout lo captura main() para que la unica salida sea el
+    JSON (lo consume el orquestador en /api/proponer-bloques)."""
     if args.chip:
-        try:
-            prog = leer_programa_chip(args.chip, args.escenario)
-        except ValueError as ex:
-            print("ERROR:", ex)
-            return
+        prog = leer_programa_chip(args.chip, args.escenario)
         carpeta_id = args.chip
     else:
         caso_id = args.caso_id or "A"
         if caso_id not in CASOS:
-            print("CASO_ID invalido:", caso_id, "| opciones:", list(CASOS))
-            return
+            raise ValueError("CASO_ID invalido: {} | opciones: {}".format(caso_id, list(CASOS)))
         prog = leer_programa(caso_id)
         carpeta_id = caso_id
-
-    os.makedirs(OUT, exist_ok=True)
-    carpeta = os.path.join(OUT, carpeta_id)
-    os.makedirs(carpeta, exist_ok=True)
 
     usos_sel = None
     if getattr(args, "usos", None):
@@ -827,36 +1384,131 @@ def main():
     matriz = matriz_adyacencias(usos)
     layout = layout_espacial(prog, huella, niveles, niveles_uso)
 
+    # v02.1: desnivel 'auto' (topografia) o manual (m); --bloques-desnivel-m gana si viene
+    desn_str = (args.bloques_desnivel or "").strip().lower()
+    if args.bloques_desnivel_m is not None:
+        desn_auto, desn_man = False, float(args.bloques_desnivel_m)
+    elif desn_str in ("", "auto"):
+        desn_auto, desn_man = True, None
+    else:
+        desn_auto, desn_man = False, float(desn_str)
+
     bloques = generar_bloques(carpeta_id, prog, huella, niveles, {
         "n": args.bloques,
         "distribucion": args.bloques_distribucion,
+        "lindero": args.bloques_lindero,
+        "angulo_ref": args.bloques_angulo_ref,
+        "angulo_grados": args.bloques_angulo_grados,
         "separacion_m": args.bloques_separacion_m,
-        "desnivel_m": args.bloques_desnivel_m,
+        "desnivel_auto": desn_auto,
+        "desnivel_m": desn_man,
         "azimut_grados": args.bloques_azimut,
-    })
-    with io.open(os.path.join(carpeta, "bloques.json"), "w", encoding="utf-8") as f:
-        json.dump(bloques, f, ensure_ascii=False, indent=2)
+    }, layout=layout)
+    return {"carpeta_id": carpeta_id, "prog": prog, "matriz": matriz,
+            "huella": huella, "niveles": niveles, "layout": layout, "bloques": bloques}
 
-    for nombre, obj in (("programa.json", prog), ("matriz_adyacencias.json", matriz),
-                        ("layout_espacial.json", layout)):
-        with io.open(os.path.join(carpeta, nombre), "w", encoding="utf-8") as f:
-            json.dump(obj, f, ensure_ascii=False, indent=2)
 
-    pa = exportar_programa_areas(carpeta, prog, layout, matriz, bloques)
-    print("  [programa-areas.json] balance:",
-          round(sum(p["usos"][0]["area_bruta"] for p in pa["programa_pisos"]) + 0, 1),
-          "(huella por piso)")
+def main():
+    parser = argparse.ArgumentParser(description="F3 distribución espacial (masa)")
+    parser.add_argument("caso_id", nargs="?", default=None,
+                        help="Caso pre-generado: A | B | B_SALUD | C")
+    parser.add_argument("--chip", default=None,
+                        help="CHIP del lote (genera el caso desde resultados F2)")
+    parser.add_argument("--escenario", default="D_MIXTO",
+                        help="Escenario F2 a distribuir (default D_MIXTO)")
+    parser.add_argument("--usos", default=None,
+                        help="Usos de la seccion 2 (separados por coma); filtra el mix")
+    parser.add_argument("--bloques", type=int, default=1,
+                        help="Numero de bloques del multivolumen (1-6; default 1)")
+    parser.add_argument("--bloques-distribucion", default="automatico",
+                        choices=["automatico", "paralelo_calle_acceso",
+                                 "perpendicular_calle_acceso", "paralelo_lindero",
+                                 "angulo", "longitudinal", "transversal"],
+                        help="Orientacion del reparto (default automatico: franjas "
+                             "paralelas a la calle de acceso del predio)")
+    parser.add_argument("--bloques-lindero", default=None,
+                        help="Cardinal del lindero de referencia (Norte|Sur|Oriente|Occidente)")
+    parser.add_argument("--bloques-angulo-ref", default="calle_acceso",
+                        choices=["norte", "calle_acceso", "lindero"],
+                        help="Referencia del angulo manual (default calle_acceso)")
+    parser.add_argument("--bloques-angulo-grados", type=float, default=0.0,
+                        help="Angulo del reparto en grados horarios respecto a la referencia")
+    parser.add_argument("--bloques-separacion-m", type=float, default=6.0,
+                        help="Separacion entre bloques en m (min normativo 6.0)")
+    parser.add_argument("--bloques-desnivel", default="auto",
+                        help="'auto' (default): propone niveles desde la topografia "
+                             "(B1 = 0.00 en la calle de acceso -> BN en el nivel final); "
+                             "o un numero = paso manual en m entre bloques")
+    parser.add_argument("--bloques-desnivel-m", type=float, default=None,
+                        help="(compat v02) paso manual entre bloques en m; gana sobre "
+                             "--bloques-desnivel si se indica")
+    parser.add_argument("--bloques-azimut", type=float, default=None,
+                        help="(compat v02) angulo LOCAL del reparto en grados")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="No escribe archivos; solo calcula e imprime el resumen")
+    parser.add_argument("--json", action="store_true",
+                        help="Imprime SOLO el resumen JSON (impli-cito: --dry-run)")
+    args = parser.parse_args()
+    if args.json:
+        args.dry_run = True
 
-    html = generar_html(carpeta_id, prog, matriz, layout)
-    with io.open(os.path.join(carpeta, f"planos_{carpeta_id}.html"), "w", encoding="utf-8") as f:
-        f.write(html)
+    _out_real = sys.stdout
+    if args.json:
+        sys.stdout = io.StringIO()
+    error = None
+    r = None
+    try:
+        try:
+            r = _computar(args)
+        except ValueError as ex:
+            error = str(ex)
+    finally:
+        if args.json:
+            sys.stdout = _out_real
+    if error:
+        print("ERROR: " + error, file=sys.stderr)
+        sys.exit(2)
 
-    exportar_3dm(carpeta_id, prog, layout, os.path.join(carpeta, f"F3_{carpeta_id}.3dm"))
+    prog, layout, matriz = r["prog"], r["layout"], r["matriz"]
+    bloques, huella, niveles = r["bloques"], r["huella"], r["niveles"]
+    carpeta_id = r["carpeta_id"]
+
+    if not args.dry_run:
+        os.makedirs(OUT, exist_ok=True)
+        carpeta = os.path.join(OUT, carpeta_id)
+        os.makedirs(carpeta, exist_ok=True)
+        with io.open(os.path.join(carpeta, "bloques.json"), "w", encoding="utf-8") as f:
+            json.dump(bloques, f, ensure_ascii=False, indent=2)
+        for nombre, obj in (("programa.json", prog), ("matriz_adyacencias.json", matriz),
+                            ("layout_espacial.json", layout)):
+            with io.open(os.path.join(carpeta, nombre), "w", encoding="utf-8") as f:
+                json.dump(obj, f, ensure_ascii=False, indent=2)
+        pa = exportar_programa_areas(carpeta, prog, layout, matriz, bloques)
+        print("  [programa-areas.json] balance:",
+              round(sum(p["usos"][0]["area_bruta"] for p in pa["programa_pisos"]) + 0, 1),
+              "(huella por piso)")
+        html = generar_html(carpeta_id, prog, matriz, layout)
+        with io.open(os.path.join(carpeta, f"planos_{carpeta_id}.html"), "w", encoding="utf-8") as f:
+            f.write(html)
+        exportar_3dm(carpeta_id, prog, layout, os.path.join(carpeta, f"F3_{carpeta_id}.3dm"))
+
+    if args.json:
+        print(json.dumps({"ok": True, "chip": carpeta_id, "escenario": args.escenario,
+                          "bloques": bloques}, ensure_ascii=False))
+        return
+
     if bloques.get("n", 1) > 1:
-        print("  [bloques] {} bloques | separacion {:.2f} m | desnivel {:.2f} m | {}".format(
-            bloques["n"], bloques.get("separacion_m") or 0.0,
-            bloques.get("desnivel_m") or 0.0,
-            bloques.get("fuente_geometria", "")))
+        ni = bloques.get("niveles") or {}
+        if ni.get("modo") == "auto":
+            nivel_txt = "niveles auto: B1 0.00 -> B{} {:+.2f} m (paso {:.2f})".format(
+                bloques["n"], ni.get("delta_m") or 0.0, ni.get("desnivel_m") or 0.0)
+        else:
+            nivel_txt = "paso manual {:.2f} m".format(bloques.get("desnivel_m") or 0.0)
+        print("  [bloques] {} bloques | sep {:.2f} m | {} | {}".format(
+            bloques["n"], bloques.get("separacion_m") or 0.0, nivel_txt,
+            (bloques.get("orientacion") or {}).get("franja_descripcion", "")))
+        for a in bloques.get("avisos") or []:
+            print("  [bloques][aviso]", a)
     print(f"OK {carpeta_id}: {niveles} niveles, huella {huella:.0f} m², "
           f"ascensores {layout['nucleos']['ascensores']['cantidad']}, "
           f"nucleo {layout['nucleos']['total_m2_piso']:.0f} m²/piso")

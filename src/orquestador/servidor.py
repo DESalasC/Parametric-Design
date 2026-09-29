@@ -22,6 +22,7 @@ Endpoints:
   GET  /api/estado?chip&caso&modo -> estado del pipeline (pasos + lados/patio F1.5)
   POST /api/proyecto      -> guarda (nombre opcional -> _provisional) o crea estructura
   POST /api/pipeline      -> ejecuta el pipeline completo (F1 + contexto50 + F2 segun modo + F3)
+  POST /api/proponer-bloques -> propuesta rapida de bloques para la seccion 4 (F3 --dry-run)
   POST /api/exportar-lados -> flag para que el canvas exporte <CHIP>-lados.json (PATIO v02.4)
   POST /api/nuevo-chip    -> dispara un proceso nuevo: contexto base + 50 m + activación del CHIP
 
@@ -492,17 +493,39 @@ VARIABLES = [
      "ayuda": "El 'switch' de posición del núcleo (escaleras + ascensor + servicios)."},
     {"id": "bloques_num", "label": "Bloques del proyecto (multivolumen)", "tipo": "int",
      "default": 1, "seccion": "modelado",
-     "ayuda": "1 = un solo volumen. 2–6 = divide la masa en bloques (lotes en pendiente: La Candelaria)."},
-    {"id": "bloques_distribucion", "label": "Distribución de los bloques", "tipo": "select",
-     "opciones": [{"v": "longitudinal", "label": "A lo largo del lote"}, {"v": "transversal", "label": "A lo ancho del lote"}],
-     "default": "longitudinal", "seccion": "modelado",
-     "ayuda": "Eje en que se reparten los bloques dentro del lote."},
+     "ayuda": "1 = un solo volumen. 2–6 = divide la masa en bloques (lotes en pendiente: La Candelaria). Si el ancho mínimo por programa no permite ese número, se ajusta y se avisa."},
+    {"id": "bloques_distribucion", "label": "Orientación del reparto de bloques", "tipo": "select",
+     "opciones": [
+         {"v": "automatico", "label": "Automático (según el predio: paralelo a la calle de acceso)"},
+         {"v": "paralelo_calle_acceso", "label": "Paralelo a la calle de acceso"},
+         {"v": "perpendicular_calle_acceso", "label": "Perpendicular a la calle de acceso"},
+         {"v": "paralelo_lindero", "label": "Paralelo a un lindero (elegir abajo)"},
+         {"v": "angulo", "label": "Ángulo referido (manual)"},
+         {"v": "longitudinal", "label": "Eje corto del lote (referencia v02)"},
+         {"v": "transversal", "label": "Eje largo del lote (referencia v02)"},
+     ],
+     "default": "automatico", "seccion": "modelado",
+     "ayuda": "Dirección de las franjas (bloques): paralelas o perpendiculares a la calle de acceso, paralelas a un lindero del predio, o con un ángulo referido a un elemento del sitio."},
+    {"id": "bloques_lindero", "label": "Lindero de referencia", "tipo": "select",
+     "opciones": ["Norte", "Sur", "Oriente", "Occidente"],
+     "default": "Sur", "seccion": "modelado",
+     "ayuda": "Solo para 'Paralelo a un lindero' y 'Ángulo referido a lindero': lado del predio según la clasificación por lados de la sección 1."},
+    {"id": "bloques_angulo_ref", "label": "Ángulo referido a", "tipo": "select",
+     "opciones": [{"v": "calle_acceso", "label": "Calle de acceso"}, {"v": "norte", "label": "Norte del plano"}, {"v": "lindero", "label": "Lindero de referencia"}],
+     "default": "calle_acceso", "seccion": "modelado",
+     "ayuda": "Solo para 'Ángulo referido (manual)': origen del ángulo."},
+    {"id": "bloques_angulo_grados", "label": "Ángulo del reparto (° horario)", "tipo": "number",
+     "default": 0.0, "seccion": "modelado",
+     "ayuda": "Solo para 'Ángulo referido (manual)': giro de las franjas respecto a la referencia (0° = paralelo a la referencia; 90° = perpendicular)."},
     {"id": "bloques_separacion_m", "label": "Separación entre bloques (m)", "tipo": "number",
      "default": 6.0, "seccion": "modelado",
      "ayuda": "Mínimo normativo 6,00 m (Anexo 5 1.10.b, Consolidación)."},
+    {"id": "bloques_desnivel_auto", "label": "Niveles por bloque: automático (terreno)", "tipo": "bool",
+     "default": True, "seccion": "modelado",
+     "ayuda": "Sí = propone el nivel de cada bloque con la topografía: B1 en ±0,00 (calle de acceso, Entrada) y el último en el nivel final del lote (calle posterior o extremo opuesto, Salida); los intermedios se distribuyen uniformemente. No = use el desnivel manual."},
     {"id": "bloques_desnivel_m", "label": "Desnivel entre bloques (m)", "tipo": "number",
      "default": 0.0, "seccion": "modelado",
-     "ayuda": "Diferencia de cota entre un bloque y el siguiente (negativo = desciende; p. ej. -3.4)."},
+     "ayuda": "Solo si 'Automático' = No: paso de cota entre un bloque y el siguiente (negativo = desciende; p. ej. -3.4). El primer bloque siempre queda en ±0,00."},
     # ---- Sección 3: Financiero (aporte del lote)
     {"id": "aporte_lote", "label": "Aporte del lote (vinculación al negocio)", "tipo": "select",
      "opciones": [
@@ -779,10 +802,8 @@ def _derivar_escenario_f3(usos=None, escenario=None):
     return "D_MIXTO"
 
 
-def _generar_f3(chip, escenario="D_MIXTO", usos=None, bloques=None):
-    """Ejecuta F3 (distribución + accesos) para un CHIP y devuelve el resumen.
-
-    2026-09-29: acepta usos (seccion 2) y parametros de bloques (multivolumen)."""
+def _cmd_f3_dist(chip, escenario, usos, bloques, dry_run=False):
+    """v02.1: comando F3 distribucion (compartido por generar y proponer)."""
     cmd = [_python_pipeline(), F3_DIST_SCRIPT, "--chip", chip, "--escenario", escenario]
     if usos:
         cmd += ["--usos", ",".join(str(u) for u in usos)]
@@ -790,12 +811,83 @@ def _generar_f3(chip, escenario="D_MIXTO", usos=None, bloques=None):
         cmd += ["--bloques", str(int(bloques.get("n") or 1))]
         if bloques.get("distribucion"):
             cmd += ["--bloques-distribucion", str(bloques["distribucion"])]
+        if bloques.get("lindero"):
+            cmd += ["--bloques-lindero", str(bloques["lindero"])]
+        if bloques.get("angulo_ref"):
+            cmd += ["--bloques-angulo-ref", str(bloques["angulo_ref"])]
+        if bloques.get("angulo_grados") is not None:
+            cmd += ["--bloques-angulo-grados", str(float(bloques["angulo_grados"]))]
         if bloques.get("separacion_m") is not None:
             cmd += ["--bloques-separacion-m", str(float(bloques["separacion_m"]))]
-        if bloques.get("desnivel_m") is not None:
+        if bloques.get("desnivel_auto"):
+            cmd += ["--bloques-desnivel", "auto"]
+        elif bloques.get("desnivel_m") is not None:
             cmd += ["--bloques-desnivel-m", str(float(bloques["desnivel_m"]))]
         if bloques.get("azimut_grados") is not None:
             cmd += ["--bloques-azimut", str(float(bloques["azimut_grados"]))]
+    if dry_run:
+        cmd += ["--dry-run", "--json"]
+    return cmd
+
+
+def _bloques_resumen_leer(chip):
+    """v02.1: resumen de bloques.json del caso (sin poligonos, para la UI)."""
+    ruta = os.path.join(F3_CASOS, chip, "bloques.json")
+    try:
+        with io.open(ruta, encoding="utf-8") as f:
+            b = json.load(f)
+    except Exception:
+        return None
+    out = {k: b.get(k) for k in ("n", "n_solicitado", "n_max_recomendado", "distribucion",
+                                 "orientacion", "niveles", "ancho_min", "avisos",
+                                 "separacion_m", "desnivel_m")}
+    out["bloques"] = [{"id": x.get("id"), "orden": x.get("orden"), "pisos": x.get("pisos"),
+                       "z_base_m": x.get("z_base_m"), "ancho_m": x.get("ancho_m"),
+                       "area_lote_m2": x.get("area_lote_m2"),
+                       "huella_objetivo_m2": x.get("huella_objetivo_m2"),
+                       "unidades_estimadas": x.get("unidades_estimadas")}
+                      for x in (b.get("bloques") or [])]
+    return out
+
+
+_PROP_CACHE = {"clave": None, "valor": None}
+
+
+def _proponer_bloques(chip, escenario, usos, bloques):
+    """v02.1: propuesta rapida (F3 --dry-run --json) para la linea viva de la seccion 4."""
+    try:
+        clave = json.dumps([chip, escenario, usos, bloques], sort_keys=True, default=str)
+    except Exception:
+        clave = repr([chip, escenario, usos, bloques])
+    if _PROP_CACHE["clave"] == clave and _PROP_CACHE["valor"] is not None:
+        return dict(_PROP_CACHE["valor"])
+    cmd = _cmd_f3_dist(chip, escenario, usos, bloques, dry_run=True)
+    try:
+        proc = subprocess.run(cmd, cwd=F3_DIR, capture_output=True, text=True,
+                              encoding="utf-8", errors="replace", timeout=120)
+        salida = ((proc.stdout or "") + (proc.stderr or "")).strip()
+    except Exception as ex:
+        return {"ok": False, "error": str(ex)}
+    if proc.returncode != 0:
+        return {"ok": False, "error": (salida or "F3 --dry-run fallo")[-400:]}
+    try:
+        ini = salida.index("{")
+        prop = json.loads(salida[ini:])
+    except Exception:
+        return {"ok": False, "error": ("salida no parseable: " + salida[-200:])}
+    prop["ok"] = True
+    prop["usos_txt"] = ", ".join(str(u) for u in (usos or []))
+    _PROP_CACHE["clave"] = clave
+    _PROP_CACHE["valor"] = dict(prop)
+    return dict(prop)
+
+
+def _generar_f3(chip, escenario="D_MIXTO", usos=None, bloques=None):
+    """Ejecuta F3 (distribución + accesos) para un CHIP y devuelve el resumen.
+
+    2026-09-29: acepta usos (seccion 2) y parametros de bloques (multivolumen).
+    2026-09-29 v02.1: adjunta bloques_resumen (orientacion/niveles/avisos de bloques.json)."""
+    cmd = _cmd_f3_dist(chip, escenario, usos, bloques)
     try:
         proc = subprocess.run(cmd, cwd=F3_DIR, capture_output=True, text=True,
                               encoding="utf-8", errors="replace", timeout=180)
@@ -822,7 +914,8 @@ def _generar_f3(chip, escenario="D_MIXTO", usos=None, bloques=None):
                 res = alt
     if isinstance(res, dict):
         res["chip"] = chip
-    return {"ok": ok, "chip": chip, "salida": salida[-1500:], "resultados": res}
+    return {"ok": ok, "chip": chip, "salida": salida[-1500:], "resultados": res,
+            "bloques_resumen": (_bloques_resumen_leer(chip) if ok else None)}
 
 
 def _salida_con_error(salida):
@@ -1773,6 +1866,18 @@ class Handler(BaseHTTPRequestHandler):
             res["escenario"] = escenario
             res["usos"] = usos
             self._send(200, {"ok": True, "f3": res})
+            return
+
+        if parsed.path == "/api/proponer-bloques":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            usos = data.get("usos") or None
+            bloques = data.get("bloques") or None
+            escenario = _derivar_escenario_f3(usos, data.get("escenario"))
+            prop = _proponer_bloques(chip, escenario, usos, bloques)
+            self._send(200, {"ok": True, "propuesta": prop, "error": prop.get("error")})
             return
 
         if parsed.path == "/api/pipeline":

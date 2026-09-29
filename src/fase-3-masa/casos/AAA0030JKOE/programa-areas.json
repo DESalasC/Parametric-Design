@@ -166,9 +166,11 @@
   "origen": "F3_DISTRIBUCION_v02 (balanceado; nucleo circulacion/servicios separados)",
   "bloques": {
     "n": 1,
-    "distribucion": "longitudinal",
+    "distribucion": "automatico",
     "separacion_m": 0.0,
     "desnivel_m": 0.0,
+    "orientacion": "franjas paralelas a la calle de acceso (Occidente-2)",
+    "niveles_modo": "manual",
     "resumen": [
       {
         "id": "B1",
