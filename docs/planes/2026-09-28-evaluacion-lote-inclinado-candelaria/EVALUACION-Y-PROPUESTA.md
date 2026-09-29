@@ -222,6 +222,7 @@ Clave de la Capa 3 (respuesta directa a "volúmenes con separaciones, no necesar
 - Decreto 492 de 2007 — Operación Estratégica del Centro de Bogotá / Plan Zonal del Centro (PZCB): <https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=27312> · <https://www.sdp.gov.co/gestion-socioeconomica/operaciones-estrategicas/estrategias/operacion-estrategica-del-centro-de-bogota>
 - PEMP Centro Histórico (IDPC): <https://idpc.gov.co/PEMP/Diagnostico/10%20Habitacional.pdf>
 - POT vigente: Decreto 555 de 2021 (Anexo 5 — secciones 1.9.b/1.9.c, 5.4.b/5.4.c usadas por el código) · NSR-10 (A.6.5).
+- **Copia local (vault):** originales descargados + fichas de consulta en `30-referencia/pot-bogota/reglamentacion-base/` (POT 555; Anexo 5 466/2024 + cartilla ilustrada; Anexo 6 Conservación; PZCB 492/07 + planos 094 + 172/2010; PEMP Res. 0088 + planos; FAQ SDP; mapas CU-5.4.22 y CU-5.5) — registro 2026-09-28.
 
 ---
 
@@ -246,6 +247,7 @@ Clave de la Capa 3 (respuesta directa a "volúmenes con separaciones, no necesar
 - **Datos de empate recibidos del operador (2026-09-28):** criterio **5 pisos**; conservación norte **2 pisos × ~20 m**; colindante sur **5 pisos × ~25 m** → registrados en §2.6/§4.1 y `anexos/insumos-operador-2026-09-28.json` (listos para NORMATIVA v09).
 - **Corrida B actualizada a 5 niveles (2026-09-28):** fix de precisión en `F3_DISTRIBUCION_v01` (tolerancia ceil 1e-9→1e-6 + huella sin redondeo — el redondeo a 662,5 daba 6 niveles por 0,075 m²); lote B/B_SALUD 931→**946,45**; regenerados `casos/B` y `casos/B_SALUD` (programa, layout, planos, `.3dm`) + accesos. Suite **303/303**.
 - **Registrados:** antejardín **0** (ambas vías, al límite), medición de tramos desde la calle occidental, y validación del **piso de bonificación** — ver §4.4.
+- **Reglamentación base descargada y registrada en el vault (2026-09-28):** `30-referencia/pot-bogota/reglamentacion-base/` — POT 555, Anexo 5 (466/2024 + cartilla ilustrada), Anexo 6 Conservación, PZCB 492/07 + planos 094 + 172/2010, PEMP Res. 0088 + planos, FAQ SDP y mapas CU (PDFs originales + fichas `.md`; entrada añadida al mapa de conocimiento).
 
 ---
 
