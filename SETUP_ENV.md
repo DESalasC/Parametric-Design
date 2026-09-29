@@ -8,9 +8,9 @@ cd D:\WORK\PROJECTS\DiseñoParametrico
 .\.venv\Scripts\Activate.ps1
 ```
 
-If `.venv` doesn't exist, create it first:
+If `.venv` doesn't exist, create it first (siempre con Python 3.12 — los wheels del stack son `cp312`):
 ```powershell
-python -m venv .venv
+py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
@@ -52,8 +52,12 @@ git pull origin main
 #### Create venv (first time only)
 ```powershell
 cd D:\WORK\PROJECTS\DiseñoParametrico
-python -m venv .venv
+py -3.12 -m venv .venv   # SIEMPRE 3.12 (nunca 3.11/3.13): los wheels del stack son cp312
 ```
+
+> Si el venv quedó creado/apuntado con otra versión (síntomas: `No module named
+> numpy._core...` o `No module named shapely.lib`), re-apuntar **sin reinstalar**:
+> `py -3.12 -m venv --upgrade .venv` (ver lecciones 2026-09-27 / 2026-09-28).
 
 #### Activate venv
 ```powershell
