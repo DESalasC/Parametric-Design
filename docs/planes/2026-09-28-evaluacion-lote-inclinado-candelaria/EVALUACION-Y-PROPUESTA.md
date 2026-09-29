@@ -13,7 +13,7 @@
 2. **La pendiente es real y severa:** muestreo del MDT (63 puntos) → desnivel **14,25 m** en el lote, pendiente media **≈26 % (14,7°)**, descenso general hacia el **NO**; costado alto **~2 647 m** vs costado bajo **~2 635 m** (**Δ 11,7 m**). Esto obliga a estrategia de **plataformas/terrazas** y cotas por volumen.
 3. **La mayoría de los cambios son extensiones acotadas, no un rediseño:** ya existen *override de frente por lado*, *vecinos por sub-segmento con alturas* (v08), *empate + separación sísmica*, *envelope por piso* y *export F1.5 con flag*. Faltan: **topografía viva**, **multi-volumen con separaciones**, **multi-frente (dos vías)** y **empate de conservación + cap de altura**.
 4. **Propuesta:** 1 corrección de datos (fetch) + 1 componente F1 nuevo (terreno) + 2 componentes F3 nuevos (plataformas, multi-volumen) + 3 extensiones (NORMATIVA v09, ACCESOS v03, UI/datos). Plan por fases **P0–P3** con pruebas y criterios de aceptación (§2.5).
-5. **Decisiones del operador** (§2.6): criterio altura↔pisos (10 m vs 5), altura del inmueble conservado y confirmación IDPC/MinCultura. *Resueltas (2026-09-28): área (geobase, 946,45 m²); vía oriental (en proceso de construcción + Parque Pueblo Viejo al frente); separación entre volúmenes (**≥6,00 m**, Anexo 5 §1.10.b); semántica del empate parcial (ver §4).*
+5. **Decisiones** (§2.6): *Resueltas (2026-09-28):* área (geobase, 946,45 m²); criterio de altura (**5 pisos**); vía oriental (en obra + Parque Pueblo Viejo al frente); separación entre volúmenes (**≥6,00 m**); empate parcial (**2 pisos × primeros ~20 m**, ver §4.1). *Restan:* ubicación exacta del tramo y visto bueno IDPC; "Norma 3 pisos" del alzado; confirmación de la 2.ª vía para overrides.
 
 ---
 
@@ -30,7 +30,8 @@
 | Pendiente | **≈26,3 % (14,7°)**; desnivel **14,25 m** (máx 2 649,0 – mín 2 634,8); descenso hacia el **NO** (azimut de bajada ≈318°) | muestreo MDT (ver §A) |
 | Cotas de frentes | costado alto **≈2 647,1 m**; costado bajo **≈2 635,4 m** (**Δ 11,7 m**) | muestreo MDT |
 | Vías | **Dos carreras**; la **oriental en proceso de construcción** con el **Parque Pueblo Viejo** (PEMP, proyecto detonante 27) **al otro lado de la calle** (aclarado por el operador, 2026-09-28) | operador + PEMP |
-| Colindancia norte | Predio **Conservación Básica**, tramo **~12 m** de un lado norte de ~52 m | norma-manual + sides auto |
+| Colindancia norte | Predio **Conservación Básica** (**2 pisos**, sobre los **primeros ~20 m** del lado norte — dato operador 2026-09-28; la consulta 2020 decía ~12 m) | operador + norma-manual |
+| Colindancia sur | Edificación de **5 pisos** sobre **~25 m** del lado sur (dato operador 2026-09-28) | operador |
 | Vías digitalizadas | **Incompletas** en `Eje_vial`: la clasificación automática marca E/O como "predio"; el override del operador existe para corregirlo | `VECINOS_POR_LADO.md` |
 
 **Puntos a confirmar (inconsistencias detectadas):**
@@ -67,7 +68,7 @@
 
 #### G4 · Restricción de altura y empate parcial con conservación
 - `altura_max_pot` es **obsoleto** ("se ignora, pero se mantiene para no romper el canvas"): el **cap efectivo de 10 m** no entra al envelope; `altura_total = pisos × floor_h` (5×3 m = 15 m > 10 m).
-- El empate por tramos existe, pero **sin modo "conservación"**, sin altura del vecino (hoy `altura_m: null` para el vecino norte) y sin longitud del tramo de empate. El carácter **"parcial"** (solo el tramo de ~12 m) no está modelado.
+- El empate por tramos existe, pero **sin modo "conservación"**, sin altura del vecino (hoy `altura_m: null` para el vecino norte) y sin longitud del tramo de empate. El carácter **"parcial"** (tramo acotado; hoy ~20 m según datos de campo) no está modelado.
 - No hay bandera de trámite (**Nota N** ⇒ anteproyecto aprobado por **IDPC + MinCultura**) ni salida específica para revisión patrimonial.
 
 #### G5 · Norma manual de Candelaria sin cablear
@@ -125,7 +126,7 @@ Clave de la Capa 3 (respuesta directa a "volúmenes con separaciones, no necesar
 7. **Morphs a ArchiCAD** (misma ruta; cota base corregida por volumen).
 8. **Documentación + tests + ADRs** (candidatos: terreno/multi-volumen; empate de conservación).
 
-**Aplicado a Candelaria (ilustrativo, a decidir con datos finales):** 4 plataformas de ~3,5 m → 3–4 volúmenes escalonados bajando hacia la carrera baja/parque; acceso desde la vía alta en el volumen 1 (cota ~2 647) y desde la vía baja en el volumen 3/4 (cota ~2 635); separaciones: pasaje central (circulación/conexión entre calles) + 1 patio normativo si algún recinto lo requiere + juntas técnicas (separación entre volúmenes ≥ 6,00 m, §4.2). Empate: solo el tramo norte de ~12 m contra el inmueble de conservación.
+**Aplicado a Candelaria (ilustrativo, a decidir con datos finales):** 4 plataformas de ~3,5 m → 3–4 volúmenes escalonados bajando hacia la carrera baja/parque; acceso desde la vía alta en el volumen 1 (cota ~2 647) y desde la vía baja en el volumen 3/4 (cota ~2 635); separaciones: pasaje central (circulación/conexión entre calles) + 1 patio normativo si algún recinto lo requiere + juntas técnicas (separación entre volúmenes ≥ 6,00 m, §4.2). Empate: solo el tramo norte de ~20 m contra el inmueble de conservación (2 pisos).
 
 ### 2.4 Modelo de datos (nuevo / extendido)
 
@@ -145,9 +146,9 @@ Clave de la Capa 3 (respuesta directa a "volúmenes con separaciones, no necesar
 ```jsonc
 // (2) vecino con empate de conservación — extensión de <CHIP>-vecinos-por-lado.json
 { "lados": [ { "id": 2, "cardinal": "Norte", "vecinos": [
-    { "chip": "...", "longitud_m": 12.0, "altura_m": 7.5,
+    { "chip": "...", "longitud_m": 20.0, "altura_m": 6.0,
       "conservacion": true,
-      "empate": { "modo": "parcial", "tramo_m": 12.0, "altura_ref_m": 7.5,
+      "empate": { "modo": "parcial", "tramo_m": 20.0, "altura_ref_m": 6.0,
                   "criterio": "empate_cornisa", "aprobacion": "IDPC+MinCultura" } } ] } ] }
 ```
 
@@ -180,13 +181,14 @@ Clave de la Capa 3 (respuesta directa a "volúmenes con separaciones, no necesar
 
 ### 2.6 Decisiones abiertas (operador / IDPC)
 
-1. **"Empate parcial" — semántica (definida; ver §4.1):** empate volumétrico (Anexo 5 §1.6 / §5.5.c) aplicado **por sub-tramo** de fachada (los ~12 m que colindan) y **hasta la altura del inmueble de conservación**; por encima del nivel de empate rige el aislamiento reglamentario (1/5 h, mín. 4 m en Consolidación, + NSR-10 el mayor). Pendiente: altura real del conservado y visto bueno IDPC/MinCultura (Nota N).
-2. **Criterio altura↔pisos: 10 m vs 5 pisos** (× altura de piso). ¿Cap duro 10 m (≈3 pisos de 3 m) o 5 pisos con 10 m como referencia tipológica? Afecta directamente el GFA y el negocio (F2).
+1. **"Empate parcial" — CERRADA (2026-09-28):** aplica **por sub-tramo** al **primer tramo de ~20 m del lado norte** (colindancia con el inmueble de conservación, **2 pisos de altura**); por encima del nivel de empate rige el aislamiento reglamentario (1/5 h, mín. 4 m, + NSR-10 el mayor) — ver §4.1 y anexo de insumos. Pendiente: visto bueno IDPC/MinCultura (Nota N) y ubicación exacta del tramo en planos.
+2. **Criterio altura↔pisos — CERRADO (2026-09-28):** rige **5 pisos** como criterio (los 10 m de la consulta 2020 quedan como referencia tipológica). El estimador ya produce `pisos_finales=5` (rango "4"); NORMATIVA v09 mantiene el conteo por pisos. ⚠️ Revisar la corrida vigente de B (hoy modelada a 6 niveles) contra este criterio.
 3. **Área del predio — RESUELTA (2026-09-28):** se usa la de la geobase (946,45 m²); el ~976 m² era una idea aproximada.
 4. **Vías — aclarado (2026-09-28):** la **vía oriental está en proceso de construcción** y el **parque metropolitano (Parque Pueblo Viejo, PEMP Proyecto 27)** queda **al otro lado de la calle**. Actualizar overrides de frentes (E = vía) y la nota del norma-manual; modelar la fase hasta la terminación de obra.
 5. **Anchos mínimos de separación — validado (2026-09-28; ver §4.2):** Consolidación = **2/5 de la altura promedio de los volúmenes que se aíslan, mínimo 6,00 m** (Anexo 5 §1.10.b). Para volúmenes de 4 pisos ⇒ **6,00 m**. Si el vacío ilumina/ventila, suman las reglas de patios (§1.12.b: lado ≥ 1/3 de la mayor altura, mín. 3 m) y §1.25.
-6. **Altura del inmueble de conservación** (norte, tramo ~12 m) y cota de referencia del empate (cornisa/altura total) — **dato pendiente** para calcular el nivel de empate (formato listo en §2.4(2)).
+6. **Inmueble de conservación — DATO RECIBIDO (2026-09-28):** **2 pisos**, sobre los **primeros ~20 m del lado norte** (ubicación exacta a precisar en planos). Nota normativa: al ser <3 pisos, el empate volumétrico del §5.5.c no es exigible como tal → se mantiene como condición de diseño/régimen de conservación (validar con IDPC).
 7. **"Norma 3 pisos" del alzado PEMP** ("Carrera 1 entre Calle 12F y 12D", lámina EN-D1 P43.2): verificar si describe el contexto existente o restringe el frente oriental (vs ficha del predio: 5 pisos + Nota N).
+8. **Confirmación de fachadas "vía" (para overrides de B):** ¿se marcan **Oriente** (Carrera 1, en obra) **y Occidente** como las dos vías de acceso? (requerido para el override de frentes y el multi-frente de v09).
 
 ### 2.7 Próximos pasos inmediatos (sugeridos)
 
@@ -241,6 +243,7 @@ Clave de la Capa 3 (respuesta directa a "volúmenes con separaciones, no necesar
 - **Pendiente para cerrar P0**: vista en canvas con AutoClaw cerrado (activar chip B; `contexto50-actual.json` quedó apuntando a B y el orquestador repone el canónico por chip según frescura).
 - **Fix del clasificador de vecinos** (`vecinos_por_lado.py`): ignora espacios públicos que **cubren el lote** (caso "Pueblo Viejo", estructurante propuesto con fragmentos sobre el predio) — evitaba que lados reales (Sur = predio ×5) se clasificaran como EP. Test de regresión añadido; suite **303/303**.
 - **Consulta normativa** (empates, separaciones, patios, entorno) con las fuentes locales del proyecto y del operador — resultados en **§4**.
+- **Datos de empate recibidos del operador (2026-09-28):** criterio **5 pisos**; conservación norte **2 pisos × ~20 m**; colindante sur **5 pisos × ~25 m** → registrados en §2.6/§4.1 y `anexos/insumos-operador-2026-09-28.json` (listos para NORMATIVA v09).
 
 ---
 
@@ -254,7 +257,11 @@ La norma (Anexo 5 — Manual de normas comunes, actualizado por Decreto 466/2024
 - **§5.5.c (lateral, Consolidación):** *"…se permite prever empate volumétrico con la altura de dichas edificaciones [3+ pisos existentes], a partir de cuyo nivel se exige aislamiento lateral reglamentario respecto de la altura en metros que alcance la edificación, medida desde el nivel del empate."* (§5.4.c equivalente para posterior.)
 - Dimensionamiento del aislamiento sobre el empate: **1/5 de la altura** (medida desde el nivel de empate), **mínimo 4,00 m** en Consolidación; se compara con la **separación sísmica NSR-10 A.6.5** y rige el mayor.
 
-**Definición operativa del proyecto — "empate parcial":** empate volumétrico aplicado **por sub-tramo de fachada** (solo el tramo ~12 m que colinda con el inmueble de conservación, no los ~52 m completos del lado norte) y **hasta la altura del inmueble conservado**; por encima de ese nivel rige el aislamiento reglamentario (1/5·h, mín. 4 m, + sismo) y el tope del predio (5 pisos / 10 m). Por tratarse de colindante con BIC aplican además las disposiciones específicas (Decreto 555 art. 368; Anexo 6; PEMP → anteproyecto IDPC + MinCultura). *Modelado en P1: parámetros `tramo_m`, `altura_ref_m`, `modo` por sub-segmento (NORMATIVA v09).*
+**Definición operativa del proyecto — "empate parcial":** empate volumétrico aplicado **por sub-tramo de fachada** (solo el tramo de ~20 m que colinda con el inmueble de conservación [2 pisos], no los ~52 m completos del lado norte) y **hasta la altura del inmueble conservado**; por encima de ese nivel rige el aislamiento reglamentario (1/5·h, mín. 4 m, + sismo) y el tope del predio (5 pisos / 10 m). Por tratarse de colindante con BIC aplican además las disposiciones específicas (Decreto 555 art. 368; Anexo 6; PEMP → anteproyecto IDPC + MinCultura). *Modelado en P1: parámetros `tramo_m`, `altura_ref_m`, `modo` por sub-segmento (NORMATIVA v09).*
+
+**Datos de campo (operador, 2026-09-28):** inmueble colindante norte = **2 pisos**, sobre los **primeros ~20 m** del lado norte; colindante sur = edificación de **5 pisos** sobre **~25 m**. Con ello: (a) norte → empate parcial acotado a esos ~20 m y altura ~2 pisos; (b) sur → empate volumétrico hasta ~15 m en esos ~25 m (§5.5.c sí aplica: colindante ≥3 pisos). Nota: para el tramo norte (2 pisos <3), el empate no es exigible por §5.5.c — se mantiene como condición de diseño/IDPC.
+
+*Detalle estructurado: [`anexos/insumos-operador-2026-09-28.json`](anexos/insumos-operador-2026-09-28.json).*
 
 ### 4.2 Separación entre volúmenes — validado
 

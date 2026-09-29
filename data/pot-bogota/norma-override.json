@@ -10,8 +10,8 @@
       "altura_maxima_pisos": 5,
       "io_maximo": 0.7,
       "fuente": "Decreto 492/07 (PZCB) - Planos 094 Usos/Edificabilidad + Nota N | norma-manual del chip (consulta oficial 2020, Casa de la Cultura)",
-      "nota": "Nota N: +2 pisos sobre base 3 = 5 pisos; altura maxima 10 m. Anteproyecto requiere aprobacion IDPC + MinCultura. El predio NO es patrimonio (el 'CHB' de la GDB es error conocido).",
-      "ultima_edicion": "2026-09-28 20:45"
+      "nota": "Nota N: +2 pisos sobre base 3 = 5 pisos; altura maxima 10 m (referencia tipologica). Criterio operativo confirmado (2026-09-28): 5 pisos. Anteproyecto requiere aprobacion IDPC + MinCultura. El predio NO es patrimonio (el 'CHB' de la GDB es error conocido).",
+      "ultima_edicion": "2026-09-28 20:42"
     },
     "AAA0240ZXJH": {
       "tipologia": "Continua",
