@@ -221,6 +221,10 @@ def _financiero_override_guardar(chip, override):
                 for eid, ev in esc_ov.items():
                     if not isinstance(ev, dict):
                         continue
+                    # 2026-09-28: no proyectar placeholders vacios (evita D_MIXTO* = {} en el JSON de F2;
+                    # el motor v03.1 tambien los ignora defensivamente)
+                    if all((v in (None, "")) for v in ev.values()):
+                        continue
                     base["escenarios"].setdefault(eid, {})
                     for k in ("precio_venta_m2", "costo_construccion_m2"):
                         if ev.get(k) not in (None, ""):
@@ -665,6 +669,29 @@ def _ruta_parametros_f2_venta(chip):
     return os.path.join(F2_VENTA_DIR, "parametros_entrada.json")
 
 
+def _gfa_gh_estado(chip):
+    """2026-09-28: estado del GFA exportado por el canvas (<CHIP>-gfa-gh.json).
+
+    Devuelve {archivo, existe, generado, antiguo} donde 'antiguo' = True si la
+    fecha de generacion supera ANTIGUEDAD_GFA_DIAS. Alimenta los avisos del
+    pipeline (el GFA desactualizado bloquea decisiones F2/F3 con datos viejos)."""
+    import datetime as _dt
+    ruta = os.path.join(ROOT, "data", "fase-2-demanda", chip + "-gfa-gh.json")
+    est = {"archivo": ruta, "existe": os.path.exists(ruta), "generado": None, "antiguo": None}
+    if not est["existe"]:
+        return est
+    try:
+        d = _json(ruta)
+        gen = str(d.get("generado") or "")[:10]
+        est["generado"] = gen
+        if gen:
+            g = _dt.datetime.strptime(gen, "%Y-%m-%d").date()
+            est["antiguo"] = (_dt.date.today() - g).days > ANTIGUEDAD_GFA_DIAS
+    except Exception:
+        pass
+    return est
+
+
 def _calcular_f2(chip, modalidad, gfa_m2=None, costo_lote_cop=None):
     """Ejecuta F2 (venta) con la modalidad del dueno del lote (fuente fija)."""
     pago = modalidad.get("pago_parcial_pct", 30.0)
@@ -685,6 +712,12 @@ def _calcular_f2(chip, modalidad, gfa_m2=None, costo_lote_cop=None):
             ok = False
     except Exception as ex:
         ok, salida = False, "ERROR: " + str(ex)
+    gfa_est = _gfa_gh_estado(chip)
+    if gfa_est.get("existe") and gfa_est.get("antiguo"):
+        salida = (salida + "\n[AVISO] GFA del canvas con fecha {0} (posiblemente desactualizado; "
+                  "exporte GFA desde el canvas para refrescar).").format(gfa_est.get("generado") or "n/d")
+    elif not gfa_est.get("existe"):
+        salida = salida + "\n[AVISO] Sin <CHIP>-gfa-gh.json (no se pudo leer GFA del canvas)."
     resumen = None
     ruta_res = os.path.join(F2_VENTA_DIR, "resultados", "resultados_completos.json")
     if ok and os.path.exists(ruta_res):
@@ -705,6 +738,7 @@ def _calcular_f2(chip, modalidad, gfa_m2=None, costo_lote_cop=None):
         "ok": ok,
         "modalidad_dueno_lote": modalidad,
         "fraccion_aporte_pct": round(100.0 - pago, 1),
+        "gfa": gfa_est,
         "resumen": resumen,
         "salida": salida[-1500:],
     }
@@ -985,7 +1019,8 @@ def _pipeline(chip, modalidad, escenario="D_MIXTO", caso=None, modo="venta"):
         "pasos": pasos,
         "f2": {"modalidad_dueno_lote": f2["modalidad_dueno_lote"],
                "fraccion_aporte_pct": f2["fraccion_aporte_pct"],
-               "resumen": f2["resumen"]},
+               "resumen": f2["resumen"],
+               "gfa": f2.get("gfa")},
         "f2_renta": ({"ok": f2r["ok"]} if f2r else None),
         "f3": ({"resultados": f3["resultados"]} if f3 and f3["ok"] else None),
         "lados_patio": lados,

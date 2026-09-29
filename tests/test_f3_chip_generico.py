@@ -11,7 +11,11 @@ import F3_DISTRIBUCION_v01 as f3  # noqa: E402
 
 
 def test_buscar_resultados_chip():
-    assert f3.buscar_resultados("AAA0030JKOE") == "resultados_AAA0030JKOE.json"
+    # Contrato 2026-09-28: prioriza un archivo CON escenario de uso mixto
+    # (el canonico puede ser una corrida A/B/C sin mix).
+    r0 = f3.buscar_resultados("AAA0030JKOE")
+    assert r0 and r0.startswith("resultados_AAA0030JKOE")
+    assert f3._tiene_mixto(os.path.join(f3.FIN, r0))
     r = f3.buscar_resultados("AAA0127AZPA")
     assert r and r.startswith("resultados_AAA0127AZPA")
     assert f3.buscar_resultados("ZZZ00000000") is None

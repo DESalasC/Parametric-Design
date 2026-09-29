@@ -4,6 +4,10 @@
 F2_DEMANDA_MOTOR_v03.py — Modelo Financiero Inmobiliario de Prefactibilidad (Fase 2)
 Proyecto: Catalogo / DiseñoParametrico — Fase 2
 Python 3.8+ Standalone (sin dependencias externas)
+
+v03.1 (2026-09-28): tolerancia a escenarios vacios (placeholders sin datos creados
+  por la UI financiera, p.ej. D_MIXTO* = {}): se ignoran con aviso en lugar de
+  fallar con KeyError 'eficiencia_nga' (subversion interna; contrato sin cambio).
 ================================================================================
 
 OBJETIVO:
@@ -64,6 +68,7 @@ FUENTES DE MERCADO (consultadas 2026-08-12):
 """
 
 import argparse
+import copy
 import csv
 import json
 import os
@@ -144,10 +149,15 @@ _DEFAULT_PARAMS = {
 
 
 def cargar_parametros(ruta: str) -> dict:
-    """Carga parametros desde JSON; completa con valores por defecto."""
+    """Carga parametros desde JSON; completa con valores por defecto.
+
+    v03.1: copia PROFUNDA de los defaults. Antes dict(_DEFAULT_PARAMS) era superficial
+    y los dicts anidados compartidos se contaminaban entre llamadas/instancias en el
+    mismo proceso (p.ej. aporte_suelo.pago_parcial_pct quedaba pegado en 30).
+    """
     with open(ruta, "r", encoding="utf-8") as f:
         data = json.load(f)
-    params = dict(_DEFAULT_PARAMS)
+    params = copy.deepcopy(_DEFAULT_PARAMS)
     params.update(data)
     params.setdefault("meta", {})
     return params
@@ -1349,6 +1359,24 @@ def _normalizar_mix(escenarios: dict, gfa: float) -> None:
         esc["_es_mixto"] = True
 
 
+def _escenarios_utilizables(escenarios: dict):
+    """v03.1 - Separa escenarios utilizables de placeholders vacios.
+
+    Un escenario es utilizable si trae 'mix_usos' (uso multiple) o 'eficiencia_nga'
+    (escenario simple). Los dicts vacios o solo-nulos (placeholders que puede crear
+    la UI financiera, p.ej. D_MIXTO* sin datos) se ignoran con aviso, en lugar de
+    provocar KeyError en run_scenario (v03: 'eficiencia_nga').
+    """
+    utiles = {}
+    ignorados = []
+    for eid, esc in escenarios.items():
+        if isinstance(esc, dict) and (esc.get("mix_usos") or "eficiencia_nga" in esc):
+            utiles[eid] = esc
+        else:
+            ignorados.append(eid)
+    return utiles, ignorados
+
+
 # ----------------------------------------------------------------------------
 # Flujo principal
 # ----------------------------------------------------------------------------
@@ -1418,6 +1446,11 @@ def main() -> int:
     # 0) Normalizar escenarios mixtos (override de uso multiple) para sensibilidad e informe
     _normalizar_mix(params["escenarios"], gfa)
 
+    # 0.5) v03.1: ignorar escenarios vacios (placeholders sin datos del UI financiero)
+    params["escenarios"], escenarios_ignorados = _escenarios_utilizables(params["escenarios"])
+    if escenarios_ignorados:
+        print("[AVISO] Escenarios sin datos ignorados: {0}".format(", ".join(escenarios_ignorados)))
+
     # 1) Escenarios (unidades enteras)
     resultados = []
     for esc_id, esc in params["escenarios"].items():
@@ -1425,6 +1458,10 @@ def main() -> int:
         esc["id"] = esc_id
         res = run_scenario(gfa, cl, esc, fin)
         resultados.append(res)
+
+    if not resultados:
+        print("[ERROR] No hay escenarios utilizables en {0} (todos vacios).".format(ruta_params))
+        return 3
 
     # 2) Alertas
     alertas_por_esc = {r["escenario_id"]: evaluar_alertas(r, reglas) for r in resultados}
@@ -1471,6 +1508,7 @@ def main() -> int:
         "costo_lote_total_cop": round(cl, 2),
         "reglas_decision": reglas,
         "escenarios": resultados,
+        "escenarios_ignorados": escenarios_ignorados,
         "alertas": {k: v for k, v in alertas_por_esc.items()},
         "sensibilidad": sens,
         "recomendacion": recomendacion,

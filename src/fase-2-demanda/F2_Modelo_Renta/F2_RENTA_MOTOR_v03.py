@@ -1188,6 +1188,24 @@ cánones en radio 5 km y revision especializada antes de decisiones de inversion
 # Flujo principal
 # ----------------------------------------------------------------------------
 
+def _escenarios_utilizables(escenarios: dict):
+    """v03.1 - Separa escenarios utilizables de placeholders vacios.
+
+    Un escenario es utilizable si trae 'mix_usos' (uso multiple) o 'eficiencia_nga'
+    (escenario simple). Los dicts vacios o solo-nulos (placeholders que puede crear
+    la UI, p.ej. D_MIXTO* sin datos) se ignoran con aviso, en lugar de provocar
+    KeyError en run_combinacion/run_scenario.
+    """
+    utiles = {}
+    ignorados = []
+    for eid, esc in escenarios.items():
+        if isinstance(esc, dict) and (esc.get("mix_usos") or "eficiencia_nga" in esc):
+            utiles[eid] = esc
+        else:
+            ignorados.append(eid)
+    return utiles, ignorados
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Motor Build-to-Rent — Fase 2 (2 estrategias x 3 escenarios, flujo "
@@ -1234,6 +1252,14 @@ def main() -> int:
     escenarios = params["escenarios"]
     estrategias = {k: v for k, v in params["estrategias"].items()
                    if args.estrategia == "todas" or k == args.estrategia}
+
+    # 0.5) v03.1: ignorar escenarios vacios (placeholders sin datos del UI)
+    escenarios, escenarios_ignorados = _escenarios_utilizables(escenarios)
+    if escenarios_ignorados:
+        print("[AVISO] Escenarios sin datos ignorados: {0}".format(", ".join(escenarios_ignorados)))
+    if not escenarios:
+        print("[ERROR] No hay escenarios utilizables en {0} (todos vacios).".format(args.parametros))
+        return 3
 
     # Etiquetar escenarios
     for esc_id, esc in escenarios.items():
