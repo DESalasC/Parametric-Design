@@ -1,0 +1,167 @@
+{
+  "gfa_total": 3312.57,
+  "pisos": 5,
+  "area_por_piso": 662.51,
+  "programa_pisos": [
+    {
+      "piso": 1,
+      "altura_z": 0.0,
+      "altura_piso": 3.6,
+      "usos": [
+        {
+          "uso": "Local comercial",
+          "area_bruta": 604.91,
+          "area_neta": 514.17
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 57.6,
+          "area_neta": 57.6
+        }
+      ]
+    },
+    {
+      "piso": 2,
+      "altura_z": 3.6,
+      "altura_piso": 3.0,
+      "usos": [
+        {
+          "uso": "Local comercial",
+          "area_bruta": 604.91,
+          "area_neta": 514.17
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 57.6,
+          "area_neta": 57.6
+        }
+      ]
+    },
+    {
+      "piso": 3,
+      "altura_z": 6.6,
+      "altura_piso": 3.0,
+      "usos": [
+        {
+          "uso": "Vivienda",
+          "area_bruta": 604.91,
+          "area_neta": 471.83
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 57.6,
+          "area_neta": 57.6
+        }
+      ]
+    },
+    {
+      "piso": 4,
+      "altura_z": 9.6,
+      "altura_piso": 3.0,
+      "usos": [
+        {
+          "uso": "Vivienda",
+          "area_bruta": 604.91,
+          "area_neta": 471.83
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 57.6,
+          "area_neta": 57.6
+        }
+      ]
+    },
+    {
+      "piso": 5,
+      "altura_z": 12.6,
+      "altura_piso": 3.0,
+      "usos": [
+        {
+          "uso": "Vivienda",
+          "area_bruta": 604.9,
+          "area_neta": 471.82
+        },
+        {
+          "uso": "Nucleo",
+          "area_bruta": 57.6,
+          "area_neta": 57.6
+        }
+      ]
+    }
+  ],
+  "matriz_adyacencia": {
+    "Comercio": {
+      "Comercio": 0,
+      "Vivienda": 1
+    },
+    "Vivienda": {
+      "Comercio": 1,
+      "Vivienda": 0
+    }
+  },
+  "nucleo": {
+    "total_m2_piso": 44.6,
+    "hueco_m2_piso": 57.6,
+    "circulacion_m2": 36.6,
+    "servicios_m2": 8.0,
+    "bloque": {
+      "ancho_m": 6.4,
+      "largo_m": 9.0
+    },
+    "disposicion": [
+      {
+        "tipo": "circulacion",
+        "componente": "Escalera 1",
+        "ancho_m": 2.7,
+        "largo_m": 5.0,
+        "dx": -1.35,
+        "dy": -2.0
+      },
+      {
+        "tipo": "circulacion",
+        "componente": "Escalera 2",
+        "ancho_m": 2.7,
+        "largo_m": 5.0,
+        "dx": 1.35,
+        "dy": -2.0
+      },
+      {
+        "tipo": "circulacion",
+        "componente": "Ascensor 1",
+        "ancho_m": 2.2,
+        "largo_m": 2.2,
+        "dx": -2.1,
+        "dy": 2.5
+      },
+      {
+        "tipo": "circulacion",
+        "componente": "Ascensor 2",
+        "ancho_m": 2.2,
+        "largo_m": 2.2,
+        "dx": 0.1,
+        "dy": 2.5
+      },
+      {
+        "tipo": "servicios",
+        "componente": "Servicios/tecnicos",
+        "ancho_m": 2.0,
+        "largo_m": 4.0,
+        "dx": 2.2,
+        "dy": 2.5
+      }
+    ],
+    "lado_m": 6.68,
+    "escaleras": {
+      "cantidad": 2,
+      "tipo": "comun de evacuacion (NSR-10 Titulo K)",
+      "modulo_m2": 13.5
+    },
+    "ascensores": {
+      "cantidad": 2,
+      "capacidad_personas": 8,
+      "modulo_m2": 4.8,
+      "criterio": "poblacion 177 pers; 1 asc / ~40 unid"
+    }
+  },
+  "origen": "F3_DISTRIBUCION_v01 (balanceado; nucleo circulacion/servicios separados)"
+}

@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "modelo": "F2_DEMANDA_MOTOR_v02",
+    "version": "2.2",
+    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Inmobiliario",
+    "ciudad": "Bogota D.C., Colombia",
+    "moneda": "COP",
+    "fecha_ejecucion": "2026-08-12",
+    "chip": "AAA0030JKOE",
+    "ciclo_desarrollo_anios": 2,
+    "nota_general": "Los valores de mercado provienen de fuentes publicas consultadas el 2026-08-12 (ver seccion 'fuentes' por escenario y parametro). Antes de uso comercial, reemplazar el precio de suelo con el dato real del lote y validar precios de venta con comparables de radio 5 km."
+  },
+  "gfa_max_m2": 1200,
+  "lote": {
+    "area_m2": 946.45,
+    "precio_suelo_m2": 1500342,
+    "impuestos_escritura_pct": 0,
+    "fuente": "Supuesto de referencia: rango medio de suelo urbano residencial en Bogota segun Catastro Distrital (Visor Inmobiliario Bogota-Region) e IDECA (mediana del valor comercial por m2 de terreno por manzana). El dato real del lote debe reemplazar este valor.",
+    "fuente_url": "https://www.catastrobogota.gov.co/",
+    "costo_lote_total_cop": 1420000000
+  },
+  "financiero": {
+    "costos_blandos_pct": 15,
+    "marketing_ventas_pct": 4,
+    "nota_costos_blandos": "Rango tipico 12-15% del costo duro (diseno, permisos, curaduria, gerencia). Se usa 13%.",
+    "nota_marketing": "Rango tipico 3-4% del ingreso total (comisiones inmobiliarias). Se usa 3,5%."
+  },
+  "reglas_decision": {
+    "mub_riesgo_pct": 18.0,
+    "mub_atractivo_pct": 25.0,
+    "roi_minimo_pct": 22.0,
+    "cl_it_precaucion_pct": 25.0,
+    "cl_it_inviable_pct": 30.0,
+    "nota": "Reglas de decision Bogota (definidas en el objetivo Fase 2): MUB < 18% alto riesgo / > 25% atractivo; ROI minimo 22%; CL/IT > 25-30% sugiere inviabilidad para desarrollo y venta."
+  },
+  "sensibilidad": {
+    "variacion_pct": 10.0,
+    "nota": "Variacion +-10% sobre precio de venta, costo duro, eficiencia NGA, costo del lote y absorcion. La sensibilidad usa unidades continuas para aislar el efecto marginal; el caso base usa unidades enteras vendibles."
+  },
+  "escenarios": {
+    "A_VIS": {
+      "nombre": "A — VIS / VIP",
+      "nivel_acabados": "Basico",
+      "unidad_m2": 50.0,
+      "eficiencia_nga": 0.8,
+      "precio_venta_m2": 4727444,
+      "costo_construccion_m2": 2600000,
+      "absorcion_unid_mes": 5.0,
+      "fuente_precio": "Derivado del tope legal VIS 2026: 135 SMMLV x $1.750.905 (Decreto 1469/2025, ratificado por Decreto 0159/2026) = $236.372.175 por unidad / 50 m2. Argos (2026) confirma tope cercano a $238 M.",
+      "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",
+      "fuente_costo": "Konstruing (07-ago-2026): vivienda terminada con acabados basicos en Bogota; rango general Bogota $2,2-3,8 M/m2 (Aliados de Obras 2026). CAMACOL proyecta +15% de costos 2026 por presion laboral.",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Menor precio y costo por m2; mayor eficiencia NGA por unidades pequenas. El piso adicional VIS aplica solo si la envolvente de Fase 1 no agoto el GFA (fuera de alcance de esta fase)."
+    },
+    "B_ESTANDAR": {
+      "nombre": "B — Estandar",
+      "nivel_acabados": "Medio",
+      "unidad_m2": 90.0,
+      "eficiencia_nga": 0.75,
+      "precio_venta_m2": 7500000,
+      "costo_construccion_m2": 3400000,
+      "absorcion_unid_mes": 2.5,
+      "fuente_precio": "Precio medio-alto Bogota 2026: Terraes estima $6,0 M/m2 promedio en venta (50% del mercado entre $4,5 y $7,9 M/m2); Ciencuadras Q1-2026 reporta $7,42 M/m2 promedio para apartamentos; DANE IPVN Q1-2026 +8,47% anual vivienda nueva. Se toma $7,2 M/m2 para zona media-alta.",
+      "fuente_precio_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+      "fuente_costo": "Konstruing (07-ago-2026): vivienda terminada con acabados medios $2,2-3,5 M/m2 en Bogota. Se toma $3,0 M/m2 (media del rango) ajustado a multifamiliar.",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Producto de mercado: unidades de 80-100 m2, precio y costo promedio. Es el benchmark de comparacion."
+    },
+    "C_LUJO": {
+      "nombre": "C — Lujo / Alto nivel",
+      "nivel_acabados": "Premium",
+      "unidad_m2": 150.0,
+      "eficiencia_nga": 0.68,
+      "precio_venta_m2": 10500000,
+      "costo_construccion_m2": 4800000,
+      "absorcion_unid_mes": 1.0,
+      "fuente_precio": "Barrios premium de Bogota (La Cabrera, El Retiro) superan $11 M/m2 (Metrocuadrado 2026); Terraes ubica el rango amplio hasta $10,2 M/m2. Se toma $12 M/m2 para producto premium en zona de alto valor.",
+      "fuente_precio_url": "https://www.metrocuadrado.com/noticias/actualidad/valor-del-metro-cuadrado-por-barrio-en-bogota-6020",
+      "fuente_costo": "Konstruing (07-ago-2026) y Aliados de Obras (2026): rango Bogota hasta $3,8 M/m2; acabados premium y mayores especificaciones elevan el costo a $4,3 M/m2 (supuesto tecnico documentado).",
+      "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+      "nota": "Producto de alto valor: unidades grandes, menor eficiencia NGA, mayor precio y costo por m2, menor absorcion."
+    },
+    "D_MIXTO": {},
+    "D_MIXTO_SALUD": {},
+    "D_MIXTO_OFICINAS": {}
+  }
+}

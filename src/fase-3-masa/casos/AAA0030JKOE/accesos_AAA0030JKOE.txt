@@ -1,0 +1,13 @@
+========================================================================
+F3 - ACCESOS POR USO Y SEGREGACION DE FLUJOS
+========================================================================
+Usos analizados: 2
+Publicos (fachada): 1
+Privados (nucleo): 1
+Total accesos: 2
+Pares incompatibles (segregar): 0
+
+ACCESOS POR USO:
+----------------------------------------
+  Local comercial    [publico] pisos=[1, 2] -> directo_fachada (Frontal)
+  Vivienda           [privado] pisos=[3, 4, 5] -> independiente_nucleo (nucleo_vertical)

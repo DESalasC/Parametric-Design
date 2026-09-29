@@ -1,5 +1,5 @@
 {
-  "chip": "AAA0127AZPA",
+  "chip": "AAA0030JKOE",
   "zona": "norte",
   "fuentes": {
     "precio_m2_venta": 4500000,
@@ -22,8 +22,8 @@
       "media": 6500000
     },
     "modalidad_dueno_lote": {
-      "tipo": "aporte_completo",
-      "pago_parcial_pct": 0.0
+      "tipo": "participacion",
+      "pago_parcial_pct": 30.0
     }
   },
   "financiacion_saldo": [

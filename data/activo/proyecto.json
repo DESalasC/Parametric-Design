@@ -1,6 +1,6 @@
 {
   "nombre": "",
-  "chip": "AAA0127AZPA",
+  "chip": "AAA0030JKOE",
   "variables": {
     "tipologia": "Continua",
     "piso_adicional": true,
@@ -176,5 +176,5 @@
     ]
   },
   "crear_estructura": false,
-  "caso": "A"
+  "caso": "B"
 }
