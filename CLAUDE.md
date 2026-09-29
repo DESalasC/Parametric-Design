@@ -70,7 +70,7 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
 
 #### ETAPA 1: Datos en bruto → ArchiCAD (clasificación manual)
 ```
-fetch-urban-context-v6 → JSON → F1_ETAPA1_CONTEXTO (GH Python)
+fetch-urban-context-v7 → JSON → F1_ETAPA1_CONTEXTO (GH Python)
   → lot_curve, vecinos_curves, vias_oficiales, espacios_publicos
   → Live Connection: crear layers + enviar geometría a ArchiCAD
   → MANUAL en ArchiCAD: clasificar lotes de vías, ejes, andenes,
@@ -143,7 +143,7 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
 23. Python externo: type hints obligatorios, ruff, mypy.
 24. GHPython: sin type hints (IronPython 2.7).
 25. Dentro del encabezado de cada archivo, debe ir el nombre y la version o sub version (ej: `F1_CONTEXTO_v09.1.py`), deben ir listadas las variables de entrada y de salida explicadas brevemente y las conexiones de entrada y de salida de cada una de esas variables. Tambien deben mantener uns textos con los ultimos tres cambios del archivo explicando la situación presentada y la respuesta para cumplir el requerimiento o arreglo del código.
-26. La adquisición del lote se hace mediante el CHIP del predio usando el script scripts/utilities/fetch-urban-context-v6.py.
+26. La adquisición del lote se hace mediante el CHIP del predio usando el script scripts/utilities/fetch-urban-context-v7.py.
 27. El script genera un JSON en 'data/pot-cache/<CHIP>-contexto.json' con coordenadas locales (0,0,0) + metadatos SIRGAS + topografía.
 28. Los scripts GHPython de la Fase 1 SOLO deben leer este JSON. Si el JSON no existe, el pipeline debe detenerse e indicar al usuario que ejecute el script de fetch primero.
 29. La topografía maneja dos estados: 'ESTIMADA' (raster público) y 'REAL' (levantamiento). El sistema debe actualizarse dinámicamente cuando el estado cambie a REAL.
@@ -155,7 +155,7 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
     - Default histórico: `D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg`
     - **Ubicación recomendada portable**: `data/geobase/bd_uaecd.gpkg` (copiar manualmente)
 31. POT GDB: `POT_Decreto_555_2021_Bogota_D_C.gdb` — igual que arriba, variable `POT_GDB_PATH`.
-32. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `fetch-urban-context-v6.py`).
+32. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `fetch-urban-context-v7.py`).
 33. Whitelist de campos: `config/field-whitelist.json` (~30 campos de 2455 totales).
 34. Vecinos: modelado manual en Archicad (Morph), validar con `validate-neighbors.py` antes de pasar a GH.
 
@@ -183,7 +183,7 @@ python scripts\utilities\fetch-contexto-completo_v01.py --chip AAA0240ZXJH --sol
 python scripts\utilities\fetch-contexto-completo_v01.py --chip AAA0240ZXJH --solo-50
 
 # POT (scripts individuales)
-python scripts\utilities\fetch-urban-context-v6.py --chip AAA0240ZXJH --output-dir data\pot-cache --gpkg %POT_GPKG_PATH%
+python scripts\utilities\fetch-urban-context-v7.py --chip AAA0240ZXJH --output-dir data\pot-cache --gpkg %POT_GPKG_PATH%
 python scripts\utilities\gpkg-to-cache.py --lot data\lotes-ejemplo\lote-chapinero.json
 python scripts\utilities\gpkg-to-cache.py --list-layers
 python scripts\utilities\gpkg-to-cache.py --show-fields <layer_name> --limit 1

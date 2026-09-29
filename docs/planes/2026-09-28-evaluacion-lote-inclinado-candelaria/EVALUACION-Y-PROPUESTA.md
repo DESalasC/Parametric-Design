@@ -1,0 +1,244 @@
+# Evaluación y propuesta — Lote en pendiente · La Candelaria (CHIP AAA0030JKOE)
+
+**Proyecto:** DiseñoParametrico · **Fecha:** 2026-09-28 · **Estado:** propuesta para revisión del operador
+**Alcance:** cómo implementar el proceso completo (selección de lote → terreno → lados/envolvente → patios/aislamientos/separaciones → masa) para un predio con: **pendiente fuerte**, **varios volúmenes con separaciones** (no necesariamente patios), **dos vías de acceso**, **restricción de altura** y **empate parcial** contra un inmueble de conservación.
+
+> Fuentes: código y datos del repo (rutas citadas), muestreo directo del MDT de Catastro Bogotá (evidencia adjunta en `evidencia/`), `data/pot-cache/AAA0030JKOE-norma-manual.json` (consulta oficial 2020), Decreto 492/2007 (PZCB) y PEMP referenciados por el propio proyecto. Los valores de cota provienen del **MDT urbano (estimado)** y deben validarse con topografía real (plan `170006A001` citado en la norma manual).
+
+---
+
+## 0. Resumen ejecutivo
+
+1. **El predio ya está en el sistema** como caso B (`AAA0030JKOE`), pero corre con **supuestos de lote plano**: la topografía llega en **ceros** (bug de parser en el fetch), la masa se extruye como **un solo cuerpo desde z=0**, y la norma manual de Candelaria **no está cableada** al override.
+2. **La pendiente es real y severa:** muestreo del MDT (63 puntos) → desnivel **14,25 m** en el lote, pendiente media **≈26 % (14,7°)**, descenso general hacia el **NO**; costado alto **~2 647 m** vs costado bajo **~2 635 m** (**Δ 11,7 m**). Esto obliga a estrategia de **plataformas/terrazas** y cotas por volumen.
+3. **La mayoría de los cambios son extensiones acotadas, no un rediseño:** ya existen *override de frente por lado*, *vecinos por sub-segmento con alturas* (v08), *empate + separación sísmica*, *envelope por piso* y *export F1.5 con flag*. Faltan: **topografía viva**, **multi-volumen con separaciones**, **multi-frente (dos vías)** y **empate de conservación + cap de altura**.
+4. **Propuesta:** 1 corrección de datos (fetch) + 1 componente F1 nuevo (terreno) + 2 componentes F3 nuevos (plataformas, multi-volumen) + 3 extensiones (NORMATIVA v09, ACCESOS v03, UI/datos). Plan por fases **P0–P3** con pruebas y criterios de aceptación (§2.5).
+5. **Decisiones del operador requeridas** (§2.6): semántica del "empate parcial"; criterio altura↔pisos (10 m vs 5); estado real de la vía occidental; anchos mínimos de separación entre volúmenes. *(Área resuelta: vale la de la geobase, 946,45 m².)*
+
+---
+
+## 1. Evaluación
+
+### 1.1 El predio, con datos verificados
+
+| Dato | Valor | Fuente |
+|---|---|---|
+| CHIP / catastro | `AAA0030JKOE` / 00310033519, KR 1 12 D 54 | norma-manual |
+| Área | **946,45 m²** (polígono geobase; perímetro 146,8 m, 30 vértices) — **válida** (el ~976 m² era aproximado; confirmado 2026-09-28) | `AAA0030JKOE-contexto.json` |
+| UPZ | 94 – La Candelaria | norma-manual |
+| Norma | Decreto **492/07** (PZCB): uso Residencial, **IO 0,70**; 3 pisos + 2 (**Nota N**) = **5 pisos**, altura máx. **10,0 m**; el predio **NO** es patrimonio (la GDB devolvía "CHB" por error) | norma-manual |
+| Pendiente | **≈26,3 % (14,7°)**; desnivel **14,25 m** (máx 2 649,0 – mín 2 634,8); descenso hacia el **NO** (azimut de bajada ≈318°) | muestreo MDT (ver §A) |
+| Cotas de frentes | costado alto **≈2 647,1 m**; costado bajo **≈2 635,4 m** (**Δ 11,7 m**) | muestreo MDT |
+| Vías | **Dos carreras**: una existente (entrada actual) y una proyectada lindando con parque metropolitano (PEMP) | norma-manual |
+| Colindancia norte | Predio **Conservación Básica**, tramo **~12 m** de un lado norte de ~52 m | norma-manual + sides auto |
+| Vías digitalizadas | **Incompletas** en `Eje_vial`: la clasificación automática marca E/O como "predio"; el override del operador existe para corregirlo | `VECINOS_POR_LADO.md` |
+
+**Puntos a confirmar (inconsistencias detectadas):**
+- E/O: "Carrera existente (entrada actual)" (norma-manual) vs "vía (aún no construida)" (`VECINOS_POR_LADO.md`) → confirmar cuál costado es la vía construida y cuál la proyectada.
+- Drift de pisos: norma manual = 5 pisos; modelo F3 actual = 6 niveles; cap altura 10 m sin aplicación → definir corrida vigente de B.
+- Área: **resuelta** — se adopta la de la geobase (946,45 m²).
+
+### 1.2 Lo que ya sirve (palancas del sistema actual)
+
+- **Selección/activación de lote**: front-end (sección 1) + `POST /api/nuevo-chip` + `_activar_chip()` + activos `CHIP-*.json` (el canvas lee rutas fijas).
+- **Frentes por lado con override**: `frente_override_json` (F0 v01.4 → NORMATIVA v08.2). Ideal para marcar **las dos vías** sin depender de la geobase.
+- **Vecinos por sub-segmento con alturas** (NORMATIVA v08): un lado se subdivide en tramos por vecino, con recorte por **semiplanos** — base directa para un **empate parcial** en un tramo de ~12 m.
+- **Empate + sismo**: reglas `1/5·h` con mínimo, empate posterior (5.4.c) y lateral (1.9.c) + separación NSR-10 A.6.5 (se toma el mayor).
+- **Envelope por piso** (`envelope_por_piso`, `retiros_por_piso`) ya consumido por F3; `altura_z`/`altura_piso` por piso ya previstos en el contrato del programa F3.
+- **F1.5 verificación**: patrón flag → `<CHIP>-lados.json` (PATIO v02.4) — extensible a terreno/empates.
+- **Arnés de pruebas** con stub de Rhino (CPython): los nuevos componentes pueden probarse sin Rhino.
+
+### 1.3 Brechas frente a las condiciones nuevas
+
+#### G1 · Terreno en pendiente
+- **Bug de topografía (z=0 en todos los chips)**: el fetch lee `results[0].get("value")`, pero el servicio MDT devuelve `attributes["Stretch.Pixel Value"]` → cae al default `"0"`. **Verificado**: consultando con la clave correcta, 63/63 puntos devuelven cotas reales (2 634,8 a 2 649,0 m).
+- Muestreo actual **solo en el borde** del lote (vértices + puntos medios + centroide): insuficiente para pendiente interna; `estado` fijo en "ESTIMADA"; sin cotas de calle por frente.
+- **Nada aguas abajo consume pendiente**: LADOS/PATIO/NORMATIVA son 2D; F3 extruye desde z=0 (`_extruir(curva, h, z)` acumulando altura por piso) → volúmenes "flotando" en un plano.
+
+#### G2 · Varios volúmenes con separaciones (no necesariamente patios)
+- F3 genera **un volumen continuo por piso** (con exclusión de núcleo). No existe fraccionar la masa en bloques ni **tipificar separaciones** (junta / pasaje / luz).
+- PATIO v02.4 solo genera el **patio normativo** (≥9 m², claridad ≥3 m) desde el vértice N. En un predio *entre dos carreras*, muchos vértices son vía+vecino → ese automatismo pierde protagonismo; los vacíos del esquema multi-volumen nacen del **fraccionamiento**, que hoy no existe.
+- No hay **validador de vacíos**: ¿ilumina? (⇒ reglas de patio) ¿es paso? (⇒ ancho mínimo) ¿es junta estructural? (⇒ registro en metadatos).
+
+#### G3 · Dos vías de acceso
+- Clasificación auto de E/O = "predio" (geobase incompleta) → **requiere override del operador** (maquinaria lista; el archivo de override para B aún no existe).
+- NORMATIVA maneja **un solo frente**: entradas únicas `ancho_via_m` / `antejardin_m` (y un voladizo derivado). Con dos carreras de anchos distintos, antejardín/voladizo deben ser **por lado** (LADOS v06.5 ya emite `ancho_via_m` por lado frontal — falta consumirlo).
+- ACCESOS v02 asigna "Frontal" genérico y no distingue vía; sin reparto de accesos entre dos calles ni **fases** (vía proyectada ≠ usable hoy).
+
+#### G4 · Restricción de altura y empate parcial con conservación
+- `altura_max_pot` es **obsoleto** ("se ignora, pero se mantiene para no romper el canvas"): el **cap efectivo de 10 m** no entra al envelope; `altura_total = pisos × floor_h` (5×3 m = 15 m > 10 m).
+- El empate por tramos existe, pero **sin modo "conservación"**, sin altura del vecino (hoy `altura_m: null` para el vecino norte) y sin longitud del tramo de empate. El carácter **"parcial"** (solo el tramo de ~12 m) no está modelado.
+- No hay bandera de trámite (**Nota N** ⇒ anteproyecto aprobado por **IDPC + MinCultura**) ni salida específica para revisión patrimonial.
+
+#### G5 · Norma manual de Candelaria sin cablear
+- `AAA0030JKOE-norma-manual.json` (consulta oficial 2020) existe, pero **no está en `norma-override.json`** (solo A y C). El fetch no lo toma: UPZ, rango, IO, pisos y nota N hay que **portarlos**.
+
+#### G6 · Datos menores
+- Área 946,45 vs ~976 m².
+- Alturas de vecinos sin capturar (`altura_m: null`).
+- Inconsistencia E/O (existente vs "aún no construida").
+- Drift B: 5 pisos (norma) vs 6 niveles (modelo F3 actual).
+
+### 1.4 Impacto si se corre el caso B hoy, sin cambios
+Con los supuestos actuales: topografía en ceros → sin pendiente; un único volumen extruido desde z=0 → imposible ver terraza/cortes; antejardín calculado sobre **un** frente → incorrecto para el segundo; sin empate de conservación ni cap de 10 m → envolvente y GFA no representativos del predio. **Conclusión: el caso B actual es un placeholder; hay que ejecutar los cambios antes de usarlo como base de diseño.**
+
+---
+
+## 2. Propuesta
+
+### 2.1 Concepto — el lote en pendiente se trabaja en 4 capas
+
+| Capa | Función | Estado |
+|---|---|---|
+| **1. TERRENO** | cotas reales → malla, curvas de nivel, perfil por lado, pendiente, cotas de acceso por frente | *nueva* |
+| **2. ENVOLVENTE NORMATIVA** | retiros por lado (**multi-frente**), cap de altura, **empate de conservación**, patios normativos | *extensión* (sigue 2D + pisos; la pendiente entra como cotas de referencia y tope por pisos/altura) |
+| **3. FRAGMENTACIÓN** | **plataformas** (terrazas) + corte en N volúmenes + **separaciones tipificadas**: `patio` (norma 9 m²/3 m), `pasaje` (paso/circulación, ancho mínimo), `junta` (técnica, sin requisito de área) | *nueva* |
+| **4. MASA Y FLUJOS** | accesos repartidos entre las **dos vías**, núcleos, volúmenes finales a Morphs con cota base | *extensión* |
+
+Clave de la Capa 3 (respuesta directa a "volúmenes con separaciones, no necesariamente patios"): **toda separación queda clasificada y validada con su propia regla**; solo las que funcionan como iluminación/ventilación heredan los requisitos de patio (≥9 m², claridad ≥3 m). Las demás exigen ancho mínimo funcional (p. ej., pasaje 1,5–2,2 m según decisión) o son juntas técnicas registradas. Nada se fuerza a "patio".
+
+### 2.2 Cambios concretos por componente
+
+| # | Componente | Tipo | Cambio principal | Prioridad |
+|---|---|---|---|---|
+| 1 | `fetch-urban-context-v6.py` → **v7** | ext. | Parser MDT corregido (`attributes["Stretch.Pixel Value"]`, fallback numérico); muestreo densificado (rejilla interior ≤5 m + anillo perimetral + 2–4 puntos por frente); guarda `pendiente_pct`, `delta_m`, `cotas_frente`, `estado` (ESTIMADA/REAL) | **P0** |
+| 2 | `norma-override.json` | datos | Alta del bloque B portado desde `norma-manual.json`: `upz 94`, `tratamiento`, `rango`, `io_maximo 0.70`, `altura_maxima_pisos 5`, `fuente Decreto 492/07 + Nota N` | **P0** |
+| 3 | **`F1_ETAPA4_TERRENO_v01`** (GHPython, nuevo) | nuevo | Malla de terreno, curvas de nivel (1 m), **perfil de cota por lado**, pendiente y cotas de acceso; salidas para canvas y F3 | P2 |
+| 4 | `F1_ETAPA2_LADOS_v06.5` → **v07** | ext. | Mantiene clasificación; añade a `sides_table` el **perfil de cota por lado** y marca `frente_alto`/`frente_bajo` (sin cambiar LADOS/retiros) | P2 |
+| 5 | `F1_ETAPA2_NORMATIVA_v08` → **v09** | ext. | (a) **multi-frente**: antejardín y voladizo **por lado frontal** (consume `ancho_via_m` por lado de LADOS); (b) **cap de altura** `altura_maxima_m` efectivo; (c) **empate de conservación** por sub-segmento (nuevos campos en `vecinos_por_lado`: `conservacion`, `altura_m`, `empate{tramo_m, altura_ref_m, modo}`); (d) salida `envolvente_conservacion_json` + bandera IDPC/MinCultura | **P1** |
+| 6 | `F1_ETAPA2_PATIO_v02.4` | — | **Sin cambios**: las reglas vigentes (≥9 m², claridad ≥3 m; simplificación <2.5°) se conservan para vacíos que iluminan | — |
+| 7 | **`F3_PLATAFORMAS_v01`** (nuevo) | nuevo | Terrazas sobre el terreno (Δz objetivo ≈1 piso, talud máx configurable, balance corte/lleno); salida: polígonos de plataforma + `z_top` + `z_base` por plataforma | P2 |
+| 8 | **`F3_MULTIVOLUMEN_v01`** (nuevo) | nuevo | Divide la envolvente en **N volúmenes** respetando plataformas, accesos y fachadas; **genera y clasifica separaciones** (patio/pasaje/junta) + **validador de vacíos**; salidas listas para VOLUM | P2 |
+| 9 | `F3_VOLUM_GENERADOR_v08` → **v09** | ext. | `z_base` por volumen/piso (terraza real, no z=0); juntas de la fragmentación; salidas Morph con cota corregida | P2 |
+| 10 | `F3_ACCESOS_INTEGRADOR_v02` → **v03** | ext. | Reparto de accesos entre **dos vías** (público/privado/vehicular); **fases** (si la 2.ª vía no existe aún); coherencia con plataformas | P3 |
+| 11 | Orquestador / UI (`index.html`, `servidor.py`) | ext. | "Análisis de terreno" tras fetch (`/api/contexto` + alerta si pendiente >15 % y ESTIMADA); campos por vecino (conservación S/N, altura, tramo de empate); export F1.5 ampliado (terreno + empates) | P1–P2 |
+
+### 2.3 Flujo end-to-end actualizado (respuesta directa a "cómo implementar todo el proceso")
+
+0. **Selección de lote** *(igual que hoy + 1 añadido)*: UI → elegir CHIP existente o "Procesar CHIP nuevo" → fetch base + 50 m → activación de activos. **Añadido**: al terminar, panel "terreno" con pendiente, cotas y cotas de los dos frentes; si `pendiente > 15 %` y estado ESTIMADA → aviso "recomendar levantamiento" (estado REAL cuando exista).
+1. **Datos del lote (fetch v7)**: cotas corregidas y densificadas; se guardan perfiles de cota por frente (para definir accesos arriba/abajo).
+2. **Operador (UI §1/1b)**: confirmar frentes → **marcar las dos vías** (override E/O); marcar el **vecino de conservación** (tramo ~12 m, altura del inmueble, modo de empate); completar alturas de los demás vecinos. Guardar (por CHIP).
+3. **Canvas F1**: `ETAPA1` (terreno real) → `LADOS v07` (clasificación + perfiles) → `PATIO v02.4` (sin cambios) → **`NORMATIVA v09`** (multi-frente + cap altura + empate conservación) → `EXPORTAR_GFA` → **export F1.5 ampliado** (terreno + empates en `<CHIP>-lados.json`).
+4. **Verificación F1.5** (patrón flag; se amplía el JSON de diagnóstico: pendiente, cotas de frentes, tramo de empate aplicado, cap de altura).
+5. **F2 demanda**: mismo contrato (GFA). ⚠️ Con el cap de 10 m/pisos efectivos el GFA puede cambiar → **revisar la corrida vigente de B** (hoy 3 312,6 m² con 6 niveles).
+6. **F3 masa**: `DISTRIBUCION` (layout) + `ACCESOS v03` (reparto entre vías, fases) + **`PLATAFORMAS`** + **`MULTIVOLUMEN`** (fraccionamiento + separaciones + validador) + `VOLUM v09` (z por volumen; núcleo; salidas Morph con cota).
+7. **Morphs a ArchiCAD** (misma ruta; cota base corregida por volumen).
+8. **Documentación + tests + ADRs** (candidatos: terreno/multi-volumen; empate de conservación).
+
+**Aplicado a Candelaria (ilustrativo, a decidir con datos finales):** 4 plataformas de ~3,5 m → 3–4 volúmenes escalonados bajando hacia la carrera baja/parque; acceso desde la vía alta en el volumen 1 (cota ~2 647) y desde la vía baja en el volumen 3/4 (cota ~2 635); separaciones: pasaje central (circulación/conexión entre calles) + 1 patio normativo si algún recinto lo requiere + juntas técnicas. Empate: solo el tramo norte de ~12 m contra el inmueble de conservación.
+
+### 2.4 Modelo de datos (nuevo / extendido)
+
+```jsonc
+// (1) topografia v2 — dentro de <CHIP>-contexto.json
+"topografia": {
+  "estado": "ESTIMADA",                  // ESTIMADA | REAL
+  "fuente": "Catastro_REST_API_MDT",
+  "pendiente_media_pct": 26.3,
+  "delta_m": 14.25,
+  "cotas_frente": { "Oriente": 2647.1, "Occidente": 2635.4 },
+  "malla_terreno": [ { "id": "P0", "x_local": 0.0, "y_local": 0.0, "z_local": 8.2 }, "..." ],
+  "muestras_auditoria": [ "..." ]        // puntos consultados (trazabilidad)
+}
+```
+
+```jsonc
+// (2) vecino con empate de conservación — extensión de <CHIP>-vecinos-por-lado.json
+{ "lados": [ { "id": 2, "cardinal": "Norte", "vecinos": [
+    { "chip": "...", "longitud_m": 12.0, "altura_m": 7.5,
+      "conservacion": true,
+      "empate": { "modo": "parcial", "tramo_m": 12.0, "altura_ref_m": 7.5,
+                  "criterio": "empate_cornisa", "aprobacion": "IDPC+MinCultura" } } ] } ] }
+```
+
+```jsonc
+// (3) plataformas — casos/<CASO>/plataformas.json (F3_PLATAFORMAS_v01)
+{ "talud_max_pct": 40, "balance_corte_lleno": 0.92,
+  "plataformas": [ { "id": "P1", "z_top": 2643.2, "z_base": 2640.0, "area_m2": 260.0, "poligono": [ "..." ] }, "..." ] }
+```
+
+```jsonc
+// (4) volúmenes y separaciones — casos/<CASO>/separaciones.json (F3_MULTIVOLUMEN_v01)
+{ "volumenes": [ { "id": "V1", "plataforma": "P1", "z_base": 2640.0, "huella_m2": 240.0 }, "..." ],
+  "separaciones": [ { "id": "S1", "tipo": "pasaje", "entre": ["V1","V2"], "ancho_m": 2.0, "largo_m": 26.0,
+                      "estado": "valida" },
+                    { "id": "S2", "tipo": "patio",  "entre": ["V2","V3"], "area_m2": 9.6, "claridad_m": 3.1,
+                      "estado": "valida" },
+                    { "id": "S3", "tipo": "junta",  "entre": ["V3","V4"], "ancho_m": 0.05, "nota": "estructural" } ] }
+```
+
+### 2.5 Plan de implementación (fases, entregables, aceptación)
+
+| Fase | Tareas | Entregables | Criterio de aceptación | Estimado |
+|---|---|---|---|---|
+| **P0 — Datos y correcciones ✅ (2026-09-28)** | (1) fix parser MDT + muestreo denso ✅; (2) norma B al override ✅; (3) re-fetch completo de B ✅ | fetch v7; `norma-override` B; `AAA0030JKOE-contexto.json` con cotas reales | Re-fetch B: pendiente **25,85 %** / **Δ 16,12 m** ✅; tests **302/302** ✅; cotas visibles en canvas ⏳ (AutoClaw cerrado; resta vista del operador) | ~1 día (real) |
+| **P1 — Envolvente** | (4) NORMATIVA v09 (multi-frente + cap altura + empate conservación + salida IDPC); (5) UI vecinos/empate + export F1.5 ampliado | NORMATIVA v09 + tests conductuales; JSON F1.5 extendido | Para B: antejardín por frente según cada vía; tramo 12 m empata a `H_ref` sin excederlo sin retiro; cap 10 m aplicado (regla a decidir); GFA por piso reportado | 3–5 días |
+| **P2 — Terreno y fragmentación** | (6) F1_ETAPA4_TERRENO; (7) F3_PLATAFORMAS; (8) F3_MULTIVOLUMEN + VOLUM v09 (z_base) | 3 componentes nuevos + pruebas con stub | Corrida B genera ≥3 volúmenes con `z_base` distintos (Δ≥10 m), separaciones clasificadas y validadas; export `.3dm` OK | 1–2 semanas |
+| **P3 — Accesos y cierre** | (9) ACCESOS v03 (dos frentes + fases); (10) docs/ADR + validación en vivo | ACCESOS v03; ADRs; manual actualizado | Dos accesos peatonales distribuidos + vehicular definida; fase 1 coherente con vía existente | 3–5 días |
+
+*Nota:* P0 y P1 se pueden ejecutar ya (sin Rhino); P2 requiere sesión de canvas (cerrar AutoClaw por el puerto 19723).
+
+### 2.6 Decisiones abiertas (operador / IDPC)
+
+1. **"Empate parcial" — semántica exacta.** Opciones: (a) empata solo en el **tramo** de 12 m (resto libre bajo cap); (b) empata **en altura** hasta H del conservado y puede superarlo con retiro 1/5·h; (c) combinación. *Recomendado modelar (c) parametrizable; confirmar con IDPC.*
+2. **Criterio altura↔pisos: 10 m vs 5 pisos** (× altura de piso). ¿Cap duro 10 m (≈3 pisos de 3 m) o 5 pisos con 10 m como referencia tipológica? Afecta directamente el GFA y el negocio (F2).
+3. **Área del predio — RESUELTA (2026-09-28):** se usa la de la geobase (946,45 m²); el ~976 m² era una idea aproximada.
+4. **Vía occidental:** ¿construida o proyectada? (determina desde cuándo puede considerarse acceso y cómo se modela la fase).
+5. **Anchos mínimos de separación** entre volúmenes del mismo predio (pasaje: p. ej., 1,5–2,2 m; junta: según cálculo estructural).
+6. **Altura del inmueble de conservación** (norte, 12 m) y cota de referencia del empate (cornisa/altura total).
+
+### 2.7 Próximos pasos inmediatos (sugeridos)
+
+1. **Fix topo + re-fetch B** (P0.1–P0.3) — barato y de altísimo impacto: hoy es un bug de una línea de parser.
+2. **Portar norma B** al override (P0.2) y confirmar decisiones §2.6 en una revisión corta.
+3. Aplicar en la UI los overrides de **dos vías** + capturar alturas de vecinos (incluida la del conservado).
+4. Decidir si el fraccionamiento multi-volumen se prototipa (P2) o si, mientras tanto, se estudia el caso B con "cajas" manuales para tantear la estrategia de plataformas.
+
+---
+
+## Apéndice A — Evidencia del muestreo MDT
+
+- Archivo: [`evidencia/mdt-muestreo-AAA0030JKOE.json`](evidencia/mdt-muestreo-AAA0030JKOE.json) (63 puntos: 30 vértices + 30 puntos medios + centroide + 2 frentes).
+- Servicio: `https://serviciosgis.catastrobogota.gov.co/arcgis/rest/services/topografia/modelodigitalterrenobogotaurbano/MapServer/identify` (consulta EPSG:3116).
+- Resultados: z mín. **2 634,79 m** / z máx. **2 649,04 m** / **Δ 14,25 m**; pendiente media **26,3 % (14,74°)**; azimut de bajada ≈**318,2°**; frentes ≈**2 647,1 m** y **2 635,4 m** (Δ **11,71 m**).
+- Nota de método: el fetch v6 devuelve 0,0 para todos los puntos porque lee la clave `value`; el servicio responde `attributes["Stretch.Pixel Value"]`. Corregir esa clave habilita cotas reales (verificado 63/63 puntos).
+- Límites: MDT urbano **estimado**; validar con levantamiento/nivelación (plan `170006A001` citado en la norma manual). Los valores son consistentes de forma relativa (pendiente/desniveles); la cota absoluta conviene contrastarla con una referencia conocida.
+
+## Apéndice B — Referencias
+
+**Código (repo):**
+- `scripts/utilities/fetch-urban-context-v6.py` (topografía; función `get_elevation_from_api` l.~147–167)
+- `src/fase-1-contexto/F1_ETAPA2_NORMATIVA_v08.py` (empate/semiplanos; l.~998–1035)
+- `src/fase-1-contexto/F1_ETAPA2_LADOS_v06.py` (v06.5; contrato de lados)
+- `src/fase-1-contexto/F1_ETAPA2_PATIO_v02.py` (v02.4; reglas de patio)
+- `src/fase-3-masa/F3_VOLUM_GENERADOR_v08.py` / `F3_ACCESOS_INTEGRADOR_v02.py` / `F3_DISTRIBUCION_v01.py`
+- `src/orquestador/servidor.py` (casos A/B/C; `CASO_CHIP`; endpoints), `run_pipeline_v01.py`
+- `data/pot-cache/AAA0030JKOE-norma-manual.json`, `data/pot-bogota/norma-override.json`
+
+**Normativa (consulta web de esta evaluación, para verificación del operador):**
+- Decreto 492 de 2007 — Operación Estratégica del Centro de Bogotá / Plan Zonal del Centro (PZCB): <https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=27312> · <https://www.sdp.gov.co/gestion-socioeconomica/operaciones-estrategicas/estrategias/operacion-estrategica-del-centro-de-bogota>
+- PEMP Centro Histórico (IDPC): <https://idpc.gov.co/PEMP/Diagnostico/10%20Habitacional.pdf>
+- POT vigente: Decreto 555 de 2021 (Anexo 5 — secciones 1.9.b/1.9.c, 5.4.b/5.4.c usadas por el código) · NSR-10 (A.6.5).
+
+---
+
+## 3. Registro de ejecución
+
+### 2026-09-28 — P0 ejecutado (aprobación del operador)
+
+- **Fetch v7 — topografía real** (`scripts/utilities/fetch-urban-context-v7.py`, nuevo; el v6 queda como respaldo):
+  - Parser del MDT corregido: el servicio devuelve la cota en `attributes["Stretch.Pixel Value"]` (el v6 leía `value` → 0.0 silencioso).
+  - Muestreo densificado: rejilla interior 5 m + anillo exterior 6 m (paso 8 m) + vértices/medios/centroide → **118 puntos** para B (tope 400).
+  - Salidas nuevas: `topografia.resumen` (delta, pendiente media por ajuste de plano, dirección de bajada, fallidos), `topografia.perfil_lados` (por arista), `malla_terreno[].tipo`; cierre del polígono corregido; vecinos/vías/EP al datum local.
+  - Referencias actualizadas: `fetch-contexto-completo_v01.py`, `servidor.py`, `run_pipeline_v01.py`, `F1_CONTEXTO50_FETCH_v01.py` + docs (CLAUDE.md, README, fase-1, orquestador, ARCHIVOS_INTERCAMBIO).
+- **Normas de La Candelaria en `norma-override.json`**: bloque `AAA0030JKOE` (Decreto 492/07): UPZ 94, Consolidación, rango "4" → 5 pisos, IO 0,70, fuente + Nota N (aprobación IDPC + MinCultura).
+- **Re-fetch completo de B** (`fetch-contexto-completo_v01.py --chip AAA0030JKOE`):
+  - Contexto base OK (override aplicado) + **contexto 50 m OK** (90 construcciones).
+  - Topografía: **118/118 puntos**, cota 2634,52–2650,65 m (**Δ 16,12 m**), pendiente media **25,85 % (14,5°)**; z local del lote 0,27–14,52 m; perfil de **30 aristas**.
+  - ⚠️ `pot_data.altura_maxima_m` quedó en 7,0 (residuo del código CHB de la GDB); el cap efectivo de 10 m entra con NORMATIVA v09 (P1).
+- **Pruebas**: nuevo `tests/test_fetch_topo_v7.py` (+13) → **302/302** verdes.
+- **Pendiente para cerrar P0**: vista en canvas con AutoClaw cerrado (activar chip B; `contexto50-actual.json` quedó apuntando a B y el orquestador repone el canónico por chip según frescura).
+
+---
+
+*Documento vivo — P0 ejecutado el 2026-09-28 (ver §3).*

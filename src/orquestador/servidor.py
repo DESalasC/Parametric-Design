@@ -61,7 +61,7 @@ F3_DIR = os.path.join(ROOT, "src", "fase-3-masa")
 F2_VENTA_SCRIPT = os.path.join(F2_VENTA_DIR, "F2_DEMANDA_MOTOR_v03.py")
 F3_DIST_SCRIPT = os.path.join(F3_DIR, "F3_DISTRIBUCION_v01.py")
 F3_ACCESOS_SCRIPT = os.path.join(F3_DIR, "F3_ACCESOS_INTEGRADOR_v02.py")
-F1_FETCH_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-urban-context-v6.py")
+F1_FETCH_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-urban-context-v7.py")
 FETCH_COMPLETO_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-contexto-completo_v01.py")
 GPKG_DEFAULT = os.path.join(ROOT, "data", "geobase", "bd_uaecd.gpkg")
 LADOS_FLAG_RUTA = os.path.join(POT_CACHE, "lados-export-flag.json")
@@ -517,7 +517,7 @@ ARCHIVOS_INTERCAMBIO = [
     {"id": "contexto", "canvas": True,
      "activo": "data/pot-cache/CHIP-contexto.json",
      "archivo": "data/pot-cache/<CHIP>-contexto.json",
-     "produce": "fetch-urban-context-v6.py (escribe <CHIP>-contexto.json) → orquestador copia al activo",
+     "produce": "fetch-urban-context-v7.py (escribe <CHIP>-contexto.json) → orquestador copia al activo",
      "consume": "F1_ETAPA1_CONTEXTO_v02 (lee el activo)"},
     {"id": "vecinos_por_lado", "canvas": True,
      "activo": "data/pot-cache/CHIP-vecinos-por-lado.json",
@@ -553,7 +553,7 @@ ARCHIVOS_INTERCAMBIO = [
      "activo": None,
      "archivo": "data/pot-bogota/norma-override.json",
      "produce": "orquestador (POST /api/norma-override)",
-     "consume": "fetch-urban-context-v6.py (fusiona en pot_data, gana sobre la geobase)"},
+     "consume": "fetch-urban-context-v7.py (fusiona en pot_data, gana sobre la geobase)"},
     {"id": "financiero_override", "canvas": False,
      "activo": None,
      "archivo": "data/pot-bogota/financiero-override.json",

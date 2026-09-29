@@ -7,7 +7,7 @@ lados, aplica retiros y patios, y genera la envolvente edificable máxima para F
 
 ### ETAPA 1 — Datos en bruto → ArchiCAD (clasificación manual)
 ```
-fetch-urban-context-v6 (scripts/utilities) → data/pot-cache/<CHIP>-contexto.json
+fetch-urban-context-v7 (scripts/utilities) → data/pot-cache/<CHIP>-contexto.json
   → F1_ETAPA1_CONTEXTO_v02.py (GH: geometría + layers ArchiCAD vía Live Connection;
      garantiza el layer 00-00-10_Lote_proyecto, salida layer_lote_ok)
   → MANUAL en ArchiCAD: clasificar vías, ejes, andenes, zonas verdes, vecinos (Morph)

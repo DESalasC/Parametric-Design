@@ -1,7 +1,18 @@
 {
   "_schema": "norma_override_v01",
-  "_desc": "Completa los datos normativos que la geobase POT (.gdb / GeoJSON de Bogota) no trae para algunos tratamientos (Renovacion/Consolidacion: rango, altura, IO, IC, antejardin, tipologia). Lo edita el orquestador (GET/POST /api/norma-override); fetch-urban-context-v6.py lo fusiona en pot_data al re-fetchear.",
+  "_desc": "Completa los datos normativos que la geobase POT (.gdb / GeoJSON de Bogota) no trae para algunos tratamientos (Renovacion/Consolidacion: rango, altura, IO, IC, antejardin, tipologia). Lo edita el orquestador (GET/POST /api/norma-override); fetch-urban-context-v7.py lo fusiona en pot_data al re-fetchear.",
   "lotes": {
+    "AAA0030JKOE": {
+      "upz": "94 - La Candelaria",
+      "tratamiento": "Consolidación",
+      "tipologia": "Continua",
+      "rango_edificabilidad": "4",
+      "altura_maxima_pisos": 5,
+      "io_maximo": 0.7,
+      "fuente": "Decreto 492/07 (PZCB) - Planos 094 Usos/Edificabilidad + Nota N | norma-manual del chip (consulta oficial 2020, Casa de la Cultura)",
+      "nota": "Nota N: +2 pisos sobre base 3 = 5 pisos; altura maxima 10 m. Anteproyecto requiere aprobacion IDPC + MinCultura. El predio NO es patrimonio (el 'CHB' de la GDB es error conocido).",
+      "ultima_edicion": "2026-09-28 20:45"
+    },
     "AAA0240ZXJH": {
       "tipologia": "Continua",
       "rango_edificabilidad": "3",

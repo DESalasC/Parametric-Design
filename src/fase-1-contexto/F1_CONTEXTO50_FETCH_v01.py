@@ -6,7 +6,7 @@ Proyecto : DisenoParametrico / Fase 1 - Contexto
 Proposito: Extraer las volumetrias construidas en un radio (def. 50 m) alrededor
            del lote y dejarlas en el MISMO marco local del canvas del proyecto.
 
-           FUENTE PRINCIPAL (offline, igual que fetch-urban-context-v6):
+           FUENTE PRINCIPAL (offline, igual que fetch-urban-context-v7):
              bd_uaecd.gpkg  ->  capa "Cons"  (construcciones, ESRI:102233,
              campos ConCodigo/ConNPisos/ConAltura/ConElevaci/ConNSotano/ConTSemis).
              Licencia CC BY 4.0 - UAECD / IDECA.
@@ -20,7 +20,7 @@ Proposito: Extraer las volumetrias construidas en un radio (def. 50 m) alrededor
              (traslacion pura, SIN rotacion: +X = Este, +Y = Norte)
 
 ALTURA  : altura_m = ConNPisos * altura_piso_m.  ConAltura NO sirve (vale 0/1).
-          Default 3.80 m = constante ALTURA_PISO_M del pipeline (fetch-urban-context-v6.py:36).
+          Default 3.80 m = constante ALTURA_PISO_M del pipeline (fetch-urban-context-v7.py).
           Alternativas documentadas: 2.0 m (criterio oficial visor "Bogota 3D"), 3.0 m (OSM).
 
 USO (usar el python del proyecto, que tiene geopandas/pyogrio):
@@ -34,12 +34,12 @@ import math
 import os
 import sys
 
-CRS_TARGET = "ESRI:102233"          # MAGNA_Ciudad_Bogota (igual que fetch-urban-context-v6)
+CRS_TARGET = "ESRI:102233"          # MAGNA_Ciudad_Bogota (igual que fetch-urban-context-v7)
 # 2026-09-28: default PORTABLE -> env POT_GPKG_PATH > data/geobase del proyecto > ruta historica
 _ROOT_PROY = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 _GPKG_PROY = os.path.join(_ROOT_PROY, "data", "geobase", "bd_uaecd.gpkg")
 GPKG_DEFAULT = _GPKG_PROY if os.path.exists(_GPKG_PROY) else r"D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg"
-ALTURA_PISO_DEF = 3.80              # ALTURA_PISO_M del pipeline (fetch-urban-context-v6.py:36)
+ALTURA_PISO_DEF = 3.80              # ALTURA_PISO_M del pipeline (fetch-urban-context-v7.py)
 
 # Variable de entorno para hacer portable la ruta de la geobase
 GPKG_PATH = os.environ.get("POT_GPKG_PATH", GPKG_DEFAULT)

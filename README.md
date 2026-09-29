@@ -49,7 +49,7 @@ DiseñoParametrico/
 
 ```powershell
 # Fase 1 — contexto (genera data\pot-cache\<CHIP>-contexto.json)
-python scripts\utilities\fetch-urban-context-v6.py --chip <CHIP>
+python scripts\utilities\fetch-urban-context-v7.py --chip <CHIP>
 
 # Tests
 pytest tests\

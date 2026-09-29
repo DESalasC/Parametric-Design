@@ -1,0 +1,404 @@
+{
+ "chip": "AAA0030JKOE",
+ "titulo": "Muestreo MDT urbano (Catastro Bogota) sobre el lote La Candelaria",
+ "fecha": "2026-09-28",
+ "servicio": "https://serviciosgis.catastrobogota.gov.co/arcgis/rest/services/topografia/modelodigitalterrenobogotaurbano/MapServer/identify",
+ "crses": {
+  "consulta": "EPSG:3116",
+  "marco_local": "ESRI:102233"
+ },
+ "nota_metodo": "Clave de respuesta corregida: attributes['Stretch.Pixel Value'] (el parser del fetch v6 lee 'value' y devuelve 0.0).",
+ "n_puntos": 63,
+ "resumen": {
+  "z_min_m": 2634.79,
+  "z_max_m": 2649.04,
+  "delta_m": 14.25,
+  "pendiente_media_pct": 26.3,
+  "pendiente_media_grados": 14.74,
+  "direccion_bajada_azimut_grados": 318.2,
+  "cota_frente_oriente_aprox_m": 2647.076,
+  "cota_frente_occidente_aprox_m": 2635.363,
+  "delta_oriente_occidente_m": 11.71
+ },
+ "muestras": [
+  {
+   "x_local": 98.801,
+   "y_local": 105.932,
+   "tipo": "vertice",
+   "cota_m": 2641.173
+  },
+  {
+   "x_local": 103.65,
+   "y_local": 102.41,
+   "tipo": "vertice",
+   "cota_m": 2642.233
+  },
+  {
+   "x_local": 107.52,
+   "y_local": 108.25,
+   "tipo": "vertice",
+   "cota_m": 2642.744
+  },
+  {
+   "x_local": 123.213,
+   "y_local": 96.853,
+   "tipo": "vertice",
+   "cota_m": 2646.054
+  },
+  {
+   "x_local": 124.232,
+   "y_local": 96.113,
+   "tipo": "vertice",
+   "cota_m": 2646.546
+  },
+  {
+   "x_local": 124.991,
+   "y_local": 95.562,
+   "tipo": "vertice",
+   "cota_m": 2646.408
+  },
+  {
+   "x_local": 126.619,
+   "y_local": 94.379,
+   "tipo": "vertice",
+   "cota_m": 2646.547
+  },
+  {
+   "x_local": 130.02,
+   "y_local": 91.91,
+   "tipo": "vertice",
+   "cota_m": 2647.416
+  },
+  {
+   "x_local": 118.481,
+   "y_local": 76.831,
+   "tipo": "vertice",
+   "cota_m": 2648.942
+  },
+  {
+   "x_local": 117.08,
+   "y_local": 75.0,
+   "tipo": "vertice",
+   "cota_m": 2649.039
+  },
+  {
+   "x_local": 116.782,
+   "y_local": 75.21,
+   "tipo": "vertice",
+   "cota_m": 2648.907
+  },
+  {
+   "x_local": 116.54,
+   "y_local": 75.38,
+   "tipo": "vertice",
+   "cota_m": 2648.811
+  },
+  {
+   "x_local": 113.365,
+   "y_local": 77.615,
+   "tipo": "vertice",
+   "cota_m": 2648.231
+  },
+  {
+   "x_local": 113.337,
+   "y_local": 77.634,
+   "tipo": "vertice",
+   "cota_m": 2648.158
+  },
+  {
+   "x_local": 112.666,
+   "y_local": 78.106,
+   "tipo": "vertice",
+   "cota_m": 2648.166
+  },
+  {
+   "x_local": 112.662,
+   "y_local": 78.11,
+   "tipo": "vertice",
+   "cota_m": 2648.166
+  },
+  {
+   "x_local": 112.42,
+   "y_local": 78.28,
+   "tipo": "vertice",
+   "cota_m": 2648.166
+  },
+  {
+   "x_local": 112.229,
+   "y_local": 78.414,
+   "tipo": "vertice",
+   "cota_m": 2648.078
+  },
+  {
+   "x_local": 109.026,
+   "y_local": 80.677,
+   "tipo": "vertice",
+   "cota_m": 2647.132
+  },
+  {
+   "x_local": 108.241,
+   "y_local": 81.232,
+   "tipo": "vertice",
+   "cota_m": 2646.945
+  },
+  {
+   "x_local": 106.29,
+   "y_local": 82.61,
+   "tipo": "vertice",
+   "cota_m": 2646.829
+  },
+  {
+   "x_local": 100.073,
+   "y_local": 87.004,
+   "tipo": "vertice",
+   "cota_m": 2646.099
+  },
+  {
+   "x_local": 93.699,
+   "y_local": 91.509,
+   "tipo": "vertice",
+   "cota_m": 2641.498
+  },
+  {
+   "x_local": 92.82,
+   "y_local": 92.13,
+   "tipo": "vertice",
+   "cota_m": 2641.239
+  },
+  {
+   "x_local": 79.902,
+   "y_local": 101.25,
+   "tipo": "vertice",
+   "cota_m": 2637.409
+  },
+  {
+   "x_local": 75.0,
+   "y_local": 104.71,
+   "tipo": "vertice",
+   "cota_m": 2635.563
+  },
+  {
+   "x_local": 78.93,
+   "y_local": 109.85,
+   "tipo": "vertice",
+   "cota_m": 2635.679
+  },
+  {
+   "x_local": 84.1,
+   "y_local": 116.61,
+   "tipo": "vertice",
+   "cota_m": 2634.787
+  },
+  {
+   "x_local": 86.527,
+   "y_local": 114.847,
+   "tipo": "vertice",
+   "cota_m": 2636.237
+  },
+  {
+   "x_local": 89.36,
+   "y_local": 112.79,
+   "tipo": "vertice",
+   "cota_m": 2637.118
+  },
+  {
+   "x_local": 101.226,
+   "y_local": 104.171,
+   "tipo": "punto_medio",
+   "cota_m": 2641.817
+  },
+  {
+   "x_local": 105.585,
+   "y_local": 105.33,
+   "tipo": "punto_medio",
+   "cota_m": 2642.731
+  },
+  {
+   "x_local": 115.366,
+   "y_local": 102.552,
+   "tipo": "punto_medio",
+   "cota_m": 2643.839
+  },
+  {
+   "x_local": 123.723,
+   "y_local": 96.483,
+   "tipo": "punto_medio",
+   "cota_m": 2646.3
+  },
+  {
+   "x_local": 124.612,
+   "y_local": 95.837,
+   "tipo": "punto_medio",
+   "cota_m": 2646.586
+  },
+  {
+   "x_local": 125.805,
+   "y_local": 94.97,
+   "tipo": "punto_medio",
+   "cota_m": 2646.733
+  },
+  {
+   "x_local": 128.32,
+   "y_local": 93.145,
+   "tipo": "punto_medio",
+   "cota_m": 2646.876
+  },
+  {
+   "x_local": 124.25,
+   "y_local": 84.371,
+   "tipo": "punto_medio",
+   "cota_m": 2648.149
+  },
+  {
+   "x_local": 117.78,
+   "y_local": 75.916,
+   "tipo": "punto_medio",
+   "cota_m": 2648.947
+  },
+  {
+   "x_local": 116.931,
+   "y_local": 75.105,
+   "tipo": "punto_medio",
+   "cota_m": 2649.039
+  },
+  {
+   "x_local": 116.661,
+   "y_local": 75.295,
+   "tipo": "punto_medio",
+   "cota_m": 2648.907
+  },
+  {
+   "x_local": 114.952,
+   "y_local": 76.497,
+   "tipo": "punto_medio",
+   "cota_m": 2648.452
+  },
+  {
+   "x_local": 113.351,
+   "y_local": 77.624,
+   "tipo": "punto_medio",
+   "cota_m": 2648.231
+  },
+  {
+   "x_local": 113.002,
+   "y_local": 77.87,
+   "tipo": "punto_medio",
+   "cota_m": 2648.204
+  },
+  {
+   "x_local": 112.664,
+   "y_local": 78.108,
+   "tipo": "punto_medio",
+   "cota_m": 2648.166
+  },
+  {
+   "x_local": 112.541,
+   "y_local": 78.195,
+   "tipo": "punto_medio",
+   "cota_m": 2648.166
+  },
+  {
+   "x_local": 112.324,
+   "y_local": 78.347,
+   "tipo": "punto_medio",
+   "cota_m": 2648.078
+  },
+  {
+   "x_local": 110.628,
+   "y_local": 79.546,
+   "tipo": "punto_medio",
+   "cota_m": 2647.948
+  },
+  {
+   "x_local": 108.633,
+   "y_local": 80.955,
+   "tipo": "punto_medio",
+   "cota_m": 2646.768
+  },
+  {
+   "x_local": 107.265,
+   "y_local": 81.921,
+   "tipo": "punto_medio",
+   "cota_m": 2646.695
+  },
+  {
+   "x_local": 103.181,
+   "y_local": 84.807,
+   "tipo": "punto_medio",
+   "cota_m": 2647.386
+  },
+  {
+   "x_local": 96.886,
+   "y_local": 89.256,
+   "tipo": "punto_medio",
+   "cota_m": 2644.577
+  },
+  {
+   "x_local": 93.259,
+   "y_local": 91.819,
+   "tipo": "punto_medio",
+   "cota_m": 2641.239
+  },
+  {
+   "x_local": 86.361,
+   "y_local": 96.69,
+   "tipo": "punto_medio",
+   "cota_m": 2638.534
+  },
+  {
+   "x_local": 77.451,
+   "y_local": 102.98,
+   "tipo": "punto_medio",
+   "cota_m": 2636.703
+  },
+  {
+   "x_local": 76.965,
+   "y_local": 107.28,
+   "tipo": "punto_medio",
+   "cota_m": 2635.918
+  },
+  {
+   "x_local": 81.515,
+   "y_local": 113.23,
+   "tipo": "punto_medio",
+   "cota_m": 2635.499
+  },
+  {
+   "x_local": 85.314,
+   "y_local": 115.729,
+   "tipo": "punto_medio",
+   "cota_m": 2635.672
+  },
+  {
+   "x_local": 87.944,
+   "y_local": 113.819,
+   "tipo": "punto_medio",
+   "cota_m": 2636.887
+  },
+  {
+   "x_local": 94.081,
+   "y_local": 109.361,
+   "tipo": "punto_medio",
+   "cota_m": 2639.087
+  },
+  {
+   "x_local": 106.286,
+   "y_local": 91.24,
+   "tipo": "centroide",
+   "cota_m": 2645.844
+  },
+  {
+   "x_local": 133.02,
+   "y_local": 95.805,
+   "tipo": "frente_oriente_+3m",
+   "cota_m": 2647.076
+  },
+  {
+   "x_local": 72.0,
+   "y_local": 95.805,
+   "tipo": "frente_occidente_-3m",
+   "cota_m": 2635.363
+  }
+ ],
+ "nota_limites": "MDT urbano (ESTIMADA). Validar con levantamiento/topografico real (plan 170006A001 citado en norma-manual)."
+}

@@ -43,7 +43,7 @@ El checklist se genera en `src\orquestador\checklist.html` y se abre con doble c
 
 | # | Paso | Tipo | Script |
 |---|---|---|---|
-| 1.1 | Fetch contexto normativo | auto | `scripts/utilities/fetch-urban-context-v6.py` |
+| 1.1 | Fetch contexto normativo | auto | `scripts/utilities/fetch-urban-context-v7.py` |
 | 1.2 | Exportar GFA | manual (Rhino) | `F1_EXPORTAR_GFA_v02` |
 | 2.1 | Modelo financiero venta | auto | `F2_DEMANDA_MOTOR_v03.py` |
 | 2.2 | Modelo Build-to-Rent | auto | `F2_RENTA_MOTOR_v03.py` |

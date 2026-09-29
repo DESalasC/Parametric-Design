@@ -618,7 +618,7 @@ def _generar_html(estado, chip, caso, modo):
         ("Fase 1 — Contexto", [
             ("f1_contexto", "1.1 Fetch contexto normativo", "auto",
              "Genera el JSON de contexto del predio (coordenadas locales, vías, vecinos).",
-             "python scripts/utilities/fetch-urban-context-v6.py --chip {}".format(chip),
+             "python scripts/utilities/fetch-urban-context-v7.py --chip {}".format(chip),
              estado["f1_contexto"]["artefacto"]),
             ("f1_gfa", "1.2 Exportar GFA (manual Rhino)", "manual",
              "Cablea F1_EXPORTAR_GFA_v02 en el canvas y ejecuta para escribir el GFA que consumirán los motores F2.",

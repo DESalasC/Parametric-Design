@@ -8,7 +8,7 @@ Propósito: Ejecuta en secuencia los dos pasos necesarios para obtener
            tanto el contexto base como el contexto 50 m (volumetrías
            de vecinos) en una sola invocación.
 
-PASO 1: fetch-urban-context-v6.py
+PASO 1: fetch-urban-context-v7.py
   → genera data/pot-cache/<CHIP>-contexto.json
   → lote, vecinos (linderos), vías oficiales, espacios públicos, POT, topografía
 
@@ -91,11 +91,11 @@ def main():
     out_dir_abs = os.path.join(project_root, args.out) if not os.path.isabs(args.out) else args.out
 
     # Rutas a los scripts
-    script_base = os.path.join(project_root, "scripts", "utilities", "fetch-urban-context-v6.py")
+    script_base = os.path.join(project_root, "scripts", "utilities", "fetch-urban-context-v7.py")
     script_50 = os.path.join(project_root, "src", "fase-1-contexto", "F1_CONTEXTO50_FETCH_v01.py")
 
     # Verificar que existen
-    for s, name in [(script_base, "fetch-urban-context-v6.py"), (script_50, "F1_CONTEXTO50_FETCH_v01.py")]:
+    for s, name in [(script_base, "fetch-urban-context-v7.py"), (script_50, "F1_CONTEXTO50_FETCH_v01.py")]:
         if not os.path.exists(s):
             print(f"ERROR: No se encuentra {name} en {s}")
             return 1
@@ -122,7 +122,7 @@ def main():
         ]
         if args.gpkg:
             cmd1.extend(["--gpkg", args.gpkg])
-        rc = run_step(cmd1, project_root, "PASO 1: fetch-urban-context-v6 (contexto base)")
+        rc = run_step(cmd1, project_root, "PASO 1: fetch-urban-context-v7 (contexto base)")
         if rc != 0:
             return rc
 
