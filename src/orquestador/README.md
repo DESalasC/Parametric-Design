@@ -68,6 +68,10 @@ mínimo** derivado del programa (si no cabe, se ajusta N con aviso). La línea v
 4 consulta `POST /api/proponer-bloques` (F3 `--dry-run`, sin escribir archivos) y muestra
 orientación, niveles, ancho mínimo y avisos antes de generar.
 
+Además (v02.2): **tipo de crujía por bloque** (doble crujía/circulación central vs crujía
+única/circulación lateral) y **posición del núcleo** por bloque (centro/extremo, enlazada a
+"Posición del núcleo de servicios"). La línea viva muestra ambas y el desglose del ancho mínimo.
+
 ## Límite honesto
 
 Los pasos **manuales** (exportar GFA en Rhino, masa + Morphs en ArchiCAD) **no se

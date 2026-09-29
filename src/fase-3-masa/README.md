@@ -109,6 +109,11 @@ programa** (núcleo + circulación + crujía de la unidad mayor; si no cabe se r
 `n_max_recomendado`). `--dry-run`/`--json` para propuestas sin escribir. Cada bloque informa
 `ancho_m`, `z_terreno_medio_m` y `unidades_estimadas` (mín-máx).
 
+v02.2 (2026-09-29): **tipo de crujía por bloque** (`--bloques-crujia doble|unica`: doble =
+circulación central [crujía|circ|crujía]; única = circulación lateral [circ|crujía], útil en
+lotes con fuerte desnivel) — define el ancho mínimo por programa — y **posición del núcleo por
+bloque** (`--bloques-nucleo centro|extremo`, contrato para VOLUM v09).
+
 | Salida | Contenido |
 |---|---|
 | `programa.json` | Usos del D_MIXTO con % GFA, área, unidades y unidad tipo |

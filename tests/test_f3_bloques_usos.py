@@ -57,15 +57,17 @@ def test_generar_bloques_uno():
     assert (b["orientacion"]["calle_acceso"] or {}).get("cardinal_label") == "Occidente-2"
 
 
-def test_generar_bloques_tres_reduce_por_ancho():
-    # v02.1: 3 franjas no caben con el ancho minimo del programa (B, lot 52x21 m);
-    # se reduce a 2 y se avisa. Sep 4.0 -> minimo normativo 6.0.
+def test_generar_bloques_reduce_por_ancho_doble():
+    # v02.2: con doble crujia (default), 4 franjas no caben (min 13.4 m) y 3
+    # tampoco en este lote (13.2 m por la esquina en diagonal) -> se ajusta a 2.
+    # Sep 4.0 -> minimo normativo 6.0.
     prog = f3.leer_programa_chip("AAA0030JKOE")
     huella, niveles, _ = f3.distribuir_niveles(prog)
     b = f3.generar_bloques("AAA0030JKOE", prog, huella, niveles,
-                           {"n": 3, "separacion_m": 4.0, "desnivel_m": -3.4})
-    assert b["n_solicitado"] == 3
+                           {"n": 4, "separacion_m": 4.0, "desnivel_m": -3.4})
+    assert b["n_solicitado"] == 4
     assert b["n"] == 2
+    assert b["n_max_recomendado"] == 2
     assert b["separacion_m"] == 6.0  # minimo normativo (Anexo 5 1.10.b) gana
     assert any("6.00" in a for a in b["avisos"])
     assert any("ancho minimo por programa" in a for a in b["avisos"])
@@ -102,17 +104,38 @@ def test_orientacion_perpendicular():
     assert "perpendiculares a la calle de acceso" in b["orientacion"]["franja_descripcion"]
 
 
-def test_ancho_min_desglose():
+def test_ancho_min_por_tipo_crujia():
+    # v02.2: doble crujia -> max(2 x crujia + circulacion, nucleo);
+    # unica -> max(crujia + circulacion, nucleo); la unica es mas permisiva.
     prog = f3.leer_programa_chip("AAA0030JKOE")
     huella, niveles, _ = f3.distribuir_niveles(prog)
-    b = f3.generar_bloques("AAA0030JKOE", prog, huella, niveles, {"n": 1})
-    am = b["ancho_min"]
-    assert am["nucleo_m"] > 0 and am["circulacion_m"] == 1.2
-    assert abs(am["ancho_min_m"] - (am["nucleo_m"] + 2 * am["circulacion_m"]
-                                    + am["crujia_min_m"])) < 0.01
-    assert am["unidad_max_m2"] == 55.0  # vivienda estandar del mix del caso
-    assert "Vivienda" in am["crujia_por_uso"]
-    assert b["n_max_recomendado"] >= 1
+    bd = f3.generar_bloques("AAA0030JKOE", prog, huella, niveles, {"n": 1, "crujia": "doble"})
+    bu = f3.generar_bloques("AAA0030JKOE", prog, huella, niveles, {"n": 1, "crujia": "unica"})
+    ad, au = bd["ancho_min"], bu["ancho_min"]
+    assert ad["crujia_modo"] == "doble" and ad["circulacion"] == "central"
+    assert au["crujia_modo"] == "unica" and au["circulacion"] == "lateral"
+    assert abs(ad["ancho_min_m"] - max(2 * ad["crujia_m"] + ad["circulacion_m"],
+                                       ad["nucleo_m"])) < 0.02
+    assert abs(au["ancho_min_m"] - max(au["crujia_m"] + au["circulacion_m"],
+                                       au["nucleo_m"])) < 0.02
+    assert au["ancho_min_m"] < ad["ancho_min_m"]
+    assert au["unidad_max_m2"] == 55.0  # vivienda estandar del mix del caso
+    assert "Vivienda" in au["crujia_por_uso"]
+
+
+def test_crujia_unica_permite_mas_bloques():
+    # v02.2: la crujia unica (circ. lateral) baja el ancho minimo a ~7.3 m y
+    # habilita mas bloques en el mismo lote (max 4 vs 2 con doble crujia).
+    prog = f3.leer_programa_chip("AAA0030JKOE")
+    huella, niveles, _ = f3.distribuir_niveles(prog)
+    b = f3.generar_bloques("AAA0030JKOE", prog, huella, niveles,
+                           {"n": 5, "crujia": "unica"})
+    assert b["n"] == 4
+    assert b["n_max_recomendado"] == 4
+    assert b["crujia"]["modo"] == "unica"
+    assert b["nucleo_posicion"] in ("centro", "extremo")
+    assert any("crujia" in a for a in b["avisos"])
+    assert all(x["ancho_m"] >= b["ancho_min"]["ancho_min_m"] - 0.06 for x in b["bloques"])
 
 
 def test_unidades_por_bloque():

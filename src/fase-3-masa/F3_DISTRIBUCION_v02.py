@@ -29,6 +29,15 @@ CAMBIOS v02.1 (2026-09-29):
     bloques pedido no cabe, se reduce y se avisa (n_max_recomendado), con el
     desglose en bloques.json -> ancho_min. Cada bloque informa unidades
     estimadas min-max segun el GFA del bloque.
+
+CAMBIOS v02.2 (2026-09-29):
+  - TIPO DE CRUJIA (pedido del operador, lotes en desnivel):
+    --bloques-crujia doble|unica. Doble = circulacion central [crujia|circ|crujia]
+    (ancho min = max(2 x crujia + circ, nucleo)); Unica = circulacion lateral
+    [circ|crujia] con nucleo en un extremo (ancho min = max(crujia + circ,
+    nucleo)). El tipo elegido define el ancho minimo por programa.
+  - POSICION DEL NUCLEO por bloque: --bloques-nucleo centro|extremo (contrato
+    para VOLUM v09; en el orquestador se deriva de 'Posicion del nucleo').
 ================================================================================
 Toma el programa del escenario D_MIXTO (override de usuario) de cada caso y genera:
 
@@ -839,9 +848,14 @@ def _niveles_terreno_chip(ctx, pts, lado_entrada, lado_salida):
             "delta_m": round(z_sal - z_ent, 2), "fuente": fuente}
 
 
-def _ancho_min_programa(prog, layout=None):
-    """v02.1: ancho minimo de bloque para alojar el programa basico:
-    nucleo + 2 x circulacion + crujia de la unidad mas grande del mix."""
+def _ancho_min_programa(prog, layout=None, crujia_modo="doble"):
+    """v02.2: ancho minimo de bloque segun el tipo de crujia elegido por el operador:
+    - doble (circulacion central): [crujia | circ | crujia]; el nucleo cruza el
+      ancho completo en un punto del largo -> max(2 x crujia + circ, nucleo).
+    - unica (circulacion lateral): [circ | crujia]; nucleo en un extremo del
+      bloque -> max(crujia + circ, nucleo). Util en lotes con fuerte desnivel
+      (la circulacion interna entre crujias resulta dificil).
+    La crujia se deriva de la unidad mayor del mix (area / profundidad de ref.)."""
     bloque = ((layout or {}).get("nucleos") or {}).get("bloque") or {}
     ancho_nucleo = float(bloque.get("ancho_m") or ANCHO_NUCLEO_FALLBACK_M)
     unidades = [(c.get("uso"), float(c.get("unidad_m2") or 0.0))
@@ -849,17 +863,27 @@ def _ancho_min_programa(prog, layout=None):
     unidades = [(u, a) for u, a in unidades if a > 0]
     crujia_por_uso = {u: round(a / CRUJIA_PROF_REF_M, 2) for u, a in unidades}
     unidad_max = max([a for _u, a in unidades], default=0.0)
-    crujia_min = round(max(unidad_max / CRUJIA_PROF_REF_M, 4.0), 2)
-    ancho_min = round(ancho_nucleo + 2.0 * CIRC_MIN_M + crujia_min, 2)
+    crujia = max(unidad_max / CRUJIA_PROF_REF_M, 4.0)
+    modo = "unica" if str(crujia_modo or "").strip().lower().startswith("u") else "doble"
+    if modo == "unica":
+        ancho_min = max(crujia + CIRC_MIN_M, ancho_nucleo)
+        formula = "ancho_min = max(crujia + circulacion, nucleo) [crujia unica, circ. lateral]"
+        circulacion = "lateral"
+    else:
+        ancho_min = max(2.0 * crujia + CIRC_MIN_M, ancho_nucleo)
+        formula = "ancho_min = max(2 x crujia + circulacion, nucleo) [doble crujia, circ. central]"
+        circulacion = "central"
     return {
-        "ancho_min_m": ancho_min,
+        "ancho_min_m": round(ancho_min, 2),
+        "crujia_modo": modo,
+        "circulacion": circulacion,
+        "crujia_m": round(crujia, 2),
         "nucleo_m": round(ancho_nucleo, 2),
         "circulacion_m": CIRC_MIN_M,
-        "crujia_min_m": crujia_min,
         "crujia_por_uso": crujia_por_uso,
         "unidad_max_m2": round(unidad_max, 1),
         "prof_ref_m": CRUJIA_PROF_REF_M,
-        "formula": "ancho_min = nucleo + 2 x circulacion + crujia (unidad_max / prof_ref)",
+        "formula": formula,
     }
 
 
@@ -939,6 +963,8 @@ def generar_bloques(chip, prog, huella, niveles, cfg, layout=None):
     lindero_sel = cfg.get("lindero")
     ang_ref = (cfg.get("angulo_ref") or "calle_acceso").strip().lower()
     ang_deg = float(cfg.get("angulo_grados") or 0.0)
+    crujia_modo = (cfg.get("crujia") or "doble").strip().lower()
+    nucleo_pos = "centro" if str(cfg.get("nucleo_posicion") or "").strip().lower().startswith("c") else "extremo"
     desn_auto = bool(cfg.get("desnivel_auto"))
     desn_man = cfg.get("desnivel_m")
     if isinstance(desn_man, str):
@@ -974,7 +1000,7 @@ def generar_bloques(chip, prog, huella, niveles, cfg, layout=None):
 
     orient = _resolver_orientacion(pts, lados, dist, lindero_sel, ang_ref, ang_deg,
                                    azimut_in, lado_acc, via, avisos)
-    ancho_min = _ancho_min_programa(prog, layout)
+    ancho_min = _ancho_min_programa(prog, layout, crujia_modo)
 
     # --- geometria: franjas dirigidas + reduccion por ancho minimo
     fuente = "esquema (cuadrado de referencia)"
@@ -1009,10 +1035,14 @@ def generar_bloques(chip, prog, huella, niveles, cfg, layout=None):
     if n < n_req and franjas:
         extra = ("; franja mas angosta al solicitado: {:.1f} m".format(first_fail)
                  if first_fail is not None else "")
+        if ancho_min["crujia_modo"] == "unica":
+            desglose = "({:.1f} m = crujia {:.1f} + circulacion {:.1f})".format(
+                ancho_min["ancho_min_m"], ancho_min["crujia_m"], ancho_min["circulacion_m"])
+        else:
+            desglose = "({:.1f} m = 2 x crujia {:.1f} + circulacion {:.1f})".format(
+                ancho_min["ancho_min_m"], ancho_min["crujia_m"], ancho_min["circulacion_m"])
         avisos.append("Bloques solicitados: {} -> usados {} por ancho minimo por programa "
-                      "({:.1f} m = nucleo {:.1f} + 2x circulacion {:.1f} + crujia {:.1f}){}.".format(
-                          n_req, n, ancho_min["ancho_min_m"], ancho_min["nucleo_m"],
-                          ancho_min["circulacion_m"], ancho_min["crujia_min_m"], extra))
+                      "{}{}.".format(n_req, n, desglose, extra))
     if not franjas:
         ref = math.sqrt(max(float(prog.get("lote_m2") or huella or 1.0), 1.0))
         usable = ref - (n - 1) * sep
@@ -1115,17 +1145,21 @@ def generar_bloques(chip, prog, huella, niveles, cfg, layout=None):
                                if orient["reparto_local"] is not None else None),
         "calle_acceso": orient.get("calle_acceso"),
     }
-    nota = ("Propuesta de multivolumen v02.1: franjas referidas al predio y ordenadas desde "
+    nota = ("Propuesta de multivolumen v02.2: franjas referidas al predio y ordenadas desde "
             "la entrada; z_base_m relativo a la cota de ENTRADA (B1 = 0.00); auto interpola la "
-            "topografia MDT (Entrada -> nivel final del lote). Poligonos esquematicos: el canvas "
-            "(VOLUM v09) los re-encaja en la envolvente F1. z_terreno_medio_m = MDT absoluto (m); "
-            "z_local del marco del canvas = MDT - origen_sirgas.z.")
+            "topografia MDT (Entrada -> nivel final del lote). Crujia y nucleo_posicion quedan "
+            "como contrato para VOLUM v09. Poligonos esquematicos: el canvas los re-encaja en la "
+            "envolvente F1. z_terreno_medio_m = MDT absoluto (m); z_local del marco del canvas = "
+            "MDT - origen_sirgas.z.")
     return {
         "chip": chip, "n": len(bloques), "n_solicitado": n_req, "n_max_recomendado": n_max,
         "distribucion": dist, "orientacion": orient_json,
         "lindero": lindero_sel,
         "angulo": ({"referencia": ang_ref, "grados": ang_deg} if dist == "angulo" else None),
         "azimut_grados": azimut_in,
+        "crujia": {"modo": ancho_min["crujia_modo"], "circulacion": ancho_min["circulacion"],
+                   "crujia_m": ancho_min["crujia_m"]},
+        "nucleo_posicion": nucleo_pos,
         "separacion_m": (sep if len(bloques) > 1 else 0.0),
         "separacion_min_norma_m": SEP_MIN,
         "desnivel_m": ((niveles_info.get("desnivel_m") or 0.0) if len(bloques) > 1 else 0.0),
@@ -1346,6 +1380,8 @@ def exportar_programa_areas(carpeta, prog, layout, matriz, bloques=None):
                           "desnivel_m": bloques.get("desnivel_m"),
                           "orientacion": (bloques.get("orientacion") or {}).get("franja_descripcion"),
                           "niveles_modo": (bloques.get("niveles") or {}).get("modo"),
+                          "crujia": bloques.get("crujia"),
+                          "nucleo_posicion": bloques.get("nucleo_posicion"),
                           "resumen": [{"id": b["id"], "pisos": b["pisos"],
                                        "z_base_m": b["z_base_m"],
                                        "area_lote_m2": b["area_lote_m2"]}
@@ -1399,6 +1435,8 @@ def _computar(args):
         "lindero": args.bloques_lindero,
         "angulo_ref": args.bloques_angulo_ref,
         "angulo_grados": args.bloques_angulo_grados,
+        "crujia": args.bloques_crujia,
+        "nucleo_posicion": args.bloques_nucleo,
         "separacion_m": args.bloques_separacion_m,
         "desnivel_auto": desn_auto,
         "desnivel_m": desn_man,
@@ -1433,6 +1471,13 @@ def main():
                         help="Referencia del angulo manual (default calle_acceso)")
     parser.add_argument("--bloques-angulo-grados", type=float, default=0.0,
                         help="Angulo del reparto en grados horarios respecto a la referencia")
+    parser.add_argument("--bloques-crujia", default="doble", choices=["doble", "unica"],
+                        help="Tipo de crujia por bloque: doble (circulacion central, default) "
+                             "o unica (circulacion lateral; util en lotes con fuerte desnivel). "
+                             "Define el ancho minimo por programa.")
+    parser.add_argument("--bloques-nucleo", default="extremo", choices=["centro", "extremo"],
+                        help="Posicion de la circulacion vertical (nucleo) en cada bloque: "
+                             "centro o extremo (contra lindero). Contrato para VOLUM v09.")
     parser.add_argument("--bloques-separacion-m", type=float, default=6.0,
                         help="Separacion entre bloques en m (min normativo 6.0)")
     parser.add_argument("--bloques-desnivel", default="auto",

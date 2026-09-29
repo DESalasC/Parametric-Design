@@ -25,6 +25,12 @@
   "lindero": null,
   "angulo": null,
   "azimut_grados": null,
+  "crujia": {
+    "modo": "doble",
+    "circulacion": "central",
+    "crujia_m": 6.11
+  },
+  "nucleo_posicion": "extremo",
   "separacion_m": 0.0,
   "separacion_min_norma_m": 6.0,
   "desnivel_m": 0.0,
@@ -37,21 +43,23 @@
     "fuente": "manual (paso entre bloques)"
   },
   "ancho_min": {
-    "ancho_min_m": 14.91,
+    "ancho_min_m": 13.42,
+    "crujia_modo": "doble",
+    "circulacion": "central",
+    "crujia_m": 6.11,
     "nucleo_m": 6.4,
     "circulacion_m": 1.2,
-    "crujia_min_m": 6.11,
     "crujia_por_uso": {
       "Local comercial": 4.44,
       "Vivienda": 6.11
     },
     "unidad_max_m2": 55.0,
     "prof_ref_m": 9.0,
-    "formula": "ancho_min = nucleo + 2 x circulacion + crujia (unidad_max / prof_ref)"
+    "formula": "ancho_min = max(2 x crujia + circulacion, nucleo) [doble crujia, circ. central]"
   },
   "fuente_geometria": "lote_objetivo (franjas dirigidas 52.6 deg; ref: calle de acceso (Occidente-2)) - AAA0030JKOE-contexto.json; lados: AAA0030JKOE-vecinos-por-lado-override.json",
   "avisos": [],
-  "nota": "Propuesta de multivolumen v02.1: franjas referidas al predio y ordenadas desde la entrada; z_base_m relativo a la cota de ENTRADA (B1 = 0.00); auto interpola la topografia MDT (Entrada -> nivel final del lote). Poligonos esquematicos: el canvas (VOLUM v09) los re-encaja en la envolvente F1. z_terreno_medio_m = MDT absoluto (m); z_local del marco del canvas = MDT - origen_sirgas.z.",
+  "nota": "Propuesta de multivolumen v02.2: franjas referidas al predio y ordenadas desde la entrada; z_base_m relativo a la cota de ENTRADA (B1 = 0.00); auto interpola la topografia MDT (Entrada -> nivel final del lote). Crujia y nucleo_posicion quedan como contrato para VOLUM v09. Poligonos esquematicos: el canvas los re-encaja en la envolvente F1. z_terreno_medio_m = MDT absoluto (m); z_local del marco del canvas = MDT - origen_sirgas.z.",
   "bloques": [
     {
       "id": "B1",

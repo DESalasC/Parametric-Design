@@ -171,6 +171,12 @@
     "desnivel_m": 0.0,
     "orientacion": "franjas paralelas a la calle de acceso (Occidente-2)",
     "niveles_modo": "manual",
+    "crujia": {
+      "modo": "doble",
+      "circulacion": "central",
+      "crujia_m": 6.11
+    },
+    "nucleo_posicion": "extremo",
     "resumen": [
       {
         "id": "B1",

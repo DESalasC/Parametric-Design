@@ -26,5 +26,15 @@
 - Canvas (parte que el operador aún no inicia): v12 (bandas 3D), wiring de `topo_mesh`, NORMATIVA v09, datasets mix; re-encaje de `bloques.json` en la envolvente (VOLUM v09).
 - Vault: registrar cierre (diario/acta/lección) cuando concluya la validación.
 
+## Adenda (misma sesión, 11:58) — decisiones del operador + v02.2
+- **Operador (punto 1, datos):** el bloqueo de vías oficiales es manejable — al pasar los datos en bruto a ArchiCAD el operador organiza andenes/calles; la topografía fina se toma cuando llegue el momento. No cambiar el flujo por esto.
+- **Operador (punto 2, circulación):** añadir opción de crujía (una/dos) y posición del núcleo por bloque (centro/lado) para mejorar la distribución en lotes grandes con desnivel (lado oriente "hundido"). Ejecutado:
+  - F3 **v02.2**: `--bloques-crujia doble|unica` (doble: ancho_min = max(2×crujía + circ, núcleo); única: max(crujía + circ, núcleo)); `--bloques-nucleo centro|extremo`; `bloques.json` → `crujia {}` y `nucleo_posicion`; avisos de reducción con desglose.
+  - servidor: variable `bloques_crujia`; mapeo `alineacion_nucleo` (0→centro, 1/2→extremo); paso por CLI; `bloques_resumen` ampliado.
+  - index: campos nuevos; línea viva muestra núcleo (centro/extremo) y crujía con desglose del ancho.
+  - **Caso B**: doble → máx 2 bloques; única → máx 4 (3 bloques: anchos 13,16 m; niveles 0,00→+13,05, paso 6,53). Con doble, 3 bloques miden 13,2 m (esquina en diagonal) < 13,4 → no caben.
+  - Tests: 13 en `test_f3_bloques_usos`; suite completa **318/318**.
+- **Nota 3 (re-encaje canvas):** explicada al operador en la respuesta (qué es; posibilidades y limitaciones — envolvente F1, terreno MDT/organizado en ArchiCAD, crujía/núcleo, Morphs LC).
+
 ## Etiquetas
 #fase-3 #orquestador #multivolumen #v02.1 #orientacion #niveles-terreno #ancho-minimo

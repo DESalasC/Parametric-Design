@@ -490,10 +490,14 @@ VARIABLES = [
     {"id": "alineacion_nucleo", "label": "Posición del núcleo de servicios", "tipo": "select",
      "opciones": [{"v": 0, "label": "Centro"}, {"v": 1, "label": "Contra medianera"}, {"v": 2, "label": "Lado opuesto"}],
      "default": 1, "seccion": "modelado",
-     "ayuda": "El 'switch' de posición del núcleo (escaleras + ascensor + servicios)."},
+     "ayuda": "Posición de la circulación vertical (escaleras + ascensor + servicios): Centro la deja al medio del bloque; Contra medianera / Lado opuesto la llevan a un extremo (el lado concreto lo fija la orientación de cada bloque). En el multivolumen se aplica a cada bloque (contrato para VOLUM v09)."},
     {"id": "bloques_num", "label": "Bloques del proyecto (multivolumen)", "tipo": "int",
      "default": 1, "seccion": "modelado",
      "ayuda": "1 = un solo volumen. 2–6 = divide la masa en bloques (lotes en pendiente: La Candelaria). Si el ancho mínimo por programa no permite ese número, se ajusta y se avisa."},
+    {"id": "bloques_crujia", "label": "Tipo de crujía por bloque", "tipo": "select",
+     "opciones": [{"v": "doble", "label": "Doble crujía (circulación central)"}, {"v": "unica", "label": "Crujía única (circulación lateral)"}],
+     "default": "doble", "seccion": "modelado",
+     "ayuda": "Doble = unidades a ambos lados de una circulación central. Única = una banda de unidades con circulación lateral y núcleo en un extremo (útil en lotes con fuerte desnivel, donde la circulación interna entre crujías resulta difícil). Define el ancho mínimo por bloque."},
     {"id": "bloques_distribucion", "label": "Orientación del reparto de bloques", "tipo": "select",
      "opciones": [
          {"v": "automatico", "label": "Automático (según el predio: paralelo a la calle de acceso)"},
@@ -817,6 +821,10 @@ def _cmd_f3_dist(chip, escenario, usos, bloques, dry_run=False):
             cmd += ["--bloques-angulo-ref", str(bloques["angulo_ref"])]
         if bloques.get("angulo_grados") is not None:
             cmd += ["--bloques-angulo-grados", str(float(bloques["angulo_grados"]))]
+        if bloques.get("crujia"):
+            cmd += ["--bloques-crujia", str(bloques["crujia"])]
+        if bloques.get("nucleo_posicion"):
+            cmd += ["--bloques-nucleo", str(bloques["nucleo_posicion"])]
         if bloques.get("separacion_m") is not None:
             cmd += ["--bloques-separacion-m", str(float(bloques["separacion_m"]))]
         if bloques.get("desnivel_auto"):
@@ -840,7 +848,7 @@ def _bloques_resumen_leer(chip):
         return None
     out = {k: b.get(k) for k in ("n", "n_solicitado", "n_max_recomendado", "distribucion",
                                  "orientacion", "niveles", "ancho_min", "avisos",
-                                 "separacion_m", "desnivel_m")}
+                                 "separacion_m", "desnivel_m", "crujia", "nucleo_posicion")}
     out["bloques"] = [{"id": x.get("id"), "orden": x.get("orden"), "pisos": x.get("pisos"),
                        "z_base_m": x.get("z_base_m"), "ancho_m": x.get("ancho_m"),
                        "area_lote_m2": x.get("area_lote_m2"),

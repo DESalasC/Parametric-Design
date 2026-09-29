@@ -350,6 +350,8 @@ function recolectarBloques(){
     lindero: g('bloques_lindero') || null,
     angulo_ref: g('bloques_angulo_ref') || 'calle_acceso',
     angulo_grados: isNaN(ang) ? 0.0 : ang,
+    crujia: g('bloques_crujia') || 'doble',
+    nucleo_posicion: (g('alineacion_nucleo') === '0') ? 'centro' : 'extremo',
     separacion_m: isNaN(sep) ? 6.0 : sep,
     desnivel_auto: desnAuto,
     desnivel_m: desnAuto ? null : ((desn === '' || desn === null || isNaN(parseFloat(desn))) ? 0.0 : parseFloat(desn))
@@ -390,6 +392,7 @@ function actualizarModeladoDerivado(){
       if(bl.n_solicitado && bl.n_solicitado !== bl.n) html += ' <span style="color:#b45309;">(solicitados ' + bl.n_solicitado + ' → ajustado por ancho mínimo)</span>';
       if(o.franja_descripcion) html += ' · ' + o.franja_descripcion;
       if(o.reparto_descripcion) html += ' · ' + o.reparto_descripcion;
+      if(bl.nucleo_posicion) html += ' · núcleo: <b>' + (bl.nucleo_posicion === 'centro' ? 'centro de cada bloque' : 'en un extremo de cada bloque (lado según la orientación)') + '</b>';
       if(bl.n > 1 && ni.modo === 'auto' && ni.delta_m != null){
         html += '<br>Niveles: <b>B1 en ±0,00</b> (calle de acceso, Entrada) → <b>B' + bl.n + ' en ' +
           (ni.delta_m >= 0 ? '+' : '') + Number(ni.delta_m).toFixed(2) + ' m</b> (nivel final del lote, Salida); paso ' +
@@ -398,10 +401,11 @@ function actualizarModeladoDerivado(){
         html += '<br>Niveles: paso manual <b>' + Number(bl.desnivel_m || 0).toFixed(2) + ' m/bloque</b> (B1 en ±0,00).';
       }
       if(am.ancho_min_m){
-        html += '<br><span class="fuente">Ancho mín. por bloque: <b>' + Number(am.ancho_min_m).toFixed(1) + ' m</b> = núcleo ' +
-          Number(am.nucleo_m).toFixed(1) + ' + 2×circulación ' + Number(am.circulacion_m).toFixed(1) + ' + crujía ' +
-          Number(am.crujia_min_m).toFixed(1) + ' (unidad máx. ' + am.unidad_max_m2 + ' m²) · máx. recomendado: <b>' +
-          (bl.n_max_recomendado || bl.n) + ' bloques</b>.</span>';
+        const cru = (am.crujia_modo === 'unica')
+          ? 'crujía única ' + Number(am.crujia_m).toFixed(1) + ' + circulación ' + Number(am.circulacion_m).toFixed(1)
+          : '2×crujía ' + Number(am.crujia_m).toFixed(1) + ' + circulación ' + Number(am.circulacion_m).toFixed(1);
+        html += '<br><span class="fuente">Ancho mín. por bloque: <b>' + Number(am.ancho_min_m).toFixed(1) + ' m</b> = ' + cru +
+          ' (unidad máx. ' + am.unidad_max_m2 + ' m²) · máx. recomendado: <b>' + (bl.n_max_recomendado || bl.n) + ' bloques</b>.</span>';
       }
       (bl.avisos || []).forEach(function(a){ html += '<br><span style="color:#b45309;">⚠ ' + a + '</span>'; });
       det.innerHTML = html;
