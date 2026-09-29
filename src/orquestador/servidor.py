@@ -59,7 +59,7 @@ F2_VENTA_DIR = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Financiero
 F2_RENTA_DIR = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Renta")
 F3_DIR = os.path.join(ROOT, "src", "fase-3-masa")
 F2_VENTA_SCRIPT = os.path.join(F2_VENTA_DIR, "F2_DEMANDA_MOTOR_v03.py")
-F3_DIST_SCRIPT = os.path.join(F3_DIR, "F3_DISTRIBUCION_v01.py")
+F3_DIST_SCRIPT = os.path.join(F3_DIR, "F3_DISTRIBUCION_v02.py")
 F3_ACCESOS_SCRIPT = os.path.join(F3_DIR, "F3_ACCESOS_INTEGRADOR_v02.py")
 F1_FETCH_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-urban-context-v7.py")
 FETCH_COMPLETO_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-contexto-completo_v01.py")
@@ -483,13 +483,26 @@ VARIABLES = [
      "default": "Consolidación", "seccion": "normativa",
      "ayuda": "Tratamiento POT del predio (condiciona ocupación y edificabilidad)."},
     # ---- Sección 3: Modelado
-    {"id": "caso", "label": "Escenario de modelado", "tipo": "select",
+    {"id": "caso", "label": "Escenario pre-generado (referencia)", "tipo": "select",
      "opciones": ["A", "B", "B_SALUD", "C"], "default": "A", "seccion": "modelado",
-     "ayuda": "Escenario de distribución de masa. Se modela únicamente sobre el CHIP seleccionado en la sección 1 (Predio)."},
+     "ayuda": "Solo para VER resultados ya generados. La generación de masa (botón F3) usa lo solicitado en las secciones 2–3 (usos, normativa) + bloques."},
     {"id": "alineacion_nucleo", "label": "Posición del núcleo de servicios", "tipo": "select",
      "opciones": [{"v": 0, "label": "Centro"}, {"v": 1, "label": "Contra medianera"}, {"v": 2, "label": "Lado opuesto"}],
      "default": 1, "seccion": "modelado",
      "ayuda": "El 'switch' de posición del núcleo (escaleras + ascensor + servicios)."},
+    {"id": "bloques_num", "label": "Bloques del proyecto (multivolumen)", "tipo": "int",
+     "default": 1, "seccion": "modelado",
+     "ayuda": "1 = un solo volumen. 2–6 = divide la masa en bloques (lotes en pendiente: La Candelaria)."},
+    {"id": "bloques_distribucion", "label": "Distribución de los bloques", "tipo": "select",
+     "opciones": [{"v": "longitudinal", "label": "A lo largo del lote"}, {"v": "transversal", "label": "A lo ancho del lote"}],
+     "default": "longitudinal", "seccion": "modelado",
+     "ayuda": "Eje en que se reparten los bloques dentro del lote."},
+    {"id": "bloques_separacion_m", "label": "Separación entre bloques (m)", "tipo": "number",
+     "default": 6.0, "seccion": "modelado",
+     "ayuda": "Mínimo normativo 6,00 m (Anexo 5 1.10.b, Consolidación)."},
+    {"id": "bloques_desnivel_m", "label": "Desnivel entre bloques (m)", "tipo": "number",
+     "default": 0.0, "seccion": "modelado",
+     "ayuda": "Diferencia de cota entre un bloque y el siguiente (negativo = desciende; p. ej. -3.4)."},
     # ---- Sección 3: Financiero (aporte del lote)
     {"id": "aporte_lote", "label": "Aporte del lote (vinculación al negocio)", "tipo": "select",
      "opciones": [
@@ -543,7 +556,7 @@ ARCHIVOS_INTERCAMBIO = [
     {"id": "programa_areas", "canvas": True,
      "activo": "src/fase-3-masa/casos/CASO/programa-areas.json",
      "archivo": "src/fase-3-masa/casos/<CASO>/programa-areas.json",
-     "produce": "F3_DISTRIBUCION_v01.py (escribe <CASO>) → orquestador copia al activo",
+     "produce": "F3_DISTRIBUCION_v02.py (escribe <CASO>) → orquestador copia al activo",
      "consume": "F3_VOLUM_GENERADOR_v08 (lee el activo: json_path)"},
     {"id": "accesos", "canvas": True,
      "activo": "src/fase-3-masa/casos/CASO/accesos.json",
@@ -755,9 +768,34 @@ def _caso_de_chip(chip):
     return None
 
 
-def _generar_f3(chip, escenario="D_MIXTO"):
-    """Ejecuta F3 (distribución + accesos) para un CHIP y devuelve el resumen."""
+def _derivar_escenario_f3(usos=None, escenario=None):
+    """2026-09-29: el modelado (seccion 4) deriva de la seccion 2. Si el operador
+    no fija escenario, se infiere de los usos: con Salud -> D_MIXTO_SALUD."""
+    if escenario:
+        return escenario
+    for u in (usos or []):
+        if "salud" in str(u).lower():
+            return "D_MIXTO_SALUD"
+    return "D_MIXTO"
+
+
+def _generar_f3(chip, escenario="D_MIXTO", usos=None, bloques=None):
+    """Ejecuta F3 (distribución + accesos) para un CHIP y devuelve el resumen.
+
+    2026-09-29: acepta usos (seccion 2) y parametros de bloques (multivolumen)."""
     cmd = [_python_pipeline(), F3_DIST_SCRIPT, "--chip", chip, "--escenario", escenario]
+    if usos:
+        cmd += ["--usos", ",".join(str(u) for u in usos)]
+    if bloques:
+        cmd += ["--bloques", str(int(bloques.get("n") or 1))]
+        if bloques.get("distribucion"):
+            cmd += ["--bloques-distribucion", str(bloques["distribucion"])]
+        if bloques.get("separacion_m") is not None:
+            cmd += ["--bloques-separacion-m", str(float(bloques["separacion_m"]))]
+        if bloques.get("desnivel_m") is not None:
+            cmd += ["--bloques-desnivel-m", str(float(bloques["desnivel_m"]))]
+        if bloques.get("azimut_grados") is not None:
+            cmd += ["--bloques-azimut", str(float(bloques["azimut_grados"]))]
     try:
         proc = subprocess.run(cmd, cwd=F3_DIR, capture_output=True, text=True,
                               encoding="utf-8", errors="replace", timeout=180)
@@ -940,7 +978,8 @@ def _nuevo_chip(chip):
     }
 
 
-def _pipeline(chip, modalidad, escenario="D_MIXTO", caso=None, modo="venta"):
+def _pipeline(chip, modalidad, escenario="D_MIXTO", caso=None, modo="venta",
+              usos=None, bloques=None):
     """Pipeline completo (2026-09-28): activar -> F1 contexto + contexto50 ->
     F2 venta (y renta segun modo) -> F3 -> verificacion F1.5 lados/patio."""
     pasos = []
@@ -998,7 +1037,7 @@ def _pipeline(chip, modalidad, escenario="D_MIXTO", caso=None, modo="venta"):
     # 4) F3 distribucion (+ accesos dentro de _generar_f3)
     f3 = None
     if f2["ok"]:
-        f3 = _generar_f3(chip, escenario)
+        f3 = _generar_f3(chip, escenario, usos=usos, bloques=bloques)
         pasos.append({"paso": "f3_distribucion", "ok": f3["ok"], "salida": f3["salida"][-800:]})
     else:
         pasos.append({"paso": "f3_distribucion", "ok": False, "salida": "omitido: F2 fallo"})
@@ -1727,7 +1766,12 @@ class Handler(BaseHTTPRequestHandler):
             if not chip:
                 self._json_error("chip requerido")
                 return
-            res = _generar_f3(chip, data.get("escenario", "D_MIXTO"))
+            usos = data.get("usos") or None
+            bloques = data.get("bloques") or None
+            escenario = _derivar_escenario_f3(usos, data.get("escenario"))
+            res = _generar_f3(chip, escenario, usos=usos, bloques=bloques)
+            res["escenario"] = escenario
+            res["usos"] = usos
             self._send(200, {"ok": True, "f3": res})
             return
 
@@ -1738,8 +1782,11 @@ class Handler(BaseHTTPRequestHandler):
                 return
             caso = (data.get("caso") or "").strip() or None
             modo = (data.get("modo") or "venta").strip()
-            res = _pipeline(chip, _modalidad_desde_data(data),
-                            data.get("escenario", "D_MIXTO"), caso=caso, modo=modo)
+            usos = data.get("usos") or None
+            bloques = data.get("bloques") or None
+            escenario = _derivar_escenario_f3(usos, data.get("escenario"))
+            res = _pipeline(chip, _modalidad_desde_data(data), escenario,
+                            caso=caso, modo=modo, usos=usos, bloques=bloques)
             self._send(200, {"ok": True, "pipeline": res})
             return
 

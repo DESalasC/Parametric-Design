@@ -29,7 +29,7 @@ VARIABLES (fuente unica -> parametros_pipeline.json):
   gfa_m2          (opcional) override de GFA para los motores F2
   costo_lote_cop  (opcional) override de costo de lote total para F2
 
-MAPA CASO -> CHIP (coherente con F3_DISTRIBUCION_v01):
+MAPA CASO -> CHIP (coherente con F3_DISTRIBUCION_v02):
   A       -> AAA0127AZPA
   B       -> AAA0030JKOE
   B_SALUD -> AAA0030JKOE
@@ -289,7 +289,7 @@ def detectar_estado(chip, caso):
             "tipo": "auto",
             "estado": "hecho" if _existe(os.path.join(F3_CASOS, caso, "programa-areas.json")) else "falta",
             "artefacto": "src/fase-3-masa/casos/{}/programa-areas.json".format(caso),
-            "comando": [PY, os.path.join(F3_DIR, "F3_DISTRIBUCION_v01.py"), caso],
+            "comando": [PY, os.path.join(F3_DIR, "F3_DISTRIBUCION_v02.py"), caso],
         },
         "f3_accesos": {
             "tipo": "auto",
@@ -638,7 +638,7 @@ def _generar_html(estado, chip, caso, modo):
         ("Fase 3 — Masa", [
             ("f3_distribucion", "3.1 Distribución espacial", "auto",
              "Programa-areas balanceado, matriz de adyacencias, layout y planos.",
-             "python src/fase-3-masa/F3_DISTRIBUCION_v01.py {}".format(caso),
+             "python src/fase-3-masa/F3_DISTRIBUCION_v02.py {}".format(caso),
              estado["f3_distribucion"]["artefacto"]),
             ("f3_accesos", "3.2 Accesos por uso", "auto",
              "Accesos por uso (público/privado) y segregación de flujos.",

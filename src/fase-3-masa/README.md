@@ -94,7 +94,11 @@ El `programa-areas.json` de F3_DISTRIBUCION incluye: `programa_pisos` (piso, `al
 `altura_piso`, usos con `area_bruta`/`area_neta` balanceadas — suma = GFA exacto — y `Nucleo`),
 `matriz_adyacencia` proyectada a la escala −1/0/1 del v04, y `nucleo` con la dimensión real.
 
-## Qué genera (`F3_DISTRIBUCION_v01.py <CASO_ID>`)
+## Qué genera (`F3_DISTRIBUCION_v02.py <CASO_ID | --chip CHIP>`)
+
+v02 (2026-09-29): `--usos` (filtro por usos de la sección 2 del orquestador, renormaliza
+el mix), `--bloques N`, `--bloques-distribucion`, `--bloques-separacion-m` (mín. 6,00 m),
+`--bloques-desnivel-m` → `bloques.json` (multivolumen).
 
 | Salida | Contenido |
 |---|---|
@@ -102,6 +106,7 @@ El `programa-areas.json` de F3_DISTRIBUCION incluye: `programa_pisos` (piso, `al
 | `matriz_adyacencias.json` | Matriz 0-3 (Requerida/Deseable/Indiferente/Incompatible) con justificación funcional y normativa |
 | `layout_espacial.json` | Huella, niveles, reparto vertical, núcleos (escaleras/ascensores NSR-10), población |
 | `programa-areas.json` | **Esquema GH v04/v05 balanceado** (losas + volúmenes por piso) |
+| `bloques.json` | **v02**: multivolumen (n, distribución, separación, desnivel, `z_base_m` por bloque, franjas del lote; contrato para VOLUM v09) |
 | `planos_<id>.html` | Planos esquemáticos SVG por nivel |
 | `F3_<id>.3dm` | Masa 3D (capas N1..Nn + NUCLEO), rhino3dm |
 

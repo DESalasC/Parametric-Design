@@ -47,9 +47,18 @@ El checklist se genera en `src\orquestador\checklist.html` y se abre con doble c
 | 1.2 | Exportar GFA | manual (Rhino) | `F1_EXPORTAR_GFA_v02` |
 | 2.1 | Modelo financiero venta | auto | `F2_DEMANDA_MOTOR_v03.py` |
 | 2.2 | Modelo Build-to-Rent | auto | `F2_RENTA_MOTOR_v03.py` |
-| 3.1 | Distribución espacial | auto | `F3_DISTRIBUCION_v01.py` |
+| 3.1 | Distribución espacial | auto | `F3_DISTRIBUCION_v02.py` |
 | 3.2 | Accesos por uso | auto | `F3_ACCESOS_INTEGRADOR_v02.py` |
 | 3.3 | Masa en Rhino + Morphs | manual (Rhino/ArchiCAD) | `F3_VOLUM_GENERADOR_v07.py` |
+
+### Acople §2 → modelado (2026-09-29)
+
+La generación de masa del front-end ya **no depende de un caso pre-generado**: al pulsar
+"Generar masa (F3)" / "Pipeline completo" se envían los **usos marcados en la sección 2** y
+los parámetros de **bloques** (sección 4); el servidor deriva el escenario F2 (`D_MIXTO` /
+`D_MIXTO_SALUD` según usos) y `F3_DISTRIBUCION_v02` filtra/renormaliza el mix y escribe
+`bloques.json` (multivolumen). El selector "Escenario pre-generado" queda solo como
+referencia para ver resultados ya generados.
 
 ## Límite honesto
 

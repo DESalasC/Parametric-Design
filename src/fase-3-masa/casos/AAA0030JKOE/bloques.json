@@ -1,0 +1,157 @@
+{
+  "chip": "AAA0030JKOE",
+  "n": 1,
+  "distribucion": "longitudinal",
+  "azimut_grados": null,
+  "separacion_m": 0.0,
+  "separacion_min_norma_m": 6.0,
+  "desnivel_m": 0.0,
+  "fuente_geometria": "lote_objetivo (franjas OBB) - AAA0030JKOE-contexto.json",
+  "avisos": [],
+  "nota": "Parametros basicos de multivolumen (v02). Poligonos esquematicos; el canvas (VOLUM v09) los re-encaja en la envolvente F1 y a las cotas de terreno. z_base_m del bloque i = i x desnivel_m (negativo desciende).",
+  "bloques": [
+    {
+      "id": "B1",
+      "orden": 1,
+      "poligono_local": [
+        [
+          103.65,
+          102.41
+        ],
+        [
+          107.52,
+          108.25
+        ],
+        [
+          123.213,
+          96.853
+        ],
+        [
+          124.232,
+          96.113
+        ],
+        [
+          124.991,
+          95.562
+        ],
+        [
+          126.619,
+          94.379
+        ],
+        [
+          130.02,
+          91.91
+        ],
+        [
+          130.02,
+          91.91
+        ],
+        [
+          118.481,
+          76.831
+        ],
+        [
+          117.08,
+          75.0
+        ],
+        [
+          116.782,
+          75.21
+        ],
+        [
+          116.54,
+          75.38
+        ],
+        [
+          113.365,
+          77.615
+        ],
+        [
+          113.337,
+          77.634
+        ],
+        [
+          112.666,
+          78.106
+        ],
+        [
+          112.662,
+          78.11
+        ],
+        [
+          112.42,
+          78.28
+        ],
+        [
+          112.42,
+          78.28
+        ],
+        [
+          112.229,
+          78.414
+        ],
+        [
+          109.026,
+          80.677
+        ],
+        [
+          108.241,
+          81.232
+        ],
+        [
+          106.29,
+          82.61
+        ],
+        [
+          100.073,
+          87.004
+        ],
+        [
+          93.699,
+          91.509
+        ],
+        [
+          92.82,
+          92.13
+        ],
+        [
+          79.902,
+          101.25
+        ],
+        [
+          75.0,
+          104.71
+        ],
+        [
+          75.0,
+          104.71
+        ],
+        [
+          78.93,
+          109.85
+        ],
+        [
+          84.1,
+          116.61
+        ],
+        [
+          86.527,
+          114.847
+        ],
+        [
+          89.36,
+          112.79
+        ],
+        [
+          98.801,
+          105.932
+        ]
+      ],
+      "area_lote_m2": 946.45,
+      "huella_objetivo_m2": 662.51,
+      "pisos": 5,
+      "z_base_m": 0.0,
+      "gfa_objetivo_m2": 3312.55
+    }
+  ]
+}

@@ -163,5 +163,19 @@
       "criterio": "poblacion 177 pers; 1 asc / ~40 unid"
     }
   },
-  "origen": "F3_DISTRIBUCION_v01 (balanceado; nucleo circulacion/servicios separados)"
+  "origen": "F3_DISTRIBUCION_v02 (balanceado; nucleo circulacion/servicios separados)",
+  "bloques": {
+    "n": 1,
+    "distribucion": "longitudinal",
+    "separacion_m": 0.0,
+    "desnivel_m": 0.0,
+    "resumen": [
+      {
+        "id": "B1",
+        "pisos": 5,
+        "z_base_m": 0.0,
+        "area_lote_m2": 946.45
+      }
+    ]
+  }
 }

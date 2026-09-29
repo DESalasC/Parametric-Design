@@ -191,7 +191,8 @@
   <!-- ===== 4. Modelado ===== -->
   <div class="card">
     <h2><span class="seccion-num">4</span>Modelado (masa)</h2>
-    <div class="subtitulo">Escenario de modelado y posición del núcleo. El modelado se hace únicamente sobre el CHIP seleccionado en la sección 1.</div>
+    <div class="subtitulo">El modelado se genera a partir de lo solicitado en las secciones 2–3 (usos, normativa y escenarios). Aquí se ajustan núcleo y bloques (multivolumen) y se lanza la generación.</div>
+    <div id="modelado-derivado" class="ayuda" style="margin-top:6px;"></div>
     <div id="vars-modelado"></div>
     <div id="caso-detalle" class="caso-titulo" style="display:none;"></div>
     <div style="margin-top:14px;">
@@ -259,6 +260,10 @@ async function init(){
   renderNormaOverride();
   $('btn-guardar-norma').addEventListener('click', guardarNormaOverride);
   renderSeccion('modelado', $('vars-modelado'));
+  ['usos-checks','vars-modelado','escenarios-checks'].forEach(function(id){
+    const c = $(id); if(c) c.addEventListener('change', actualizarModeladoDerivado);
+  });
+  actualizarModeladoDerivado();
   renderSeccion('aporte', $('vars-aporte'));
   renderModos();
   renderEscenarios();
@@ -325,6 +330,34 @@ function renderEscenarios(){
   ESCENARIOS.forEach(e => cont.appendChild(checkItem('esc_' + e.id, e.label, e.descripcion)));
 }
 
+// ---------- acople §2/§3 -> modelado (2026-09-29) ----------
+function escenarioDerivado(){
+  const usos = [...document.querySelectorAll('#usos-checks input:checked')].map(x => x.value.replace('uso_',''));
+  const tieneSalud = usos.some(u => u.toLowerCase().indexOf('salud') >= 0);
+  return { escenario: tieneSalud ? 'D_MIXTO_SALUD' : 'D_MIXTO', usos };
+}
+function recolectarBloques(){
+  const g = id => { const el = $('var_' + id); return el ? el.value : null; };
+  const num = parseInt(g('bloques_num') || '1', 10) || 1;
+  const sep = parseFloat(g('bloques_separacion_m'));
+  const desn = g('bloques_desnivel_m');
+  return {
+    n: Math.max(1, Math.min(6, num)),
+    distribucion: g('bloques_distribucion') || 'longitudinal',
+    separacion_m: isNaN(sep) ? 6.0 : sep,
+    desnivel_m: (desn === '' || desn === null || isNaN(parseFloat(desn))) ? 0.0 : parseFloat(desn)
+  };
+}
+function actualizarModeladoDerivado(){
+  const det = $('modelado-derivado');
+  if(!det) return;
+  const d = escenarioDerivado();
+  const b = recolectarBloques();
+  det.innerHTML = 'Se modelará según §2–§3: escenario <b>' + d.escenario + '</b> · usos: <b>' +
+    (d.usos.join(', ') || '—') + '</b> · bloques: <b>' + b.n + '</b>' +
+    (b.n > 1 ? ' (a lo ' + (b.distribucion === 'transversal' ? 'ancho' : 'largo') + ', sep ' + b.separacion_m + ' m, desnivel ' + b.desnivel_m + ' m)' : '');
+}
+
 function renderUsos(usos){
   const info = $('usos-info'); info.innerHTML = '';
   if(usos.upz || usos.tratamiento){
@@ -353,7 +386,7 @@ async function cargarUsos(){
   const chip = $('chip').value;
   if(!chip){ $('usos-checks').innerHTML=''; $('usos-info').innerHTML=''; return; }
   const r = await api('/api/usos?chip=' + encodeURIComponent(chip));
-  if(r.ok) renderUsos(r.usos);
+  if(r.ok){ renderUsos(r.usos); actualizarModeladoDerivado(); }
 }
 
 function finInput(id, label, val){
@@ -1368,12 +1401,16 @@ async function generarF3(){
   const chip = $('chip').value;
   if(!chip){ alert('Seleccione un CHIP primero.'); return; }
   const out = $('f3-resultado');
-  out.style.display='block'; out.className='aviso info'; out.textContent='Generando masa (F3)...';
-  const r = await api('/api/generar-f3', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, escenario:'D_MIXTO'}) });
+  const d = escenarioDerivado();
+  const bloques = recolectarBloques();
+  out.style.display='block'; out.className='aviso info';
+  out.textContent = 'Generando masa (F3) según §2–§3: ' + d.escenario + ' · usos: ' + (d.usos.join(', ') || '—') + ' · bloques: ' + bloques.n + '...';
+  const r = await api('/api/generar-f3', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, usos:d.usos, bloques:bloques}) });
   if(!r.ok || !r.f3 || !r.f3.ok){ out.className='aviso error'; out.textContent = (r.f3 && r.f3.salida) || r.error || 'error'; return; }
   const res = r.f3.resultados || {};
-  out.className='aviso ok';
-  out.innerHTML = '<b>Masa generada para ' + chip + '</b> · GFA ' + (res.gfa_total!=null ? res.gfa_total : '—') + ' m² · pisos ' + (res.pisos||'—');
+  let html = '<b>Masa generada para ' + chip + '</b> · escenario ' + (r.f3.escenario||'—') + ' · GFA ' + (res.gfa_total!=null ? res.gfa_total : '—') + ' m² · pisos ' + (res.pisos||'—');
+  if(bloques.n > 1) html += ' · <b>' + bloques.n + ' bloques</b> (sep ' + bloques.separacion_m + ' m, desnivel ' + bloques.desnivel_m + ' m)';
+  out.className='aviso ok'; out.innerHTML = html;
   verResultados(chip);
 }
 
@@ -1384,7 +1421,9 @@ async function ejecutarPipeline(){
   const pago = $('var_pago_parcial_pct') ? $('var_pago_parcial_pct').value : null;
   const out = $('pipeline-resultado');
   out.style.display='block'; out.className='aviso info'; out.textContent='Ejecutando F1→F2→F3...';
-  const r = await api('/api/pipeline', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, modalidad_dueno_lote:{tipo:aporte, pago_parcial_pct:pago}, escenario:'D_MIXTO'}) });
+  const d = escenarioDerivado();
+  const bloques = recolectarBloques();
+  const r = await api('/api/pipeline', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, modalidad_dueno_lote:{tipo:aporte, pago_parcial_pct:pago}, usos:d.usos, bloques:bloques}) });
   const p = r.pipeline;
   if(!r.ok || !p){ out.className='aviso error'; out.textContent = r.error || 'error'; return; }
   const pasos = (p.pasos||[]).map(function(s){ return (s.salida&&s.salida.indexOf('omitido')===0?'⚠':(s.ok?'✓':'✗')) + ' ' + s.paso; }).join(' · ');

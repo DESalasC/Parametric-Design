@@ -21,6 +21,7 @@ conserva el archivo por-CHIP/caso como historial. Así el canvas no se edita jam
 | `gfa_gh` | `data/fase-2-demanda/CHIP-gfa-gh.json` | `data/fase-2-demanda/<CHIP>-gfa-gh.json` | `F1_EXPORTAR_GFA_v02` (disparado por `gfa-export-flag.json`; escribe activo + archivo) | `F2_DEMANDA_MOTOR_v03` / `F2_RENTA_MOTOR_v03` (leen el archivo por CHIP) |
 | `programa_areas` | `src/fase-3-masa/casos/CASO/programa-areas.json` | `src/fase-3-masa/casos/<CASO>/programa-areas.json` | `F3_DISTRIBUCION_v01.py` (escribe `<CASO>`) → orquestador copia al activo | `F3_VOLUM_GENERADOR_v08` (lee el activo: `json_path`) |
 | `accesos` | `src/fase-3-masa/casos/CASO/accesos.json` | `src/fase-3-masa/casos/<CASO>/accesos.json` | `F3_ACCESOS_INTEGRADOR_v02.py` (escribe `<CASO>`) → orquestador copia al activo | orquestador (resultados) |
+| `bloques` | `src/fase-3-masa/casos/CASO/bloques.json` | `src/fase-3-masa/casos/<CASO>/bloques.json` | `F3_DISTRIBUCION_v02.py` (escribe `<CASO>`; multivolumen: n, separación, desnivel, franjas) → orquestador copia al activo | F3_VOLUM v09 (previsto: z_base/pisos por bloque) |
 
 ## Fuera del canvas (el orquestador los mantiene por CHIP)
 
