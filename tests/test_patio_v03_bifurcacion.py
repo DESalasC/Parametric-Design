@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""Test conductual de F1_ETAPA2_PATIO_v03 (BIFURCACION por numero de volumenes).
+"""Test conductual de F1_ETAPA2_PATIO_v03 (BIFURCACION + AUTO v03.1).
 
 Ejecuta el componente REAL de Grasshopper en CPython con el stub minimo de
 Rhino.Geometry (tests/stub_rhino_min.py), sin abrir Rhino.
 
 Cubre (pedido del operador 2026-09-30):
-  1) modo UNICO (default): comportamiento v02.5 intacto (1 patio desde V_N,
-     garantias area >= 9 m2 y claridad >= 3 m).
-  2) modo UNICO cuando el V_N no valida: 0 patios + motivo + sugerencia multi.
-  3) modo MULTI (n_volumenes >= 2): varios patios en esquinas interiores
-     elegibles, priorizando V_N y luego interioridad; sin solapes; garantias.
-  4) modo MULTI: tope por numero de volumenes y por esquinas disponibles.
-  5) modo MULTI sin esquinas elegibles: 0 patios con motivo.
-  6) tolerancia del input n_volumenes (0/None -> unico; valores string).
+  1) modo AUTO (default, v03.1): infiere n = min(esquinas validas, capacidad)
+     con capacidad = round(area_lote / A_REF_VOL_M2); el operador no toca nada.
+  2) modo unico FORZADO (n_volumenes=1): comportamiento v02.5 estricto.
+  3) modo MULTI FORZADO (n_volumenes>=2): tope explicito.
+  4) AUTO con V_N sin cabida: ancla en otra esquina interior.
+  5) Garantias por patio (area >= 9 m2, claridad >= 3 m) y sin solapes.
 """
 import io
 import json
@@ -98,19 +96,21 @@ def _sides_todos_laterales(n, vertice_n=0):
 
 PENTAGONO = [(0, 0), (12, 0), (14, 8), (4, 12), (6, 10.392304845413264)]
 CUADRADO_30 = [(0, 0), (30, 0), (30, 30), (0, 30)]
+RECT_10X5 = [(0, 0), (10, 0), (10, 5), (0, 5)]
 RECT_4X20 = [(0, 0), (4, 0), (4, 20), (0, 20)]
-# V0 con lado adyacente corto (2.5 m) -> el patio de 3 m no cabe
+# V0 con lado adyacente corto (2.5 m) -> el patio de 3 m no cabe en V0
 PENT_ASIM = [(0, 0), (2.5, 0), (18, 2), (20, 18), (0, 15)]
 
 
 # --------------------------------------------------------------------------
-# 1) modo UNICO (default = v02.5)
+# 1) modo AUTO (default v03.1)
 # --------------------------------------------------------------------------
-def test_unico_default_igual_v02():
+def test_auto_default_pentagono_un_patio():
+    # lote pequeno (~101 m2): capacidad 1 -> un solo patio; mensaje AUTO
     g = _correr_patio_v03(PENTAGONO, json.dumps(_sides_todos_laterales(5)))
     assert g.get("patio_count") == 1
     msg = str(g.get("mensaje"))
-    assert "PATIO v03" in msg and "modo unico" in msg
+    assert "PATIO v03.1" in msg and "modo AUTO" in msg and "inferido: 1" in msg
     area, claridad, pts = _metricas_patio(g["patios_curves"][0])
     assert area >= 9.0 - 1e-6
     assert claridad >= 3.0 - 1e-6
@@ -118,74 +118,74 @@ def test_unico_default_igual_v02():
     assert abs(l1 - 3.0 / math.sin(math.radians(60.0))) < 1e-3
 
 
-def test_unico_n_volumenes_1_explicito():
-    g = _correr_patio_v03(PENTAGONO, json.dumps(_sides_todos_laterales(5)), n_volumenes=1)
-    assert g.get("patio_count") == 1
-    assert "modo unico" in str(g.get("mensaje"))
+def test_auto_none_explicito_equivale_auto():
+    g = _correr_patio_v03(PENTAGONO, json.dumps(_sides_todos_laterales(5)), n_volumenes=None)
+    assert "modo AUTO" in str(g.get("mensaje"))
 
 
-def test_tolerancia_input_n_volumenes():
-    # 0 / None / string -> modo unico
-    g0 = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)), n_volumenes=0)
-    assert g0.get("patio_count") == 1
-    assert "modo unico" in str(g0.get("mensaje"))
-    gs = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)), n_volumenes="3")
-    assert "modo MULTI" in str(gs.get("mensaje"))
-
-
-# --------------------------------------------------------------------------
-# 2) modo UNICO cuando el V_N no cabe -> 0 + motivo + sugerencia
-# --------------------------------------------------------------------------
-def test_unico_vn_no_cabe_sugiere_multi():
-    g = _correr_patio_v03(PENT_ASIM, json.dumps(_sides_todos_laterales(5)))
-    assert g.get("patio_count") == 0
+def test_auto_capacidad_limita():
+    # 30x30 = 900 m2 -> capacidad 3; 4 esquinas validas -> se limita a 3
+    g = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)))
+    assert g.get("patio_count") == 3
     msg = str(g.get("mensaje"))
-    assert "Generados: 0" in msg
-    assert "no valida" in msg
-    assert "Sugerencia" in msg and "n_volumenes" in msg
-
-
-# --------------------------------------------------------------------------
-# 3) modo MULTI
-# --------------------------------------------------------------------------
-def test_multi_cuadrado_2_patios_sin_solape():
-    g = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)), n_volumenes=2)
-    assert g.get("patio_count") == 2
-    msg = str(g.get("mensaje"))
-    assert "modo MULTI" in msg and "Generados: 2/2" in msg
-    patios = g["patios_curves"]
-    # anclas V0 (V_N) y luego V1 (orden estable sin datos de interioridad)
-    exp = g.get("patios_export") or []
-    anchors = [p.get("vertice_ancla") for p in exp] if exp else None
-    assert anchors == [0, 1] or anchors is None  # export puede no estar; validar geometria
-    for crv in patios:
-        area, claridad, pts = _metricas_patio(crv)
-        assert area >= 9.0 - 1e-6
-        assert claridad >= 3.0 - 1e-6
-    # sin solapes entre si
-    a0, _, p0 = _metricas_patio(patios[0])
-    a1, _, p1 = _metricas_patio(patios[1])
-    assert not _solapan(p0, p1)
-
-
-def test_multi_pentagono_2_patios_garantias():
-    g = _correr_patio_v03(PENTAGONO, json.dumps(_sides_todos_laterales(5)), n_volumenes=2)
-    assert g.get("patio_count") == 2
+    assert "inferido: 3" in msg
+    assert "limitado por capacidad" in msg
     for crv in g["patios_curves"]:
         area, claridad, pts = _metricas_patio(crv)
         assert area >= 9.0 - 1e-6
         assert claridad >= 3.0 - 1e-6
 
 
-def test_multi_tope_por_esquinas_disponibles():
-    g = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)), n_volumenes=9)
-    assert g.get("patio_count") == 4  # solo 4 esquinas
+def test_auto_lote_pequeno_capacidad_uno():
+    # 10x5 = 50 m2 -> capacidad 1
+    g = _correr_patio_v03(RECT_10X5, json.dumps(_sides_todos_laterales(4)))
+    assert g.get("patio_count") == 1
+    assert "inferido: 1" in str(g.get("mensaje"))
+
+
+# --------------------------------------------------------------------------
+# 2) modo UNICO forzado (v02.5 estricto)
+# --------------------------------------------------------------------------
+def test_unico_forzado_n_volumenes_1():
+    g = _correr_patio_v03(PENTAGONO, json.dumps(_sides_todos_laterales(5)), n_volumenes=1)
+    assert g.get("patio_count") == 1
     msg = str(g.get("mensaje"))
-    assert "Generados: 4/9" in msg
+    assert "modo unico (forzado)" in msg
 
 
-def test_multi_solape_rechaza_y_continua():
-    # rectangulo de 4 m de ancho: V0 ok; V1 se solapa -> rechazado; V2 ok
+def test_unico_forzado_vn_no_cabe_motivo():
+    g = _correr_patio_v03(PENT_ASIM, json.dumps(_sides_todos_laterales(5)), n_volumenes=1)
+    assert g.get("patio_count") == 0
+    msg = str(g.get("mensaje"))
+    assert "Generados: 0" in msg
+    assert "no valida" in msg
+    assert "Sugerencia" in msg
+
+
+# --------------------------------------------------------------------------
+# 3) modo MULTI forzado
+# --------------------------------------------------------------------------
+def test_multi_forzado_2_patios_sin_solape():
+    g = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)), n_volumenes=2)
+    assert g.get("patio_count") == 2
+    msg = str(g.get("mensaje"))
+    assert "modo MULTI" in msg and "Generados: 2/2" in msg
+    for crv in g["patios_curves"]:
+        area, claridad, pts = _metricas_patio(crv)
+        assert area >= 9.0 - 1e-6
+        assert claridad >= 3.0 - 1e-6
+    p0 = _metricas_patio(g["patios_curves"][0])[2]
+    p1 = _metricas_patio(g["patios_curves"][1])[2]
+    assert not _solapan(p0, p1)
+
+
+def test_multi_forzado_tope_por_esquinas():
+    g = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)), n_volumenes=9)
+    assert g.get("patio_count") == 4
+    assert "Generados: 4/9" in str(g.get("mensaje"))
+
+
+def test_multi_forzado_solape_rechaza_y_continua():
     g = _correr_patio_v03(RECT_4X20, json.dumps(_sides_todos_laterales(4)), n_volumenes=2)
     assert g.get("patio_count") == 2
     msg = str(g.get("mensaje"))
@@ -195,7 +195,7 @@ def test_multi_solape_rechaza_y_continua():
     assert not _solapan(p0, p1)
 
 
-def test_multi_sin_esquinas_elegibles():
+def test_multi_forzado_sin_esquinas_elegibles():
     sides = _sides_todos_laterales(4)
     for l in sides["lados"]:
         l["clasificacion"] = "Frontal"
@@ -203,6 +203,28 @@ def test_multi_sin_esquinas_elegibles():
     assert g.get("patio_count") == 0
     msg = str(g.get("mensaje"))
     assert "Generados: 0" in msg and "modo MULTI" in msg
+
+
+# --------------------------------------------------------------------------
+# 4) AUTO con V_N sin cabida -> ancla alternativa
+# --------------------------------------------------------------------------
+def test_auto_vn_no_cabe_usa_otra_esquina():
+    g = _correr_patio_v03(PENT_ASIM, json.dumps(_sides_todos_laterales(5)))
+    assert g.get("patio_count") == 1
+    msg = str(g.get("mensaje"))
+    assert "modo AUTO" in msg
+    exp = g.get("patios_export") or []
+    if exp:
+        assert exp[0].get("vertice_ancla") != 0
+
+
+def test_tolerancia_input_n_volumenes():
+    # 0 y None -> AUTO
+    g0 = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)), n_volumenes=0)
+    assert "modo AUTO" in str(g0.get("mensaje"))
+    # string numerico -> multi
+    gs = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)), n_volumenes="3")
+    assert "modo MULTI" in str(gs.get("mensaje"))
 
 
 # --------------------------------------------------------------------------
@@ -239,7 +261,7 @@ def _solapan(pa, pb):
 
 
 if __name__ == "__main__":
-    print("=== TESTS PATIO v03 (BIFURCACION) ===")
+    print("=== TESTS PATIO v03.1 (AUTO + BIFURCACION) ===")
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     passed = 0
     failed = 0

@@ -51,6 +51,19 @@ ALGORITMO BASE (v02.x):
           NOTA: la regla de reparto del modo MULTI es v1 y queda SUJETA A
           VALIDACION DEL OPERADOR en la corrida viva (internos vs
           separaciones pueden requerir reglas adicionales).
+  v03.1 (2026-09-30) - INFERENCIA AUTOMATICA (minima injerencia del operador,
+          pedido del operador 2026-09-30): n_volumenes=0/vacio -> modo AUTO:
+          el componente infiere el numero de volumenes/patios del lote como
+            n = min(esquinas interiores VALIDAS, capacidad del lote)
+          con capacidad = round(area_lote / A_REF_VOL_M2), A_REF_VOL_M2=300 m2
+          (basico, ajustable; en etapas posteriores puede venir del proyecto).
+          El ancla preferente sigue siendo el Vertice N (con puntos mejorados
+          si existen) y, si no valida, el modo AUTO puede anclar en otra
+          esquina interior (antes: 0 + sugerencia).
+          n_volumenes=1 -> modo unico FORZADO (comportamiento v02.5 estricto);
+          n_volumenes>=2 -> modo MULTI forzado con ese tope.
+          La capacidad y las reglas de patios interiores (GFA/altura/IO) son
+          v1 y se refinaran con las "Zonas" del operador (etapa posterior).
   Regla de versionado: la version general (v03 -> v04) SOLO cambia con
   cambios mayores (contrato de entradas/salidas o algoritmo central); las
   iteraciones internas se registran como subversiones v03.x en este encabezado.
@@ -59,7 +72,8 @@ ENTRADAS:
   lot_vertices (Point3d[])     — vertices desde Discontinuity
   sides_table_json (String)    — Clasificacion desde F1_ETAPA2_LADOS_v06
   altura_max_pot (Number)      — Altura maxima [m] (define lado base del patio)
-  n_volumenes (Number)         — [v03] Numero de volumenes previstos (1 = unico)
+  n_volumenes (Number)         — [v03.1] 0/vacio = AUTO (inferido del lote);
+                                  1 = unico forzado; >=2 = numero forzado
 
 SALIDAS:
   patios_curves   (Curve[])   — 0..N rectangulos/paralelogramos de patio
@@ -88,6 +102,9 @@ COINCIDENCIA_VERTICE_M = 0.15
 SIN_MINIMO = 0.087
 # v03.0: limite de seguridad del numero de volumenes/patios
 N_VOL_MAX = 16
+# v03.1: huella de referencia por volumen [m2] (capacidad basica del lote;
+# ajustable; en etapas posteriores puede venir del proyecto/UI)
+A_REF_VOL_M2 = 300.0
 
 
 def _decodificar_cascada(raw, ruta="<bytes>"):
@@ -237,7 +254,7 @@ def _exportar_diagnostico(sides_data, patios_export, mensaje_final, modo, n_vol)
     data = {
         "schema": "lados_patio_diagnostico_v01",
         "chip": chip,
-        "generado_por": "F1_ETAPA2_PATIO_v03.0",
+        "generado_por": "F1_ETAPA2_PATIO_v03.1",
         "generado_en": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "solicitud": flag,
         "sides": {
@@ -458,18 +475,25 @@ n_vertices_brutos = len(lot_vertices)
 # lados coinciden con esta lista simplificada.
 lot_vertices = simplificar_colineales(lot_vertices, UMBRAL_COLINEAL_GRADOS)
 
-n_vol = 1
+# v03.1: 0 o vacio = AUTO (inferido); 1 = unico forzado; >=2 = multi forzado
+n_vol_sel = 0
 try:
     _nv = unwrap(n_vol_raw)
     if _nv is not None:
-        n_vol = int(round(float(_nv)))
+        n_vol_sel = int(round(float(_nv)))
 except Exception:
-    n_vol = 1
-if n_vol < 1:
-    n_vol = 1
-if n_vol > N_VOL_MAX:
-    n_vol = N_VOL_MAX
-modo = "multi" if n_vol >= 2 else "unico"
+    n_vol_sel = 0
+if n_vol_sel < 0:
+    n_vol_sel = 0
+if n_vol_sel > N_VOL_MAX:
+    n_vol_sel = N_VOL_MAX
+if n_vol_sel == 0:
+    modo = "auto"
+elif n_vol_sel == 1:
+    modo = "unico"
+else:
+    modo = "multi"
+n_vol = n_vol_sel  # reemplazado por el efectivo en cada rama (AUTO lo infiere)
 
 sides_data = None
 if sides_raw is not None:
@@ -493,7 +517,7 @@ patios_export = []
 mensaje = ""
 
 if sides_data is None or len(lot_vertices) < 3:
-    mensaje = "PATIO v03 | ERROR: vertices={} sides={}".format(
+    mensaje = "PATIO v03.1 | ERROR: vertices={} sides={}".format(
         len(lot_vertices), "OK" if sides_data else "FALTA")
 else:
     try:
@@ -502,7 +526,7 @@ else:
         n = len(lot_vertices)
 
         if vertice_n is None:
-            mensaje = "PATIO v03 | ERROR: sides_table_json sin vertice_n (usar F1_ETAPA2_LADOS_v06)"
+            mensaje = "PATIO v03.1 | ERROR: sides_table_json sin vertice_n (usar F1_ETAPA2_LADOS_v06)"
         else:
             # Tamano base del patio segun altura (reglamentacion POT)
             pisos = max(1, int(math.ceil(altura_max / ALTURA_ENTREPISO)))
@@ -614,7 +638,7 @@ else:
                         "claridad_m": round(claridad, 4),
                     }]
                     modo_anclaje = "puntos_mejorados" if candidatos else "fallback_V_N"
-                    mensaje = ("PATIO v03 | modo unico | V_N=V{} | Verts {}->{} | Lados: {} | "
+                    mensaje = ("PATIO v03.1 | modo unico (forzado) | V_N=V{} | Verts {}->{} | Lados: {} | "
                                "Patio {:.2f}x{:.2f} m (area {:.2f} m2; claridad {:.2f} m) | "
                                "Generados: 1 | Modo: {}").format(
                         idx_usado, n_vertices_brutos, n, ", ".join(cats),
@@ -622,14 +646,14 @@ else:
                     if descartes:
                         mensaje += " | Descartes: " + "; ".join(descartes[:3])
                 else:
-                    mensaje = ("PATIO v03 | modo unico | V_N=V{} | Verts {}->{} | Lados: {} | "
+                    mensaje = ("PATIO v03.1 | modo unico (forzado) | V_N=V{} | Verts {}->{} | Lados: {} | "
                                "Generados: 0 | Motivo: {}").format(
                         vertice_n, n_vertices_brutos, n, ", ".join(cats),
                         "; ".join(descartes) if descartes else "sin candidatos de esquina")
-                    mensaje += (" | Sugerencia: si el lote admite varios volumenes, "
-                                "usar n_volumenes>=2 (modo multi)")
+                    mensaje += (" | Sugerencia: dejar n_volumenes en 0 (AUTO) permite "
+                                "anclar en otra esquina interior")
             else:
-                # ---------------- Modo MULTI (v03.0, regla v1) ----------------
+                # ---------------- Motor v03.1: AUTO / MULTI (regla v1) ----------------
                 cats = [l.get("clasificacion", "?") for l in lados]
                 elegibles = []
                 for idx in range(n):
@@ -637,6 +661,26 @@ else:
                     c2 = _cat_lado((idx + n - 1) % n)
                     if c1 in ("Lateral", "Posterior") and c2 in ("Lateral", "Posterior"):
                         elegibles.append(idx)
+
+                # Puntos mejorados de Vertice N (v02.2/v02.3) para el ancla preferente.
+                candidatos_mejorados = []
+                vertice_n_points_data = sides_data.get("vertice_n_points")
+                if vertice_n_points_data:
+                    for coords in vertice_n_points_data:
+                        try:
+                            candidatos_mejorados.append(rg.Point3d(
+                                coords[0], coords[1],
+                                coords[2] if len(coords) > 2 else 0))
+                        except Exception:
+                            pass
+                    candidatos_mejorados = deduplicar_puntos(candidatos_mejorados, CLUSTER_PUNTOS_M)
+                    coincidentes = []
+                    for vi in candidatos_mejorados:
+                        for v in lot_vertices:
+                            if v.DistanceTo(vi) <= COINCIDENCIA_VERTICE_M:
+                                coincidentes.append(vi)
+                                break
+                    candidatos_mejorados = coincidentes
 
                 orden = []
                 if vertice_n in elegibles:
@@ -647,18 +691,64 @@ else:
                 orden += otros
 
                 aceptados = []
+                anclas_usadas = []
+                mejorado_usado = False
                 for idx in orden:
-                    if len(aceptados) >= n_vol:
+                    if len(aceptados) >= N_VOL_MAX:
                         break
                     vi = lot_vertices[idx]
-                    res = _intentar(vi, idx, "multi")
+                    etiqueta = "multi" if modo == "multi" else "auto"
+                    if idx == vertice_n and candidatos_mejorados:
+                        # ancla preferente con punto mejorado de V_N
+                        vi = candidatos_mejorados[0]
+                        etiqueta = "mejorado"
+                    # dedup de ancla: no intentar dos veces la misma esquina
+                    dup = False
+                    for a in anclas_usadas:
+                        if vi.DistanceTo(a) < CLUSTER_PUNTOS_M:
+                            dup = True
+                            break
+                    if dup:
+                        continue
+                    res = _intentar(vi, idx, etiqueta)
                     if not res:
                         continue
+                    if etiqueta == "mejorado":
+                        mejorado_usado = True
                     pts = res[2]
                     if any(_patios_solapan(pts, a[2]) for a in aceptados):
-                        descartes.append("multi: V{} se solapa con patio previo".format(idx))
+                        descartes.append("{}: V{} se solapa con patio previo".format(etiqueta, idx))
                         continue
                     aceptados.append((res[0], res[1], res[2], idx))
+                    anclas_usadas.append(vi)
+
+                n_validos = len(aceptados)
+                area_lote_calc = 0.0
+                for i2 in range(n):
+                    x1 = lot_vertices[i2].X
+                    y1 = lot_vertices[i2].Y
+                    x2 = lot_vertices[(i2 + 1) % n].X
+                    y2 = lot_vertices[(i2 + 1) % n].Y
+                    area_lote_calc += x1 * y2 - x2 * y1
+                area_lote_calc = abs(area_lote_calc) / 2.0
+                capacidad = int(area_lote_calc / A_REF_VOL_M2 + 0.5)
+                if capacidad < 1:
+                    capacidad = 1
+
+                if modo == "auto":
+                    n_vol = min(n_validos, capacidad)
+                    aceptados = aceptados[:n_vol]
+                    nota = ""
+                    if n_validos > capacidad:
+                        nota = " | Nota: limitado por capacidad del lote"
+                    elif n_validos < capacidad:
+                        nota = " | Nota: menos esquinas validas que capacidad"
+                    if mejorado_usado:
+                        nota += " | Ancla V_N: punto mejorado"
+                else:
+                    n_vol = n_vol_sel
+                    aceptados = aceptados[:n_vol]
+                    nota = ""
 
                 patios_curves = [a[0] for a in aceptados]
                 patio_count = len(aceptados)
@@ -680,19 +770,30 @@ else:
                     anclas = ", ".join("V{}".format(a[3]) for a in aceptados)
                     areas = ", ".join("{:.2f}".format(p["area_m2"]) for p in patios_export)
                     clars = ", ".join("{:.2f}".format(p["claridad_m"]) for p in patios_export)
-                    mensaje = ("PATIO v03 | modo MULTI (n_volumenes={}) | Verts {}->{} | "
-                               "Lados: {} | Generados: {}/{} | Anclas: {} | "
-                               "Areas: {} m2 | Claridades: {} m | Modo: esquinas_interiores_v1").format(
-                        n_vol, n_vertices_brutos, n, ", ".join(cats),
+                    if modo == "auto":
+                        cabecera = ("PATIO v03.1 | modo AUTO | n_volumenes inferido: {} "
+                                    "(esquinas validas: {} | capacidad: {} @ {:.0f} m2)").format(
+                            n_vol, n_validos, capacidad, A_REF_VOL_M2)
+                    else:
+                        cabecera = "PATIO v03.1 | modo MULTI (n_volumenes={})".format(n_vol)
+                    mensaje = (cabecera + " | Verts {}->{} | Lados: {} | "
+                               "Generados: {}/{} | Anclas: {} | Areas: {} m2 | Claridades: {} m | "
+                               "Modo: esquinas_interiores_v1").format(
+                        n_vertices_brutos, n, ", ".join(cats),
                         patio_count, n_vol, anclas, areas, clars)
-                    if len(aceptados) < n_vol:
-                        mensaje += " | Nota: menos patios que volumenes (revisar esquinas)"
+                    mensaje += nota
+                    if patio_count < n_vol:
+                        mensaje += " | Nota: menos patios que el objetivo (revisar esquinas)"
                     if descartes:
                         mensaje += " | Descartes: " + "; ".join(descartes[:3])
                 else:
-                    mensaje = ("PATIO v03 | modo MULTI (n_volumenes={}) | Verts {}->{} | "
-                               "Lados: {} | Generados: 0 | Motivo: {}").format(
-                        n_vol, n_vertices_brutos, n, ", ".join(cats),
+                    if modo == "auto":
+                        cabecera = ("PATIO v03.1 | modo AUTO | n_volumenes inferido: 0 "
+                                    "(esquinas validas: 0 | capacidad: {})").format(capacidad)
+                    else:
+                        cabecera = "PATIO v03.1 | modo MULTI (n_volumenes={})".format(n_vol)
+                    mensaje = (cabecera + " | Verts {}->{} | Lados: {} | Generados: 0 | Motivo: {}").format(
+                        n_vertices_brutos, n, ", ".join(cats),
                         "; ".join(descartes[:4]) if descartes else "sin esquinas interiores elegibles")
 
             # v02.4/v03.0: export del diagnostico si el servidor/orquestador lo solicito
@@ -704,4 +805,4 @@ else:
                 mensaje += " | Lados export aviso: {}".format(str(_e_exp))
 
     except Exception as e:
-        mensaje = "PATIO v03 | ERROR: {}".format(str(e))
+        mensaje = "PATIO v03.1 | ERROR: {}".format(str(e))

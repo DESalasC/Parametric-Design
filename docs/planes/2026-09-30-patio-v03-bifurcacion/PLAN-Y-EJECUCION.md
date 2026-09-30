@@ -77,3 +77,23 @@ PATIO v03 | modo MULTI (n_volumenes=3) | ... | Generados: 3/3 | Anclas: V1, V2, 
 ---
 
 *Generado 2026-09-30 a partir del pedido del operador, diagnóstico reproducido, implementación v03 y evidencia de tests/smoke.*
+
+---
+
+## 7. Actualización v03.1 (30-09, tarde) — Inferencia automática (mínima injerencia)
+
+Pedido del operador: *"la decisión debe ser lo más automática posible... se debería inferir el número de volúmenes dentro del predio"* (+ preguntas de diseño: patio con volumen aislado por todos lados; patios interiores por GFA/altura/IO; futura retroalimentación de las "Zonas").
+
+**Implementado (v03.1; canvas re-parcheado):**
+- `n_volumenes` 0/vacío → **AUTO**: `n = min(esquinas interiores válidas, capacidad del lote)` con `capacidad = round(área_lote / A_REF_VOL_M2)`, `A_REF_VOL_M2 = 300 m²` (básico, ajustable).
+- Ancla preferente V_N (con puntos mejorados); si no valida, AUTO puede anclar en otra esquina interior.
+- Slider #166: default **0 = AUTO** (el operador no toca nada); 1 = único forzado (estricto v02.5); ≥2 = multi forzado con ese tope.
+- Evidencia: AAA0030JKOE → `modo AUTO | n_volumenes inferido: 3 (esquinas validas: 3 | capacidad: 3 @ 300 m2) | Anclas: V1, V2, V5`. Tests: `test_patio_v03_bifurcacion.py` **12/12**; suite raíz **338/338**; smoke real CPython+stub.
+- Backups: `F1_CONTEXTO_v12.ghx.bak-20260930-102748` (pre-v03.1). Par sincronizado: **30-09 10:27:56**.
+
+**Respuestas de diseño (preguntas del operador):**
+- **Volumen aislado por todos lados / qué recibe NORMATIVA:** el contrato ya es una **lista 0..N** que se resta de la huella. Los aislamientos de un volumen libre se resuelven con los **RETIROS** de la envolvente (no con patios de medianería); la lista de patios puede quedar **vacía** (caso válido cuando hay retiros) o contener las **separaciones entre volúmenes** como islas. Sin cambios de contrato; en la etapa de **Zonas**, esas islas se reciben/editan directamente.
+- **Patios interiores (definición básica):** un patio interior por cada `A_REF_VOL` de área de piso "profunda": `n_int = max(0, ceil(A_piso / A_REF_VOL) - 1)` — disparador por **GFA/altura/IO**; garantías idénticas (≥9 m², claridad ≥3 m); distribución básica regular (v1); quedan como objetos con `id`/tipo para edición futura.
+- **Interfaz "Zonas" (etapa posterior):** entrada futura de zonas de patio (p. ej. `zonas_patio_json`) que **reemplaza** la generación básica (retroalimentación del operador); NORMATIVA no cambia (mismo contrato). Implementación de interiores = **v03.2** (requiere huella/zonas — siguiente incremento).
+
+**Decisiones pendientes actualizadas:** ② resuelta parcialmente (AUTO ya ancla alternativo si V_N no valida; único estricto queda como override); ③ renombres #45-48 sigue en pie.

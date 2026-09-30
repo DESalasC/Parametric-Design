@@ -19,3 +19,12 @@
 **Decisiones abiertas (operador):** (1) regla de reparto del modo MULTI (¿esquinas interiores basta?); (2) modo único con V_N sin cabida: ¿buscar otra esquina o 0+sugerencia (actual)?; (3) renombres de los cuatro lectores de polígonos (#45-48 en su canvas vs #43-46 en el canónico).
 
 **Artifacts:** docs/planes/2026-09-30-patio-v03-bifurcacion/PLAN-Y-EJECUCION.md; commit de la sesión.
+
+---
+
+## Addendum (tarde del 30-09) — PATIO v03.1 AUTO
+
+- Pedido del operador: inferencia automática del número de volúmenes (mínima injerencia) + diseño básico de patios interiores con futura retroalimentación de "Zonas".
+- Implementado v03.1: `n_volumenes` 0/vacío = **AUTO** → `n = min(esquinas válidas, capacidad)` con `capacidad = round(área_lote/300 m²)`; slider #166 default 0; 1 = único forzado; ≥2 = multi forzado. AUTO puede anclar fuera de V_N si V_N no valida.
+- Evidencia: AUTO en AAA0030JKOE → 3 patios (V1,V2,V5) sin intervención; tests 12/12; suite 338/338; par v12 sincronizado (30-09 10:27:56); backup pre-v03.1 en gh-definitions.
+- Diseño documentado: volumen aislado → retiros + lista de patios posiblemente vacía / separaciones; patios interiores básicos `n_int = max(0, ceil(A_piso/300)-1)` (v03.2 con Zonas).
