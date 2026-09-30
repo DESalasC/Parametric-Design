@@ -28,3 +28,10 @@
 - Implementado v03.1: `n_volumenes` 0/vacío = **AUTO** → `n = min(esquinas válidas, capacidad)` con `capacidad = round(área_lote/300 m²)`; slider #166 default 0; 1 = único forzado; ≥2 = multi forzado. AUTO puede anclar fuera de V_N si V_N no valida.
 - Evidencia: AUTO en AAA0030JKOE → 3 patios (V1,V2,V5) sin intervención; tests 12/12; suite 338/338; par v12 sincronizado (30-09 10:27:56); backup pre-v03.1 en gh-definitions.
 - Diseño documentado: volumen aislado → retiros + lista de patios posiblemente vacía / separaciones; patios interiores básicos `n_int = max(0, ceil(A_piso/300)-1)` (v03.2 con Zonas).
+
+## Cierre de sesión (30-09, mediodía)
+
+- **Renombres de lectores ArchiCAD aplicados** al canvas v12: `#36-Predio`, `#43-Vias`, `#44-Verdes`, `#45-Vecinos`, `#46-andenes` (mapeo verificado por GUID; commit `026b851f`). Par re-sincronizado 30-09 10:33.
+- **Cierre por procedimiento del vault**: acta `10-arquitectura/2026-09-30-acta-sesion-cierre-patio-v03-bifurcacion.md`, diario `60-diario/2026-09-30.md`, 3 lecciones (`2026-09-30-leccion-*`), mapa actualizado; resumen del proyecto: `docs/sesiones/2026-09-30-resumen-sesion-patio-v03.md`.
+- **Pendientes clave**: validación viva del par v12 (AUTO/NORMATIVA/3D/exports); v03.2 interiores + interfaz Zonas; confirmar staleness de `KeyError 'eficiencia_nga'` y `Invalid Curve value… horizontal plane` con el par nuevo; decisión reporte 19723.
+- Commit de respaldo de cierre: proyecto + vault.
