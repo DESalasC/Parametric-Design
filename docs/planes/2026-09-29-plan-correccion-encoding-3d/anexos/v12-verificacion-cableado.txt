@@ -1,0 +1,41 @@
+OK   3D.json_path == #21.json_path source
+     got=0d1eca32-e997-4907-a772-a9166aa1c7a9 want=0d1eca32-e997-4907-a772-a9166aa1c7a9
+OK   3D.mostrar_curvas == T1 guid
+     got=133352b6-3422-42d8-8beb-c5036d326ab4 want=133352b6-3422-42d8-8beb-c5036d326ab4
+OK   3D.mostrar_cintas == T2 guid
+     got=d92cac8c-2f0d-4e52-9826-4253ba730994 want=d92cac8c-2f0d-4e52-9826-4253ba730994
+OK   ENV.envelope_curve == #113.envelope_curve
+     got=9682e8c4-bf63-4f4c-aa4a-16ae081a9cbc want=9682e8c4-bf63-4f4c-aa4a-16ae081a9cbc
+OK   ENV.altura_total == #113.altura_total
+     got=7471935c-e936-4306-a5f7-ea3a8f6c1e02 want=7471935c-e936-4306-a5f7-ea3a8f6c1e02
+OK   ENV.topo_pts == 3D.topo_pts
+     got=5ed27ee3-b31f-4c9c-97dd-f48ecceaa074 want=5ed27ee3-b31f-4c9c-97dd-f48ecceaa074
+OK   ENV.mostrar_volumen == T3 guid
+     got=d31e556a-24f8-411a-96c1-3454dac453f4 want=d31e556a-24f8-411a-96c1-3454dac453f4
+OK   MC1-lote_3D.Curve fuente
+     got=5f8f6078-19e9-406b-a712-786bcdea567e want=5f8f6078-19e9-406b-a712-786bcdea567e
+OK   MC2-vecinos_3D.Curve fuente
+     got=a2f755b5-950e-4d0d-81f9-33e862ece256 want=a2f755b5-950e-4d0d-81f9-33e862ece256
+OK   MC3-envolvente_3D.Curve fuente
+     got=28b8fc71-bafe-4ce7-a1af-2b02dd562bf8 want=28b8fc71-bafe-4ce7-a1af-2b02dd562bf8
+OK   MS1-contexto_3D.Mesh fuente
+     got=e3d77e71-8a53-412b-ac7a-54749585faab want=e3d77e71-8a53-412b-ac7a-54749585faab
+OK   MS2-volumen_3D.Mesh fuente
+     got=18db5c28-7725-44c4-9f17-472d9f92bbbc want=18db5c28-7725-44c4-9f17-472d9f92bbbc
+OK   M1-terreno_3D.Points fuente
+     got=5ed27ee3-b31f-4c9c-97dd-f48ecceaa074 want=5ed27ee3-b31f-4c9c-97dd-f48ecceaa074
+OK   M1-terreno_3D.Boundary fuente
+     got=265c762f-bcb8-4c86-9a7a-101e29cbb220 want=265c762f-bcb8-4c86-9a7a-101e29cbb220
+OK   MC1-lote_3D.Synchronize == #60
+     got=88c456d6-2341-4157-bbe4-4a51090eb4cd want=88c456d6-2341-4157-bbe4-4a51090eb4cd
+OK   MC2-vecinos_3D.Synchronize == #60
+     got=88c456d6-2341-4157-bbe4-4a51090eb4cd want=88c456d6-2341-4157-bbe4-4a51090eb4cd
+OK   MC3-envolvente_3D.Synchronize == #60
+     got=88c456d6-2341-4157-bbe4-4a51090eb4cd want=88c456d6-2341-4157-bbe4-4a51090eb4cd
+OK   MS1-contexto_3D.Synchronize == #60
+     got=88c456d6-2341-4157-bbe4-4a51090eb4cd want=88c456d6-2341-4157-bbe4-4a51090eb4cd
+OK   MS2-volumen_3D.Synchronize == #60
+     got=88c456d6-2341-4157-bbe4-4a51090eb4cd want=88c456d6-2341-4157-bbe4-4a51090eb4cd
+OK   M1-terreno_3D.Synchronize == #60
+     got=88c456d6-2341-4157-bbe4-4a51090eb4cd want=88c456d6-2341-4157-bbe4-4a51090eb4cd
+FAILS: 0

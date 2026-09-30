@@ -1,0 +1,10 @@
+CODE 01 len= 16322  F1_ETAPA1_CONTEXTO_v04.2.py — Etapa 1: Datos en bruto → Geometri
+CODE 02 len= 50484  F1_ETAPA2_NORMATIVA_v08.py - Retiros + Patios + Indices + Piso A
+CODE 03 len= 19470  F1_ETAPA2_PATIO_v02.py — Patio desde el Vertice N
+CODE 04 len= 51619  F1_ETAPA2_LADOS_v06.py — Algoritmo Vertice A / Vertice N + Regla
+CODE 05 len=  9498  F1_LAYERS_XML_v02.py — Genera XML de capas importable por ArchiC
+CODE 06 len=  2958  
+CODE 07 len= 24892  F1_CONTEXTO50_BUILD_v01b.py — Construcción de volumetrías vecina
+CODE 08 len=  8282  # F0_LOAD_PROYECTO_v01.py — carga proyecto.json y expone variabl
+CODE 09 len=  5360  F1_OVERRIDE_USO_v01.py — OVERRIDE de USO (USO-MULTIPLE) para Fas
+CODE 10 len= 14011  F1_EXPORTAR_GFA_v02.py - Exporta GFA y KPIs de Fase 1 a JSON par

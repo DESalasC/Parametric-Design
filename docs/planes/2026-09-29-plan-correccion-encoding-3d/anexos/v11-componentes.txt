@@ -1,0 +1,319 @@
+#1-Group                                     | Group                      | c552a431 | 
+#21-F1_ETAPA1_CONTEXTO_v04.2.py              | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#113-F1_ETAPA2_NORMATIVA_v08.py              | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#99-F1_ETAPA2_PATIO_v02.py                   | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#81-F1_ETAPA2_LADOS_v06.py                   | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#13-File Path                                | File Path                  | 06953bda | 
+#2-Panel                                     | Panel                      | 59e0b89a | 
+#27-Panel                                    | Panel                      | 59e0b89a | 
+#26-Panel                                    | Panel                      | 59e0b89a | 
+#18-Boolean Toggle                           | Boolean Toggle             | 2e78987b | 
+#31-Panel                                    | Panel                      | 59e0b89a | 
+#12-Group                                    | Group                      | c552a431 | 
+#161-2D Polyline                             | 2D Polyline                | b71dc107 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#130-Boolean Toggle                          | Boolean Toggle             | 2e78987b | 
+#136-Layer                                   | Layer                      | c5d83526 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#134-Line Type                               | Line Type                  | c8965a8f | b267c457-1b3b-42eb-94d4-a075bfc97888
+#158-Polyline Settings                       | Polyline Settings          | a1de8b0b | b267c457-1b3b-42eb-94d4-a075bfc97888
+#135-Pen                                     | Pen                        | 3accc4d6 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#133-2D Viewpoint                            | 2D Viewpoint               | 167dd8c1 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#137-Number Slider                           | Number Slider              | 57da07bd | 
+#138-Number Slider                           | Number Slider              | 57da07bd | 
+#22-Group                                    | Group                      | c552a431 | 
+#40-Panel                                    | Panel                      | 59e0b89a | 
+#41-Panel                                    | Panel                      | 59e0b89a | 
+#20-Panel                                    | Panel                      | 59e0b89a | 
+#61-Relay                                    | Relay                      | b6236720 | 
+#162-2D Polyline                             | 2D Polyline                | b71dc107 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#131-Boolean Toggle                          | Boolean Toggle             | 2e78987b | 
+#142-Layer                                   | Layer                      | c5d83526 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#140-Line Type                               | Line Type                  | c8965a8f | b267c457-1b3b-42eb-94d4-a075bfc97888
+#159-Polyline Settings                       | Polyline Settings          | a1de8b0b | b267c457-1b3b-42eb-94d4-a075bfc97888
+#141-Pen                                     | Pen                        | 3accc4d6 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#139-2D Viewpoint                            | 2D Viewpoint               | 167dd8c1 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#143-Number Slider                           | Number Slider              | 57da07bd | 
+#144-Number Slider                           | Number Slider              | 57da07bd | 
+#36-Group                                    | Group                      | c552a431 | 
+#70-Merge                                    | Merge                      | 3cadddef | 
+#163-2D Polyline                             | 2D Polyline                | b71dc107 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#132-Boolean Toggle                          | Boolean Toggle             | 2e78987b | 
+#148-Layer                                   | Layer                      | c5d83526 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#146-Line Type                               | Line Type                  | c8965a8f | b267c457-1b3b-42eb-94d4-a075bfc97888
+#160-Polyline Settings                       | Polyline Settings          | a1de8b0b | b267c457-1b3b-42eb-94d4-a075bfc97888
+#147-Pen                                     | Pen                        | 3accc4d6 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#145-2D Viewpoint                            | 2D Viewpoint               | 167dd8c1 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#149-Number Slider                           | Number Slider              | 57da07bd | 
+#150-Number Slider                           | Number Slider              | 57da07bd | 
+#47-Group                                    | Group                      | c552a431 | 
+#65-Panel                                    | Panel                      | 59e0b89a | 
+#83-Panel                                    | Panel                      | 59e0b89a | 
+#79-Relay                                    | Relay                      | b6236720 | 
+#90-Number Slider                            | Number Slider              | 57da07bd | 
+#114-Panel                                   | Panel                      | 59e0b89a | 
+#116-Panel                                   | Panel                      | 59e0b89a | 
+#22-F1_LAYERS_XML_v02.py                     | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#102-Panel                                   | Panel                      | 59e0b89a | 
+#112-Panel                                   | Panel                      | 59e0b89a | 
+Fancy Names                                  | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#48-F1_CONTEXTO50_BUILD_v01b.py              | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#89-F0_LOAD_PROYECTO_v01.py                  | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#115-Relay                                   | Relay                      | b6236720 | 
+#123-Area                                    | Area                       | 86b28a7e | 
+#122-Panel                                   | Panel                      | 59e0b89a | 
+#92-Boolean Toggle                           | Boolean Toggle             | 2e78987b | 
+#84-Value List                               | Value List                 | 00027467 | 
+#91-Number Slider                            | Number Slider              | 57da07bd | 
+#124-Panel                                   | Panel                      | 59e0b89a | 
+#151-Panel                                   | Panel                      | 59e0b89a | 
+#152-Panel                                   | Panel                      | 59e0b89a | 
+#153-Panel                                   | Panel                      | 59e0b89a | 
+#154-Panel                                   | Panel                      | 59e0b89a | 
+#156-Panel                                   | Panel                      | 59e0b89a | 
+#157-Panel                                   | Panel                      | 59e0b89a | 
+#155-Panel                                   | Panel                      | 59e0b89a | 
+#93-Value List                               | Value List                 | 00027467 | 
+#103-Panel                                   | Panel                      | 59e0b89a | 
+#100-Addition                                | Addition                   | a0d62394 | 
+#88-Number Slider                            | Number Slider              | 57da07bd | 
+#98-F1_OVERRIDE_USO_v01.py                   | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#85-Boolean Toggle                           | Boolean Toggle             | 2e78987b | 
+#125-F1_EXPORTAR_GFA_v02.py                  | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#101-Panel                                   | Panel                      | 59e0b89a | 
+#105-Panel                                   | Panel                      | 59e0b89a | 
+#106-Panel                                   | Panel                      | 59e0b89a | 
+#107-Panel                                   | Panel                      | 59e0b89a | 
+#108-Panel                                   | Panel                      | 59e0b89a | 
+#104-Panel                                   | Panel                      | 59e0b89a | 
+#128-Panel                                   | Panel                      | 59e0b89a | 
+#119-Panel                                   | Panel                      | 59e0b89a | 
+#120-Panel                                   | Panel                      | 59e0b89a | 
+#121-Panel                                   | Panel                      | 59e0b89a | 
+#117-Panel                                   | Panel                      | 59e0b89a | 
+#118-Panel                                   | Panel                      | 59e0b89a | 
+#110-Panel                                   | Panel                      | 59e0b89a | 
+#111-Panel                                   | Panel                      | 59e0b89a | 
+#17-Relay                                    | Relay                      | b6236720 | 
+#30-Panel                                    | Panel                      | 59e0b89a | 
+#126-Panel                                   | Panel                      | 59e0b89a | 
+#129-Panel                                   | Panel                      | 59e0b89a | 
+#127-Panel                                   | Panel                      | 59e0b89a | 
+#86-Panel                                    | Panel                      | 59e0b89a | 
+#82-Panel                                    | Panel                      | 59e0b89a | 
+#42-Panel                                    | Panel                      | 59e0b89a | 
+#72-Panel                                    | Panel                      | 59e0b89a | 
+#94-Value List                               | Value List                 | 00027467 | 
+#95-Number Slider                            | Number Slider              | 57da07bd | 
+#96-Number Slider                            | Number Slider              | 57da07bd | 
+#97-Number Slider                            | Number Slider              | 57da07bd | 
+#38-Panel                                    | Panel                      | 59e0b89a | 
+#80-Panel                                    | Panel                      | 59e0b89a | 
+#87-Panel                                    | Panel                      | 59e0b89a | 
+#63-Panel                                    | Panel                      | 59e0b89a | 
+#73-Panel                                    | Panel                      | 59e0b89a | 
+#62-Panel                                    | Panel                      | 59e0b89a | 
+#68-Curve                                    | Curve                      | d5967b9f | 
+#66-Curve                                    | Curve                      | d5967b9f | 
+#69-Curve                                    | Curve                      | d5967b9f | 
+#59-Number Slider                            | Number Slider              | 57da07bd | 
+#64-Number Slider                            | Number Slider              | 57da07bd | 
+#43-Deconstruct 2D Polyline                  | Deconstruct 2D Polyline    | f8a8c927 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#44-Deconstruct 2D Polyline                  | Deconstruct 2D Polyline    | f8a8c927 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#58-Relay                                    | Relay                      | b6236720 | 
+#45-Deconstruct 2D Polyline                  | Deconstruct 2D Polyline    | f8a8c927 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#55-Relay                                    | Relay                      | b6236720 | 
+#54-Relay                                    | Relay                      | b6236720 | 
+#46-Deconstruct 2D Polyline                  | Deconstruct 2D Polyline    | f8a8c927 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#50-Discontinuity                            | Discontinuity              | 269eaa85 | 
+#14-Panel                                    | Panel                      | 59e0b89a | 
+#3-GhPython Script                           | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#11-Text Join                                | Text Join                  | 1274d51a | 
+#9-Merge                                     | Merge                      | 3cadddef | 
+#77-File Path                                | File Path                  | 06953bda | 
+#76-Panel                                    | Panel                      | 59e0b89a | 
+#67-GhPython Script                          | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#78-Text Join                                | Text Join                  | 1274d51a | 
+#75-Merge                                    | Merge                      | 3cadddef | 
+#36-Deconstruct 2D Polyline                  | Deconstruct 2D Polyline    | f8a8c927 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#7-Panel                                     | Panel                      | 59e0b89a | 
+#4-Panel                                     | Panel                      | 59e0b89a | 
+#12-Text Join                                | Text Join                  | 1274d51a | 
+#10-Merge                                    | Merge                      | 3cadddef | 
+#16-Panel                                    | Panel                      | 59e0b89a | 
+#142-Group                                   | Group                      | c552a431 | 
+#56-Panel                                    | Panel                      | 59e0b89a | 
+#15-Panel                                    | Panel                      | 59e0b89a | 
+#19-GhPython Script                          | GhPython Script            | 410755b1 | 00000000-0000-0000-0000-000000000000
+#23-Merge                                    | Merge                      | 3cadddef | 
+#35-File Path                                | File Path                  | 06953bda | 
+#24-Text Join                                | Text Join                  | 1274d51a | 
+#39-Panel                                    | Panel                      | 59e0b89a | 
+#28-Boolean Toggle                           | Boolean Toggle             | 2e78987b | 
+#57-Panel                                    | Panel                      | 59e0b89a | 
+#74-Morph Solid                              | Morph Solid                | b5f8282f | b267c457-1b3b-42eb-94d4-a075bfc97888
+#60-Boolean Toggle                           | Boolean Toggle             | 2e78987b | 
+#154-Group                                   | Group                      | c552a431 | 
+#29-Boolean Toggle                           | Boolean Toggle             | 2e78987b | 
+#6-Bifocals                                  | Bifocals                   | aced9701 | 9bde5adf-1aa6-414c-a1d4-8832edea1934
+#1-Boolean Toggle                            | Boolean Toggle             | 2e78987b | 
+#8-Panel                                     | Panel                      | 59e0b89a | 
+#5-Panel                                     | Panel                      | 59e0b89a | 
+#52-Boolean Toggle                           | Boolean Toggle             | 2e78987b | 
+#53-Panel                                    | Panel                      | 59e0b89a | 
+#33-Panel                                    | Panel                      | 59e0b89a | 
+#47-Polyline Settings                        | Polyline Settings          | a1de8b0b | b267c457-1b3b-42eb-94d4-a075bfc97888
+#49-Curve                                    | Curve                      | d5967b9f | 
+#71-2D Polyline                              | 2D Polyline                | b71dc107 | b267c457-1b3b-42eb-94d4-a075bfc97888
+ArchiCAD 2D Drawing                          | Group                      | c552a431 | 
+#37-Layer                                    | Layer                      | 65b2ac02 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#51-2D Viewpoint                             | 2D Viewpoint               | 167dd8c1 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#32-Line Type                                | Line Type                  | c8965a8f | b267c457-1b3b-42eb-94d4-a075bfc97888
+#34-Pen                                      | Pen                        | 3accc4d6 | b267c457-1b3b-42eb-94d4-a075bfc97888
+#25-Merge                                    | Merge                      | 3cadddef | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+File Path                                    | Group                      | c552a431 | 
+2D Polyline                                  | Group                      | c552a431 | 
+Layer                                        | Group                      | c552a431 | 
+Line Type                                    | Group                      | c552a431 | 
+Polyline Settings                            | Group                      | c552a431 | 
+Pen                                          | Group                      | c552a431 | 
+2D Viewpoint                                 | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+2D Polyline                                  | Group                      | c552a431 | 
+Layer                                        | Group                      | c552a431 | 
+Line Type                                    | Group                      | c552a431 | 
+Polyline Settings                            | Group                      | c552a431 | 
+Pen                                          | Group                      | c552a431 | 
+2D Viewpoint                                 | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+2D Polyline                                  | Group                      | c552a431 | 
+Layer                                        | Group                      | c552a431 | 
+Line Type                                    | Group                      | c552a431 | 
+Polyline Settings                            | Group                      | c552a431 | 
+Pen                                          | Group                      | c552a431 | 
+2D Viewpoint                                 | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+Area                                         | Group                      | c552a431 | 
+Value List                                   | Group                      | c552a431 | 
+Value List                                   | Group                      | c552a431 | 
+Addition                                     | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+Value List                                   | Group                      | c552a431 | 
+Curve                                        | Group                      | c552a431 | 
+Curve                                        | Group                      | c552a431 | 
+Curve                                        | Group                      | c552a431 | 
+Deconstruct 2D Polyline                      | Group                      | c552a431 | 
+Deconstruct 2D Polyline                      | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+Deconstruct 2D Polyline                      | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+Deconstruct 2D Polyline                      | Group                      | c552a431 | 
+Discontinuity                                | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+Text Join                                    | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+File Path                                    | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+Text Join                                    | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+Deconstruct 2D Polyline                      | Group                      | c552a431 | 
+Text Join                                    | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+File Path                                    | Group                      | c552a431 | 
+Text Join                                    | Group                      | c552a431 | 
+Polyline Settings                            | Group                      | c552a431 | 
+Curve                                        | Group                      | c552a431 | 
+2D Polyline                                  | Group                      | c552a431 | 
+Layer                                        | Group                      | c552a431 | 
+2D Viewpoint                                 | Group                      | c552a431 | 
+Line Type                                    | Group                      | c552a431 | 
+Pen                                          | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+#109-Relay                                   | Relay                      | b6236720 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+File Path                                    | Group                      | c552a431 | 
+2D Polyline                                  | Group                      | c552a431 | 
+Layer                                        | Group                      | c552a431 | 
+Line Type                                    | Group                      | c552a431 | 
+Polyline Settings                            | Group                      | c552a431 | 
+Pen                                          | Group                      | c552a431 | 
+2D Viewpoint                                 | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+2D Polyline                                  | Group                      | c552a431 | 
+Layer                                        | Group                      | c552a431 | 
+Line Type                                    | Group                      | c552a431 | 
+Polyline Settings                            | Group                      | c552a431 | 
+Pen                                          | Group                      | c552a431 | 
+2D Viewpoint                                 | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+2D Polyline                                  | Group                      | c552a431 | 
+Layer                                        | Group                      | c552a431 | 
+Line Type                                    | Group                      | c552a431 | 
+Polyline Settings                            | Group                      | c552a431 | 
+Pen                                          | Group                      | c552a431 | 
+2D Viewpoint                                 | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+Area                                         | Group                      | c552a431 | 
+Value List                                   | Group                      | c552a431 | 
+Value List                                   | Group                      | c552a431 | 
+Addition                                     | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+Value List                                   | Group                      | c552a431 | 
+Curve                                        | Group                      | c552a431 | 
+Curve                                        | Group                      | c552a431 | 
+Curve                                        | Group                      | c552a431 | 
+Deconstruct 2D Polyline                      | Group                      | c552a431 | 
+Deconstruct 2D Polyline                      | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+Deconstruct 2D Polyline                      | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 
+Deconstruct 2D Polyline                      | Group                      | c552a431 | 
+Discontinuity                                | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+Text Join                                    | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+File Path                                    | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+Text Join                                    | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+Deconstruct 2D Polyline                      | Group                      | c552a431 | 
+Text Join                                    | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+GhPython Script                              | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+File Path                                    | Group                      | c552a431 | 
+Text Join                                    | Group                      | c552a431 | 
+Morph Solid                                  | Group                      | c552a431 | 
+Bifocals                                     | Group                      | c552a431 | 
+Polyline Settings                            | Group                      | c552a431 | 
+Curve                                        | Group                      | c552a431 | 
+2D Polyline                                  | Group                      | c552a431 | 
+Layer                                        | Group                      | c552a431 | 
+2D Viewpoint                                 | Group                      | c552a431 | 
+Line Type                                    | Group                      | c552a431 | 
+Pen                                          | Group                      | c552a431 | 
+Merge                                        | Group                      | c552a431 | 
+Relay                                        | Group                      | c552a431 | 

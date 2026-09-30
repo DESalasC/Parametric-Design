@@ -1,0 +1,12 @@
+Reporte de verificación de codificación JSON
+Proyecto: DiseñoParametrico | Plan: 2026-09-29-plan-correccion-encoding-3d
+========================================================================
+Fecha/hora: 2026-09-29 19:43:29
+Comando: verificar-codificacion-json.py --roots data
+Raíces: data
+Modo: solo verificación
+
+Resumen: 123 archivos | OK: 123 | WARN(bom): 0 | WARN(cp1252): 0 | WARN(latin-1): 0 | FAIL: 0
+Problemas: 0
+
+Sin problemas ni advertencias.
