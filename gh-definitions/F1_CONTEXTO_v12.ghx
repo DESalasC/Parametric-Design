@@ -149,7 +149,7 @@
           <items count="1">
             <item name="ObjectCount" type_name="gh_int32" type_code="3">319</item>
           </items>
-          <chunks count="330">
+          <chunks count="331">
             <chunk name="Object" index="0">
               <items count="2">
                 <item name="GUID" type_name="gh_guid" type_code="9">c552a431-af5b-46a9-a8a4-0fcbc27ef596</item>
@@ -3647,69 +3647,72 @@ frontales (Anexo 5 SECCION 1.13.b) en pisos != 1.
               <chunks count="1">
                 <chunk name="Container">
                   <items count="12">
-                    <item name="CodeInput" type_name="gh_string" type_code="10">"""
+                    <item name="CodeInput" type_name="gh_string" type_code="10"># -*- coding: utf-8 -*-
+"""
 ================================================================================
-F1_ETAPA2_PATIO_v02.py — Patio desde el Vertice N
+F1_ETAPA2_PATIO_v03.py — Patio(s) desde el Vertice N con BIFURCACION
 Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
 
-ALGORITMO (actualizado 2026-09-28 con decisiones del operador):
+ALGORITMO BASE (v02.x):
   El patio se origina en el VERTICE N (el vertice del lote simplificado
-  mas alejado de las vias del frente, segun F1_ETAPA2_LADOS_v06).
+  mas alejado de las vias del frente, segun F1_ETAPA2_LADOS_v06). Garantias
+  obligatorias (decisiones del operador 2026-09-28):
+    - area minima = 9 m2
+    - "3 metros lineales" de distancia entre CADA lado del predio y el borde
+      del patio que le es opuesto (claridad/profundidad desde cada lado que
+      comparte el vertice N).
+  Forma: paralelogramo anclado al vertice N, alineado a las direcciones de
+  los dos lados; para esquinas no perpendiculares (angulo theta):
+      L = max(lado_base, 3.0 / sin(theta)) ; ademas L &gt;= sqrt(9 / sin(theta))
+  Simplificacion de lados colineales con giro &lt; 2.5 grados (identica a
+  LADOS v06.5, misma funcion y mismo input -&gt; indices consistentes).
 
-  v02.3 — Decisiones del operador (2026-09-28):
-    (a) GARANTIAS del patio: area minima = 9 m2 y "3 metros lineales" de
-        distancia entre CADA lado del predio y el borde del patio que le es
-        opuesto (claridad/profundidad desde cada lado que comparte el vertice N).
-        La forma no es critica: se usa un paralelogramo anclado al vertice N,
-        alineado a las direcciones de los dos lados. Para esquinas no
-        perpendiculares (angulo theta entre los lados) el lado se escala:
-            L = max(lado_base, 3.0 / sin(theta))
-        de modo que claridad = L*sin(theta) &gt;= 3.0 m  y
-        area = L^2 * sin(theta) &gt;= 9.0 m2 (pues L &gt;= 3/sin &gt;= 3).
-    (b) SIMPLIFICACION de lados colineales (misma regla que LADOS v06.5):
-        vertices con giro &lt; 2.5 grados se fusionan; giro &gt;= 2.5 grados se
-        mantiene, independiente del numero final de lados.
-    (c) Los puntos mejorados de Vertice N se DEDUPLICAN (&gt;= 0.30 m entre
-        candidatos) y solo se usan si coinciden con un vertice del lote
-        (&lt;= 0.15 m). Se genera como maximo UN (1) patio.
+  v02.2 - consume vertice_n_points de LADOS v06.3 (puntos mejorados).
+  v02.3 - garantias de area/claridad; simplificacion 2.5 grados; dedup de
+          puntos mejorados (&gt;= 0.30 m) y coincidencia con vertice (&lt;= 0.15 m);
+          maximo 1 patio; mensajes con metricas y motivos de descarte.
+  v02.4 - EXPORT del diagnostico lados/patio: si existe el flag
+          data/pot-cache/lados-export-flag.json con {exportar: true} (lo pone
+          el servidor/orquestador via POST /api/exportar-lados), escribe
+          data/pot-cache/&lt;CHIP&gt;-lados.json para verificacion automatica (F1.5)
+          y devuelve el flag a false (mismo patron que F1_EXPORTAR_GFA_v02).
+  v02.5 - LECTOR CANONICO de codificacion en la lectura del flag (cascada
+          utf-8-sig -&gt; cp1252 -&gt; latin-1 con avisos) y escritura ASCII-safe
+          (ensure_ascii=True) en los JSON exportados.
 
-SUBVERSIONES INTERNAS (v02.x: iteraciones sin cambio de version general):
-  v02.0 (2026-08-12) - Algoritmo original: patio cuadrado desde el
-         Vertice N sobre los dos lados laterales que lo comparten.
-  v02.1 (2026-08-23) - El patio de esquina se ancla en el Vertice N
-         cuando los DOS lados que lo comparten son colindantes (Lateral
-         o Posterior); antes solo "Lateral" dejaba el patio sin generar.
-  v02.2 (2026-08-25) - Consume vertice_n_points de F1_ETAPA2_LADOS_v06.3
-         (puntos mejorados del Vertice N por intersecciones reales con
-         vias) y genera un patio por cada punto disponible.
-  v02.3 (2026-09-28) - Garantias de area (&gt;= 9 m2) y claridad (&gt;= 3 m
-         lineales) por lado via escala L = max(base, 3/sin(theta));
-         simplificacion de lados colineales (&lt; 2.5 grados) compartida con
-         LADOS v06.5; dedup de puntos mejorados; maximo 1 patio; mensajes
-         con metricas (area, claridad) y motivos de descarte.
-  v02.4 (2026-09-28) - EXPORT del diagnostico lados/patio: si existe el flag
-         data/pot-cache/lados-export-flag.json con {exportar: true} (lo pone
-         el servidor/orquestador via POST /api/exportar-lados), escribe
-         data/pot-cache/&lt;CHIP&gt;-lados.json para verificacion automatica (F1.5)
-         y devuelve el flag a false (mismo patron que F1_EXPORTAR_GFA_v02).
-  v02.5 (2026-09-29) - LECTOR CANONICO de codificacion en la lectura del flag
-         (cascada utf-8-sig -&gt; cp1252 -&gt; latin-1 con avisos) y escritura
-         ASCII-safe (ensure_ascii=True) en los JSON exportados.
-Regla de versionado: la version general (v02 -&gt; v03) SOLO cambia con
-cambios mayores (contrato de entradas/salidas o algoritmo central); las
-iteraciones internas se registran como subversiones v02.x en este
-encabezado. Historial reconstruido desde git el 2026-09-01.
+  v03.0 (2026-09-30) - BIFURCACION POR NUMERO DE VOLUMENES (pedido del
+          operador 2026-09-30: "un lote con un solo volumen que exige un solo
+          patio -&gt; un predio donde se pueden tener varios patios ya sea
+          internos o separaciones entre diferentes volumenes"):
+            n_volumenes &lt;= 1  -&gt;  modo UNICO:  comportamiento v02.5 exacto
+                                  (maximo 1 patio desde Vertice N).
+            n_volumenes &gt;= 2  -&gt;  modo MULTI:  un patio por ESQUINA INTERIOR
+                                  ELEGIBLE (vertice cuyos dos lados adyacentes
+                                  son colindantes Lateral/Posterior),
+                                  priorizando el Vertice N y luego por
+                                  INTERIORIDAD (mayor distancia minima a
+                                  via/EP); hasta n_volumenes patios; se
+                                  descartan candidatos que se solapen con un
+                                  patio ya aceptado. Mensajes con anclas,
+                                  areas y claridades de cada patio.
+          NOTA: la regla de reparto del modo MULTI es v1 y queda SUJETA A
+          VALIDACION DEL OPERADOR en la corrida viva (internos vs
+          separaciones pueden requerir reglas adicionales).
+  Regla de versionado: la version general (v03 -&gt; v04) SOLO cambia con
+  cambios mayores (contrato de entradas/salidas o algoritmo central); las
+  iteraciones internas se registran como subversiones v03.x en este encabezado.
 
 ENTRADAS:
   lot_vertices (Point3d[])     — vertices desde Discontinuity
   sides_table_json (String)    — Clasificacion desde F1_ETAPA2_LADOS_v06
-  altura_max_pot (Number)      — Altura maxima [m]
+  altura_max_pot (Number)      — Altura maxima [m] (define lado base del patio)
+  n_volumenes (Number)         — [v03] Numero de volumenes previstos (1 = unico)
 
 SALIDAS:
-  patios_curves   (Curve[])   — Rectangulo(s) de patio desde vertice N
-  patio_count     (int)       — Numero de patios (0 o 1)
+  patios_curves   (Curve[])   — 0..N rectangulos/paralelogramos de patio
+  patio_count     (int)       — Numero de patios generados
   mensaje         (String)    — Diagnostico
 ================================================================================
 """
@@ -3732,6 +3735,8 @@ CLUSTER_PUNTOS_M = 0.30
 COINCIDENCIA_VERTICE_M = 0.15
 # v02.3: clamp de sin(theta) para esquinas degeneradas (~5 grados)
 SIN_MINIMO = 0.087
+# v03.0: limite de seguridad del numero de volumenes/patios
+N_VOL_MAX = 16
 
 
 def _decodificar_cascada(raw, ruta="&lt;bytes&gt;"):
@@ -3842,12 +3847,13 @@ def _escribir_json_utf8(ruta, data):
         f.write(json.dumps(data, indent=2, ensure_ascii=True).encode("utf-8"))
 
 
-def _exportar_diagnostico(sides_data, patios_export, mensaje_final):
+def _exportar_diagnostico(sides_data, patios_export, mensaje_final, modo, n_vol):
     """v02.4 - Exporta el diagnostico lados/patio si el flag lo solicita.
 
     Flag: data/pot-cache/lados-export-flag.json {"exportar": true, "chip": ...}
     Salida: data/pot-cache/&lt;CHIP&gt;-lados.json (schema lados_patio_diagnostico_v01).
     Devuelve la ruta escrita, o None si no fue solicitado.
+    v03.0: agrega modo/n_volumenes al bloque patio.
     """
     raiz = _raiz_proyecto()
     if not raiz:
@@ -3880,7 +3886,7 @@ def _exportar_diagnostico(sides_data, patios_export, mensaje_final):
     data = {
         "schema": "lados_patio_diagnostico_v01",
         "chip": chip,
-        "generado_por": "F1_ETAPA2_PATIO_v02.5",
+        "generado_por": "F1_ETAPA2_PATIO_v03.0",
         "generado_en": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "solicitud": flag,
         "sides": {
@@ -3893,6 +3899,8 @@ def _exportar_diagnostico(sides_data, patios_export, mensaje_final):
             "lados": lados,
         },
         "patio": {
+            "modo": modo,
+            "n_volumenes": n_vol,
             "count": len(patios_export),
             "patios": patios_export,
             "mensaje": mensaje_final,
@@ -3963,8 +3971,8 @@ def build_patio_desde_vertice(corner_pt, borde_a_p1, borde_a_p2,
       - area = L^2 * sin(theta) &gt;= 9.0 m2
     =&gt; L = max(lado_base, CLARIDAD_MINIMA_M / sin(theta)).
 
-    Retorna (curva, (L, sin_theta)) o None si no valida (no cabe / no es
-    interior al lote).
+    Retorna (curva, (L, sin_theta), [p0, p1, p2, p3]) o None si no valida
+    (no cabe / no es interior al lote).
     """
     da = _dir_interior(corner_pt, borde_a_p1, borde_a_p2)
     db = _dir_interior(corner_pt, borde_b_p1, borde_b_p2)
@@ -4001,12 +4009,96 @@ def build_patio_desde_vertice(corner_pt, borde_a_p1, borde_a_p2,
 
 
 # ==============================================================================
+# v03.0: utilidades de geometria para el modo MULTI (solapes)
+# ==============================================================================
+
+def _punto_en_poligono(pt, poly_pts):
+    """Ray casting XY simple (poly_pts: lista de Point3d, abierta o cerrada)."""
+    pts = list(poly_pts)
+    if len(pts) &gt; 1 and pts[0].DistanceTo(pts[-1]) &lt; 1e-9:
+        pts = pts[:-1]
+    n = len(pts)
+    if n &lt; 3:
+        return False
+    px, py = pt.X, pt.Y
+    inside = False
+    j = n - 1
+    for i in range(n):
+        xi, yi = pts[i].X, pts[i].Y
+        xj, yj = pts[j].X, pts[j].Y
+        if ((yi &gt; py) != (yj &gt; py)):
+            if abs(yj - yi) &gt; 1e-12:
+                x_int = xi + (py - yi) * (xj - xi) / (yj - yi)
+                if px &lt; x_int:
+                    inside = not inside
+        j = i
+    return inside
+
+
+def _orient(a, b, c):
+    """Producto cruz 2D (b-a)x(c-a)."""
+    return (b.X - a.X) * (c.Y - a.Y) - (b.Y - a.Y) * (c.X - a.X)
+
+
+def _segmentos_cruzan(a1, a2, b1, b2):
+    """True si los segmentos se CRUZAN propiamente (tolerante a contactos)."""
+    d1 = _orient(b1, b2, a1)
+    d2 = _orient(b1, b2, a2)
+    d3 = _orient(a1, a2, b1)
+    d4 = _orient(a1, a2, b2)
+    if ((d1 &gt; 1e-9 and d2 &lt; -1e-9) or (d1 &lt; -1e-9 and d2 &gt; 1e-9)) and \
+       ((d3 &gt; 1e-9 and d4 &lt; -1e-9) or (d3 &lt; -1e-9 and d4 &gt; 1e-9)):
+        return True
+    return False
+
+
+def _patios_solapan(pa, pb):
+    """v03.0 - True si dos patios (listas de 4 Point3d) se solapan.
+
+    Prueba: vertices y centroide/mitades de arista de un patio dentro del
+    otro, y cruces propios entre aristas. (Los contactos de borde exactos
+    no cuentan como solape.)
+    """
+    def _puntos_muestra(pts):
+        mx = 0.0
+        my = 0.0
+        for p in pts:
+            mx += p.X
+            my += p.Y
+        cx = mx / len(pts)
+        cy = my / len(pts)
+        muestras = [rg.Point3d(cx, cy, pts[0].Z)]
+        for i in range(len(pts)):
+            a = pts[i]
+            b = pts[(i + 1) % len(pts)]
+            muestras.append(rg.Point3d((a.X + b.X) / 2.0, (a.Y + b.Y) / 2.0, a.Z))
+        return muestras
+
+    for p in list(pa) + _puntos_muestra(pa):
+        if _punto_en_poligono(p, pb):
+            return True
+    for p in list(pb) + _puntos_muestra(pb):
+        if _punto_en_poligono(p, pa):
+            return True
+    for i in range(len(pa)):
+        a1 = pa[i]
+        a2 = pa[(i + 1) % len(pa)]
+        for j in range(len(pb)):
+            b1 = pb[j]
+            b2 = pb[(j + 1) % len(pb)]
+            if _segmentos_cruzan(a1, a2, b1, b2):
+                return True
+    return False
+
+
+# ==============================================================================
 # MAIN
 # ==============================================================================
 
 lot_vertices_raw = globals().get("lot_vertices", None)
 sides_raw = globals().get("sides_table_json", None)
 altura_raw = globals().get("altura_max_pot", None)
+n_vol_raw = globals().get("n_volumenes", None)
 
 lot_vertices = safe_list(lot_vertices_raw)
 n_vertices_brutos = len(lot_vertices)
@@ -4014,6 +4106,19 @@ n_vertices_brutos = len(lot_vertices)
 # la que aplica LADOS v06.5 sobre el mismo input -&gt; los indices del JSON de
 # lados coinciden con esta lista simplificada.
 lot_vertices = simplificar_colineales(lot_vertices, UMBRAL_COLINEAL_GRADOS)
+
+n_vol = 1
+try:
+    _nv = unwrap(n_vol_raw)
+    if _nv is not None:
+        n_vol = int(round(float(_nv)))
+except Exception:
+    n_vol = 1
+if n_vol &lt; 1:
+    n_vol = 1
+if n_vol &gt; N_VOL_MAX:
+    n_vol = N_VOL_MAX
+modo = "multi" if n_vol &gt;= 2 else "unico"
 
 sides_data = None
 if sides_raw is not None:
@@ -4033,9 +4138,11 @@ except:
 
 patios_curves = []
 patio_count = 0
+patios_export = []
+mensaje = ""
 
 if sides_data is None or len(lot_vertices) &lt; 3:
-    mensaje = "PATIO v02.4 | ERROR: vertices={} sides={}".format(
+    mensaje = "PATIO v03 | ERROR: vertices={} sides={}".format(
         len(lot_vertices), "OK" if sides_data else "FALTA")
 else:
     try:
@@ -4044,7 +4151,7 @@ else:
         n = len(lot_vertices)
 
         if vertice_n is None:
-            mensaje = "PATIO v02.4 | ERROR: sides_table_json sin vertice_n (usar F1_ETAPA2_LADOS_v06)"
+            mensaje = "PATIO v03 | ERROR: sides_table_json sin vertice_n (usar F1_ETAPA2_LADOS_v06)"
         else:
             # Tamano base del patio segun altura (reglamentacion POT)
             pisos = max(1, int(math.ceil(altura_max / ALTURA_ENTREPISO)))
@@ -4052,6 +4159,11 @@ else:
 
             resultados = []
             descartes = []
+
+            def _cat_lado(idx):
+                if 0 &lt;= idx &lt; len(lados):
+                    return lados[idx].get("clasificacion", "Desconocido")
+                return "Desconocido"
 
             def _intentar(vi, idx, etiqueta):
                 if len(lados) &gt;= n and n &gt; 0:
@@ -4078,142 +4190,172 @@ else:
                     return None
                 return res
 
-            # 1) Puntos mejorados de Vertice N (v02.2) con dedup y filtro de
-            #    coincidencia con vertices del lote (v02.3).
-            vertice_n_points_data = sides_data.get("vertice_n_points")
-            candidatos = []
-            if vertice_n_points_data:
-                for coords in vertice_n_points_data:
-                    try:
-                        candidatos.append(rg.Point3d(
-                            coords[0], coords[1],
-                            coords[2] if len(coords) &gt; 2 else 0))
-                    except Exception:
-                        pass
-                candidatos = deduplicar_puntos(candidatos, CLUSTER_PUNTOS_M)
+            def _interioridad(idx):
+                """v03.0 - Menor distancia a via/EP de los dos lados del vertice
+                (mayor = mas interior). Sin datos -&gt; 0.0 (ultimo en prioridad)."""
+                ds = []
+                for lidx in (idx, (idx + n - 1) % n):
+                    if 0 &lt;= lidx &lt; len(lados):
+                        l = lados[lidx]
+                        for k in ("dist_via_m", "dist_ep_m"):
+                            v = l.get(k)
+                            if isinstance(v, (int, float)):
+                                ds.append(float(v))
+                if not ds:
+                    return 0.0
+                return min(ds)
 
-            for vi in candidatos:
-                min_dist = float('inf')
-                idx = 0
-                for i, v in enumerate(lot_vertices):
-                    dist = v.DistanceTo(vi)
-                    if dist &lt; min_dist:
-                        min_dist = dist
-                        idx = i
-                if min_dist &gt; COINCIDENCIA_VERTICE_M:
-                    descartes.append("mejorado ({:.2f},{:.2f}) a {:.2f} m de un vertice".format(
-                        vi.X, vi.Y, min_dist))
-                    continue
-                res = _intentar(vi, idx, "mejorado")
-                if res:
-                    resultados.append((res[0], res[1], res[2], idx))
-                    break  # v02.3: maximo 1 patio
+            if modo == "unico":
+                # ---------------- Modo UNICO (comportamiento v02.5) ----------------
+                # 1) Puntos mejorados de Vertice N (v02.2) con dedup y filtro de
+                #    coincidencia con vertices del lote (v02.3).
+                vertice_n_points_data = sides_data.get("vertice_n_points")
+                candidatos = []
+                if vertice_n_points_data:
+                    for coords in vertice_n_points_data:
+                        try:
+                            candidatos.append(rg.Point3d(
+                                coords[0], coords[1],
+                                coords[2] if len(coords) &gt; 2 else 0))
+                        except Exception:
+                            pass
+                    candidatos = deduplicar_puntos(candidatos, CLUSTER_PUNTOS_M)
 
-            # 2) Fallback tradicional (indice vertice_n) si no hubo resultado.
-            if not resultados:
-                vi = lot_vertices[vertice_n]
-                res = _intentar(vi, vertice_n, "fallback")
-                if res:
-                    resultados.append((res[0], res[1], res[2], vertice_n))
+                for vi in candidatos:
+                    min_dist = float('inf')
+                    idx = 0
+                    for i, v in enumerate(lot_vertices):
+                        dist = v.DistanceTo(vi)
+                        if dist &lt; min_dist:
+                            min_dist = dist
+                            idx = i
+                    if min_dist &gt; COINCIDENCIA_VERTICE_M:
+                        descartes.append("mejorado ({:.2f},{:.2f}) a {:.2f} m de un vertice".format(
+                            vi.X, vi.Y, min_dist))
+                        continue
+                    res = _intentar(vi, idx, "mejorado")
+                    if res:
+                        resultados.append((res[0], res[1], res[2], idx))
+                        break  # v02.3: maximo 1 patio
 
-            cats = [l.get("clasificacion", "?") for l in lados]
+                # 2) Fallback tradicional (indice vertice_n) si no hubo resultado.
+                if not resultados:
+                    vi = lot_vertices[vertice_n]
+                    res = _intentar(vi, vertice_n, "fallback")
+                    if res:
+                        resultados.append((res[0], res[1], res[2], vertice_n))
 
-            if resultados:
-                crv, info, pts_patio, idx_usado = resultados[0]
-                size = info[0]
-                sin_t = info[1]
-                area = size * size * sin_t
-                claridad = size * sin_t
-                patios_curves = [crv]
-                patio_count = 1
-                patios_export = [{
-                    "puntos": [[p.X, p.Y] for p in pts_patio],
-                    "lado_m": round(size, 4),
-                    "area_m2": round(area, 4),
-                    "claridad_m": round(claridad, 4),
-                }]
-                modo = "puntos_mejorados" if candidatos else "fallback_V_N"
-                mensaje = ("PATIO v02.4 | V_N=V{} | Verts {}-&gt;{} | Lados: {} | "
-                           "Patio {:.2f}x{:.2f} m (area {:.2f} m2; claridad {:.2f} m) | "
-                           "Generados: 1 | Modo: {}").format(
-                    idx_usado, n_vertices_brutos, n, ", ".join(cats),
-                    size, size, area, claridad, modo)
-                if descartes:
-                    mensaje += " | Descartes: " + "; ".join(descartes[:3])
+                cats = [l.get("clasificacion", "?") for l in lados]
+
+                if resultados:
+                    crv, info, pts_patio, idx_usado = resultados[0]
+                    size = info[0]
+                    sin_t = info[1]
+                    area = size * size * sin_t
+                    claridad = size * sin_t
+                    patios_curves = [crv]
+                    patio_count = 1
+                    patios_export = [{
+                        "vertice_ancla": idx_usado,
+                        "puntos": [[p.X, p.Y] for p in pts_patio],
+                        "lado_m": round(size, 4),
+                        "area_m2": round(area, 4),
+                        "claridad_m": round(claridad, 4),
+                    }]
+                    modo_anclaje = "puntos_mejorados" if candidatos else "fallback_V_N"
+                    mensaje = ("PATIO v03 | modo unico | V_N=V{} | Verts {}-&gt;{} | Lados: {} | "
+                               "Patio {:.2f}x{:.2f} m (area {:.2f} m2; claridad {:.2f} m) | "
+                               "Generados: 1 | Modo: {}").format(
+                        idx_usado, n_vertices_brutos, n, ", ".join(cats),
+                        size, size, area, claridad, modo_anclaje)
+                    if descartes:
+                        mensaje += " | Descartes: " + "; ".join(descartes[:3])
+                else:
+                    mensaje = ("PATIO v03 | modo unico | V_N=V{} | Verts {}-&gt;{} | Lados: {} | "
+                               "Generados: 0 | Motivo: {}").format(
+                        vertice_n, n_vertices_brutos, n, ", ".join(cats),
+                        "; ".join(descartes) if descartes else "sin candidatos de esquina")
+                    mensaje += (" | Sugerencia: si el lote admite varios volumenes, "
+                                "usar n_volumenes&gt;=2 (modo multi)")
             else:
-                patios_export = []
-                mensaje = ("PATIO v02.4 | V_N=V{} | Verts {}-&gt;{} | Lados: {} | "
-                           "Generados: 0 | Motivo: {}").format(
-                    vertice_n, n_vertices_brutos, n, ", ".join(cats),
-                    "; ".join(descartes) if descartes else "sin candidatos de esquina")
+                # ---------------- Modo MULTI (v03.0, regla v1) ----------------
+                cats = [l.get("clasificacion", "?") for l in lados]
+                elegibles = []
+                for idx in range(n):
+                    c1 = _cat_lado(idx)
+                    c2 = _cat_lado((idx + n - 1) % n)
+                    if c1 in ("Lateral", "Posterior") and c2 in ("Lateral", "Posterior"):
+                        elegibles.append(idx)
 
-            # v02.4: export del diagnostico si el servidor/orquestador lo solicito
+                orden = []
+                if vertice_n in elegibles:
+                    orden.append(vertice_n)
+                otros = [i for i in elegibles if i != vertice_n]
+                # mayor interioridad primero (mas lejos de via/EP)
+                otros.sort(key=lambda i: _interioridad(i), reverse=True)
+                orden += otros
+
+                aceptados = []
+                for idx in orden:
+                    if len(aceptados) &gt;= n_vol:
+                        break
+                    vi = lot_vertices[idx]
+                    res = _intentar(vi, idx, "multi")
+                    if not res:
+                        continue
+                    pts = res[2]
+                    if any(_patios_solapan(pts, a[2]) for a in aceptados):
+                        descartes.append("multi: V{} se solapa con patio previo".format(idx))
+                        continue
+                    aceptados.append((res[0], res[1], res[2], idx))
+
+                patios_curves = [a[0] for a in aceptados]
+                patio_count = len(aceptados)
+                patios_export = []
+                for a in aceptados:
+                    size = a[1][0]
+                    sin_t = a[1][1]
+                    area = size * size * sin_t
+                    claridad = size * sin_t
+                    patios_export.append({
+                        "vertice_ancla": a[3],
+                        "puntos": [[p.X, p.Y] for p in a[2]],
+                        "lado_m": round(size, 4),
+                        "area_m2": round(area, 4),
+                        "claridad_m": round(claridad, 4),
+                    })
+
+                if aceptados:
+                    anclas = ", ".join("V{}".format(a[3]) for a in aceptados)
+                    areas = ", ".join("{:.2f}".format(p["area_m2"]) for p in patios_export)
+                    clars = ", ".join("{:.2f}".format(p["claridad_m"]) for p in patios_export)
+                    mensaje = ("PATIO v03 | modo MULTI (n_volumenes={}) | Verts {}-&gt;{} | "
+                               "Lados: {} | Generados: {}/{} | Anclas: {} | "
+                               "Areas: {} m2 | Claridades: {} m | Modo: esquinas_interiores_v1").format(
+                        n_vol, n_vertices_brutos, n, ", ".join(cats),
+                        patio_count, n_vol, anclas, areas, clars)
+                    if len(aceptados) &lt; n_vol:
+                        mensaje += " | Nota: menos patios que volumenes (revisar esquinas)"
+                    if descartes:
+                        mensaje += " | Descartes: " + "; ".join(descartes[:3])
+                else:
+                    mensaje = ("PATIO v03 | modo MULTI (n_volumenes={}) | Verts {}-&gt;{} | "
+                               "Lados: {} | Generados: 0 | Motivo: {}").format(
+                        n_vol, n_vertices_brutos, n, ", ".join(cats),
+                        "; ".join(descartes[:4]) if descartes else "sin esquinas interiores elegibles")
+
+            # v02.4/v03.0: export del diagnostico si el servidor/orquestador lo solicito
             try:
-                ruta_diag = _exportar_diagnostico(sides_data, patios_export, mensaje)
+                ruta_diag = _exportar_diagnostico(sides_data, patios_export, mensaje, modo, n_vol)
                 if ruta_diag:
                     mensaje += " | Lados export OK: {}".format(ruta_diag)
             except Exception as _e_exp:
                 mensaje += " | Lados export aviso: {}".format(str(_e_exp))
 
     except Exception as e:
-        mensaje = "PATIO v02.4 | ERROR: {}".format(str(e))
+        mensaje = "PATIO v03 | ERROR: {}".format(str(e))
 </item>
-                    <item name="Description" type_name="gh_string" type_code="10">================================================================================
-F1_ETAPA2_PATIO_v02.py — Patio desde el Vertice N
-Proyecto: DisenoParametrico / Fase 1
-GH Python Script para Grasshopper (IronPython 2.7 compatible)
-================================================================================
-ALGORITMO (actualizado 2026-09-28 con decisiones del operador):
-  El patio se origina en el VERTICE N (el vertice del lote simplificado
-  mas alejado de las vias del frente, segun F1_ETAPA2_LADOS_v06).
-  v02.3 — Decisiones del operador (2026-09-28):
-(a) GARANTIAS del patio: area minima = 9 m2 y "3 metros lineales" de
-distancia entre CADA lado del predio y el borde del patio que le es
-opuesto (claridad/profundidad desde cada lado que comparte el vertice N).
-La forma no es critica: se usa un paralelogramo anclado al vertice N,
-alineado a las direcciones de los dos lados. Para esquinas no
-perpendiculares (angulo theta entre los lados) el lado se escala:
-L = max(lado_base, 3.0 / sin(theta))
-de modo que claridad = L*sin(theta) &gt;= 3.0 m  y
-area = L^2 * sin(theta) &gt;= 9.0 m2 (pues L &gt;= 3/sin &gt;= 3).
-(b) SIMPLIFICACION de lados colineales (misma regla que LADOS v06.5):
-vertices con giro &lt; 2.5 grados se fusionan; giro &gt;= 2.5 grados se
-mantiene, independiente del numero final de lados.
-(c) Los puntos mejorados de Vertice N se DEDUPLICAN (&gt;= 0.30 m entre
-candidatos) y solo se usan si coinciden con un vertice del lote
-(&lt;= 0.15 m). Se genera como maximo UN (1) patio.
-SUBVERSIONES INTERNAS (v02.x: iteraciones sin cambio de version general):
-  v02.0 (2026-08-12) - Algoritmo original: patio cuadrado desde el
-Vertice N sobre los dos lados laterales que lo comparten.
-  v02.1 (2026-08-23) - El patio de esquina se ancla en el Vertice N
-cuando los DOS lados que lo comparten son colindantes (Lateral
-o Posterior); antes solo "Lateral" dejaba el patio sin generar.
-  v02.2 (2026-08-25) - Consume vertice_n_points de F1_ETAPA2_LADOS_v06.3
-(puntos mejorados del Vertice N por intersecciones reales con
-vias) y genera un patio por cada punto disponible.
-  v02.3 (2026-09-28) - Garantias de area (&gt;= 9 m2) y claridad (&gt;= 3 m
-lineales) por lado via escala L = max(base, 3/sin(theta));
-simplificacion de lados colineales (&lt; 2.5 grados) compartida con
-LADOS v06.5; dedup de puntos mejorados; maximo 1 patio; mensajes
-con metricas (area, claridad) y motivos de descarte.
-  v02.4 (2026-09-28) - EXPORT del diagnostico lados/patio: si existe el flag
-data/pot-cache/lados-export-flag.json con {exportar: true} (lo pone
-el servidor/orquestador via POST /api/exportar-lados), escribe
-data/pot-cache/&lt;CHIP&gt;-lados.json para verificacion automatica (F1.5)
-y devuelve el flag a false (mismo patron que F1_EXPORTAR_GFA_v02).
-Regla de versionado: la version general (v02 -&gt; v03) SOLO cambia con
-cambios mayores (contrato de entradas/salidas o algoritmo central); las
-iteraciones internas se registran como subversiones v02.x en este
-encabezado. Historial reconstruido desde git el 2026-09-01.
-ENTRADAS:
-  lot_vertices (Point3d[])     — vertices desde Discontinuity
-  sides_table_json (String)    — Clasificacion desde F1_ETAPA2_LADOS_v06
-  altura_max_pot (Number)      — Altura maxima [m]
-SALIDAS:
-  patios_curves   (Curve[])   — Rectangulo(s) de patio desde vertice N
-  patio_count     (int)       — Numero de patios (0 o 1)
-  mensaje         (String)    — Diagnostico
-================================================================================</item>
+                    <item name="Description" type_name="gh_string" type_code="10">F1_ETAPA2_PATIO_v03.py - Patio(s) desde el Vertice N con bifurcacion (n_volumenes: unico/multi). Garantias area&gt;=9 m2 y claridad&gt;=3 m.</item>
                     <item name="EditorLocation" type_name="gh_drawing_point" type_code="30">
                       <X>-32</X>
                       <Y>143</Y>
@@ -4229,7 +4371,7 @@ SALIDAS:
                     <item name="IsAdvancedMode" type_name="gh_bool" type_code="1">false</item>
                     <item name="MarshalOutGuids" type_name="gh_bool" type_code="1">true</item>
                     <item name="Name" type_name="gh_string" type_code="10">GhPython Script</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#99-F1_ETAPA2_PATIO_v02.py</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#99-F1_ETAPA2_PATIO_v03.py</item>
                   </items>
                   <chunks count="2">
                     <chunk name="Attributes">
@@ -4248,7 +4390,7 @@ SALIDAS:
                     </chunk>
                     <chunk name="ParameterData">
                       <items count="8">
-                        <item name="InputCount" type_name="gh_int32" type_code="3">3</item>
+                        <item name="InputCount" type_name="gh_int32" type_code="3">4</item>
                         <item name="InputId" index="0" type_name="gh_guid" type_code="9">84fa917c-1ed8-4db3-8be1-7bdc4a6495a2</item>
                         <item name="InputId" index="1" type_name="gh_guid" type_code="9">84fa917c-1ed8-4db3-8be1-7bdc4a6495a2</item>
                         <item name="InputId" index="2" type_name="gh_guid" type_code="9">84fa917c-1ed8-4db3-8be1-7bdc4a6495a2</item>
@@ -4257,7 +4399,7 @@ SALIDAS:
                         <item name="OutputId" index="1" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
                         <item name="OutputId" index="2" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
                       </items>
-                      <chunks count="6">
+                      <chunks count="7">
                         <chunk name="InputParam" index="0">
                           <items count="12">
                             <item name="Access" type_name="gh_int32" type_code="3">1</item>
@@ -4332,6 +4474,37 @@ SALIDAS:
                             <item name="ScriptParamAccess" type_name="gh_int32" type_code="3">0</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">d2bbbe59-0e4c-4e4c-979b-3945ce82b179</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
+                            <item name="TypeHintID" type_name="gh_guid" type_code="9">39fbc626-7a01-46ab-a18e-ec1c0c41685b</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>2375</X>
+                                  <Y>477</Y>
+                                  <W>85</W>
+                                  <H>69</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>2419</X>
+                                  <Y>511.66666</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="InputParam" index="3">
+                          <items count="11">
+                            <item name="AllowTreeAccess" type_name="gh_bool" type_code="1">true</item>
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA2_PATIO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">04258b90-bbaf-4a02-93f7-8edf7569d771</item>
+                            <item name="Name" type_name="gh_string" type_code="10">n_volumenes</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">n_volumenes</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">true</item>
+                            <item name="ScriptParamAccess" type_name="gh_int32" type_code="3">0</item>
+                            <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
+                            <item name="Source" index="0" type_name="gh_guid" type_code="9">cf9cf376-c76f-4a93-b7e1-2b92ea84b16e</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">39fbc626-7a01-46ab-a18e-ec1c0c41685b</item>
                           </items>
@@ -31593,7 +31766,52 @@ FALSE = the component does not communicate with Archicad</item>
                   </chunks>
                 </chunk>
               </chunks>
-            </chunk></chunks>
+            </chunk><chunk name="Object" index="330">
+              <items count="2">
+                <item name="GUID" type_name="gh_guid" type_code="9">57da07bd-ecab-415d-9d86-af36d7073abc</item>
+                <item name="Name" type_name="gh_string" type_code="10">Number Slider</item>
+              </items>
+              <chunks count="1">
+                <chunk name="Container">
+                  <items count="6">
+                    <item name="Description" type_name="gh_string" type_code="10">Numeric slider for single values</item>
+                    <item name="InstanceGuid" type_name="gh_guid" type_code="9">cf9cf376-c76f-4a93-b7e1-2b92ea84b16e</item>
+                    <item name="Name" type_name="gh_string" type_code="10">Number Slider</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#166-Number Slider</item>
+                    <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                    <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                  </items>
+                  <chunks count="2">
+                    <chunk name="Attributes">
+                      <items count="2">
+                        <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                          <X>2190</X>
+                          <Y>580</Y>
+                          <W>226</W>
+                          <H>20</H>
+                        </item>
+                        <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                          <X>2280</X>
+                          <Y>620</Y>
+                        </item>
+                      </items>
+                    </chunk>
+                    <chunk name="Slider">
+                      <items count="7">
+                        <item name="Digits" type_name="gh_int32" type_code="3">0</item>
+                        <item name="GripDisplay" type_name="gh_int32" type_code="3">1</item>
+                        <item name="Interval" type_name="gh_int32" type_code="3">1</item>
+                        <item name="Max" type_name="gh_double" type_code="6">8</item>
+                        <item name="Min" type_name="gh_double" type_code="6">1</item>
+                        <item name="SnapCount" type_name="gh_int32" type_code="3">0</item>
+                        <item name="Value" type_name="gh_double" type_code="6">1</item>
+                      </items>
+                    </chunk>
+                  </chunks>
+                </chunk>
+              </chunks>
+            </chunk>
+            </chunks>
         </chunk>
       </chunks>
     </chunk>
