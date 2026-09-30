@@ -17514,7 +17514,7 @@ valido y el valor cambia. Verificar estado/ruta_json/json_text en Panels.
                     <item name="Description" type_name="gh_string" type_code="10">Deconstruct Archicad Polyline.</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">478712be-5815-489c-997e-cbd8bf9c606d</item>
                     <item name="Name" type_name="gh_string" type_code="10">Deconstruct 2D Polyline</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#43-Deconstruct 2D Polyline</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#43-Vias</item>
                   </items>
                   <chunks count="5">
                     <chunk name="Attributes">
@@ -17718,7 +17718,7 @@ valido y el valor cambia. Verificar estado/ruta_json/json_text en Panels.
                     <item name="Description" type_name="gh_string" type_code="10">Deconstruct Archicad Polyline.</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">ac47b487-ba18-4ea9-8d63-d9b916ff6e26</item>
                     <item name="Name" type_name="gh_string" type_code="10">Deconstruct 2D Polyline</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#44-Deconstruct 2D Polyline</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#44-Verdes</item>
                   </items>
                   <chunks count="5">
                     <chunk name="Attributes">
@@ -17965,7 +17965,7 @@ valido y el valor cambia. Verificar estado/ruta_json/json_text en Panels.
                     <item name="Description" type_name="gh_string" type_code="10">Deconstruct Archicad Polyline.</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">1438c1ca-389d-489c-b673-efa9baabc494</item>
                     <item name="Name" type_name="gh_string" type_code="10">Deconstruct 2D Polyline</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#45-Deconstruct 2D Polyline</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#45-Vecinos</item>
                   </items>
                   <chunks count="5">
                     <chunk name="Attributes">
@@ -18451,7 +18451,7 @@ valido y el valor cambia. Verificar estado/ruta_json/json_text en Panels.
                     <item name="Description" type_name="gh_string" type_code="10">Deconstruct Archicad Polyline.</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">b2c63b70-56a6-4355-bd5a-2d2004cb4dcb</item>
                     <item name="Name" type_name="gh_string" type_code="10">Deconstruct 2D Polyline</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#46-Deconstruct 2D Polyline</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#46-andenes</item>
                   </items>
                   <chunks count="5">
                     <chunk name="Attributes">
@@ -19889,7 +19889,7 @@ else:
                     <item name="Description" type_name="gh_string" type_code="10">Deconstruct Archicad Polyline.</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">d0e3739a-c694-4a56-9261-95e0a498b6ac</item>
                     <item name="Name" type_name="gh_string" type_code="10">Deconstruct 2D Polyline</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#36-Deconstruct 2D Polyline</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#36-Predio</item>
                   </items>
                   <chunks count="5">
                     <chunk name="Attributes">
