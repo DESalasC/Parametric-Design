@@ -45,6 +45,9 @@ SUBVERSIONES INTERNAS (v02.x: iteraciones sin cambio de version general):
          el servidor/orquestador via POST /api/exportar-lados), escribe
          data/pot-cache/<CHIP>-lados.json para verificacion automatica (F1.5)
          y devuelve el flag a false (mismo patron que F1_EXPORTAR_GFA_v02).
+  v02.5 (2026-09-29) - LECTOR CANONICO de codificacion en la lectura del flag
+         (cascada utf-8-sig -> cp1252 -> latin-1 con avisos) y escritura
+         ASCII-safe (ensure_ascii=True) en los JSON exportados.
 Regla de versionado: la version general (v02 -> v03) SOLO cambia con
 cambios mayores (contrato de entradas/salidas o algoritmo central); las
 iteraciones internas se registran como subversiones v02.x en este
@@ -80,6 +83,23 @@ CLUSTER_PUNTOS_M = 0.30
 COINCIDENCIA_VERTICE_M = 0.15
 # v02.3: clamp de sin(theta) para esquinas degeneradas (~5 grados)
 SIN_MINIMO = 0.087
+
+
+def _decodificar_cascada(raw, ruta="<bytes>"):
+    """LECTOR CANONICO (v02.5): utf-8-sig estricto -> cp1252 -> latin-1."""
+    try:
+        return raw.decode("utf-8-sig")
+    except Exception:
+        pass
+    try:
+        texto = raw.decode("cp1252")
+        print("[AVISO ENCODING] leido como cp1252 (no utf-8): %s" % ruta)
+        return texto
+    except Exception:
+        pass
+    texto = raw.decode("latin-1")
+    print("[AVISO ENCODING] leido como latin-1 (ultimo recurso): %s" % ruta)
+    return texto
 
 
 def unwrap(val):
@@ -167,9 +187,10 @@ def _raiz_proyecto():
 
 
 def _escribir_json_utf8(ruta, data):
-    """Escritura JSON UTF-8 compatible IronPython (patron F1_EXPORTAR_GFA)."""
+    """Escritura canonica v02.5: UTF-8 sin BOM + ASCII-safe (ensure_ascii)
+    para robustez entre herramientas; nombre historico conservado."""
     with open(ruta, "wb") as f:
-        f.write(json.dumps(data, indent=2, ensure_ascii=False).encode("utf-8"))
+        f.write(json.dumps(data, indent=2, ensure_ascii=True).encode("utf-8"))
 
 
 def _exportar_diagnostico(sides_data, patios_export, mensaje_final):
@@ -187,7 +208,8 @@ def _exportar_diagnostico(sides_data, patios_export, mensaje_final):
         return None
     try:
         with open(flag_ruta, "rb") as f:
-            flag = json.load(f)
+            _raw = f.read()
+        flag = json.loads(_decodificar_cascada(_raw, flag_ruta))
     except Exception:
         return None
     if not isinstance(flag, dict) or not flag.get("exportar"):
@@ -209,7 +231,7 @@ def _exportar_diagnostico(sides_data, patios_export, mensaje_final):
     data = {
         "schema": "lados_patio_diagnostico_v01",
         "chip": chip,
-        "generado_por": "F1_ETAPA2_PATIO_v02.4",
+        "generado_por": "F1_ETAPA2_PATIO_v02.5",
         "generado_en": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "solicitud": flag,
         "sides": {

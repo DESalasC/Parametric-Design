@@ -17,6 +17,8 @@
 #   v01.4 (2026-08-23) — frente confirmado por cardinal ->
 #       frente_override_json (para cablear F0 -> F1_ETAPA2_NORMATIVA_v08;
 #       ignora 'indefinido'/'libre').
+#   v01.5 (2026-09-29) — LECTOR CANONICO de codificacion (cascada utf-8
+#       estricto -> cp1252 -> latin-1, con aviso ruidoso) para proyecto.json.
 #
 # Ruta recomendada (2026-09-01): conectar ruta_json a data/activo/proyecto.json
 #   (espejo que el orquestador reescribe en cada POST /api/proyecto).
@@ -38,6 +40,13 @@
 
 import json
 import os
+
+try:
+    import System.IO
+    import System.Text
+    _TIENE_SYSTEM = True
+except ImportError:
+    _TIENE_SYSTEM = False
 
 
 def _val(d, k, default):
@@ -97,6 +106,69 @@ def _a_normativa_vecinos(clasificacion):
     return result
 
 
+def _quitar_bom(t):
+    if not t:
+        return t
+    if t[0] == u"\uFEFF":
+        return t[1:]
+    if t[:3] == u"\u00EF\u00BB\u00BF":
+        return t[3:]
+    return t
+
+
+def _leer_json_canonico(ruta, etiqueta="json"):
+    """LECTOR CANONICO v01.5: utf-8 estricto (con/sin BOM) -> cp1252 -> latin-1.
+
+    Dual: usa System.IO/System.Text cuando corre en IronPython (canvas) y
+    open() nativo cuando corre en CPython (tests). Avisos ruidosos; error
+    explicito con hex de cabecera si todo falla."""
+    ruta_s = str(ruta)
+    if not ruta or not os.path.exists(ruta_s):
+        raise Exception("El archivo no existe en la ruta especificada: {}".format(ruta))
+    if _TIENE_SYSTEM:
+        bruto = System.IO.File.ReadAllBytes(ruta_s)
+    else:
+        with open(ruta_s, "rb") as f:
+            bruto = f.read()
+    err_utf8 = ""
+    err_cp1252 = ""
+    # 1) UTF-8 estricto (tolera BOM)
+    try:
+        if _TIENE_SYSTEM:
+            contenido = _quitar_bom(System.Text.UTF8Encoding(False, True).GetString(bruto))
+        else:
+            contenido = _quitar_bom(bruto.decode("utf-8"))
+        return json.loads(contenido)
+    except Exception as e_utf8:
+        err_utf8 = str(e_utf8)
+    # 2) CP1252 (legacy Windows)
+    try:
+        if _TIENE_SYSTEM:
+            contenido = _quitar_bom(System.Text.Encoding.GetEncoding(1252).GetString(bruto))
+        else:
+            contenido = _quitar_bom(bruto.decode("cp1252"))
+        data = json.loads(contenido)
+        print("[AVISO ENCODING] {}: leido como cp1252 (no utf-8): {}".format(etiqueta, ruta_s))
+        return data
+    except Exception as e_cp1252:
+        err_cp1252 = str(e_cp1252)
+    # 3) Latin-1 (ultimo recurso)
+    try:
+        if _TIENE_SYSTEM:
+            contenido = _quitar_bom(System.Text.Encoding.GetEncoding(28591).GetString(bruto))
+        else:
+            contenido = _quitar_bom(bruto.decode("latin-1"))
+        data = json.loads(contenido)
+        print("[AVISO ENCODING] {}: leido como latin-1 (ultimo recurso): {}".format(etiqueta, ruta_s))
+        return data
+    except Exception as e_latin1:
+        cab = []
+        for i in range(min(24, len(bruto))):
+            cab.append("%02X" % (bruto[i] if isinstance(bruto[i], int) else ord(bruto[i])))
+        raise Exception("No se pudo decodificar {} ({}). Primeros bytes: [{}]. utf8={} | cp1252={} | latin1={}".format(
+            etiqueta, ruta_s, " ".join(cab), err_utf8, err_cp1252, str(e_latin1)))
+
+
 ruta_json = globals().get("ruta_json") or ""
 caso_default = globals().get("caso_default") or "A"
 
@@ -105,8 +177,7 @@ ok = False
 log = ""
 if ruta_json and os.path.exists(ruta_json):
     try:
-        with open(ruta_json, "r", encoding="utf-8") as f:
-            proyecto = json.load(f)
+        proyecto = _leer_json_canonico(ruta_json, "proyecto.json")
         if not isinstance(proyecto, dict):
             proyecto = {}
         ok = True
