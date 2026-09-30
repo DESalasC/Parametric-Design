@@ -1,0 +1,42 @@
+<chunk name="Object" index="6">
+              <items count="3">
+                <item name="GUID" type_name="gh_guid" type_code="9">c5d83526-a7f8-4e6d-aa59-5a11eff99a16</item>
+                <item name="Lib" type_name="gh_guid" type_code="9">b267c457-1b3b-42eb-94d4-a075bfc97888</item>
+                <item name="Name" type_name="gh_string" type_code="10">Layer</item>
+              </items>
+              <chunks count="1">
+                <chunk name="Container">
+                  <items count="6">
+                    <item name="Description" type_name="gh_string" type_code="10">Represents a Layer of your current Archicad project.</item>
+                    <item name="InstanceGuid" type_name="gh_guid" type_code="9">65b335cd-d33b-47d3-9802-87e1edb2553a</item>
+                    <item name="Name" type_name="gh_string" type_code="10">Layer</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">Layer</item>
+                    <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                    <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                  </items>
+                  <chunks count="1">
+                    <chunk name="Attributes">
+                      <items count="4">
+                        <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                          <X>30.269886</X>
+                          <Y>264.0484</Y>
+                          <W>80</W>
+                          <H>20.000122</H>
+                        </item>
+                        <item name="IsAscendingSort" type_name="gh_bool" type_code="1">true</item>
+                        <item name="Selected" type_name="gh_bool" type_code="1">true</item>
+                        <item name="Version" type_name="gh_version" type_code="80">
+                          <Major>1</Major>
+                          <Minor>0</Minor>
+                          <Revision>0</Revision>
+                        </item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="ActiveFilters" />
+                      </chunks>
+                    </chunk>
+                  </chunks>
+                </chunk>
+              </chunks>
+            </chunk>
+            

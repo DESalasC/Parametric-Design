@@ -1,0 +1,33 @@
+<chunk name="Object" index="8">
+              <items count="3">
+                <item name="GUID" type_name="gh_guid" type_code="9">3accc4d6-dbe5-451c-a8ad-ba5ed68fe815</item>
+                <item name="Lib" type_name="gh_guid" type_code="9">b267c457-1b3b-42eb-94d4-a075bfc97888</item>
+                <item name="Name" type_name="gh_string" type_code="10">Pen</item>
+              </items>
+              <chunks count="1">
+                <chunk name="Container">
+                  <items count="6">
+                    <item name="Description" type_name="gh_string" type_code="10">Represents a Pen attribute of your current Archicad project.</item>
+                    <item name="InstanceGuid" type_name="gh_guid" type_code="9">68694123-9448-4232-9601-a7cd148071a9</item>
+                    <item name="Name" type_name="gh_string" type_code="10">Pen</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">Pen</item>
+                    <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                    <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                  </items>
+                  <chunks count="1">
+                    <chunk name="Attributes">
+                      <items count="2">
+                        <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                          <X>30.269886</X>
+                          <Y>334.63666</Y>
+                          <W>72</W>
+                          <H>20</H>
+                        </item>
+                        <item name="Selected" type_name="gh_bool" type_code="1">true</item>
+                      </items>
+                    </chunk>
+                  </chunks>
+                </chunk>
+              </chunks>
+            </chunk>
+            

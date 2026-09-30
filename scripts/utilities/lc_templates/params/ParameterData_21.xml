@@ -1,0 +1,608 @@
+<chunk name="ParameterData">
+                      <items count="24">
+                        <item name="InputCount" type_name="gh_int32" type_code="3">1</item>
+                        <item name="InputId" index="0" type_name="gh_guid" type_code="9">84fa917c-1ed8-4db3-8be1-7bdc4a6495a2</item>
+                        <item name="OutputCount" type_name="gh_int32" type_code="3">21</item>
+                        <item name="OutputId" index="0" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="1" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="2" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="3" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="4" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="5" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="6" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="7" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="8" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="9" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="10" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="11" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="12" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="13" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="14" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="15" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="16" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="17" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="18" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="19" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                        <item name="OutputId" index="20" type_name="gh_guid" type_code="9">8ec86459-bf01-4409-baee-174d0d2b13d0</item>
+                      </items>
+                      <chunks count="22">
+                        <chunk name="InputParam" index="0">
+                          <items count="11">
+                            <item name="AllowTreeAccess" type_name="gh_bool" type_code="1">true</item>
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable Python</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">89359f4d-9db1-427b-8a5d-942579a7bd15</item>
+                            <item name="Name" type_name="gh_string" type_code="10">json_path</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">json_path</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">true</item>
+                            <item name="ScriptParamAccess" type_name="gh_int32" type_code="3">0</item>
+                            <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
+                            <item name="Source" index="0" type_name="gh_guid" type_code="9">0d1eca32-e997-4907-a772-a9166aa1c7a9</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
+                            <item name="TypeHintID" type_name="gh_guid" type_code="9">37261734-eec7-4f50-b6a8-b8d1f3c4396b</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>746</X>
+                                  <Y>74</Y>
+                                  <W>54</W>
+                                  <H>420</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>774.5</X>
+                                  <Y>284</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="0">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">bc6f04c9-3410-4a16-a38f-dd2c3394c59f</item>
+                            <item name="Name" type_name="gh_string" type_code="10">lot_curve</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">lot_curve</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>74</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>84</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="1">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">eb940564-b195-43cc-b1b3-c162576dc6e6</item>
+                            <item name="Name" type_name="gh_string" type_code="10">lot_area</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">lot_area</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>94</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>104</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="2">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">7d3233d5-5df5-4e6b-8f16-06ed0b85936d</item>
+                            <item name="Name" type_name="gh_string" type_code="10">vecinos_curves</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">vecinos_curves</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>114</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>124</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="3">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">dfd2b0b2-60b7-4ab3-b52e-f63907bfeacd</item>
+                            <item name="Name" type_name="gh_string" type_code="10">vias_oficiales</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">vias_oficiales</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>134</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>144</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="4">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable #20-F1_ETAPA1_CONTEXTO_v04.1.py</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">c3cdf667-1502-4e07-9022-37f8cab72893</item>
+                            <item name="Name" type_name="gh_string" type_code="10">ejes_vias_curves</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">ejes_vias_curves</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>154</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>164</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="5">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">26fca09d-a7fe-4793-8c7a-b1bf3d4cda86</item>
+                            <item name="Name" type_name="gh_string" type_code="10">espacios_publicos</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">espacios_publicos</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>174</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>184</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="6">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable #20-F1_ETAPA1_CONTEXTO_v04.1.py</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">16b7297d-8eaf-4fa4-9f49-d9547e454c09</item>
+                            <item name="Name" type_name="gh_string" type_code="10">topo_mesh</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">topo_mesh</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>194</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>204</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="7">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">0206f1f0-8a8d-413a-bdd5-29c15b343b5b</item>
+                            <item name="Name" type_name="gh_string" type_code="10">altura_max_pot</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">altura_max_pot</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>214</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>224</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="8">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">ec7336a7-df91-47ba-89a7-42750c8473c3</item>
+                            <item name="Name" type_name="gh_string" type_code="10">tratamiento</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">tratamiento</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>234</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>244</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="9">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">4b6f939b-1a6a-4159-ba12-edbc12f0dc94</item>
+                            <item name="Name" type_name="gh_string" type_code="10">rango_edificabilidad</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">rango_edificabilidad</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>254</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>264</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="10">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">0d6e6d9b-5eb9-49c2-95f9-b12d410412a2</item>
+                            <item name="Name" type_name="gh_string" type_code="10">sector_normativo</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">sector_normativo</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>274</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>284</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="11">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">6d486fb1-ef33-4a12-93dd-30c8229da5c7</item>
+                            <item name="Name" type_name="gh_string" type_code="10">upz</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">upz</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>294</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>304</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="12">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable #20-F1_ETAPA1_CONTEXTO_v04.1.py</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">b17d8e36-c775-47a8-b1eb-da33956eebca</item>
+                            <item name="Name" type_name="gh_string" type_code="10">ancho_via_oficial_m</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">ancho_via_oficial_m</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>314</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>324</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="13">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable #20-F1_ETAPA1_CONTEXTO_v04.1.py</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">3f52ed4d-0adc-435a-9dc0-c45bed176c88</item>
+                            <item name="Name" type_name="gh_string" type_code="10">tipologia_oficial</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">tipologia_oficial</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>334</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>344</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="14">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable #20-F1_ETAPA1_CONTEXTO_v04.1.py</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">1164b99f-f386-4322-83ea-270ddb7dcfde</item>
+                            <item name="Name" type_name="gh_string" type_code="10">reglamentacion_json</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">reglamentacion_json</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>354</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>364</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="15">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">5c6597d5-2d1f-4248-9a9d-8386e2f27430</item>
+                            <item name="Name" type_name="gh_string" type_code="10">io_normativo</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">io_normativo</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>374</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>384</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="16">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">c6171ce2-5ec5-4ce4-8324-d4cd620919d3</item>
+                            <item name="Name" type_name="gh_string" type_code="10">origen_x</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">origen_x</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>394</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>404</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="17">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">e70afd72-9380-4b48-9f03-37697158d5bf</item>
+                            <item name="Name" type_name="gh_string" type_code="10">origen_y</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">origen_y</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>414</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>424</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="18">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">7882dbae-ea96-484d-b09d-b67e5f8e1e01</item>
+                            <item name="Name" type_name="gh_string" type_code="10">layers_json</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">layers_json</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>434</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>444</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="19">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable #20-F1_ETAPA1_CONTEXTO_v04.1.py</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">fab4a68b-6e6e-4d80-9c8b-fb11b4ec3885</item>
+                            <item name="Name" type_name="gh_string" type_code="10">layer_lote_ok</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">layer_lote_ok</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>454</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>464</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        <chunk name="OutputParam" index="20">
+                          <items count="6">
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA1_CONTEXTO_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">f8930226-5da5-4fd3-92ae-c01c81453edf</item>
+                            <item name="Name" type_name="gh_string" type_code="10">mensaje</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">mensaje</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>830</X>
+                                  <Y>474</Y>
+                                  <W>110</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>885</X>
+                                  <Y>484</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                  

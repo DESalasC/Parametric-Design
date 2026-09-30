@@ -1,0 +1,170 @@
+<chunk name="Object" index="16">
+              <items count="3">
+                <item name="GUID" type_name="gh_guid" type_code="9">4cb98f5d-1117-4464-87ce-c0501d9782cd</item>
+                <item name="Lib" type_name="gh_guid" type_code="9">b267c457-1b3b-42eb-94d4-a075bfc97888</item>
+                <item name="Name" type_name="gh_string" type_code="10">Morph Curve</item>
+              </items>
+              <chunks count="1">
+                <chunk name="Container">
+                  <items count="6">
+                    <item name="AC_MorphComponent" type_name="gh_version" type_code="80">
+                      <Major>2</Major>
+                      <Minor>0</Minor>
+                      <Revision>0</Revision>
+                    </item>
+                    <item name="BaseComponent" type_name="gh_version" type_code="80">
+                      <Major>1</Major>
+                      <Minor>0</Minor>
+                      <Revision>0</Revision>
+                    </item>
+                    <item name="Description" type_name="gh_string" type_code="10">Create a non-solid Archicad Morph defined by a 3D Curve.</item>
+                    <item name="InstanceGuid" type_name="gh_guid" type_code="9">fc297732-fad7-46e1-bb4c-c755605f9fe0</item>
+                    <item name="Name" type_name="gh_string" type_code="10">Morph Curve</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">Morph Curve</item>
+                  </items>
+                  <chunks count="5">
+                    <chunk name="Attributes">
+                      <items count="2">
+                        <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                          <X>251</X>
+                          <Y>945</Y>
+                          <W>159</W>
+                          <H>99</H>
+                        </item>
+                        <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                          <X>350</X>
+                          <Y>995</Y>
+                        </item>
+                      </items>
+                    </chunk>
+                    <chunk name="param_input" index="0">
+                      <items count="6">
+                        <item name="Description" type_name="gh_string" type_code="10">Synchronize with Archicad.
+TRUE = changes made to the component will be synchronized with Archicad automatically
+FALSE = the component does not communicate with Archicad</item>
+                        <item name="InstanceGuid" type_name="gh_guid" type_code="9">3980d815-9030-4faf-af1c-dfdf28cff114</item>
+                        <item name="Name" type_name="gh_string" type_code="10">Synchronize</item>
+                        <item name="NickName" type_name="gh_string" type_code="10">Synchronize</item>
+                        <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                        <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                      </items>
+                      <chunks count="2">
+                        <chunk name="Attributes">
+                          <items count="2">
+                            <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                              <X>253</X>
+                              <Y>947</Y>
+                              <W>82</W>
+                              <H>31</H>
+                            </item>
+                            <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                              <X>295.5</X>
+                              <Y>962.8333</Y>
+                            </item>
+                          </items>
+                        </chunk>
+                        <chunk name="PersistentData">
+                          <items count="1">
+                            <item name="Count" type_name="gh_int32" type_code="3">1</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Branch" index="0">
+                              <items count="2">
+                                <item name="Count" type_name="gh_int32" type_code="3">1</item>
+                                <item name="Path" type_name="gh_string" type_code="10">{0}</item>
+                              </items>
+                              <chunks count="1">
+                                <chunk name="Item" index="0">
+                                  <items count="1">
+                                    <item name="boolean" type_name="gh_bool" type_code="1">true</item>
+                                  </items>
+                                </chunk>
+                              </chunks>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                    <chunk name="param_input" index="1">
+                      <items count="6">
+                        <item name="Description" type_name="gh_string" type_code="10">Curve geometry to be converted into an Archicad Morph.</item>
+                        <item name="InstanceGuid" type_name="gh_guid" type_code="9">916ab00a-67f7-4db8-a6c0-3f91977310a4</item>
+                        <item name="Name" type_name="gh_string" type_code="10">Curve</item>
+                        <item name="NickName" type_name="gh_string" type_code="10">Curve</item>
+                        <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                        <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="Attributes">
+                          <items count="2">
+                            <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                              <X>253</X>
+                              <Y>978</Y>
+                              <W>82</W>
+                              <H>32</H>
+                            </item>
+                            <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                              <X>295.5</X>
+                              <Y>994.5</Y>
+                            </item>
+                          </items>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                    <chunk name="param_input" index="2">
+                      <items count="6">
+                        <item name="Description" type_name="gh_string" type_code="10">Settings of Archicad Morph.</item>
+                        <item name="InstanceGuid" type_name="gh_guid" type_code="9">0ce94ab2-b7a3-4b9b-8048-7c7aa8beed67</item>
+                        <item name="Name" type_name="gh_string" type_code="10">Morph Settings</item>
+                        <item name="NickName" type_name="gh_string" type_code="10">Morph Settings</item>
+                        <item name="Optional" type_name="gh_bool" type_code="1">true</item>
+                        <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="Attributes">
+                          <items count="2">
+                            <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                              <X>253</X>
+                              <Y>1010</Y>
+                              <W>82</W>
+                              <H>32</H>
+                            </item>
+                            <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                              <X>295.5</X>
+                              <Y>1026.1666</Y>
+                            </item>
+                          </items>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                    <chunk name="param_output" index="0">
+                      <items count="6">
+                        <item name="Description" type_name="gh_string" type_code="10">Resulting Archicad Morph.</item>
+                        <item name="InstanceGuid" type_name="gh_guid" type_code="9">44d8a555-1fff-4235-bd66-750f24d0b275</item>
+                        <item name="Name" type_name="gh_string" type_code="10">Morph</item>
+                        <item name="NickName" type_name="gh_string" type_code="10">Morph</item>
+                        <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                        <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="Attributes">
+                          <items count="2">
+                            <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                              <X>365</X>
+                              <Y>947</Y>
+                              <W>43</W>
+                              <H>95</H>
+                            </item>
+                            <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                              <X>386.5</X>
+                              <Y>994.5</Y>
+                            </item>
+                          </items>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                  </chunks>
+                </chunk>
+              </chunks>
+            </chunk>
+            

@@ -1,0 +1,44 @@
+<chunk name="Object" index="14">
+              <items count="3">
+                <item name="GUID" type_name="gh_guid" type_code="9">c5d83526-a7f8-4e6d-aa59-5a11eff99a16</item>
+                <item name="Lib" type_name="gh_guid" type_code="9">b267c457-1b3b-42eb-94d4-a075bfc97888</item>
+                <item name="Name" type_name="gh_string" type_code="10">Layer</item>
+              </items>
+              <chunks count="1">
+                <chunk name="Container">
+                  <items count="7">
+                    <item name="AC_AttributeData" type_name="gh_bytearray" type_code="20">
+                      <stream length="529">AAEAAAD/////AQAAAAAAAAAMAgAAAEhBcmNoaWNhZE1vZGVsLCBWZXJzaW9uPTI5LjAuMC4zMDAwLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAIoBQXJjaGlDQUQuTW9kZWwuRGF0YWJhc2UuUmVmYDFbW0FyY2hpQ0FELk1vZGVsLkF0dHJpYnV0ZXMuTGF5ZXIsIEFyY2hpY2FkTW9kZWwsIFZlcnNpb249MjkuMC4wLjMwMDAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbF1dAwAAAAVtR3VpZApJZF9WZXJzaW9uC1JlZl9WZXJzaW9uAwMDC1N5c3RlbS5HdWlkDlN5c3RlbS5WZXJzaW9uDlN5c3RlbS5WZXJzaW9uAgAAAAT9////C1N5c3RlbS5HdWlkCwAAAAJfYQJfYgJfYwJfZAJfZQJfZgJfZwJfaAJfaQJfagJfawAAAAAAAAAAAAAACAcHAgICAgICAgKQ+7PVYAfkSrqQBoxLQloxCQQAAAAJBQAAAAQEAAAADlN5c3RlbS5WZXJzaW9uBAAAAAZfTWFqb3IGX01pbm9yBl9CdWlsZAlfUmV2aXNpb24AAAAACAgICAEAAAAAAAAA//////////8BBQAAAAQAAAABAAAAAAAAAAAAAAD/////Cw==</stream>
+                    </item>
+                    <item name="Description" type_name="gh_string" type_code="10">Represents a Layer of your current Archicad project.</item>
+                    <item name="InstanceGuid" type_name="gh_guid" type_code="9">0bb86424-168b-4a23-8729-b34cf8f4f464</item>
+                    <item name="Name" type_name="gh_string" type_code="10">Layer</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#136-Layer</item>
+                    <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                    <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                  </items>
+                  <chunks count="1">
+                    <chunk name="Attributes">
+                      <items count="3">
+                        <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                          <X>3425.2002</X>
+                          <Y>541.5865</Y>
+                          <W>152</W>
+                          <H>19.999878</H>
+                        </item>
+                        <item name="IsAscendingSort" type_name="gh_bool" type_code="1">true</item>
+                        <item name="Version" type_name="gh_version" type_code="80">
+                          <Major>1</Major>
+                          <Minor>0</Minor>
+                          <Revision>0</Revision>
+                        </item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="ActiveFilters" />
+                      </chunks>
+                    </chunk>
+                  </chunks>
+                </chunk>
+              </chunks>
+            </chunk>
+            

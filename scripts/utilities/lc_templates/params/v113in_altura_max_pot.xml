@@ -1,0 +1,32 @@
+<chunk name="InputParam" index="3">
+                          <items count="11">
+                            <item name="AllowTreeAccess" type_name="gh_bool" type_code="1">true</item>
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_ETAPA2_NORMATIVA_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">6c609e4d-c180-4f5f-9f53-7112a22a179c</item>
+                            <item name="Name" type_name="gh_string" type_code="10">altura_max_pot</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">altura_max_pot</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">true</item>
+                            <item name="ScriptParamAccess" type_name="gh_int32" type_code="3">0</item>
+                            <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
+                            <item name="Source" index="0" type_name="gh_guid" type_code="9">d2bbbe59-0e4c-4e4c-979b-3945ce82b179</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
+                            <item name="TypeHintID" type_name="gh_guid" type_code="9">39fbc626-7a01-46ab-a18e-ec1c0c41685b</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>2704</X>
+                                  <Y>1060</Y>
+                                  <W>122</W>
+                                  <H>20</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>2766.5</X>
+                                  <Y>1070</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        

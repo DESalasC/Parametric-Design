@@ -1,0 +1,32 @@
+<chunk name="InputParam" index="2">
+                          <items count="11">
+                            <item name="AllowTreeAccess" type_name="gh_bool" type_code="1">true</item>
+                            <item name="Description" type_name="gh_string" type_code="10">Script variable F1_CONTEXTO50_BUILD_v01</item>
+                            <item name="InstanceGuid" type_name="gh_guid" type_code="9">0c422943-d5e8-4afe-82cf-b544d03826be</item>
+                            <item name="Name" type_name="gh_string" type_code="10">bake</item>
+                            <item name="NickName" type_name="gh_string" type_code="10">bake</item>
+                            <item name="Optional" type_name="gh_bool" type_code="1">true</item>
+                            <item name="ScriptParamAccess" type_name="gh_int32" type_code="3">0</item>
+                            <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
+                            <item name="Source" index="0" type_name="gh_guid" type_code="9">3f45df55-582b-48e8-98b1-992b6a0321d8</item>
+                            <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
+                            <item name="TypeHintID" type_name="gh_guid" type_code="9">d60527f5-b5af-4ef6-8970-5f96fe412559</item>
+                          </items>
+                          <chunks count="1">
+                            <chunk name="Attributes">
+                              <items count="2">
+                                <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                                  <X>1327</X>
+                                  <Y>1631</Y>
+                                  <W>59</W>
+                                  <H>63</H>
+                                </item>
+                                <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                                  <X>1358</X>
+                                  <Y>1662.5</Y>
+                                </item>
+                              </items>
+                            </chunk>
+                          </chunks>
+                        </chunk>
+                        

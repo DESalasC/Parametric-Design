@@ -1,0 +1,202 @@
+<chunk name="Object" index="17">
+              <items count="3">
+                <item name="GUID" type_name="gh_guid" type_code="9">a1de8b0b-6c6d-41ab-ba77-50b84224019f</item>
+                <item name="Lib" type_name="gh_guid" type_code="9">b267c457-1b3b-42eb-94d4-a075bfc97888</item>
+                <item name="Name" type_name="gh_string" type_code="10">Polyline Settings</item>
+              </items>
+              <chunks count="1">
+                <chunk name="Container">
+                  <items count="6">
+                    <item name="AC_BaseComponent" type_name="gh_version" type_code="80">
+                      <Major>1</Major>
+                      <Minor>0</Minor>
+                      <Revision>0</Revision>
+                    </item>
+                    <item name="AC_PolylineSettingsComponent" type_name="gh_version" type_code="80">
+                      <Major>1</Major>
+                      <Minor>0</Minor>
+                      <Revision>0</Revision>
+                    </item>
+                    <item name="Description" type_name="gh_string" type_code="10">Define Settings of Archicad Polyline.</item>
+                    <item name="InstanceGuid" type_name="gh_guid" type_code="9">59a1ef10-8a15-4927-8291-20b870f2831c</item>
+                    <item name="Name" type_name="gh_string" type_code="10">Polyline Settings</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">Polyline Settings</item>
+                  </items>
+                  <chunks count="7">
+                    <chunk name="Attributes">
+                      <items count="2">
+                        <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                          <X>610</X>
+                          <Y>1126</Y>
+                          <W>219</W>
+                          <H>122</H>
+                        </item>
+                        <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                          <X>722</X>
+                          <Y>1187</Y>
+                        </item>
+                      </items>
+                    </chunk>
+                    <chunk name="param_input" index="0">
+                      <items count="6">
+                        <item name="Description" type_name="gh_string" type_code="10">Line Type of Archicad Polyline.</item>
+                        <item name="InstanceGuid" type_name="gh_guid" type_code="9">e8b4ac1a-2097-4cdf-8a40-649ce497fe74</item>
+                        <item name="Name" type_name="gh_string" type_code="10">Line Type</item>
+                        <item name="NickName" type_name="gh_string" type_code="10">Line Type</item>
+                        <item name="Optional" type_name="gh_bool" type_code="1">true</item>
+                        <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="Attributes">
+                          <items count="2">
+                            <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                              <X>612</X>
+                              <Y>1128</Y>
+                              <W>95</W>
+                              <H>23</H>
+                            </item>
+                            <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                              <X>661</X>
+                              <Y>1139.8</Y>
+                            </item>
+                          </items>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                    <chunk name="param_input" index="1">
+                      <items count="6">
+                        <item name="Description" type_name="gh_string" type_code="10">Pen of Archicad Polyline.</item>
+                        <item name="InstanceGuid" type_name="gh_guid" type_code="9">d1b283d4-322a-4beb-904d-482fb4b6ad79</item>
+                        <item name="Name" type_name="gh_string" type_code="10">Line Pen</item>
+                        <item name="NickName" type_name="gh_string" type_code="10">Line Pen</item>
+                        <item name="Optional" type_name="gh_bool" type_code="1">true</item>
+                        <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="Attributes">
+                          <items count="2">
+                            <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                              <X>612</X>
+                              <Y>1151</Y>
+                              <W>95</W>
+                              <H>24</H>
+                            </item>
+                            <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                              <X>661</X>
+                              <Y>1163.4</Y>
+                            </item>
+                          </items>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                    <chunk name="param_input" index="2">
+                      <items count="6">
+                        <item name="Description" type_name="gh_string" type_code="10">The resulting Archicad Polyline will be generated onto this Layer.</item>
+                        <item name="InstanceGuid" type_name="gh_guid" type_code="9">cfa5fc6f-0450-4db0-b9f1-1056d8f29f9a</item>
+                        <item name="Name" type_name="gh_string" type_code="10">Layer</item>
+                        <item name="NickName" type_name="gh_string" type_code="10">Layer</item>
+                        <item name="Optional" type_name="gh_bool" type_code="1">true</item>
+                        <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="Attributes">
+                          <items count="2">
+                            <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                              <X>612</X>
+                              <Y>1175</Y>
+                              <W>95</W>
+                              <H>23</H>
+                            </item>
+                            <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                              <X>661</X>
+                              <Y>1187</Y>
+                            </item>
+                          </items>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                    <chunk name="param_input" index="3">
+                      <items count="6">
+                        <item name="Description" type_name="gh_string" type_code="10">Line Category of Archicad Polyline.
+0 = Drafting Line, 1 = Skin Separator Line, 2 = Cut Line</item>
+                        <item name="InstanceGuid" type_name="gh_guid" type_code="9">7ea57fa1-81bd-4fb2-8e35-e59aba4101c8</item>
+                        <item name="Name" type_name="gh_string" type_code="10">Line Category</item>
+                        <item name="NickName" type_name="gh_string" type_code="10">Line Category</item>
+                        <item name="Optional" type_name="gh_bool" type_code="1">true</item>
+                        <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="Attributes">
+                          <items count="2">
+                            <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                              <X>612</X>
+                              <Y>1198</Y>
+                              <W>95</W>
+                              <H>24</H>
+                            </item>
+                            <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                              <X>661</X>
+                              <Y>1210.6001</Y>
+                            </item>
+                          </items>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                    <chunk name="param_input" index="4">
+                      <items count="6">
+                        <item name="Description" type_name="gh_string" type_code="10">Renovation Status of Archicad Polyline.
+0 = Existing, 1 = To Be Demolished, 2 = New</item>
+                        <item name="InstanceGuid" type_name="gh_guid" type_code="9">c0e57304-af5b-4634-8e1c-822ec6fe9a16</item>
+                        <item name="Name" type_name="gh_string" type_code="10">Renovation Status</item>
+                        <item name="NickName" type_name="gh_string" type_code="10">Renovation Status</item>
+                        <item name="Optional" type_name="gh_bool" type_code="1">true</item>
+                        <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="Attributes">
+                          <items count="2">
+                            <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                              <X>612</X>
+                              <Y>1222</Y>
+                              <W>95</W>
+                              <H>24</H>
+                            </item>
+                            <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                              <X>661</X>
+                              <Y>1234.2001</Y>
+                            </item>
+                          </items>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                    <chunk name="param_output" index="0">
+                      <items count="6">
+                        <item name="Description" type_name="gh_string" type_code="10">Resulting Archicad Polyline Settings.</item>
+                        <item name="InstanceGuid" type_name="gh_guid" type_code="9">01f07657-95d6-4adf-b51c-4ae13a0a6039</item>
+                        <item name="Name" type_name="gh_string" type_code="10">Polyline Settings</item>
+                        <item name="NickName" type_name="gh_string" type_code="10">Polyline Settings</item>
+                        <item name="Optional" type_name="gh_bool" type_code="1">false</item>
+                        <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
+                      </items>
+                      <chunks count="1">
+                        <chunk name="Attributes">
+                          <items count="2">
+                            <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
+                              <X>737</X>
+                              <Y>1128</Y>
+                              <W>90</W>
+                              <H>118</H>
+                            </item>
+                            <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                              <X>782</X>
+                              <Y>1187</Y>
+                            </item>
+                          </items>
+                        </chunk>
+                      </chunks>
+                    </chunk>
+                  </chunks>
+                </chunk>
+              </chunks>
+            </chunk>
+            
