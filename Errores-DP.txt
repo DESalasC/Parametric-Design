@@ -12,3 +12,13 @@ Las polilineas de los lotes tambien estan en un solo plano, no se acomodan al te
 
 Dentro del canvas en "21-F1_ETAPA1_CONTEXTO_v04.2.py": ETAPA1 | ERROR al leer JSON: [UnicodeDecodeError] 'unknown' codec can't decode byte 0xf3 in position 11: Unable to translate bytes [F3] at index 11 from specified code page to Unicode. | json_path='D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\CHIP-contexto.json' | file_exists=True.
 Se requiere
+
+F1_contexto_v12.ghx
+NORMATIVA v08.1 | ERROR DE VALIDACION | Ocupacion (0.0) >= Area bruta (0.0) | AVISOS: empate 1.9.c NO aplica: predio sin lado posterior (dos laterales y esquina) -> solo sismica NSR-10 A.6.5; tipologia no definida y sin dato reglamentario -> Continua; sin ancho_via_m -> antejardin default 3.0m (ver mapa CU-5.5); sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c) 
+NORMATIVA v08.1 | ERROR DE VALIDACION | Ocupacion (946.3) >= Area bruta (946.3) | AVISOS: empate 1.9.c NO aplica: predio sin lado posterior (dos laterales y esquina) -> solo sismica NSR-10 A.6.5; tipologia no definida y sin dato reglamentario -> Continua; sin ancho_via_m -> antejardin default 3.0m (ver mapa CU-5.5); sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)
+
+F1_ETAPA2_PATIO_v02.py -> PATIO v02.4 | ERROR: vertices=0 sides=FALTA
+PATIO v02.4 | V_N=V0 | Verts 6->6 | Lados: Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Generados: 0 | Motivo: fallback: patio en V0 no valida (no cabe / no interior)
+
+#82-F1_ETAPA2_LADOS_v06.py -> LADOS v06.5 | ERROR: Se necesitan >= 3 vertices (0 recibidos)
+LADOS v06.5 | Verts 6->6 | A=V3 N=V0 | Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V0 via PATIO_v02) | Vias:3 EP:2 Vec:73 Andenes:4 | Ancho via: 0.00m | Detalle: Occidente[L0]=[Lateral aisl:lateral v:31.04 ep:40.25 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L1]=[Lateral aisl:lateral v:6.35 ep:12.98 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Oriente[L2]=[Lateral aisl:lateral v:5.95 ep:10.80 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Sur[L3]=[Lateral aisl:lateral v:5.96 ep:10.80 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Lateral aisl:lateral v:7.46 ep:37.67 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L5]=[Lateral aisl:lateral v:7.46 ep:40.25 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback
