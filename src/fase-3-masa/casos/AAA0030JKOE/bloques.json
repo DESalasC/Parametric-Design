@@ -1,8 +1,8 @@
 {
   "chip": "AAA0030JKOE",
-  "n": 1,
-  "n_solicitado": 1,
-  "n_max_recomendado": 2,
+  "n": 3,
+  "n_solicitado": 3,
+  "n_max_recomendado": 4,
   "distribucion": "automatico",
   "orientacion": {
     "modo": "automatico",
@@ -22,30 +22,30 @@
       "via_cercana_dist_m": 45.5
     }
   },
-  "lindero": null,
+  "lindero": "Sur",
   "angulo": null,
   "azimut_grados": null,
   "crujia": {
-    "modo": "doble",
-    "circulacion": "central",
+    "modo": "unica",
+    "circulacion": "lateral",
     "crujia_m": 6.11
   },
-  "nucleo_posicion": "extremo",
-  "separacion_m": 0.0,
+  "nucleo_posicion": "centro",
+  "separacion_m": 6.0,
   "separacion_min_norma_m": 6.0,
-  "desnivel_m": 0.0,
+  "desnivel_m": 6.53,
   "niveles": {
-    "modo": "manual",
-    "desnivel_m": 0.0,
-    "entrada_m": null,
-    "salida_m": null,
-    "delta_m": null,
-    "fuente": "manual (paso entre bloques)"
+    "modo": "auto",
+    "desnivel_m": 6.53,
+    "entrada_m": 2635.52,
+    "salida_m": 2648.57,
+    "delta_m": 13.05,
+    "fuente": "topografia.perfil_lados (MDT Catastro) (salida = via posterior)"
   },
   "ancho_min": {
-    "ancho_min_m": 13.42,
-    "crujia_modo": "doble",
-    "circulacion": "central",
+    "ancho_min_m": 7.31,
+    "crujia_modo": "unica",
+    "circulacion": "lateral",
     "crujia_m": 6.11,
     "nucleo_m": 6.4,
     "circulacion_m": 1.2,
@@ -55,7 +55,7 @@
     },
     "unidad_max_m2": 55.0,
     "prof_ref_m": 9.0,
-    "formula": "ancho_min = max(2 x crujia + circulacion, nucleo) [doble crujia, circ. central]"
+    "formula": "ancho_min = max(crujia + circulacion, nucleo) [crujia unica, circ. lateral]"
   },
   "fuente_geometria": "lote_objetivo (franjas dirigidas 52.6 deg; ref: calle de acceso (Occidente-2)) - AAA0030JKOE-contexto.json; lados: AAA0030JKOE-vecinos-por-lado-override.json",
   "avisos": [],
@@ -66,6 +66,67 @@
       "orden": 1,
       "poligono_local": [
         [
+          79.902,
+          101.25
+        ],
+        [
+          75.0,
+          104.71
+        ],
+        [
+          75.0,
+          104.71
+        ],
+        [
+          78.93,
+          109.85
+        ],
+        [
+          84.1,
+          116.61
+        ],
+        [
+          86.527,
+          114.847
+        ],
+        [
+          89.36,
+          112.79
+        ],
+        [
+          94.751,
+          108.874
+        ],
+        [
+          85.759,
+          97.115
+        ]
+      ],
+      "area_lote_m2": 195.98,
+      "ancho_m": 13.16,
+      "huella_objetivo_m2": 178.16,
+      "pisos": 5,
+      "z_base_m": 0.0,
+      "z_terreno_medio_m": 2637.7,
+      "gfa_objetivo_m2": 890.8,
+      "unidades_estimadas": {
+        "Local comercial": {
+          "unidad_m2": 40.0,
+          "min": 6,
+          "max": 7
+        },
+        "Vivienda": {
+          "unidad_m2": 55.0,
+          "min": 11,
+          "max": 12
+        }
+      }
+    },
+    {
+      "id": "B2",
+      "orden": 2,
+      "poligono_local": [
+        [
           103.65,
           102.41
         ],
@@ -73,6 +134,59 @@
           107.52,
           108.25
         ],
+        [
+          114.512,
+          103.172
+        ],
+        [
+          101.42,
+          86.052
+        ],
+        [
+          100.073,
+          87.004
+        ],
+        [
+          93.699,
+          91.509
+        ],
+        [
+          92.82,
+          92.13
+        ],
+        [
+          90.664,
+          93.652
+        ],
+        [
+          99.607,
+          105.347
+        ]
+      ],
+      "area_lote_m2": 251.44,
+      "ancho_m": 13.16,
+      "huella_objetivo_m2": 228.57,
+      "pisos": 5,
+      "z_base_m": 6.53,
+      "z_terreno_medio_m": 2643.14,
+      "gfa_objetivo_m2": 1142.85,
+      "unidades_estimadas": {
+        "Local comercial": {
+          "unidad_m2": 40.0,
+          "min": 8,
+          "max": 9
+        },
+        "Vivienda": {
+          "unidad_m2": 55.0,
+          "min": 14,
+          "max": 15
+        }
+      }
+    },
+    {
+      "id": "B3",
+      "orden": 3,
+      "poligono_local": [
         [
           123.213,
           96.853
@@ -142,71 +256,31 @@
           81.232
         ],
         [
-          106.29,
-          82.61
+          106.323,
+          82.587
         ],
         [
-          100.073,
-          87.004
-        ],
-        [
-          93.699,
-          91.509
-        ],
-        [
-          92.82,
-          92.13
-        ],
-        [
-          79.902,
-          101.25
-        ],
-        [
-          75.0,
-          104.71
-        ],
-        [
-          75.0,
-          104.71
-        ],
-        [
-          78.93,
-          109.85
-        ],
-        [
-          84.1,
-          116.61
-        ],
-        [
-          86.527,
-          114.847
-        ],
-        [
-          89.36,
-          112.79
-        ],
-        [
-          98.801,
-          105.932
+          119.368,
+          99.645
         ]
       ],
-      "area_lote_m2": 946.45,
-      "ancho_m": 21.65,
-      "huella_objetivo_m2": 662.51,
+      "area_lote_m2": 281.38,
+      "ancho_m": 13.16,
+      "huella_objetivo_m2": 255.79,
       "pisos": 5,
-      "z_base_m": 0.0,
-      "z_terreno_medio_m": 2643.07,
-      "gfa_objetivo_m2": 3312.55,
+      "z_base_m": 13.05,
+      "z_terreno_medio_m": 2647.28,
+      "gfa_objetivo_m2": 1278.95,
       "unidades_estimadas": {
         "Local comercial": {
           "unidad_m2": 40.0,
-          "min": 24,
-          "max": 25
+          "min": 9,
+          "max": 10
         },
         "Vivienda": {
           "unidad_m2": 55.0,
-          "min": 42,
-          "max": 43
+          "min": 16,
+          "max": 17
         }
       }
     }

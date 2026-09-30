@@ -1,0 +1,14 @@
+[INFO] GFA desde Grasshopper F1 (D:\Work\PROJECTS\DiseñoParametrico\data\fase-2-demanda\AAA0030JKOE-gfa-gh.json): 1845.35 m2 Traceback (most recent call last): File "D:\Work\PROJECTS\Dise oParametrico\src\fase-2-demanda\F2_Modelo_Financiero\F2_DEMANDA_MOTOR_v03.py", line 1568, in <module> sys.exit(main()) ^^^^^^ File "D:\Work\PROJECTS\Dise oParametrico\src\fase-2-demanda\F2_Modelo_Financiero\F2_DEMANDA_MOTOR_v03.py", line 1426, in main res = run_scenario(gfa, cl, esc, fin) ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ File "D:\Work\PROJECTS\Dise oParametrico\src\fase-2-demanda\F2_Modelo_Financiero\F2_DEMANDA_MOTOR_v03.py", line 244, in run_scenario nga = gfa * esc["eficiencia_nga"] ~~~^^^^^^^^^^^^^^^^^^ KeyError: 'eficiencia_nga'
+
+Pipeline con fallos para AAA0030JKOE
+✓ activar_chip · ✓ f1_contexto · ✓ f1_contexto50 · ✗ f2_venta · ✗ f3_distribucion · ✗ f1_lados_patio (canvas) · ✓ canvas_manual
+F1.5 lados/patio: pendiente — sin diagnostico (use 'Exportar diagnostico lados+patio' en el canvas)
+
+Dentro del canvas: el perimetro del lote: 1. Invalid Curve value. It must be in a horizontal plane.
+
+En el front-end del orquestador, en la Seccion "4 Modelado (masa)" el escenario de modelado, para el lote de la candelaria, queda en B, cuando en la sección "2 Normativa y generación de GFA", no tiene esas opciones seleccionadas, hay una separación entre lo que se hace en la seccion 4 y lo que se solicita en la seccion 2, es necesario corregirlo para que produzca el modelado correspondinete a lao solicitado en la sección d.
+Adicionalmente, no hay manera de definir en un caso como este, cuandos bloques van a salir, ni como van a estar distribuidos dentro del lote y las diferencias de altura entre uno y otro, hay que desarrollar esa logica para poder establecer unos parametros básicos.
+Las polilineas de los lotes tambien estan en un solo plano, no se acomodan al terreno. Los volumenes se dibujan en ArchiCAD, pero en 3D no aparece el terreno, ni los perimetros de los lotes, ni siquiera el del predio seleccionado.
+
+Dentro del canvas en "21-F1_ETAPA1_CONTEXTO_v04.2.py": ETAPA1 | ERROR al leer JSON: [UnicodeDecodeError] 'unknown' codec can't decode byte 0xf3 in position 11: Unable to translate bytes [F3] at index 11 from specified code page to Unicode. | json_path='D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\CHIP-contexto.json' | file_exists=True.
+Se requiere

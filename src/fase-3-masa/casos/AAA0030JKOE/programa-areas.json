@@ -165,24 +165,36 @@
   },
   "origen": "F3_DISTRIBUCION_v02 (balanceado; nucleo circulacion/servicios separados)",
   "bloques": {
-    "n": 1,
+    "n": 3,
     "distribucion": "automatico",
-    "separacion_m": 0.0,
-    "desnivel_m": 0.0,
+    "separacion_m": 6.0,
+    "desnivel_m": 6.53,
     "orientacion": "franjas paralelas a la calle de acceso (Occidente-2)",
-    "niveles_modo": "manual",
+    "niveles_modo": "auto",
     "crujia": {
-      "modo": "doble",
-      "circulacion": "central",
+      "modo": "unica",
+      "circulacion": "lateral",
       "crujia_m": 6.11
     },
-    "nucleo_posicion": "extremo",
+    "nucleo_posicion": "centro",
     "resumen": [
       {
         "id": "B1",
         "pisos": 5,
         "z_base_m": 0.0,
-        "area_lote_m2": 946.45
+        "area_lote_m2": 195.98
+      },
+      {
+        "id": "B2",
+        "pisos": 5,
+        "z_base_m": 6.53,
+        "area_lote_m2": 251.44
+      },
+      {
+        "id": "B3",
+        "pisos": 5,
+        "z_base_m": 13.05,
+        "area_lote_m2": 281.38
       }
     ]
   }
