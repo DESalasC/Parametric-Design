@@ -22,3 +22,29 @@ PATIO v02.4 | V_N=V0 | Verts 6->6 | Lados: Lateral, Lateral, Lateral, Lateral, L
 
 #82-F1_ETAPA2_LADOS_v06.py -> LADOS v06.5 | ERROR: Se necesitan >= 3 vertices (0 recibidos)
 LADOS v06.5 | Verts 6->6 | A=V3 N=V0 | Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V0 via PATIO_v02) | Vias:3 EP:2 Vec:73 Andenes:4 | Ancho via: 0.00m | Detalle: Occidente[L0]=[Lateral aisl:lateral v:31.04 ep:40.25 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L1]=[Lateral aisl:lateral v:6.35 ep:12.98 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Oriente[L2]=[Lateral aisl:lateral v:5.95 ep:10.80 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Sur[L3]=[Lateral aisl:lateral v:5.96 ep:10.80 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Lateral aisl:lateral v:7.46 ep:37.67 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L5]=[Lateral aisl:lateral v:7.46 ep:40.25 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback
+
+
+
+ Grasshopper Event Log 
+
+ Message log start (chronological): 
+
+ Plugin version: 1.0.0008 
+
+ Parameter type is unknown 
+
+ Input parameter chunk is missing. Archive is corrupt. 
+
+ Input parameter chunk is missing. Archive is corrupt. 
+
+ Input parameter chunk is missing. Archive is corrupt. 
+
+ Input parameter chunk is missing. Archive is corrupt. 
+
+ Output parameter chunk is missing. Archive is corrupt. 
+
+ Output parameter chunk is missing. Archive is corrupt. 
+
+ Output parameter chunk is missing. Archive is corrupt. 
+
+ Object list read 
