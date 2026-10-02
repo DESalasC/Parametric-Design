@@ -667,6 +667,148 @@ ep_raw = globals().get("ep_curves", None)
 vecinos_raw = globals().get("vecinos_curves", None)
 andenes_raw = globals().get("andenes_curves", None)
 
+# PROPUESTA v06.6: puente de tramos del Orquestador.
+# NUEVAS ENTRADAS Item, No Type Hint:
+# clasificacion_lados_json <- F0 v01.6, JSON completo con CHIP y segmentos.
+# contexto_json_path <- mismo json_path usado por ETAPA1 (CHIP-contexto.json).
+# Se compara geometria raw trasladada al anclaje ETAPA1 con lados GH.
+# No confundir ids raw con ids simplificados. Fallos quedan en avisos.
+# NUEVA SALIDA: puente_lados_ok (bool). No certifica retiros ni empates.
+
+
+def _puente_orquestador(vertices, raw_clasificacion, raw_path):
+    """Mapea tramos por cobertura geometrica bilateral XY, tolerancia 0.30m.
+    Requiere el mismo marco local que ETAPA1; no ajusta traslaciones a ciegas.
+    """
+    import System.IO
+    import System.Text
+    try:
+        unicode_type = unicode
+    except NameError:
+        unicode_type = str
+    def text(v):
+        if isinstance(v, unicode_type): return v
+        if isinstance(v, bytes):
+            try: return v.decode('utf-8')
+            except UnicodeError: return v.decode('cp1252')
+        return unicode_type(v)
+    def item(v):
+        return v[0] if isinstance(v, list) and v else v
+    data = json.loads(text(item(raw_clasificacion)))
+    path = text(item(raw_path))
+    contenido = System.IO.File.ReadAllText(path, System.Text.UTF8Encoding(False, True))
+    ctx = json.loads(contenido.lstrip(u'\ufeff'))
+    if not isinstance(data, dict) or data.get('chip') != ctx.get('metadata', {}).get('chip'):
+        raise ValueError('CHIP de clasificacion/contexto no coincide')
+    raw = ctx.get('lote_objetivo', {}).get('vertices_3d_local') or []
+    if len(raw) > 1 and math.hypot(raw[0][0]-raw[-1][0], raw[0][1]-raw[-1][1]) < 1e-6:
+        raw = raw[:-1]
+    if len(raw) < 3:
+        raise ValueError('contexto sin perimetro raw')
+    anchor = raw[0]
+    for v in raw:
+        if v[1] < anchor[1] - 0.01 or (abs(v[1]-anchor[1]) < 0.01 and v[0] > anchor[0]):
+            anchor = v
+    points = [(v[0]-anchor[0], v[1]-anchor[1]) for v in raw]
+    def dist(p, a, b):
+        dx, dy = b[0]-a[0], b[1]-a[1]
+        l2 = dx*dx+dy*dy
+        t = max(0., min(1., ((p[0]-a[0])*dx+(p[1]-a[1])*dy)/l2)) if l2 > 1e-12 else 0.
+        return math.hypot(p[0]-a[0]-t*dx, p[1]-a[1]-t*dy)
+    def samples(a, b):
+        count = max(10, int(math.hypot(b[0]-a[0], b[1]-a[1])/0.25))
+        return [(a[0]+(b[0]-a[0])*k/count, a[1]+(b[1]-a[1])*k/count) for k in range(count+1)]
+    tramos = data.get('lados') or []
+    mapping = {}
+    used = set()
+    for i, p in enumerate(vertices):
+        q = vertices[(i+1) % len(vertices)]
+        a, b = (p.X,p.Y), (q.X,q.Y)
+        matches = []
+        for t in tramos:
+            segments = t.get('segmentos') or []
+            if not segments: continue
+            if any(not isinstance(s, int) or s < 0 or s >= len(points) for s in segments):
+                raise ValueError('indices raw invalidos')
+            edges = [(points[s], points[(s+1)%len(points)]) for s in segments]
+            # Ambos sentidos: evita asignar un grupo largo a un fragmento corto.
+            if all(min(dist(x,c,d) for c,d in edges) <= 0.30 for x in samples(a,b)) and \
+               all(dist(x,a,b) <= 0.30 for c,d in edges for x in samples(c,d)):
+                matches.append(t)
+        if len(matches) != 1:
+            raise ValueError('L{}: {} correspondencias; revisar anclaje/perimetro'.format(i,len(matches)))
+        t = matches[0]
+        tid = t.get('lado_id')
+        if tid in used:
+            raise ValueError('tramo raw asignado dos veces')
+        used.add(tid)
+        # Copia enriquecida: intervalos del perimetro raw proyectados en L_i.
+        # No usar longitudes proporcionales: conservar ubicacion real.
+        t = dict(t)
+        intervals = []
+        denom = (b[0]-a[0])**2 + (b[1]-a[1])**2
+        for s in t.get('segmentos') or []:
+            c, d = points[s], points[(s+1)%len(points)]
+            ts = [max(0., min(1., ((x[0]-a[0])*(b[0]-a[0]) +
+                  (x[1]-a[1])*(b[1]-a[1]))/denom)) for x in (c,d)]
+            intervals.append({'segmento_raw': s, 't0': min(ts), 't1': max(ts)})
+        t['_intervalos_canvas'] = intervals
+        mapping[i] = t
+    if len(used) != len(tramos):
+        raise ValueError('tramos sin correspondencia: no aplicar parcialmente')
+    return mapping, data.get('chip')
+
+
+def _vecinos_intervalos(mapping, vertices, lados, chip):
+    """Contrato v02 de subtramos, NO compatible con parser legacy NORMATIVA.
+    Alturas 0/None, falta de asignacion o varios candidatos -> pendiente.
+    Los manuales sin ubicacion quedan pendientes, no se aplican a todo el lado.
+    """
+    out = {'schema': 'vecinos_intervalos_canvas_v02', 'chip': chip,
+           'lados': [], 'pendientes': []}
+    for i in sorted(mapping):
+        tramo = mapping[i]
+        entry = {'id': i, 'orquestador_lado_id': tramo.get('lado_id'),
+                 'subtramos': [], 'es_colindancia_predial':
+                 lados[i]['clasificacion'] in ('Lateral', 'Posterior')}
+        if not entry['es_colindancia_predial']:
+            out['lados'].append(entry)
+            continue
+        hs = {}
+        for vecino in tramo.get('vecinos') or []:
+            if vecino.get('corresponde') is False:
+                continue
+            try:
+                h = float(vecino.get('altura_m'))
+                if h <= 0 or math.isnan(h) or math.isinf(h): h = None
+            except (TypeError, ValueError):
+                h = None
+            hs[vecino.get('chip')] = h
+        seg_chips = tramo.get('segmentos_vecinos') or {}
+        length = vertices[i].DistanceTo(vertices[(i+1)%len(vertices)])
+        for interval in tramo.get('_intervalos_canvas') or []:
+            if interval['t1'] - interval['t0'] < 1e-8:
+                continue
+            chips = seg_chips.get(str(interval['segmento_raw'])) or []
+            heights = [hs.get(c) for c in chips]
+            known = len(chips) == 1 and heights[0] is not None
+            sub = dict(interval)
+            sub.update({'chips': chips, 'alturas_m': heights,
+                        'altura_m': heights[0] if known else None,
+                        'longitud_m': length*(interval['t1']-interval['t0']),
+                        'estado': 'dato_disponible' if known else 'pendiente'})
+            entry['subtramos'].append(sub)
+            if not known:
+                out['pendientes'].append({'id': i, 'segmento_raw': interval['segmento_raw'],
+                                          'motivo': 'altura ausente o asignacion ambigua'})
+        if tramo.get('vecinos_manuales'):
+            out['pendientes'].append({'id': i, 'motivo': 'vecinos manuales sin intervalo geometrico'})
+        if not entry['subtramos']:
+            out['pendientes'].append({'id': i, 'motivo': 'colindancia sin subtramos'})
+        out['lados'].append(entry)
+    return out
+
+
 # Tolerancia de colindancia configurable (entrada opcional; default 0.5 m)
 _tol_in = globals().get("tol_colindancia_m", None)
 try:
@@ -711,6 +853,13 @@ vecinos_list = filtrar_curvas(vecinos_raw, "vecinos_curves", avisos)
 andenes_list = safe_list(andenes_raw)
 
 sides_table_json = ""
+# NUEVA SALIDA String: vecinos_intervalos_json; mantener fuera de entrada legacy.
+vecinos_intervalos_json = ""
+puente_lados_ok = False
+clasificacion_raw = globals().get('clasificacion_lados_json', None)
+contexto_path_raw = globals().get('contexto_json_path', None)
+mapa_orquestador = {}
+chip_puente = None
 lot_simplificado = None
 es_esquina = False
 ancho_via_m = 0.0
@@ -731,6 +880,16 @@ else:
         # v06.5: simplificacion de lados colineales (giro < 2.5 grados)
         lot_vertices = simplificar_colineales(lot_vertices, UMBRAL_COLINEAL_GRADOS)
         n = len(lot_vertices)
+        if clasificacion_raw and contexto_path_raw:
+            try:
+                mapa_orquestador, chip_puente = _puente_orquestador(
+                    lot_vertices, clasificacion_raw, contexto_path_raw)
+                puente_lados_ok = True
+                avisos.append('puente Orquestador: {} tramos verificados'.format(len(mapa_orquestador)))
+            except Exception:
+                avisos.append('ERROR puente Orquestador: geometria/CHIP/JSON no coincidente; no aplicar overrides')
+        else:
+            avisos.append('puente Orquestador sin conectar (clasificacion_lados_json/contexto_json_path)')
         cx = sum(v.X for v in lot_vertices) / n
         cy = sum(v.Y for v in lot_vertices) / n
 
@@ -994,8 +1153,22 @@ else:
                     cat = "Lateral"  # provisional; la regla posterior puede reclasificar
                     motivo_lado = "sin contacto minimo"
 
+            tramo_manual = mapa_orquestador.get(i)
+            frente_manual = tramo_manual.get('frente_override') if tramo_manual else None
+            if frente_manual in ('via', 'via_no_frontal', 'predio', 'espacio_publico'):
+                # Ambos tipos de via excluyen candidaturas de patio en sus extremos.
+                cat = {'via':'Frontal', 'via_no_frontal':'EspacioPublico',
+                       'predio':'Lateral', 'espacio_publico':'EspacioPublico'}[frente_manual]
+                toca_via = frente_manual in ('via', 'via_no_frontal')
+                toca_ep = frente_manual == 'espacio_publico'
+                toca_vecino = frente_manual == 'predio'
+                motivo_lado = 'override Orquestador tramo {}'.format(tramo_manual.get('lado_id'))
             lados.append({
                 "id": i,
+                "orquestador_lado_id": tramo_manual.get('lado_id') if tramo_manual else None,
+                "frente_override": frente_manual,
+                "es_via_secundaria": frente_manual == 'via_no_frontal',
+                "clasificacion_fuente": 'operador' if frente_manual else 'geometria',
                 "clasificacion": cat,
                 "motivo": motivo_lado,
                 "frac_via_m": round(f_v, 3),
@@ -1023,6 +1196,10 @@ else:
                 "mx": round((p1.X + p2.X) / 2.0, 4),
                 "my": round((p1.Y + p2.Y) / 2.0, 4)
             })
+
+        # Esquina geometrica: frentes viales ADYACENTES, no dos opuestos.
+        # La excepcion normativa sigue requiriendo confirmacion en NORMATIVA.
+        es_esquina = any(lados[i]['toca_via'] and lados[(i+1)%n]['toca_via'] for i in range(n))
 
         # PASO 5: REGLA POSTERIOR
         # El Posterior existe SOLO cuando TODOS los lados menos uno colindan
@@ -1063,20 +1240,23 @@ else:
         if es_esquina:
             idx_posterior = None
         if idx_posterior is not None:
-            lados[idx_posterior]["clasificacion"] = "Posterior"
+            if lados[idx_posterior].get('frente_override'):
+                idx_posterior = None  # no sobrescribir decision explicita del operador
+            else:
+                lados[idx_posterior]["clasificacion"] = "Posterior"
 
         # APLICAR OVERRIDES DE SETBACK PARA LADOS QUE LIMITAN CON VIA
         # Solo aplica a lados que tienen toca_via = True (limitan con via)
         for l in lados:
             side_id = l["id"]
             # Solo considerar overrides para lados que limitan con via
-            if l.get("toca_via", False) and side_id in lado_override_dict:
+            if not l.get('frente_override') and l.get("toca_via", False) and side_id in lado_override_dict:
                 override_has_setback = lado_override_dict[side_id]
                 if override_has_setback:
                     # Forzar que el lado tenga setback
                     # Si ya es Frontal o Posterior, mantener su tipo de setback
                     # Si no, asignar como Frontal para setback (antejardin)
-                    current_tipo = l["aislamiento_tipo"]
+                    current_tipo = l.get("aislamiento_tipo", "lateral")
                     if current_tipo not in ["antejardin", "posterior"]:
                         l["aislamiento_tipo"] = "antejardin"
                         # También actualizar clasificacion a Frontal para consistencia
@@ -1125,6 +1305,8 @@ else:
             l["ancho_via_m"] = round(anchos_por_lado.get(l["id"], 0.0), 2)
 
         sides_data = {
+            "chip": chip_puente,
+            "puente_lados_ok": puente_lados_ok,
             "lados": lados,
             "total_lados": len(lados),
             "n_vertices_originales": n_vertices_brutos,
@@ -1149,6 +1331,12 @@ else:
             sides_data["vertice_n_points"] = [[pt.X, pt.Y, pt.Z] for pt in vertice_n_points]
             sides_data["vertice_n_method"] = vertice_n_method
         sides_table_json = json.dumps(sides_data)
+        if puente_lados_ok:
+            interval_data = _vecinos_intervalos(mapa_orquestador, lot_vertices, lados, chip_puente)
+            vecinos_intervalos_json = json.dumps(interval_data, ensure_ascii=True)
+            avisos.append('vecinos por intervalos: {} lados, {} pendientes; '
+                          'requiere consumidor v02, NO parser legacy'.format(
+                              len(interval_data['lados']), len(interval_data['pendientes'])))
 
         cats_final = [l["clasificacion"] for l in lados]
 
@@ -1172,7 +1360,7 @@ else:
             n_method = vertice_n_method if 'vertice_n_method' in locals() else "unknown"
             metodo_info = " | Método A/N: {}/{}".format(a_method, n_method)
 
-        mensaje = "LADOS v06.5 | Verts {}->{} | A=V{} N=V{} | {} | Esq:{} | Posterior:{} ({}) | Vias:{} EP:{} Vec:{} Andenes:{} | Ancho via: {:.2f}m | Detalle: {}".format(
+        mensaje = "LADOS v06.7 | Verts {}->{} | A=V{} N=V{} | {} | Esq:{} | Posterior:{} ({}) | Vias:{} EP:{} Vec:{} Andenes:{} | Ancho via: {:.2f}m | Detalle: {}".format(
             n_vertices_brutos, len(lot_vertices), vertice_a, vertice_n, ", ".join(cats_final),
             es_esquina,
             "SI" if idx_posterior is not None else "NO",
