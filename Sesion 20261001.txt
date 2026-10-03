@@ -1,0 +1,1103 @@
+Revisado el vault. El último cierre enlazado en el índice es del 30-09-2026; el consolidado y la tabla de versiones contienen información anterior.
+
+Estado para retomar
+Base: par F1_CONTEXTO_v12.ghx/.gh, restaurado y sincronizado el 30-09 a las 10:33:22.
+Caso activo: La Candelaria, CHIP AAA0030JKOE, 946,45 m².
+PATIO v03.1: bifurcación único/múltiple y modo AUTO, slider #166 = 0. Prueba offline: 3 patios, anclados en V1, V2 y V5.
+Verificación documentada: 338/338 tests raíz, 56/56 fase 1; canvas sin referencias rotas. No equivale a validación viva.
+Pendientes prioritarios
+Probar el par v12 en Grasshopper–ArchiCAD: patios, NORMATIVA, terreno/linderos/vecinos 3D y exports GFA/F1.5.
+Revisar Ancho via: 0.00m, clasificación de lados y posible persistencia de errores de curvas horizontales y eficiencia_nga.
+Después: NORMATIVA v09 y patios interiores v03.2 con interfaz de Zonas.
+Bloqueador abierto: conflicto del puerto 19723 entre AutoClaw y Live Connection.
+
+
+
+El archivo F1_CONTEXTO_v12.ghx, presentaba errores de Grasshopper Event Log
+
+Message log start (chronological):
+
+Plugin version: 1.0.0008 Parameter type is unknown Input parameter chunk is missing. Archive is corrupt. Input parameter chunk is missing. Archive is corrupt. Input parameter chunk is missing. Archive is corrupt. Input parameter chunk is missing. Archive is corrupt. Output parameter chunk is missing. Archive is corrupt. Output parameter chunk is missing. Archive is corrupt. Output parameter chunk is missing. Archive is corrupt. Object list read Pero se podia trabajar, a aprtir de alli creando los grupos actuales agrupados mas o menos por funciones cree la version 12.1 que es la que esta activa actualmente.
+
+execute
+Failed
+La base de trabajo es la v12.1 activa, derivada del v12 y organizada por en grupos funcionales. 
+
+El Event Log indica problemas de deserialización: un tipo de parámetro desconocido y chunks de entradas/salidas ausentes. Que permitiera trabajar no garantiza que todas las conexiones y parámetros se hayan recuperado; la comprobación offline anterior no descarta estos errores de carga.
+
+v12.1 activa, sin errores de carga, queda como base de trabajo. Preservaré tus grupos y su ubicación.
+
+Sigue pendiente validar el funcionamiento: patios AUTO, NORMATIVA, rama 3D y exports.
+
+Hay un problema con los patios. en este punto el lote actual tiene una forma tal que la logica incial de los patios no funcionaba, porque se asulia que todas las esquinas eran concavas y este lote en particular tine una convexa, que bloquea el script. Por otro lado, en estos lotes tan grandes, no es practico generar un solo volumen con patios de ventilación. se estaba trabajndo con una logica que por medio de unas skills ("D:\Work\AI\skills\architect") , de manera que podia definir una ocupación con volumenes por una crujia y asignar automaticamente de acuerdo a la reglamentación, los espacios entre los difernetes volumenes, pero ahi estoy bloqueado porque necesito definir como esa distribución me permite cumplir la reglamentación. Necesito que analices eso y me hagas un diagnostico y una propuesta para resolver esos bloqueos. Tienes todas las autorizaciones necesarias para ver editar y cambiar si es necesario para este proposito todos los archivos y directorios en este equipo.
+
+
+Reviso la lógica de patios, la distribución por crujías y los criterios normativos por altura y tramo. Primero haré el diagnóstico; no cambiaré la v12.1 antes de comprobar qué falla y cómo validar la solución.
+
+
+Encontré dos bloqueos de fondo: PATIO equipara el número de patios con el de volúmenes, pero no distribuye cuerpos; F3 distribuye franjas con un mínimo fijo de 6 m, sin comprobar la separación según sus alturas. Además, NORMATIVA puede reportar «OK» aunque la ocupación supere el IO permitido.
+
+La lectura directa funciona, pero el error de permisos de Raven sigue impidiendo inspeccionar la v12.1 activa y ejecutar pruebas. Guardaré el diagnóstico con esa limitación explícita.
+
+El bloqueo no se resuelve añadiendo patios: hay que distribuir los cuerpos y comprobar los vacíos que resultan. Revisé el código externo, las skills Architect y la normativa documentada en el vault.
+
+1. Diagnóstico
+A. PATIO todavía depende de las esquinas
+El script construye un paralelogramo siguiendo los dos bordes del vértice elegido. En una esquina entrante puede quedar fuera del predio.
+
+Una precisión: desde el interior del lote, convexa = ángulo menor de 180°; cóncava/reflex = mayor de 180°. El acta anterior identifica V0 como reflex; falta comprobarlo en la geometría activa.
+
+En AUTO v03.1, una esquina inválida debería descartarse sin detener las demás. Si actualmente bloquea todo, debemos revisar el código embebido, el modo seleccionado y sus entradas.
+
+B. AUTO no distribuye volúmenes
+Actualmente calcula:
+
+n = mínimo(esquinas válidas, área del lote / 300 m²)
+
+Eso produce candidatos de patio, no cuerpos edificables. No comprueba crujías, núcleos, alturas, accesos ni separaciones. Tres patios no garantizan tres volúmenes.
+
+C. F3 tiene una distribución preliminar, pero no garantiza cumplimiento
+F3_DISTRIBUCION_v02 ya propone franjas y crujía única/doble, pero:
+
+Usa 6 m fijos, sin recalcular según las alturas.
+Divide el lote bruto, dejando el encaje normativo para después.
+Reparte áreas objetivo sin demostrar que caben.
+Supone recortes de un solo polígono; un lote irregular puede producir varias regiones.
+D. NORMATIVA puede dar un falso «OK»
+La validación final comprueba que la ocupación sea menor que el lote, pero no que respete el IO máximo.
+
+Si el IO 0,70 documentado resulta aplicable:
+
+Control	Valor
+Área del lote	946,45 m²
+Ocupación máxima aritmética	662,515 m²
+Área no ocupada mínima	283,935 m²
+Restar pequeños patios podría eliminar el error actual y seguir excediendo el IO.
+
+Además, encontré un respaldo de booleana que puede descontar área numéricamente sin perforar la geometría. Eso permite discrepancias entre modelo y GFA.
+
+2. Propuesta
+Ensayar 2 y 3 barras escalonadas de crujía única, sin fijar anticipadamente cuál funciona:
+
+Construir la envolvente disponible por nivel/cota y tramo de colindancia.
+Encajar barras con profundidad, galería y núcleo explícitos.
+Generar los vacíos entre cuerpos.
+Validar conjuntamente separación, iluminación, ocupación, alturas, accesibilidad y evacuación.
+Ajustar orientación, profundidad, posición, pisos o número de cuerpos.
+Devolver el GFA realmente obtenido a F2, no conservar un área objetivo que ya no cabe.
+Cómo comprobar los espacios entre cuerpos
+Según las fichas del vault, pendientes de cotejar con los originales y su aplicabilidad al expediente:
+
+Edificaciones aisladas — Anexo 5 §1.10.b:
+separación ≥ máx(6 m, 0,4 × altura promedio)
+Patio de iluminación/ventilación — §1.12.b: debe poder inscribirse un cuadrado de lado
+máx(3 m, mayor altura que lo enmarca / 3).
+Si concurren ambas funciones, se cumplen ambas reglas. Llamarlo «pasaje» no elimina el aislamiento.
+Separación sísmica: comprobar NSR-10 A.6.5 según la situación estructural; no certificarla con un porcentaje global.
+Las skills Architect sirven para elegir tipologías y dimensiones de estudio, no para sustituir la reglamentación colombiana.
+
+3. Orden para desbloquearlo
+Auditar la v12.1 activa, preservando tus grupos.
+Corregir primero IO, regiones/huecos y errores booleanos.
+Implementar distribuidor y validador separados.
+Comparar alternativas en planta, sección y 3D.
+Guardé el diagnóstico y plan de pruebas. 
+
+Puedo leer directamente F1_CONTEXTO_v12.2.ghx. El archivo declara 273 objetos y contiene la estructura XML de Grasshopper.
+
+Usaré esta versión para revisar PATIO, NORMATIVA y sus conexiones, conservando tus grupos. Esta lectura no modifica el archivo ni permite comprobar la ejecución en vivo.
+
+RAVEN_ACCOUNT_SKILLS_DIR indica dónde se guardan las skills de usuario, no dónde se ubica el workspace del chat.
+
+Este chat está trabajando en:
+
+D:\Users\Dario Salas\Documents\Raven\user1\chats\chat-20261001153921-74ebf812
+Sí podría influir indirectamente en el sandbox: Raven puede incluir D:\Work\AI\Raven entre las rutas que prepara para acceder a archivos. No hemos comprobado si eso provoca el intento fallido de actualizar la ACL de D:\.
+
+Evaluating the audit process
+Continué con la v12.2 y confirmé estos puntos directamente en el archivo:
+
+PATIO sí contiene v03.1 con AUTO/MULTI, en el componente #108-F1_ETAPA2_PATIO_v03.py.
+Su entrada n_volumenes está conectada al slider #97, cuyo valor guardado es 0 = AUTO.
+Por tanto, esta copia no está configurada para patio único. AUTO descarta una esquina inválida y prueba otras; necesitamos los mensajes actuales para identificar por qué falla en vivo.
+NORMATIVA conserva la validación incompleta: puede reportar «OK» sin comprobar el límite de IO.
+La distinción que falta en el pipeline
+No debemos confundir:
+
+Envolvente potencial F1: espacio donde podría construirse, sujeto a restricciones.
+Ocupación propuesta F3: cuerpos realmente distribuidos, que deben cumplir IO, separaciones, alturas y condiciones funcionales.
+La envolvente potencial puede superar el IO; lo incorrecto es exportarla como ocupación aprobada y usar su GFA como capacidad realizable.
+
+Intervención propuesta
+Mantener las restricciones prediales y por nivel en F1.
+Distribuir barras por crujía en F3, sin depender de las esquinas.
+Validar cuerpos y vacíos conjuntamente.
+Recalcular el GFA efectivo de cada alternativa antes de actualizar F2.
+Guardé la auditoría parcial de v12.2. No modifiqué el original ni tus grupos.
+
+Para localizar el fallo inmediato, copia aquí el contenido actual de los paneles PATIO y NORMATIVA de la v12.2.
+
+Estos son
+
+F1_ETAPA2_PATIO_v03.py +1
+
+Recibí los dos scripts. Los bloques revisados confirman la lógica diagnosticada: PATIO usa AUTO por esquinas y NORMATIVA no incluye el IO en su validación final.
+
+Encontré además otra dependencia: PATIO exige vertice_n incluso en AUTO, aunque ese modo podría buscar otras anclas. Si falta ese dato, no intenta ningún patio.
+
+Los adjuntos son código fuente, no los mensajes de ejecución; todavía no permiten distinguir si el fallo actual es por ancla inválida, clasificación de lados o entradas faltantes.
+
+¿Puedes copiar el texto que aparece en la salida mensaje de PATIO en la v12.2?
+
+PATIO v03.1 | ERROR: vertices=2 sides=FALTA
+
+Este error ocurre antes de evaluar las esquinas o generar patios. El bloqueo inmediato está en las entradas:
+
+vertices=2: PATIO recibió solo dos elementos; necesita al menos tres vértices válidos.
+sides=FALTA: sides_table_json llegó vacío o no pudo interpretarse como JSON.
+Por tanto, este mensaje no demuestra un fallo por concavidad. Primero debemos reparar el tramo geometría del predio → LADOS → PATIO.
+
+En la v12.2:
+
+Comprueba que lot_vertices reciba todos los puntos del perímetro en una sola lista, no una rama de dos puntos.
+Comprueba que sides_table_json reciba la salida JSON de LADOS, no su salida mensaje.
+Copia ahora el texto de la salida mensaje de LADOS. Con eso identificamos si el fallo nace allí o en las conexiones hacia PATIO.
+
+LADOS v06.5 | ERROR: Se necesitan >= 3 vertices (2 recibidos)
+read · Gathering location data
+Confirmado: el fallo empieza antes de LADOS. Ambos scripts reciben solo dos vértices; LADOS no genera el JSON y PATIO falla como consecuencia.
+
+No cambiemos todavía la lógica de patios.
+
+Conecta temporalmente un Panel a la salida que alimenta lot_vertices de LADOS, conservando las conexiones existentes, y envíame una captura donde se vean:
+
+El componente que produce esos puntos.
+Sus entradas y salidas.
+El contenido del Panel con las rutas de ramas visibles.
+Así distinguimos si el perímetro entrega solo dos puntos o si los puntos completos están repartidos en ramas de dos elementos. No apliques Flatten todavía: podría mezclar varios perímetros.
+
+el problema de los mensajes de error era que el predio no se estaba conectando adecuadamente desde ArchiCAD, este es el mensaje actual desde Patios: {0;0} 0. PATIO v03.1 | modo AUTO | n_volumenes inferido: 3 (esquinas validas: 5 | capacidad: 3 @ 300 m2) | Verts 6->6 | Lados: Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Generados: 3/3 | Anclas: V1, V5, V2 | Areas: 9.01, 9.00, 9.00 m2 | Claridades: 3.00, 3.00, 3.00 m | Modo: esquinas_interiores_v1 | Nota: limitado por capacidad del lote | Descartes: auto: patio en V0 no valida (no cabe / no interior)
+
+La conexión del predio quedó resuelta y PATIO está ejecutando AUTO correctamente. Descarta V0 y genera tres patios en otras esquinas; V0 ya no bloquea el script.
+
+El mensaje confirma dos problemas pendientes:
+
+Todos los lados aparecen como Lateral. Para el caso documentado entre dos vías, esto exige revisar la clasificación: PATIO considera elegibles esquinas que podrían pertenecer a frentes.
+Los tres patios son de unos 9 m² y 3 m de claridad. Son resultado de la heurística de esquinas/área; no representan una distribución de tres volúmenes ni garantizan separaciones reglamentarias. Su dimensionamiento debe contrastarse con las alturas de los cuerpos que iluminarán.
+No ajustaría más el ancla V0. El siguiente paso es corregir o confirmar los frentes y después generar barras por crujía con vacíos calculados según alturas.
+
+¿Las geometrías de las dos vías ya están llegando desde ArchiCAD a la entrada vias de LADOS?
+
+si los reporta y son tres ejes de vias.
+
+Recibir tres ejes no garantiza que LADOS los reconozca como frentes. Puede estar fallando la conversión de curvas, la distancia al lindero, la alineación de coordenadas o algún filtro de clasificación.
+
+Antes de tocar patios, debemos identificar por qué los seis lados siguen como Lateral.
+
+Copia el mensaje completo actual de LADOS. Ese diagnóstico nos permitirá acotar el fallo sin cambiar conexiones a ciegas.
+
+LADOS v06.5 | Verts 6->6 | A=V3 N=V1 | Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V1 via PATIO_v02) | Vias:3 EP:2 Vec:69 Andenes:8 | Ancho via: 0.00m | Detalle: Occidente[L0]=[Lateral aisl:lateral v:50.70 ep:92.04 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L1]=[Lateral aisl:lateral v:55.34 ep:93.20 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Oriente[L2]=[Lateral aisl:lateral v:34.12 ep:117.68 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Sur[L3]=[Lateral aisl:lateral v:34.12 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Lateral aisl:lateral v:37.67 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L5]=[Lateral aisl:lateral v:50.70 ep:68.36 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback | AVISOS: entrada vecinos_curves: 4 item(s) NO convertibles a curva nativa; tipo del 1er item: NoneType. Solucion: conectar la salida C del Deconstruct DIRECTO a la entrada del script con Type hint = Curve + List Access + Flatten (GHPython convierte a Rhino.Geometry.Curve); NO reconstruir con Explode/PolyLine (el parametro Polyline de Params produce Rhino.Geometry.Polyline sin ClosestPoint)
+
+LADOS recibe las curvas, pero no encuentra contacto con las vías. El diagnóstico muestra:
+
+Distancias a vías de 34–55 m.
+Contacto con vecinos del 100 % en todos los lados.
+Ningún frente reconocido; por eso el ancho vial queda en 0 m.
+Hay dos comprobaciones prioritarias:
+
+1. Altura Z de las vías
+En el código revisado, LADOS toma muestras del lindero en Z=0, pero mide distancia tridimensional a las curvas recibidas. Si los ejes están elevados, puede interpretar esa diferencia de cota como distancia a la vía.
+
+La clasificación debe hacerse en XY, conservando las cotas originales para terreno y volumetría.
+
+2. Contenido de «Vecinos»
+Que todos los lados tengan contacto completo puede indicar que entre los 69 vecinos está el propio predio, un perímetro envolvente o geometría mal categorizada. Es una hipótesis, no una confirmación.
+
+Los cuatro elementos NoneType descartados son secundarios: siguen entrando 69 curvas.
+
+No aumentes las tolerancias para compensarlo. Primero conecta temporalmente Deconstruct Point a un extremo de uno de los ejes de vía y dime su valor Z. Así comprobamos el posible desfase vertical antes de cambiar la clasificación.
+
+Los valores de inicio y fin del los ejes de ambas curvas entan en cero, también el perimetro del lote se encuentra en z=0
+
+
+Descartamos el desfase Z como explicación principal. Revisando LADOS encontré una distinción importante:
+
+v06.5 clasifica frentes por contacto con curvas de vía, no por cercanía al eje a 15 m.
+Un eje vial normalmente no coincide con el lindero, por lo que no basta para reconocer el frente.
+Además, el fr:…/1.0 de vecinos no demuestra contacto del 100 %: el script fuerza ese valor cuando los dos extremos coinciden con vértices de vecinos. Corrijo esa interpretación anterior.
+Ahora debemos separar ejes viales de polígonos del espacio vial. Estos últimos permiten comprobar la colindancia; los ejes sirven como referencia, no como borde.
+
+¿La entrada vias_curves de LADOS recibe únicamente los tres ejes, o también los perímetros de las vías clasificados en ArchiCAD?
+
+En este momento solo esta recibiiendo los ejes de las vias
+
+Ahí está el bloqueo de clasificación: LADOS v06.5 espera contacto con el borde del espacio vial, pero está recibiendo únicamente ejes. Por eso no reconoce frentes.
+
+Corrección inmediata
+Desde ArchiCAD, incorpora los polígonos del espacio vial colindante, con el límite correcto hacia el predio.
+Conecta sus curvas a vias_curves de LADOS, mediante el lector y Deconstruct correspondiente.
+Conserva los ejes separados como referencia; no aumentes la tolerancia ni desplaces los ejes hasta el lindero.
+Después verificaremos:
+
+Los tramos realmente colindantes con vías aparecen como Frontal.
+Los laterales permanecen como colindancias prediales.
+PATIO deja de considerar todas las esquinas como candidatas.
+El ancho vial requiere otra comprobación: reconocer el frente no garantiza que el script pueda medir el perfil completo.
+
+Esta corrección desbloquea los datos de entrada, pero no sustituye la distribución por crujías: esa sigue siendo la siguiente intervención para generar cuerpos y separaciones reglamentarias.
+
+Listo ya se tren unicamente los bordes de via que afectan al prredio. pero el mensaje sigue LADOS v06.5 | Verts 6->6 | A=V2 N=V0 | Lateral, Lateral, Frontal, Lateral, Frontal, Lateral | Esq:True | Posterior:NO (regla N-1 no aplica; patio en V0 via PATIO_v02) | Vias:3 EP:2 Vec:70 Andenes:8 | Ancho via: 0.00m | Detalle: Occidente[L0]=[Lateral aisl:lateral v:23.59 ep:92.04 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L1]=[Lateral aisl:lateral v:0.00 ep:92.14 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Oriente[L2]=[Frontal aisl:antejardin v:0.00 ep:117.68 vec:0.00 fr:1.0/0.0/0.019 (contacto via 100%)]; Sur[L3]=[Lateral aisl:lateral v:0.00 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Frontal aisl:antejardin v:0.00 ep:66.17 vec:0.00 fr:1.0/0.0/0.027 (contacto via 100%)]; Norte[L5]=[Lateral aisl:lateral v:0.00 ep:68.07 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback | AVISOS: entrada vecinos_curves: 3 item(s) NO convertibles a curva nativa; tipo del 1er item: NoneType. Solucion: conectar la salida C del Deconstruct DIRECTO a la entrada del script con Type hint = Curve + List Access + Flatten (GHPython convierte a Rhino.Geometry.Curve); NO reconstruir con Explode/PolyLine (el parametro Polyline de Params produce Rhino.Geometry.Polyline sin ClosestPoint)
+
+La clasificación de frentes ya funciona: LADOS reconoce L2 Oriente y L4 Occidente como Frontal, ambos con contacto vial del 100 %. El mensaje cambió correctamente.
+
+Lo pendiente es distinto:
+
+Ancho via: 0.00m: los bordes colindantes identifican el frente, pero no aportan el borde opuesto necesario para medir el perfil vial completo. Debemos aportar ese perfil o introducir un ancho verificado por cada frente.
+Esq:True: el script lo deduce del contacto de vértices con vías/EP. Dos frentes opuestos no significan necesariamente lote de esquina; esta regla debe corregirse antes de confiar en sus efectos sobre retiros.
+Los tres NoneType de vecinos son elementos vacíos descartados; no impiden esta clasificación.
+Que otros lados tengan distancia vial 0.00 puede deberse al contacto en sus extremos; eso no los convierte en frentes.
+
+Copia ahora los mensajes actuales de PATIO y NORMATIVA. Así comprobamos qué cambia aguas abajo con los dos frentes reconocidos, sin modificar todavía tolerancias ni retiros.
+
+Patio: PATIO v03.1 | modo AUTO | n_volumenes inferido: 1 (esquinas validas: 1 | capacidad: 3 @ 300 m2) | Verts 6->6 | Lados: Lateral, Lateral, Frontal, Lateral, Frontal, Lateral | Generados: 1/1 | Anclas: V1 | Areas: 9.01 m2 | Claridades: 3.00 m | Modo: esquinas_interiores_v1 | Nota: menos esquinas validas que capacidad | Descartes: auto: patio en V0 no valida (no cabe / no interior) Normativa: NORMATIVA v08.1 | OK | Lote: 946.3m2 | Ocup: 828.5m2 | IO 0.70 | IC 2.93 (+2) | Alt 26.6m | 7 pisos | GFA escalonado: 2773.5m2 (base 5799.6m2) | Escalonados: 6 pisos | Voladizo frontal 0.00m (piso 2+) | Vecinos por lado: 0 lados, 0 vecinos | Empate 1.9.c: NO aplica (sin lado posterior): solo sismica 2%xh | Patios 9.0m2 | Tipo:Continua | Antejardin 3.0m (via 0.0m) | Lat 0.0m | Post 0.0m | AVISOS: empate 1.9.c NO aplica: predio sin lado posterior (dos laterales y esquina) -> solo sismica NSR-10 A.6.5; tipologia no definida y sin dato reglamentario -> Continua; sin ancho_via_m -> antejardin default 3.0m (ver mapa CU-5.5); lote de esquina: sin aislamiento posterior (patio 3x3 en esquina interior); sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)
+
+Ahora tenemos evidencia del bloqueo principal: NORMATIVA dice «OK», pero la propuesta no está validada.
+
+Control	Resultado actual	Problema
+Ocupación	828,5 m² sobre 946,3 m²	IO real ≈0,876, superior al 0,70 indicado
+Pisos	7 = 5 + 2	No corresponde al escenario de estudio de 5 pisos totales documentado
+Altura	26,6 m	Debe reconciliarse con pisos, entrepisos y referencias de altura
+Antejardín	3 m en los frentes	Es un valor por defecto, no la condición documentada de 0 m
+Vecinos por tramo	Ninguno	No se están aplicando las condiciones norte/sur documentadas
+Lote de esquina	Asumido	Dos frentes opuestos no justifican automáticamente esa condición
+Con el área que reporta el canvas, IO 0,70 permitiría como máximo ≈662,4 m² de ocupación: la actual excede ese techo en ≈166,1 m².
+
+Qué significa el resultado de PATIO
+PATIO funciona según su algoritmo: descarta V0 y encuentra una única esquina válida. “n_volumenes inferido: 1” no significa que solo quepa un edificio; significa que encontró un patio de esquina. Ese control no sirve para decidir la distribución por crujías.
+
+Además, 3 m de claridad no garantiza suficiencia para las alturas reportadas. Si corresponde aplicar el criterio de patio del Anexo 5 §1.12.b, debe comprobarse el cuadrado inscribible según la altura que realmente lo enmarca.
+
+Orden de corrección
+Eliminar la duplicación de pisos: comprobar la entrada piso_adicional y tipo_bonificacion. Los cinco pisos documentados ya incluyen los adicionales de Nota Ñ; su aprobación sigue siendo una condición pendiente.
+Separar cero de “sin dato” en antejardines y cargar las condiciones por frente y tramo.
+Corregir la validación: mostrar IO real y bloquear la exportación como capacidad aprobada cuando incumpla o falten datos esenciales.
+Generar alternativas de barras, con separación por altura y ocupación real; no seguir añadiendo patios en esquinas para reducir área.
+Primero comprueba qué valor llega a piso_adicional de NORMATIVA. El (+2) confirma que está sumando una bonificación sobre los cinco pisos base. No utilices todavía este GFA como capacidad normativa aprobada.
+
+Implementing scripts effectively
+Prepararé copias corregidas de los scripts, sin sobrescribir la v12.2: primero IO, bonificación duplicada, antejardín cero y mensajes de validación. Los cambios quedarán sin validación en Rhino mientras siga bloqueado el sandbox.
+
+D:\Work\PROJECTS\DiseñoParametrico
+
+Sí. Editaré las copias adjuntas en el workspace; la carpeta vinculada del proyecto es de solo lectura. Prepararé correcciones de seguridad y validación, sin presentarlas como una implementación completa del distribuidor multivolumen ni como comprobadas en Rhino.
+
+Evaluating testing approach
+Preparé la primera tanda de correcciones en las copias adjuntas. No modifiqué el proyecto vinculado, la v12.2 ni tus grupos.
+
+Cambios realizados
+NORMATIVA — propuesta v08.4
+
+Comprueba el IO real y reporta el exceso de ocupación.
+Conserva antejardín = 0 como valor explícito.
+Permite fijar un total de pisos que incluya bonificaciones, evitando sumar nuevamente los adicionales.
+Elimina el respaldo que descontaba área sin perforar la geometría.
+No deduce una esquina normativa únicamente por tener dos frentes.
+Reporta NO VALIDADO cuando faltan datos o revisión normativa.
+PATIO — propuesta v03.2
+
+Descarta esquinas entrantes sin detener AUTO.
+AUTO puede continuar sin un vertice_n válido.
+Sustituye el tamaño por pisos por dimensionamiento según altura.
+Añade comprobación de inclusión completa del candidato en el lote.
+Archivos
+NORMATIVA corregida
+PATIO corregido
+Instrucciones y pruebas pendientes
+No están ejecutados ni validados en Rhino; no los cargues todavía en la sesión inestable. Tampoco implementan aún las barras por crujía, plataformas ni separaciones entre cuerpos: esa es la siguiente etapa.
+
+Puedes darme el directorio exacto donde escribiste los scripts?
+
+Los scripts corregidos están en:
+
+D:\Users\Dario Salas\Documents\Raven\user1\chats\chat-20261001153921-74ebf812\files\uploads\NUHetA\F1_ETAPA2_NORMATIVA_v08.py
+D:\Users\Dario Salas\Documents\Raven\user1\chats\chat-20261001153921-74ebf812\files\uploads\NUHetA\F1_ETAPA2_PATIO_v03.py
+Las instrucciones están en:
+
+D:\Users\Dario Salas\Documents\Raven\user1\chats\chat-20261001153921-74ebf812\files\correcciones-f1-LEEME.md
+Son copias de trabajo sin validar; no sobrescribí los scripts del proyecto.
+
+Una vez actualizadas en el canvas, este es el mensaje de Patio: PATIO v03.1 | modo AUTO | n_volumenes inferido: 3 (esquinas validas: 5 | capacidad: 3 @ 300 m2) | Verts 6->6 | Lados: Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Generados: 3/3 | Anclas: V5, V1, V2 | Areas: 9.45, 9.78, 9.45 m2 | Claridades: 3.07, 3.13, 3.07 m | Modo: esquinas_interiores_v1 | Nota: limitado por capacidad del lote | v03.2: conteo de patios NO equivale a cuerpos; altura usada 7.00 m | Descartes: auto: patio en V0 no valida (no cabe / no interior) Y este es el mensaje de Normativa: NORMATIVA v08.4 | NO VALIDADO | Lote 946.34 m2 | Ocup 917.66 m2 | IO real 0.9697 / max 0.7000 | 7 pisos | Alt 26.60 m | GFA geometrico provisional 3080.19 m2 | IO real 0.9697 > limite 0.7000; excedente 255.22 m2; falta total de pisos incluyendo bonificaciones; regimen/alturas/empates pendientes de revision humana; reglamentacion_json ausente o invalida | AVISOS: esquina normativa sin confirmar: no se elimina retiro posterior por esa regla; empate 1.9.c NO aplica: predio sin lado posterior (dos laterales y esquina) -> solo sismica NSR-10 A.6.5; tipologia no definida y sin dato reglamentario -> Continua; sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)
+
+Las correcciones están ejecutándose: el sufijo v03.2 confirma PATIO actualizado y NORMATIVA ya rechaza el exceso de IO. Pero quedaron entradas pendientes y reapareció la clasificación de todos los lados como laterales.
+
+Corrige estas conexiones, en este orden
+LADOS: recupera la entrada de bordes viales que había reconocido L2 y L4 como Frontal. El mensaje de PATIO muestra que ahora recibe nuevamente seis laterales; hay que verificar el mensaje actual de LADOS.
+NORMATIVA → reglamentacion_json: conecta el JSON normativo válido. Actualmente falta o no se interpreta.
+Añade a NORMATIVA una entrada pisos_maximos_total, Item Access, y conecta 5 para el escenario de estudio documentado. Este límite incluye los adicionales; no constituye aprobación de la Nota Ñ.
+PATIO → altura: está usando 7 m, no los 26,6 m reportados por NORMATIVA. No podemos validar el tamaño de los patios hasta definir la altura real de los cuerpos que los enmarcan.
+Mantén normativa_confirmada=False y la exportación GFA desactivada. No cambies esa bandera solo para quitar el mensaje.
+
+La ocupación actual, 917,66 m², supera el techo indicado en 255,22 m². Eso confirma que los patios de esquina no resuelven la distribución: después de estabilizar estas entradas necesitamos generar cuerpos por crujía y validar sus separaciones.
+
+El prefijo PATIO v03.1 quedó antiguo en algunos mensajes; el sufijo demuestra que ejecuta los cambios v03.2. Es un detalle de rotulación pendiente, no la causa del bloqueo.
+
+LADOS v06.5 | Verts 6->6 | A=V3 N=V5 | Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V5 via PATIO_v02) | Vias:3 EP:2 Vec:70 Andenes:8 | Ancho via: 0.00m | Detalle: Occidente[L0]=[Lateral aisl:lateral v:40.25 ep:92.04 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L1]=[Lateral aisl:lateral v:12.98 ep:92.14 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Oriente[L2]=[Lateral aisl:lateral v:10.80 ep:117.68 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Sur[L3]=[Lateral aisl:lateral v:10.80 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Lateral aisl:lateral v:37.67 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L5]=[Lateral aisl:lateral v:40.25 ep:68.07 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback | AVISOS: entrada vecinos_curves: 3 item(s) NO convertibles a curva nativa; tipo del 1er item: NoneType. Solucion: conectar la salida C del Deconstruct DIRECTO a la entrada del script con Type hint = Curve + List Access + Flatten (GHPython convierte a Rhino.Geometry.Curve); NO reconstruir con Explode/PolyLine (el parametro Polyline de Params produce Rhino.Geometry.Polyline sin ClosestPoint) El script F1_ETAPA1_CONTEXTO_v04.2.py, esta produciendo una salida vacia en "reglamentacion_json", que es la causa de que la normativa cno se este cumpliendo. y esta dando los siguientes mensajes de error: ETAPA1 | ERROR al leer JSON: [UnicodeDecodeError] 'unknown' codec can't decode byte 0xf3 in position 10: Unable to translate bytes [F3] at index 10 from specified code page to Unicode. | json_path='D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\CHIP-contexto.json' | file_exists=True Y adicionamente once mensajes con WARNING: No se pudo generar buffer para vía: 'Polyline' object has no attribute 'Buffer'
+
+F1_ETAPA1_CONTEXTO_v04.3.py
+
+Implementing fast buffer
+El archivo adjunto ya incluye un lector con fallback CP1252, pero encontré otros dos problemas: llama a Polyline.Buffer, que no existe en RhinoCommon, y elimina campos normativos como el total de pisos al construir reglamentacion_json. Corregiré ambos y las conversiones de texto para IronPython; los ejes no volverán a salir como falsas áreas de vía.
+
+Corregí la copia adjunta de ETAPA1 como propuesta v04.4, manteniendo sus entradas y salidas.
+
+Cambios
+Conserva el lector UTF-8 → CP1252 → Latin-1 y añade conversiones Unicode compatibles con IronPython.
+Sustituye Polyline.Buffer por offsets y cierres de curvas RhinoCommon.
+Si no puede generar un área vial, conserva el eje solo en ejes_vias_curves, no como falsa área.
+Conserva todo pot_data en reglamentacion_json, incluido altura_maxima_pisos.
+No convierte un antejardín ausente en cero ni asigna al frente el ancho de una vía distante.
+Descargar ETAPA1 corregida
+
+El archivo sigue llamándose F1_ETAPA1_CONTEXTO_v04.3.py; su encabezado y mensaje indican v04.4. No modifiqué el proyecto original y no pude ejecutar pruebas.
+
+Al sustituir el código
+Mantén dibujo y exportación desactivados.
+Comprueba que el mensaje diga ETAPA1 v04.4.
+Revisa que reglamentacion_json contenga pot_data y altura_maxima_pisos.
+La salida normativa vacía explica los defaults y la falta del límite de pisos, pero no explica por sí sola el regreso de LADOS a seis laterales: sus bordes viales también deben recuperarse o verificarse.
+
+Envíame primero el nuevo mensaje de ETAPA1 y el valor de altura_maxima_pisos que salga en ese JSON.
+
+ETAPA1 | ERROR de lectura/procesamiento: [UnicodeDecodeError] 'unknown' codec can't decode byte 0xf1 in position 20: Unable to translate bytes [F1] at index 20 from specified code page to Unicode. | json_path='D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\CHIP-contexto.json' | file_exists=True no entiendo esto: "reglamentacion_json contenga pot_data y altura_maxima_pisos", en que script se encuentran esos valores? tengo la variable de eNtrada en NORMATIVA_v08.4 denominada pisos_maximos_total con un valor entero de 5, pero no se donde estan esas otras variables
+
+
+pot_data y altura_maxima_pisos no son entradas adicionales del canvas. Son campos dentro del archivo:
+
+D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\CHIP-contexto.json
+Su estructura es aproximadamente:
+
+{
+  "pot_data": {
+    "altura_maxima_pisos": 5,
+    "io_maximo": 0.70
+  }
+}
+ETAPA1 lee esos datos y los entrega por la salida reglamentacion_json, conectada a la entrada del mismo nombre en NORMATIVA.
+
+Tu entrada pisos_maximos_total = 5 está bien: fija el límite explícitamente aunque falte ese campo en el JSON. No necesitas crear entradas llamadas pot_data o altura_maxima_pisos.
+
+Sobre el error
+La corrección anterior no resolvió toda la conversión de texto. El byte 0xF1 suele representar «ñ» en CP1252, pero el mensaje no permite localizar si falla la lectura o una conversión posterior.
+
+Necesitamos añadir al script:
+
+Conversión explícita de cadenas de bytes, evitando el codec implícito de IronPython.
+Identificación de la etapa exacta que falla.
+Intenté actualizar la copia, pero el adjunto ya no está disponible en su ruta del workspace. ¿Puedes volver a adjuntar el script ETAPA1 que acabas de ejecutar? Así corrijo exactamente esa versión, sin hacerte reconstruir el JSON ni cambiar tus entradas.
+
+pot_data": { "upz": "94 - La Candelaria", "altura_maxima_m": 7.0, "altura_maxima_raw": "CHB", "rango_edificabilidad": "4", "tratamiento": "Consolidación", "sector_normativo": null, "tipologia": "Continua", "io_maximo": 0.7, "fuente_norma": "Decreto 492/07 (PZCB) - Planos 094 Usos/Edificabilidad + Nota N | norma-manual del chip (consulta oficial 2020, Casa de la Cultura)", "altura_maxima_pisos": 5 },
+
+Ese bloque contiene los campos necesarios: altura_maxima_pisos = 5, io_maximo = 0.7 y tipologia = Continua. No necesitas añadirlos como entradas independientes.
+
+El recorrido debe ser:
+
+CHIP-contexto.json → ETAPA1 → reglamentacion_json → NORMATIVA
+Tu entrada pisos_maximos_total = 5 puede mantenerse como límite explícito.
+
+Hay dos asuntos separados:
+
+Codificación: ETAPA1 sigue fallando al procesar texto; este fragmento no permite localizar la conversión responsable.
+Altura: los 7 m del caché no están reconciliados con los cinco pisos. No deben usarse automáticamente para dimensionar patios.
+Vuelve a adjuntar el ETAPA1 que ejecutaste, para corregir el manejo de texto y añadir un diagnóstico de la etapa exacta que falla.
+
+F1_ETAPA1_CONTEXTO_v04.4-2.py
+
+read ×2 · edit · Fixing utf8 errors
+Actualicé el adjunto a v04.4.1. Corrige conversiones implícitas de bytes a Unicode y añade la etapa y el traceback al mensaje de error.
+
+Descargar ETAPA1 corregida
+
+Sustituye únicamente el código del componente ETAPA1, conservando entradas y salidas. Mantén dibujo y exportación desactivados.
+
+El mensaje deberá empezar por ETAPA1 v04.4.1. Si vuelve a fallar, copia el mensaje completo: ahora permitirá localizar la línea responsable.
+
+No necesitas crear más variables: conserva pisos_maximos_total = 5 y la conexión reglamentacion_json de ETAPA1 a NORMATIVA. Esta corrección sigue pendiente de prueba en IronPython.
+
+En el vault, lecciones aprendidas está como se corrige ese erro de lectura de la "ñ" : --- fecha: 2026-09-17 tipo: leccion fase: transversal estado: activo tags: [leccion, encoding, json, ghpython, ironpython, disenoparametrico]
+Lección: Fix encoding JSON en GH/IronPython 2.7 para caracteres especiales
+Problema
+El script F1_ETAPA1_CONTEXTO_v02.py fallaba al leer archivos JSON que contenían caracteres especiales en español (como la 'ñ' en "DiseñoParametrico" o tildes) con el error:
+
+ETAPA1 | ERROR al leer JSON: 'unknown' codec can't decode byte 0xf3 in position 8: Unable to translate bytes [F3] at index 8 from specified code page to Unicode.
+El byte 0xf3 corresponde a la letra 'ó' en Latin-1/Windows-1252.
+
+Causa
+En el motor IronPython 2.7 (GhPython) de Rhino/Grasshopper, las funciones nativas open() o codecs.open() intentan decodificar los bytes usando la página de códigos ANSI por defecto del sistema Windows, lo que falla al encontrar caracteres fuera de esa codepage.
+
+Solución
+Se reemplazó el método estándar de lectura de JSON por una función robusta que usa la librería nativa de .NET (System.IO), la cual maneja rutas Unicode y codificación UTF-8 sin restricciones de códec.
+
+Código implementado en F1_ETAPA1_CONTEXTO_v02.py:
+import System.IO
+import System.Text
+
+def leer_json_seguro(ruta):
+    """Lee archivos JSON soportando rutas y contenidos con tildes y eñes en IronPython."""
+    if not ruta or not System.IO.File.Exists(str(ruta)):
+        raise Exception("El archivo no existe en la ruta especificada: {}".format(ruta))
+    
+    # 1. Intento con UTF-8
+    try:
+        contenido = System.IO.File.ReadAllText(str(ruta), System.Text.Encoding.UTF8)
+        return json.loads(contenido)
+    except Exception as e_utf8:
+        # 2. Fallback a codificación por defecto de Windows (CP1252 / Latin-1)
+        try:
+            contenido = System.IO.File.ReadAllText(str(ruta), System.Text.Encoding.Default)
+            return json.loads(contenido)
+        except Exception as e_default:
+            raise Exception("Error al decodificar el archivo: {} | {}".format(e_utf8, e_default))
+
+# Uso principal en el script:
+try:
+    data = leer_json_seguro(json_path)
+    # ... continúa el procesamiento normal de lot_curve, vias, vecinos, etc.
+except Exception as err:
+    mensaje = "ETAPA1 | ERROR al leer JSON: {}".format(err)
+Resultado
+El script ahora lee correctamente JSON con caracteres especiales en español
+Funciona con rutas que contienen caracteres especiales (como "DiseñoParametrico")
+Mantiene compatibilidad con IronPython 2.7
+No requiere dependencias externas
+Proporciona mensajes de error claros en caso de fallo
+Archivos modificados
+D:\Work\PROJECTS\DiseñoParametrico\src\fase-1-contexto\F1_ETAPA1_CONTEXTO_v02.py
+Pruebas
+Verificar que el canvas F1_Contexto_Base-Editado_v03.ghx (o versiones posteriores) pueda leer correctamente:
+
+D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\<CHIP>-contexto.json
+Donde <CHIP> corresponde a lotes reales con nombres que puedan incluir caracteres especiales
+Esta lección documenta la solución al problema de encoding JSON en GhPython/IronPython 2.7, permitiendo el uso de caracteres especiales en rutas y contenidos de archivos JSON sin errores de decodificación.
+
+F1_ETAPA1_CONTEXTO_v04.4-2-2.py
+
+read · edit
+Tienes razón: debía apoyarme en esa lección antes de seguir cambiando el lector.
+
+Actualicé el adjunto usando System.IO.File.ReadAllText y comprobación de existencia mediante .NET, sin convertir la ruta Unicode con str().
+
+Además:
+
+Mantengo UTF-8 estricto y fallback explícito CP1252/Latin-1 para evitar sustituciones silenciosas de caracteres.
+Eliminé los print que formateaban la ruta con cadenas no Unicode.
+Conservo el diagnóstico por etapa y traceback.
+Descargar ETAPA1 v04.4.2
+
+El nombre del archivo se mantiene; el mensaje de ejecución debe indicar ETAPA1 v04.4.2. Sustituye solo el código y envíame el nuevo mensaje.
+
+Aún no está probado en IronPython: esta corrección aplica el mecanismo documentado, pero no doy por resuelto el fallo hasta comprobar la ejecución.
+
+ETAPA1 v04.4.2-2 | ERROR en serializacion reglamentacion: [UnicodeDecodeError] 'unknown' codec can't decode byte 0xf1 in position 20: Unable to translate bytes [F1] at index 20 from specified code page to Unicode. | json_path='D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\CHIP-contexto.json' | file_exists=True | TRACE: Traceback (most recent call last): / File "<string>", line 461, in <module> / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json_init_.py", line 244, in dumps / return _default_encoder.encode(obj) / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 209, in encode / chunks = list(chunks) / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 434, in _iterencode / for chunk in _iterencode_dict(o, _current_indent_level): / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 408, in _iterencode_dict / for chunk in chunks: / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 390, in _iterencode_dict / yield _encoder(value) / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 47, in py_encode_basestring_ascii / s = s.decode('utf-8') / UnicodeDecodeError: 'unknown' codec can't decode byte 0xf1 in position 20: Unable to translate bytes [F1] at index 20 from specified code page to Unicode. /
+
+edit
+Completed
+El traceback ya localiza la causa: la lectura funciona; falla json.dumps al serializar reglamentación. El serializador recibe alguna cadena de bytes con ñ y trata de decodificarla como UTF-8.
+
+Corregí la copia para normalizar recursivamente claves y valores de texto a Unicode antes de serializar, tanto en reglamentación como en capas.
+
+Descargar ETAPA1 v04.4.3
+
+Sustituye solo el código. El nuevo mensaje debe indicar ETAPA1 v04.4.3. No necesitas modificar el JSON ni añadir entradas.
+
+Pendiente de prueba en IronPython: envíame el mensaje después de ejecutarlo.
+
+ETAPA1 v04.4.3 | ERROR en serializacion reglamentacion: [UnicodeDecodeError] 'unknown' codec can't decode byte 0xf1 in position 20: Unable to translate bytes [F1] at index 20 from specified code page to Unicode. | json_path='D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\CHIP-contexto.json' | file_exists=True | TRACE: Traceback (most recent call last): / File "<string>", line 472, in <module> / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json_init_.py", line 244, in dumps / return _default_encoder.encode(obj) / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 209, in encode / chunks = list(chunks) / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 434, in _iterencode / for chunk in _iterencode_dict(o, _current_indent_level): / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 408, in _iterencode_dict / for chunk in chunks: / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 390, in _iterencode_dict / yield _encoder(value) / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 47, in py_encode_basestring_ascii / s = s.decode('utf-8') / UnicodeDecodeError: 'unknown' codec can't decode byte 0xf1 in position 20: Unable to translate bytes [F1] at index 20 from specified code page to Unicode. /
+
+read · edit
+La normalización anterior no fue suficiente. El traceback confirma que alguna cadena sigue llegando al serializador como bytes y este intenta interpretarla como UTF-8.
+
+Actualicé la copia para:
+
+Reconocer también cadenas .NET (System.String).
+Indicar explícitamente encoding="cp1252" en json.dumps, como respaldo para bytes legacy.
+Mantener ensure_ascii=True, que entrega JSON con caracteres especiales escapados.
+Descargar ETAPA1 v04.4.4
+
+Esta solución usa una opción de Python 2.7/IronPython, no de Python 3. Sustituye solo el código y comprueba que el mensaje indique v04.4.4.
+
+Sigue pendiente de prueba: no doy por resuelto el error hasta ver el resultado.
+
+ETAPA1 v04.4.4 | ERROR en serializacion reglamentacion: [UnicodeDecodeError] 'unknown' codec can't decode byte 0xf1 in position 20: Unable to translate bytes [F1] at index 20 from specified code page to Unicode. | json_path='D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\CHIP-contexto.json' | file_exists=True | TRACE: Traceback (most recent call last): / File "<string>", line 481, in <module> / File "<string>", line 142, in serializar_json / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json_init_.py", line 247, in dumps / return cls( / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 209, in encode / chunks = list(chunks) / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 434, in _iterencode / for chunk in _iterencode_dict(o, _current_indent_level): / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 408, in _iterencode_dict / for chunk in chunks: / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 390, in _iterencode_dict / yield _encoder(value) / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 234, in _encoder / return _orig_encoder(o) / File "C:\Program Files\Rhino 8\Plug-ins\IronPython\Lib\json\encoder.py", line 47, in py_encode_basestring_ascii / s = s.decode('utf-8') / UnicodeDecodeError: 'unknown' codec can't decode byte 0xf1 in position 20: Unable to translate bytes [F1] at index 20 from specified code page to Unicode. /
+
+Considering string encoding risks
+El fallo sigue dentro del serializador de texto de json de IronPython; el parámetro encoding no lo evitó. Sustituiré esa serialización por un generador JSON ASCII con escapes explícitos, sin cambiar los datos ni la lectura del archivo.
+
+edit · read · Verifying string escape sequence
+El traceback confirma que encoding="cp1252" tampoco evita la conversión UTF-8 interna. Las correcciones anteriores no resolvieron ese comportamiento.
+
+Preparé v04.4.5, que evita json.dumps para textos:
+
+Genera escapes JSON ASCII explícitos para ñ, tildes, comillas y barras.
+Conserva los campos normativos y sus valores.
+Comprueba que el resultado pueda leerse con json.loads.
+No modifica el caché ni codecs globales.
+Descargar ETAPA1 v04.4.5
+
+Sustituye solo el código y mantén dibujo/exportación apagados. No está probado en IronPython; el siguiente mensaje debe indicar v04.4.5.
+
+ETAPA1 v04.4.5 | CHIP: AAA0030JKOE | Area: 946.5m2 | Vecinos: 90 | Vias: 0 | EP: 13 | Origen: (117.1, 75.0) | Lote_layer: OK | Reg: ancho_via=15.0 tipologia=Continua | AVISOS: area vial aproximada rechazada; eje conservado; via sin ancho: solo eje, sin area vial El Json producido: {"metadata":{"fuente_contexto":"D:\Work\PROJECTS\Dise\u00f1oParametrico\data\pot-cache\CHIP-contexto.json","anclaje_local":[117.079600000754,75.0,14.517577999999958],"chip":"AAA0030JKOE"},"pot_data":{"altura_maxima_pisos":5,"tratamiento":"Consolidaci\u00f3n","altura_maxima_m":7.0,"upz":"94 - La Candelaria","fuente_norma":"Decreto 492/07 (PZCB) - Planos 094 Usos/Edificabilidad + Nota N | norma-manual del chip (consulta oficial 2020, Casa de la Cultura)","io_maximo":0.69999999999999996,"altura_maxima_raw":"CHB","tipologia":"Continua","rango_edificabilidad":"4","sector_normativo":null}}
+
+Resuelto el error de lectura/serialización en esta ejecución. ETAPA1 entrega un JSON válido con 5 pisos máximos, IO 0,70 y tipología Continua.
+
+Los escapes \u00f1 y \u00f3 son correctos; 0.69999999999999996 es la representación numérica de 0,70, no un error normativo.
+
+Qué queda pendiente
+Vias: 0 significa cero áreas viales generadas, no necesariamente cero ejes. Los ejes se conservan por separado; los buffers fueron rechazados o faltaba ancho.
+El ancho de 15 m es una referencia del contexto, no un ancho comprobado de cada frente. No lo conectes automáticamente a NORMATIVA.
+La altura de 7 m sigue sin reconciliarse con cinco pisos. No debe dimensionar los patios de los cuerpos propuestos.
+Siguiente comprobación
+Conecta esta salida reglamentacion_json a NORMATIVA.
+Mantén pisos_maximos_total = 5 y normativa_confirmada = False.
+Conserva los bordes viales verificados de ArchiCAD en LADOS, separados de los ejes de ETAPA1.
+Envíame el nuevo mensaje de NORMATIVA. Debe desaparecer «reglamentacion_json ausente o inválida» y reportar cinco pisos.
+
+NORMATIVA v08.4 | NO VALIDADO | Lote 946.34 m2 | Ocup 917.66 m2 | IO real 0.9697 / max 0.7000 | 5 pisos | Alt 19.00 m | GFA geometrico provisional 2383.57 m2 | IO real 0.9697 > limite 0.7000; excedente 255.22 m2; regimen/alturas/empates pendientes de revision humana | AVISOS: esquina normativa sin confirmar: no se elimina retiro posterior por esa regla; empate 1.9.c NO aplica: predio sin lado posterior (dos laterales y esquina) -> solo sismica NSR-10 A.6.5; tipologia desde reglamentacion ('Continua'); 7 pisos solicitados -> 5 total incluyendo bonos; no se acumulan adicionales fuera del limite; sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)
+
+La conexión normativa ya funciona: reconoce tipología Continua y limita 7 pisos solicitados a 5 totales. También detecta correctamente el exceso de IO.
+
+Ahora quedan tres asuntos de diseño:
+
+Ocupación: 917,66 m² frente a un máximo de 662,44 m² con el área actual. Hay que liberar al menos 255,22 m² adicionales, mediante distribución de cuerpos y vacíos, no pequeños patios de esquina.
+Altura: cinco pisos producen 19 m, es decir, el cálculo está usando 3,80 m por piso. Debemos confirmar esa entrada según el programa; no reducirla solo para obtener cumplimiento.
+Empates: no recibe alturas de vecinos por tramo. Las condiciones norte/sur siguen sin modelarse.
+Siguiente etapa
+La envolvente F1 queda como capacidad geométrica provisional. Sobre ella debemos generar alternativas de 2 y 3 barras de crujía única, comprobando:
+
+Ocupación total ≤ IO permitido.
+Separaciones según alturas y función de los vacíos.
+Cabida de crujía, circulación y núcleo.
+Empates y cotas de cada cuerpo.
+Mantén normativa_confirmada=False y la exportación GFA apagada. Los 2.383,57 m² todavía no son capacidad realizable aprobada.
+
+Antes de dimensionar las barras: ¿los 3,80 m de entrepiso son intencionales para este programa?
+
+En principio si, era para generar espacios interiores con una gran altura, pero podemos bajarlo hasta un total de 3.05, porque con el espesor de placa y posibles instalaciones y cielorasoos puede quedar en 2:55 mts de altura.
+
+Adoptemos 3,05 m entre pisos como escenario de comparación, conservando 3,80 m como alternativa.
+
+Cinco pisos: 15,25 m en el cálculo actual.
+Altura libre estimada: 2,55 m, si placa, instalaciones y cielorraso ocupan en conjunto 0,50 m; habrá que comprobarlo por uso.
+Separación preliminar entre dos cuerpos de igual altura: 6,10 m, según el criterio documentado máx(6 m, 0,4 × altura promedio).
+Si el vacío funciona como patio de iluminación/ventilación: cuadrado inscribible de ≈5,08 m de lado, sujeto a confirmar la altura y regla aplicables.
+Cambia floor_height_user de NORMATIVA a 3,05, pero no conectes directamente la salida de altura de NORMATIVA a PATIO: crearía un ciclo, porque NORMATIVA ya recibe sus patios. Para el estudio preliminar, PATIO puede recibir 15,25 m desde un control independiente.
+
+Bajar la altura no corrige el exceso de IO. La distribución por crujías y los vacíos siguen siendo necesarios; las cotas y alturas de fachadas en pendiente deberán verificarse por cuerpo.
+
+Corregida la altura. siguiente paso...
+
+Figuring out next steps
+Siguiente paso: recuperar los dos frentes en LADOS antes de distribuir las barras. Su último resultado todavía tenía seis laterales.
+
+Mantén conectados a vias_curves los bordes viales verificados de ArchiCAD, no los ejes ni vias_oficiales de ETAPA1, que ahora está vacío.
+Comprueba que LADOS vuelva a reconocer L2 Oriente y L4 Occidente como Frontal, como ocurrió anteriormente.
+Envíame el mensaje actual de LADOS. Con los frentes confirmados podremos orientar las alternativas de 2 y 3 barras, usando 3,05 m entre pisos y comprobando ocupación, separaciones y accesos. Mantén la exportación apagada.
+
+El mensaje actualde Lados: LADOS v06.5 | Verts 6->6 | A=V3 N=V5 | Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V5 via PATIO_v02) | Vias:3 EP:2 Vec:70 Andenes:8 | Ancho via: 0.00m | Detalle: Occidente[L0]=[Lateral aisl:lateral v:40.25 ep:92.04 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L1]=[Lateral aisl:lateral v:12.98 ep:92.14 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Oriente[L2]=[Lateral aisl:lateral v:10.80 ep:117.68 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Sur[L3]=[Lateral aisl:lateral v:10.80 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Lateral aisl:lateral v:37.67 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L5]=[Lateral aisl:lateral v:40.25 ep:68.07 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback | AVISOS: entrada vecinos_curves: 3 item(s) NO convertibles a curva nativa; tipo del 1er item: NoneType. Solucion: conectar la salida C del Deconstruct DIRECTO a la entrada del script con Type hint = Curve + List Access + Flatten (GHPython convierte a Rhino.Geometry.Curve); NO reconstruir con Explode/PolyLine (el parametro Polyline de Params produce Rhino.Geometry.Polyline sin ClosestPoint) Hay un punto importante: existe un proceso denominado Orquestador, el que toma los datos "raw" importados desde la geobase de Bogota y presenta opciones para definir de manera manual cuales lados corresponden con via, parque, vecino, etc. De ahi es donde se definen los tipos de latos de cada lote, anexo ek archivo para su analisis, porque ahi es entonces donde tenemos el fallo.
+
+Init-DP.ps1 +1
+
+read ×7
+Tienes razón: debemos seguir la clasificación manual del Orquestador, no volver a deducirla únicamente de las curvas de ArchiCAD. Mi enfoque anterior estaba incompleto.
+
+Revisé los adjuntos y el servidor.py del proyecto:
+
+Lo confirmado
+Init-DP.ps1 y orquestador_v01.py son lanzadores; no clasifican lados.
+El servidor guarda tus decisiones en:
+data\pot-cache\<CHIP>-vecinos-por-lado-override.json
+También las copia al archivo activo que debe leer el canvas:
+data\pot-cache\CHIP-vecinos-por-lado.json
+Las categorías manuales se guardan en frente_override.
+LADOS sigue reportando clasificación por geometría. Eso no demuestra que tus decisiones estén llegando a ese componente.
+Dónde debemos corregir
+El puente debe ser:
+
+Formulario → JSON activo → lector del canvas
+           → clasificación efectiva de LADOS → PATIO y NORMATIVA
+La decisión explícita del operador debe prevalecer; la geometría debe quedar como respaldo y comprobación. Aplicar el override solo en NORMATIVA no basta: PATIO seguiría recibiendo seis laterales.
+
+También hay que conservar la identidad de los tramos: el Orquestador puede usar varios segmentos por lado, mientras LADOS trabaja con seis lados simplificados. No debemos emparejarlos solo por número o cardinal sin comprobarlo.
+
+Adjunta CHIP-vecinos-por-lado.json. Con ese archivo puedo revisar las decisiones realmente guardadas y definir el parche del puente sin adivinar su estructura.
+
+CHIP-vecinos-por-lado.json
+
+read ×2 · Evaluating diagnosis details
+El JSON confirma que tus decisiones sí están guardadas. El fallo está en cómo llegan y se aplican en el canvas.
+
+Tramo del Orquestador	Decisión guardada
+Oriente, lado_id: 7	via_no_frontal
+Occidente-2, lado_id: 25	via
+Occidente-1, lado_id: 1	Sin override; predio
+Norte-1, Sur y Norte-2	Sin override; predio
+No debemos convertir todo “Occidente” en vía: hay dos tramos distintos y solo uno es frente.
+
+Incompatibilidades encontradas
+LADOS no está aplicando estos overrides: sigue clasificando únicamente por contacto geométrico.
+El JSON usa lado_id y segmentos del perímetro original; NORMATIVA espera id del lado simplificado.
+Las longitudes de vecinos se llaman longitud_colindancia_m, pero el parser de NORMATIVA espera longitud_m.
+Un puente basado solo en cardinal perdería la distinción Occidente-1 / Occidente-2 y Norte-1 / Norte-2.
+Corrección que corresponde
+Crear un adaptador que:
+
+Relacione los segmentos originales con los lados simplificados mediante geometría, no por posición en la lista.
+Aplique frente_override antes de enviar la clasificación a PATIO y NORMATIVA.
+Conserve via_no_frontal como vía secundaria sin antejardín, no como parque.
+Traduzca IDs y longitudes de vecinos.
+Reporte correspondencias ambiguas en lugar de asignarlas silenciosamente.
+El JSON también contiene alturas 0 y vecinos ausentes en algunos tramos: los conservaremos como datos pendientes, no como alturas confirmadas.
+
+Adjunta el script F0_LOAD_PROYECTO que está dentro del canvas. Es el lector previsto para conectar el formulario con Grasshopper; necesito revisar su contrato antes de corregir el puente y evitar duplicar otra fuente de decisiones.
+
+F0_LOAD_PROYECTO_v01.py
+
+read
+Completed
+F0 contiene el fallo del puente: lee los lados solo desde proyecto.json, reduce tramos distintos a una clave cardinal y entrega IDs del perímetro original a NORMATIVA. Corregiré la lectura del activo y preservaré los tramos completos; la correspondencia geométrica con LADOS será un paso separado, sin adivinar índices.
+
+edit
+Completed
+Confirmado: F0 era parte del fallo. Su versión anterior:
+
+Leía los lados solo desde proyecto.json, aunque el servidor actualiza un archivo activo separado.
+Reducía los tramos a una clave cardinal: Occidente-2 podía sobrescribir Occidente-1.
+Enviaba índices del perímetro original a NORMATIVA, que trabaja con lados simplificados.
+Preparé una propuesta F0 v01.6:
+
+Lee CHIP-vecinos-por-lado.json desde la raíz del proyecto.
+Comprueba que su CHIP coincida con el proyecto.
+Conserva todos los tramos y decisiones en una nueva salida clasificacion_lados_json.
+Excluye cardinales ambiguos del puente antiguo.
+Deja vacía la salida antigua de vecinos para no enviar IDs incorrectos.
+Descargar F0 corregido
+
+Todavía no reemplaces F0 en el canvas: falta el adaptador hacia LADOS. Esta corrección sola no hará aparecer los frentes y dejaría incompleto el cableado de vecinos.
+
+El siguiente cambio será relacionar los segmentos originales con los seis lados simplificados y aplicar tus decisiones antes de PATIO y NORMATIVA. Para prepararlo sobre la versión exacta que ejecutas, adjunta el script actual F1_ETAPA2_LADOS_v06.py.
+
+F1_ETAPA2_LADOS_v06.py
+
+read ×2 · Evaluating translation methods
+Añadiré a LADOS un puente geométrico: usará los segmentos originales del JSON para localizar cada tramo en el perímetro del canvas y aplicar el override manual. Si las geometrías no coinciden, lo reportará sin recurrir al cardinal ni al orden de la lista.
+
+edit
+Completed
+Preparé LADOS v06.6 con el puente del Orquestador. La copia conserva los grupos y no modifica el .ghx.
+
+Qué cambia
+Relaciona los segmentos originales con los lados del canvas mediante cobertura geométrica bilateral.
+Comprueba que contexto y clasificación pertenezcan al mismo CHIP.
+Aplica frente_override antes de producir el JSON que reciben PATIO y NORMATIVA.
+No asigna por cardinal ni por posición en la lista.
+Si una correspondencia es ambigua, rechaza el puente completo y mantiene la clasificación geométrica.
+Añade la salida puente_lados_ok.
+Descargar LADOS corregido
+
+Cableado necesario
+Con el solver apagado y dibujo/exportación desactivados:
+
+Actualiza F0 a v01.6 y añade su salida:
+clasificacion_lados_json
+Actualiza LADOS y añade dos entradas, Item Access · No Type Hint:
+clasificacion_lados_json ← salida del mismo nombre de F0
+contexto_json_path      ← mismo Panel json_path de ETAPA1
+Añade la salida booleana:
+puente_lados_ok
+Limitaciones: todavía no traduce las alturas de vecinos por subtramo. Para compatibilidad, via_no_frontal sale como EspacioPublico, pero conserva es_via_secundaria=True; no debe interpretarse como parque. Esa distinción requiere completar NORMATIVA.
+
+No está probado en IronPython. Al ejecutarlo, envíame el log de F0 y el mensaje de LADOS. El primer objetivo es obtener puente_lados_ok=True, no forzar una clasificación si las geometrías no coinciden.
+
+Por favor dame siempre le nombre completo del script/componente al que te refieras, porque con 165 componentes es para mi dificil encontrar a cual te refieres si solo me das la primera parte del nomnre
+
+edit
+Completed
+Desde ahora daré el nombre completo del script/componente, con versión y número visible cuando esté verificado.
+
+Para el paso actual:
+
+F0_LOAD_PROYECTO_v01.py — código propuesto v01.6.
+F1_ETAPA2_LADOS_v06.py — código propuesto v06.6.
+F1_ETAPA1_CONTEXTO_v04.4-2-2.py — código v04.4.5; su Panel json_path alimentará contexto_json_path de F1_ETAPA2_LADOS_v06.py.
+Distinguiré siempre el nombre del archivo de la versión interna del código, porque actualmente no coinciden.
+
+Despues de cumpplir todos los puntos tene os el siguiente mensaje: LADOS v06.6 | Verts 6->6 | A=V3 N=V5 | Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V5 via PATIO_v02) | Vias:3 EP:2 Vec:70 Andenes:8 | Ancho via: 0.00m | Detalle: Occidente[L0]=[Lateral aisl:lateral v:40.25 ep:92.04 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L1]=[Lateral aisl:lateral v:12.98 ep:92.14 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Oriente[L2]=[Lateral aisl:lateral v:10.80 ep:117.68 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Sur[L3]=[Lateral aisl:lateral v:10.80 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Lateral aisl:lateral v:37.67 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L5]=[Lateral aisl:lateral v:40.25 ep:68.07 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback | AVISOS: entrada vecinos_curves: 3 item(s) NO convertibles a curva nativa; tipo del 1er item: NoneType. Solucion: conectar la salida C del Deconstruct DIRECTO a la entrada del script con Type hint = Curve + List Access + Flatten (GHPython convierte a Rhino.Geometry.Curve); NO reconstruir con Explode/PolyLine (el parametro Polyline de Params produce Rhino.Geometry.Polyline sin ClosestPoint); puente Orquestador sin conectar (clasificacion_lados_json/contexto_json_path)
+
+F1_ETAPA2_LADOS_v06.py está ejecutando v06.6, pero no está recibiendo valor en una o ambas entradas del puente. El aviso «sin conectar» también aparece cuando hay cable, pero el dato está vacío.
+
+Comprueba con un Panel temporal en cada fuente:
+
+F0_LOAD_PROYECTO_v01.py — código v01.6
+Salida clasificacion_lados_json: debe mostrar un JSON con "chip":"AAA0030JKOE" y "lados":[...].
+
+F1_ETAPA2_LADOS_v06.py — código v06.6
+Entrada contexto_json_path: debe recibir esta ruta:
+
+D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\CHIP-contexto.json
+Verifica que las entradas del componente F1_ETAPA2_LADOS_v06.py tengan esos nombres exactos tanto en Name como NickName, con Item Access · No Type Hint.
+
+Copia primero la salida log de F0_LOAD_PROYECTO_v01.py. Nos dirá si está cargando el proyecto y el archivo activo de lados o si su salida quedó vacía.
+
+No hay una salida "clasificacion_lados_json" en F0_LOAD_PROYECTO_v01.py, el mensaje de salida del Log es: F0 v01.6 | OK: proyecto cargado desde D:\Work\PROJECTS\DiseñoParametrico\data\activo\proyecto.json | lados: archivo activo | tramos preservados: 6 | vecinos requieren adaptador de indices | cardinal ambiguo excluido del legacy: Norte | cardinal ambiguo excluido del legacy: Occidente
+
+F0_LOAD_PROYECTO_v01.py — código v01.6 — ya está leyendo correctamente los seis tramos. Falta exponer la variable como salida del componente: pegar código no crea puertos automáticamente.
+
+En F0_LOAD_PROYECTO_v01.py, amplía el zoom hasta ver los controles + / − de las salidas.
+Pulsa + en el lado derecho para añadir una salida, sin eliminar las existentes.
+Pon exactamente clasificacion_lados_json tanto en Name como en NickName.
+Conéctala a la entrada clasificacion_lados_json de F1_ETAPA2_LADOS_v06.py — código v06.6.
+Los avisos sobre Norte y Occidente son esperados: el puente antiguo por cardinal los excluye porque tienen varios tramos. La nueva salida conserva esos tramos completos.
+
+Después de recalcular, envíame el mensaje de F1_ETAPA2_LADOS_v06.py.
+
+LADOS v06.6 | Verts 6->6 | A=V3 N=V5 | Lateral, Lateral, Lateral, Lateral, Lateral, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V5 via PATIO_v02) | Vias:3 EP:2 Vec:70 Andenes:8 | Ancho via: 0.00m | Detalle: Occidente[L0]=[Lateral aisl:lateral v:40.25 ep:92.04 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L1]=[Lateral aisl:lateral v:12.98 ep:92.14 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Oriente[L2]=[Lateral aisl:lateral v:10.80 ep:117.68 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Sur[L3]=[Lateral aisl:lateral v:10.80 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Lateral aisl:lateral v:37.67 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L5]=[Lateral aisl:lateral v:40.25 ep:68.07 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback | AVISOS: entrada vecinos_curves: 3 item(s) NO convertibles a curva nativa; tipo del 1er item: NoneType. Solucion: conectar la salida C del Deconstruct DIRECTO a la entrada del script con Type hint = Curve + List Access + Flatten (GHPython convierte a Rhino.Geometry.Curve); NO reconstruir con Explode/PolyLine (el parametro Polyline de Params produce Rhino.Geometry.Polyline sin ClosestPoint); puente Orquestador sin conectar (clasificacion_lados_json/contexto_json_path)
+
+El puente de F1_ETAPA2_LADOS_v06.py — código v06.6 — sigue recibiendo al menos un valor vacío. Todavía no está intentando la correspondencia geométrica.
+
+Para identificar cuál falta, pasa el cursor sobre cada entrada del propio componente F1_ETAPA2_LADOS_v06.py:
+
+Entrada	Valor esperado
+clasificacion_lados_json	JSON procedente de F0_LOAD_PROYECTO_v01.py, con CHIP y seis tramos
+contexto_json_path	D:\Work\PROJECTS\DiseñoParametrico\data\pot-cache\CHIP-contexto.json
+Envíame una captura de las dos entradas y sus cables, o copia el valor mostrado por sus tooltips. Comprueba también que sus NickName sean exactamente clasificacion_lados_json y contexto_json_path: son los nombres que usa el código.
+
+No cambies tolerancias ni clasificación; primero resolvemos esta entrada vacía.
+
+La salida de "clasificacion_lados_json": {"n_predios_colindantes":7,"nota":"Clasificaci\u00f3n autom\u00e1tica (frente_fuente='auto'). Las v\u00edas provienen de vias_oficiales (Eje_vial, INCOMPLETO: calles no digitalizadas pueden quedar como 'predio'); algunas zonas verdes est\u00e1n en 'vecinos' y no en 'espacios_publicos'. El operador debe confirmar/corregir 'frente' por lado (frente_override).","colindantes":[{"longitud_colindancia_total_m":5.54,"chip":"003103035008"},{"longitud_colindancia_total_m":16.489999999999998,"chip":"003103035009"},{"longitud_colindancia_total_m":31.170000000000002,"chip":"003103035020"},{"longitud_colindancia_total_m":27.800000000000001,"chip":"003103035021"},{"longitud_colindancia_total_m":21.449999999999999,"chip":"003103035029"},{"longitud_colindancia_total_m":21.809999999999999,"chip":"003103035033"},{"longitud_colindancia_total_m":7.8099999999999996,"chip":"003103035098"}],"_saved_at":"2026-10-01 15:14","n_lados":6,"_schema":"vecinos_por_lado_override_v01","crs":"ESRI:102233","azimuth_norte_grados":125.99370298527046,"lados":[{"azimut_grados":303.5,"longitud_m":7.0099999999999998,"frente":"predio","vecinos":[{"altura_m":6,"pisos":2,"longitud_colindancia_m":7.0099999999999998,"nombre":"Occidente1","chip":"003103035020"}],"n_vecinos":1,"segmentos_vecinos":{"1":["003103035020"]},"frente_fuente":"auto","frente_override":null,"segmentos":[1],"lado_id":1,"vecinos_manuales":[],"cardinal":"Occidente","cardinal_label":"Occidente-1"},{"azimut_grados":36,"longitud_m":27.809999999999999,"frente":"predio","vecinos":[{"altura_m":6,"pisos":2,"longitud_colindancia_m":27.800000000000001,"nombre":"Norte1","chip":"003103035021"}],"n_vecinos":1,"segmentos_vecinos":{"5":["003103035021"],"4":["003103035021"],"6":["003103035021"],"3":["003103035021"],"2":["003103035021"]},"frente_fuente":"auto","frente_override":null,"segmentos":[2,3,4,5,6],"lado_id":2,"vecinos_manuales":[],"cardinal":"Norte","cardinal_label":"Norte-1"},{"azimut_grados":127.40000000000001,"longitud_m":21.289999999999999,"frente":"predio","vecinos":[],"n_vecinos":1,"segmentos_vecinos":{"7":["003103035029"],"8":["003103035029"]},"frente_fuente":"auto","frente_override":"via_no_frontal","segmentos":[7,8],"lado_id":7,"vecinos_manuales":[],"cardinal":"Oriente","cardinal_label":"Oriente"},{"azimut_grados":215.09999999999999,"longitud_m":51.509999999999998,"frente":"predio","vecinos":[{"altura_m":0,"pisos":0,"longitud_colindancia_m":5.54,"nombre":"Sur1","chip":"003103035008"},{"altura_m":12,"pisos":4,"longitud_colindancia_m":16.489999999999998,"nombre":"Sur4","chip":"003103035009"},{"altura_m":15,"pisos":5,"longitud_colindancia_m":21.809999999999999,"nombre":"Vecino_5033","chip":"003103035033"},{"altura_m":0,"pisos":0,"longitud_colindancia_m":7.8099999999999996,"nombre":"Sur3","chip":"003103035098"}],"n_vecinos":5,"segmentos_vecinos":{"14":["003103035008","003103035098"],"17":["003103035098"],"24":["003103035033"],"12":["003103035008"],"15":["003103035008","003103035098"],"18":["003103035098"],"19":["003103035098"],"10":["003103035008"],"13":["003103035008"],"22":["003103035009"],"20":["003103035009"],"23":["003103035033"],"11":["003103035008"],"9":["003103035008","003103035029"],"21":["003103035009"],"16":["003103035098"]},"frente_fuente":"auto","frente_override":null,"segmentos":[9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],"lado_id":9,"vecinos_manuales":[],"cardinal":"Sur","cardinal_label":"Sur"},{"azimut_grados":307.39999999999998,"longitud_m":14.98,"frente":"libre","vecinos":[],"n_vecinos":0,"segmentos_vecinos":{},"frente_fuente":"auto","frente_override":"via","segmentos":[25,26],"lado_id":25,"vecinos_manuales":[],"cardinal":"Occidente","cardinal_label":"Occidente-2"},{"azimut_grados":36,"longitud_m":24.16,"frente":"predio","vecinos":[],"n_vecinos":1,"segmentos_vecinos":{"28":["003103035020"],"27":["003103035020"],"0":["003103035020"],"29":["003103035020"]},"frente_fuente":"auto","frente_override":null,"segmentos":[27,28,29,0],"lado_id":27,"vecinos_manuales":[],"cardinal":"Norte","cardinal_label":"Norte-2"}],"chip":"AAA0030JKOE"} y la salida de LADOS v06.6 | Verts 6->6 | A=V3 N=V5 | Lateral, Lateral, EspacioPublico, Lateral, Frontal, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V5 via PATIO_v02) | Vias:3 EP:2 Vec:70 Andenes:8 | Ancho via: 0.00m | Detalle: Occidente[L0]=[Lateral aisl:lateral v:40.25 ep:92.04 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L1]=[Lateral aisl:lateral v:12.98 ep:92.14 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Oriente[L2]=[EspacioPublico aisl:cero v:10.80 ep:117.68 vec:0.00 fr:0.0/0.0/1.0 (override Orquestador tramo 7)]; Sur[L3]=[Lateral aisl:lateral v:10.80 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Frontal aisl:antejardin v:37.67 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (override Orquestador tramo 25)]; Norte[L5]=[Lateral aisl:lateral v:40.25 ep:68.07 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback | AVISOS: entrada vecinos_curves: 3 item(s) NO convertibles a curva nativa; tipo del 1er item: NoneType. Solucion: conectar la salida C del Deconstruct DIRECTO a la entrada del script con Type hint = Curve + List Access + Flatten (GHPython convierte a Rhino.Geometry.Curve); NO reconstruir con Explode/PolyLine (el parametro Polyline de Params produce Rhino.Geometry.Polyline sin ClosestPoint); puente Orquestador: 6 tramos verificados
+
+El puente del Orquestador ya funciona en F1_ETAPA2_LADOS_v06.py — código v06.6: verificó los seis tramos y aplicó tus decisiones correctamente.
+
+L2 Oriente: via_no_frontal, conservada como vía secundaria; aparece como EspacioPublico por compatibilidad del código.
+L4 Occidente-2: via, clasificada como Frontal.
+L0 Occidente-1: permanece Lateral, sin confundirse con Occidente-2.
+Esq:False: los dos frentes opuestos ya no generan una esquina automática.
+Las distancias geométricas a vías siguen siendo discrepantes, pero no están anulando las decisiones manuales. Quedan como advertencia para revisar los datos de ArchiCAD.
+
+Siguiente comprobación
+Verifica que la salida sides_table_json de F1_ETAPA2_LADOS_v06.py alimente:
+
+sides_table_json de F1_ETAPA2_PATIO_v03.py — código v03.2.
+sides_table_json de F1_ETAPA2_NORMATIVA_v08.py — código v08.4.
+Envíame los mensajes actuales de ambos componentes. Después completaremos el adaptador de alturas de vecinos por tramo, todavía pendiente; no debemos reactivar la antigua salida de vecinos con índices originales.
+
+Mantén dibujo y exportación GFA desactivados.
+
+PATIO v03.1 | modo AUTO | n_volumenes inferido: 1 (esquinas validas: 1 | capacidad: 3 @ 300 m2) | Verts 6->6 | Lados: Lateral, Lateral, EspacioPublico, Lateral, Frontal, Lateral | Generados: 1/1 | Anclas: V1 | Areas: 9.78 m2 | Claridades: 3.13 m | Modo: esquinas_interiores_v1 | Nota: menos esquinas validas que capacidad | v03.2: conteo de patios NO equivale a cuerpos; altura usada 7.00 m | Descartes: auto: patio en V0 no valida (no cabe / no interior) NORMATIVA v08.4 | NO VALIDADO | Lote 946.34 m2 | Ocup 936.56 m2 | IO real 0.9897 / max 0.7000 | 5 pisos | Alt 15.25 m | GFA geometrico provisional 2431.18 m2 | IO real 0.9897 > limite 0.7000; excedente 274.12 m2; regimen/alturas/empates pendientes de revision humana | AVISOS: esquina normativa sin confirmar: no se elimina retiro posterior por esa regla; empate 1.9.c NO aplica: predio sin lado posterior (dos laterales y esquina) -> solo sismica NSR-10 A.6.5; tipologia desde reglamentacion ('Continua'); 7 pisos solicitados -> 5 total incluyendo bonos; no se acumulan adicionales fuera del limite; sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)
+
+La clasificación manual ya llega correctamente a los dos componentes. El siguiente bloqueo es la distribución, no la conexión de lados.
+
+Corrección inmediata
+En F1_ETAPA2_PATIO_v03.py — código v03.2, la entrada altura_max_pot sigue recibiendo 7 m.
+
+Para el escenario preliminar de cinco pisos a 3,05 m, conecta un control independiente de 15,25 m a esa entrada. No conectes la salida de altura de F1_ETAPA2_NORMATIVA_v08.py, porque produciría un ciclo.
+
+El patio actual de 9,78 m² no está dimensionado para esos cuerpos. Con el criterio documentado de altura/3, el cuadrado requerido sería de ≈5,08 m de lado, sujeto a la altura reglamentaria aplicable.
+
+Qué demuestra NORMATIVA
+F1_ETAPA2_NORMATIVA_v08.py — código v08.4 calcula correctamente cinco pisos y 15,25 m, pero:
+
+Ocupación: 936,56 m².
+Techo por IO 0,70: 662,44 m².
+Exceso: 274,12 m².
+No vamos a resolverlo añadiendo patios de esquina. Esa envolvente sigue siendo potencial; necesitamos recortarla en barras por crujía y comprobar sus vacíos.
+
+Siguiente intervención en los scripts
+Completar el traslado de alturas y longitudes de vecinos por tramo, preservando los datos desconocidos. Después, generar alternativas de 2 y 3 barras con separación preliminar de 6,10 m para cuerpos de igual altura de 15,25 m.
+
+Mantén normativa_confirmada=False y la exportación GFA apagada. Los 2.431,18 m² aún no son capacidad realizable aprobada.
+
+ejecutado, por favo continua
+
+Continuaré con el adaptador de vecinos por tramo. Conservará los IDs originales del Orquestador y generará correspondencias con los lados simplificados; las alturas desconocidas quedarán pendientes, no se convertirán en cero confirmado.
+
+read · edit · write
+Preparé el adaptador de vecinos en F1_ETAPA2_LADOS_v06.py — código propuesto v06.7.
+
+Ahora conserva, para cada subtramo:
+
+Segmento original y lado simplificado correspondiente.
+Posición exacta sobre el lado (t0–t1).
+CHIP del vecino, altura y longitud.
+Estado pendiente cuando falta altura o hay varios vecinos candidatos.
+No reparte alturas proporcionalmente ni trata altura cero como dato confirmado.
+
+Archivos
+F1_ETAPA2_LADOS_v06.py — v06.7
+Instrucciones del adaptador
+En el canvas
+Sustituye el código de F1_ETAPA2_LADOS_v06.py conservando sus entradas y conexiones.
+Añade una salida llamada exactamente vecinos_intervalos_json.
+Conéctala solo a un Panel para inspección.
+No la conectes todavía a vecinos_por_lado_json de F1_ETAPA2_NORMATIVA_v08.py — v08.4: ese parser usa otro contrato. Falta implementar el consumidor con recortes locales por subtramo.
+
+La propuesta no está ejecutada ni validada en IronPython. Envíame el nuevo mensaje de F1_ETAPA2_LADOS_v06.py y el resumen de pendientes del JSON.
+
+Ejecuta una consulta de solo lectura: lista los documentos abiertos de Rhino y Grasshopper, sin modificar nada.
+
+execute
+Failed
+El bloqueo de permisos persiste. La consulta falló antes de ejecutarse:
+
+SANDBOX_SETUP_FAILED (appcontainer)
+ACL update failed for "\\?\D:\": Access is denied. (os error 5)
+No se listaron documentos ni se modificó nada.
+
+Ejecuta una consulta de solo lectura: lista los documentos abiertos de Rhino y Grasshopper, sin modificar nada.
+
+execute
+Failed
+La consulta sigue bloqueada antes de ejecutarse:
+
+SANDBOX_SETUP_FAILED (appcontainer)
+ACL update failed for "\\?\D:\": Access is denied. (os error 5)
+No se listaron documentos ni se modificó nada.
+
+1,616 Tokens
+Ejecuta una consulta de solo lectura en el directorio "d:/work": lista los documentos abiertos de Rhino y Grasshopper, sin modificar nada.
+
+execute
+Failed
+También falla intentando ejecutar desde D:\Work. El sandbox se bloquea antes de ejecutar incluso el cambio de directorio:
+
+ACL update failed for "\\?\D:\": Access is denied. (os error 5)
+No se listaron documentos ni se modificó nada. Cambiar de directorio dentro del comando no evita este bloqueo.
+
+127 Tokens
+Ejecuta una consulta de solo lectura en el directorio "d:/work": lista los documentos abiertos de Rhino y Grasshopper, sin modificar nada.
+
+execute
+Failed
+La consulta desde D:\Work sigue bloqueada antes de ejecutar el comando:
+
+SANDBOX_SETUP_FAILED (appcontainer)
+ACL update failed for "\\?\D:\": Access is denied. (os error 5)
+No se listaron documentos ni se modificó nada.
+
+1,619 Tokens
+Ejecuta una consulta de solo lectura en el directorio "d:/work": lista los documentos abiertos de Rhino y Grasshopper, sin modificar nada.
+
+execute
+Failed
+El bloqueo persiste, antes de ejecutar la consulta desde D:\Work:
+
+SANDBOX_SETUP_FAILED (appcontainer)
+ACL update failed for "\\?\D:\": Access is denied. (os error 5)
+No se listaron documentos ni se modificó nada.
+
+127 Tokens
+Ejecuta una consulta de solo lectura en el directorio "d:/work": lista los documentos abiertos de Rhino y Grasshopper, sin modificar nada. Despues de eso continue en el proceso
+
+execute · read
+La consulta desde D:\Work volvió a fallar antes de ejecutarse:
+
+SANDBOX_SETUP_FAILED (appcontainer)
+ACL update failed for "\\?\D:\": Access is denied. (os error 5)
+No se listaron documentos ni se modificó nada.
+
+Continuación del proyecto
+El siguiente cambio corresponde a F1_ETAPA2_NORMATIVA_v08.py — código interno v08.4: incorporar la salida vecinos_intervalos_json de F1_ETAPA2_LADOS_v06.py — código interno v06.7.
+
+Ese consumidor debe:
+
+Aplicar cada altura únicamente en su intervalo t0–t1.
+Recortar regiones locales, evitando extender el retiro a todo el lado.
+Conservar regiones separadas y huecos.
+Mantener bloqueada la validación cuando falten alturas o exista asignación ambigua.
+Intenté abrir la copia corregida de F1_ETAPA2_NORMATIVA_v08.py, pero ya no está disponible en el workspace. Para continuar sin perder tus cambios, adjunta el código que está ejecutándose actualmente en ese componente. No usaré una versión antigua del repositorio para reemplazarlo.
+
+197 Tokens
+F1_ETAPA2_NORMATIVA_v08.4-2.py
+
+read ×2 · Considering implementation strategy
+Actualizaré F1_ETAPA2_NORMATIVA_v08.4-2.py para consumir los intervalos y recortar franjas locales, en lugar de extender cada subtramo a un semiplano infinito. Las alturas ausentes seguirán bloqueando la validación; no activaré automáticamente los empates pendientes de revisión.
+
+edit
+Completed
+Actualicé F1_ETAPA2_NORMATIVA_v08.4-2.py a código propuesto v08.5.
+
+Cambios
+Consume los intervalos de vecinos generados por F1_ETAPA2_LADOS_v06.py — v06.7.
+Verifica CHIP, IDs y cobertura de los intervalos.
+Recorta franjas limitadas a cada subtramo, evitando los semiplanos infinitos.
+Conserva contornos separados y huecos.
+Mantiene NO VALIDADO cuando faltan alturas o existen correspondencias ambiguas.
+No activa automáticamente empates.
+Descargar F1_ETAPA2_NORMATIVA_v08.4-2.py — v08.5
+
+Cableado
+Con solver apagado y dibujo/exportación desactivados:
+
+Sustituye el código de F1_ETAPA2_NORMATIVA_v08.4-2.py.
+Añade una entrada vecinos_intervalos_json, Item Access · No Type Hint.
+Conecta:
+F1_ETAPA2_LADOS_v06.py → vecinos_intervalos_json
+Añade una salida recortes_intervalos_json y conéctala a un Panel.
+Conserva normativa_confirmada=False.
+No está probado en Rhino. Los extremos de las franjas quedan a escuadra; todavía falta comprobar sus encuentros, las condiciones patrimoniales y la distribución multivolumen.
+
+Al recalcular, envíame el mensaje completo de F1_ETAPA2_NORMATIVA_v08.4-2.py — v08.5.
+
+363 Tokens
+La salida de "recortes_intervalos_json" es <null> y el mensaje es LADOS v06.7 | Verts 6->6 | A=V3 N=V5 | Lateral, Lateral, EspacioPublico, Lateral, Frontal, Lateral | Esq:False | Posterior:NO (regla N-1 no aplica; patio en V5 via PATIO_v02) | Vias:3 EP:2 Vec:70 Andenes:8 | Ancho via: 0.00m | Detalle: Occidente[L0]=[Lateral aisl:lateral v:40.25 ep:92.04 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Norte[L1]=[Lateral aisl:lateral v:12.98 ep:92.14 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Oriente[L2]=[EspacioPublico aisl:cero v:10.80 ep:117.68 vec:0.00 fr:0.0/0.0/1.0 (override Orquestador tramo 7)]; Sur[L3]=[Lateral aisl:lateral v:10.80 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)]; Occidente[L4]=[Frontal aisl:antejardin v:37.67 ep:66.17 vec:0.00 fr:0.0/0.0/1.0 (override Orquestador tramo 25)]; Norte[L5]=[Lateral aisl:lateral v:40.25 ep:68.07 vec:0.00 fr:0.0/0.0/1.0 (vertices coincidentes con vecino)] | Método A/N: distance_based_fallback/traditional_fallback | AVISOS: entrada vecinos_curves: 3 item(s) NO convertibles a curva nativa; tipo del 1er item: NoneType. Solucion: conectar la salida C del Deconstruct DIRECTO a la entrada del script con Type hint = Curve + List Access + Flatten (GHPython convierte a Rhino.Geometry.Curve); NO reconstruir con Explode/PolyLine (el parametro Polyline de Params produce Rhino.Geometry.Polyline sin ClosestPoint); puente Orquestador: 6 tramos verificados; vecinos por intervalos: 6 lados, 15 pendientes; requiere consumidor v02, NO parser legacy No hay una variable "recortes_intervalos_json" dentro del script _v06.7
+
+Correcto: recortes_intervalos_json no pertenece a F1_ETAPA2_LADOS_v06.py — v06.7. Pertenece a F1_ETAPA2_NORMATIVA_v08.4-2.py — v08.5.
+
+El cableado es:
+
+F1_ETAPA2_LADOS_v06.py — v06.7
+  salida: vecinos_intervalos_json
+             ↓
+F1_ETAPA2_NORMATIVA_v08.4-2.py — v08.5
+  entrada: vecinos_intervalos_json
+  salida: recortes_intervalos_json → Panel
+Si añadiste recortes_intervalos_json como salida de F1_ETAPA2_LADOS_v06.py, elimina únicamente ese puerto nuevo: allí queda <null> porque el código no define esa variable.
+Añade esa salida en F1_ETAPA2_NORMATIVA_v08.4-2.py, con el nombre exacto en Name y NickName.
+Comprueba que ese componente ejecute el código v08.5.
+El mensaje de F1_ETAPA2_LADOS_v06.py confirma que produjo el contrato: seis lados y 15 pendientes. Esos pendientes no son necesariamente errores de ejecución; incluyen alturas ausentes y asignaciones ambiguas.
+
+Envíame ahora la salida mensaje de F1_ETAPA2_NORMATIVA_v08.4-2.py, no la de F1_ETAPA2_LADOS_v06.py.
+
+78 Tokens
+NORMATIVA v08.5 | NO VALIDADO | Lote 946.34 m2 | Ocup 936.56 m2 | IO real 0.9897 / max 0.7000 | 5 pisos | Alt 15.25 m | GFA geometrico provisional 936.56 m2 | 15 pendientes en contrato de vecinos; IO real 0.9897 > limite 0.7000; excedente 274.12 m2; altura pendiente L3 raw 10; altura pendiente L3 raw 11; altura pendiente L3 raw 12; altura pendiente L3 raw 13; altura pendiente L3 raw 14; altura pendiente L3 raw 15; altura pendiente L3 raw 16; altura pendiente L3 raw 17; altura pendiente L3 raw 18; altura pendiente L3 raw 19; altura pendiente L3 raw 9; altura pendiente L5 raw 0; altura pendiente L5 raw 27; altura pendiente L5 raw 28; altura pendiente L5 raw 29; piso 2 recorte no verificable: Recorte local vacio o fallido; piso 3 recorte no verificable: Recorte local vacio o fallido; piso 4 recorte no verificable: Recorte local vacio o fallido; piso 5 recorte no verificable: Recorte local vacio o fallido; regimen/alturas/empates pendientes de revision humana; uno o mas niveles sin region valida | AVISOS: esquina normativa sin confirmar: no se elimina retiro posterior por esa regla; empate 1.9.c NO aplica: predio sin lado posterior (dos laterales y esquina) -> solo sismica NSR-10 A.6.5; tipologia desde reglamentacion ('Continua'); 7 pisos solicitados -> 5 total incluyendo bonos; no se acumulan adicionales fuera del limite; vecinos por intervalos: 6 lados; recortes locales activos; sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)
+
+read · Diagnosing union overlaps
+F1_ETAPA2_NORMATIVA_v08.4-2.py — v08.5 — ya consume los intervalos, pero mi nuevo recorte falla en los pisos superiores. Revisaré las franjas superpuestas y añadiré un diagnóstico separado de su unión y de la resta al lote. Los 15 pendientes de vecinos seguirán bloqueando la validación.
+
+edit
+Completed
+El contrato de intervalos funciona, pero el recorte nuevo falla en los pisos 2–5. Por eso el GFA de 936,56 m² corresponde únicamente al piso 1; no es la capacidad de cinco pisos.
+
+Preparé F1_ETAPA2_NORMATIVA_v08.4-2.py — propuesta v08.5.1:
+
+Une las franjas y patios antes de restarlos al lote.
+Aumenta el pequeño solape exterior para evitar contactos coincidentes.
+Distingue fallos de unión, cortadores inválidos y diferencia vacía.
+Descargar F1_ETAPA2_NORMATIVA_v08.4-2.py — v08.5.1
+
+Es una corrección pendiente de prueba, no una solución confirmada. Sustituye solo el código y conserva dibujo/exportación desactivados.
+
+Los 15 pendientes de vecinos son otro asunto: alturas ausentes o asignaciones ambiguas en L3 Sur y L5 Norte-2. No los eliminaremos para obtener un «OK».
+
+Envíame el mensaje de F1_ETAPA2_NORMATIVA_v08.4-2.py después de actualizarlo; primero debemos recuperar las regiones de los cinco niveles.
+
+232 Tokens
+F1_ETAPA2_NORMATIVA_v08.4-2-2.py
+
+read
+Completed
+Error: Responses stream ended before a terminal response event
+
+67 Tokens
+NORMATIVA v08.5.1 | NO VALIDADO | Lote 946.34 m2 | Ocup 936.56 m2 | IO real 0.9897 / max 0.7000 | 5 pisos | Alt 15.25 m | GFA geometrico provisional 936.56 m2 | 15 pendientes en contrato de vecinos; IO real 0.9897 > limite 0.7000; excedente 274.12 m2; altura pendiente L3 raw 10; altura pendiente L3 raw 11; altura pendiente L3 raw 12; altura pendiente L3 raw 13; altura pendiente L3 raw 14; altura pendiente L3 raw 15; altura pendiente L3 raw 16; altura pendiente L3 raw 17; altura pendiente L3 raw 18; altura pendiente L3 raw 19; altura pendiente L3 raw 9; altura pendiente L5 raw 0; altura pendiente L5 raw 27; altura pendiente L5 raw 28; altura pendiente L5 raw 29; piso 2 recorte no verificable: Union de 27 cortadores fallida; piso 3 recorte no verificable: Union de 27 cortadores fallida; piso 4 recorte no verificable: Union de 27 cortadores fallida; piso 5 recorte no verificable: Union de 27 cortadores fallida; regimen/alturas/empates pendientes de revision humana; uno o mas niveles sin region valida | AVISOS: esquina normativa sin confirmar: no se elimina retiro posterior por esa regla; empate 1.9.c NO aplica: predio sin lado posterior (dos laterales y esquina) -> solo sismica NSR-10 A.6.5; tipologia desde reglamentacion ('Continua'); 7 pisos solicitados -> 5 total incluyendo bonos; no se acumulan adicionales fuera del limite; vecinos por intervalos: 6 lados; recortes locales activos; sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)
+
+Considering optimization methods
+El fallo quedó localizado en la unión de 27 cortadores. En F1_ETAPA2_NORMATIVA_v08.4-2-2.py agruparé únicamente los recortes contiguos, colineales y con el mismo retiro antes de construir las franjas. Conservaré separados los intervalos del diagnóstico y cualquier cambio de retiro.
+
+edit
+Completed
+El error está en la unión de los cortadores, no en la lectura de vecinos.
+
+Actualicé F1_ETAPA2_NORMATIVA_v08.4-2-2.py — propuesta v08.5.2 para agrupar recortes contiguos solo cuando son colineales y tienen el mismo retiro. Así evita construir numerosas franjas que comparten bordes. Los intervalos originales se conservan en el diagnóstico.
+
+Descargar F1_ETAPA2_NORMATIVA_v08.4-2-2.py — v08.5.2
+
+Sustituye únicamente el código y mantén dibujo/exportación apagados. La corrección está pendiente de prueba en Rhino.
+
+Los 15 pendientes de alturas y el exceso de IO seguirán reportándose; no los ocultaremos para obtener un «OK».
+
+Envíame el nuevo mensaje de F1_ETAPA2_NORMATIVA_v08.4-2-2.py. Si la unión vuelve a fallar, mostrará cuántas franjas quedaron después de agruparlas.
+
+229 Tokens
+NORMATIVA v08.5.2 | NO VALIDADO | Lote 946.34 m2 | Ocup 936.56 m2 | IO real 0.9897 / max 0.7000 | 5 pisos | Alt 15.25 m | GFA geometrico provisional 4593.62 m2 | 15 pendientes en contrato de vecinos; IO real 0.9897 > limite 0.7000; excedente 274.12 m2; altura pendiente L3 raw 10; altura pendiente L3 raw 11; altura pendiente L3 raw 12; altura pendiente L3 raw 13; altura pendiente L3 raw 14; altura pendiente L3 raw 15; altura pendiente L3 raw 16; altura pendiente L3 raw 17; altura pendiente L3 raw 18; altura pendiente L3 raw 19; altura pendiente L3 raw 9; altura pendiente L5 raw 0; altura pendiente L5 raw 27; altura pendiente L5 raw 28; altura pendiente L5 raw 29; regimen/alturas/empates pendientes de revision humana | AVISOS: esquina normativa sin confirmar: no se elimina retiro posterior por esa regla; empate 1.9.c NO aplica: predio sin lado posterior (dos laterales y esquina) -> solo sismica NSR-10 A.6.5; tipologia desde reglamentacion ('Continua'); 7 pisos solicitados -> 5 total incluyendo bonos; no se acumulan adicionales fuera del limite; vecinos por intervalos: 6 lados; recortes locales activos; sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)
+
+El recorte ya no reporta fallos en los pisos superiores. F1_ETAPA2_NORMATIVA_v08.4-2-2.py — código v08.5.2 — está calculando regiones para los cinco niveles. Falta verificarlas visualmente; el GFA sigue siendo provisional.
+
+Pendientes actuales
+IO: ocupación de 936,56 m² frente al techo de 662,44 m²; exceso 274,12 m².
+Vecinos: 15 intervalos sin altura resuelta o con asignación ambigua.
+Empates y régimen: pendientes de revisión; no están garantizados por la geometría calculada.
+Siguiente paso: resolver los vecinos en el Orquestador
+Revisa estas dos zonas:
+
+Sur — L3 del canvas, segmentos originales 9–19: hay vecinos con altura 0 y segmentos con más de un CHIP candidato. Define cuál colinda realmente y su altura comprobada.
+Norte-2 — L5 del canvas, segmentos originales 27, 28, 29 y 0: figura una colindancia, pero la lista de vecinos está vacía. Confirma el vecino y su altura, o corrige el tipo de lindero si no corresponde a predio.
+No rellenes alturas solo para eliminar avisos. Si aún no las conoces, permanecerán pendientes.
+
+Después guarda en el Orquestador y recalcula:
+
+F0_LOAD_PROYECTO_v01.py — v01.6
+F1_ETAPA2_LADOS_v06.py — v06.7
+F1_ETAPA2_NORMATIVA_v08.4-2-2.py — v08.5.2
+Mantén normativa_confirmada=False y la exportación apagada. La reducción del IO vendrá con las barras por crujía; no seguiremos recortando patios de esquina para forzarla.
+
+153 Tokens
+Ya esta ejecutado. El problema que se ve, es que en esas partes del predio Norte-1, hay patio, la contruccion esta en la parte occidental del predio y por lo tanto la altura de vecino alli es 0, lo mismo sucede con el predio Sur-3. Este es el mensaje de salida: NORMATIVA v08.5.2 | NO VALIDADO | Lote 946.34 m2 | Ocup 936.56 m2 | IO real 0.9897 / max 0.7000 | 5 pisos | Alt 15.25 m | GFA geometrico provisional 4593.62 m2 | 15 pendientes en contrato de vecinos; IO real 0.9897 > limite 0.7000; excedente 274.12 m2; altura pendiente L3 raw 10; altura pendiente L3 raw 11; altura pendiente L3 raw 12; altura pendiente L3 raw 13; altura pendiente L3 raw 14; altura pendiente L3 raw 15; altura pendiente L3 raw 16; altura pendiente L3 raw 17; altura pendiente L3 raw 18; altura pendiente L3 raw 19; altura pendiente L3 raw 9; altura pendiente L5 raw 0; altura pendiente L5 raw 27; altura pendiente L5 raw 28; altura pendiente L5 raw 29; regimen/alturas/empates pendientes de revision humana | AVISOS: esquina normativa sin confirmar: no se elimina retiro posterior por esa regla; empate 1.9.c NO aplica: predio sin lado posterior (dos laterales y esquina) -> solo sismica NSR-10 A.6.5; tipologia desde reglamentacion ('Continua'); 7 pisos solicitados -> 5 total incluyendo bonos; no se acumulan adicionales fuera del limite; vecinos por intervalos: 6 lados; recortes locales activos; sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)
+
+Una altura de 0 m puede ser un dato válido: el lindero colinda con el patio del vecino, aunque exista construcción en otra parte de ese predio. Mi adaptador confundía ese caso con altura desconocida.
+
+La corrección debe distinguir:
+
+Estado del tramo vecino	Tratamiento
+Construcción presente	Altura medida de esa construcción
+Sin construcción, confirmado	Altura local 0 m válida
+Sin información	Altura null, pendiente
+Varios vecinos candidatos	Correspondencia pendiente
+El patio del vecino sigue siendo una colindancia predial, no espacio público. Tampoco elimina automáticamente los retiros reglamentarios ni permite usarlo como patio propio de iluminación.
+
+Actualizaré F1_ETAPA2_LADOS_v06.py — código v06.7 y F1_ETAPA2_NORMATIVA_v08.4-2-2.py — código v08.5.2 para admitir el estado explícito «sin construcción confirmado», sin aceptar indiscriminadamente todos los ceros.
+
+Adjunta el CHIP-vecinos-por-lado.json actualizado después de guardar en el Orquestador. Necesito identificar los tramos exactos: mencionas Norte-1, pero los pendientes actuales corresponden a L5 Norte-2, además de L3 Sur. No aplicaré la confirmación a otro tramo por semejanza del nombre.
+
+168 Tokens
+No encontré las versiones F1_ETAPA2_LADOS_v06.py — código v06.7 y F1_ETAPA2_NORMATIVA_v08.4-2-2.py — código v08.5.2
+
+CHIP-vecinos-por-lado-2.json
+
+read
+Completed
+Las versiones se identifican por el código interno, no por el nombre del archivo. No creé archivos llamados v06.7.py o v08.5.2.py.
+
+Las copias editadas estaban en:
+
+D:\Users\Dario Salas\Documents\Raven\user1\chats\chat-20261001153921-74ebf812\files\uploads\NUHetA\
+F1_ETAPA2_LADOS_v06.py — código v06.7
+F1_ETAPA2_NORMATIVA_v08.4-2-2.py — código v08.5.2
+No se copiaron al directorio del proyecto. Si esos enlaces ya no funcionan, el código pegado en los componentes de Grasshopper sigue siendo la copia que estás ejecutando.
+
+Recibí CHIP-vecinos-por-lado-2.json. La corrección para distinguir altura cero confirmada de altura desconocida todavía no está implementada. En adelante usaré nombres de archivo que coincidan con la versión interna para evitar esta confusión.
+
+282 Tokens
+las versiones que muestran las salidas de ambos componentes corresponden con las versiones _v0637 y _v08.5.2, pero la hora es de hace más de 10 minutos...
+
+La hora anterior es esperable: esos archivos corresponden a los cambios ya realizados, no a una actualización nueva.
+
+La corrección para altura 0 m confirmada por patio del vecino todavía no se ha escrito. Tu mensaje anterior muestra que F1_ETAPA2_LADOS_v06.py ejecuta v06.7 y F1_ETAPA2_NORMATIVA_v08.4-2-2.py ejecuta v08.5.2, que son las versiones previas a esa corrección.
+
+Si por _v0637 te refieres a v06.7, estamos trabajando sobre las versiones correctas. La próxima entrega tendrá nombre de archivo y versión interna coincidentes para distinguirla claramente.
+
+141 Tokens
+continuemos entonces
+
+read ×2
+El JSON actualizado aún no distingue «altura desconocida» de «patio sin construcción». Añadiré una confirmación explícita por tramo y CHIP a F1_ETAPA2_LADOS_v06.py; no aceptaré todos los ceros automáticamente ni trasladaré la altura de una construcción a otra parte del mismo predio.
+
+edit
+Completed
+Standard Weekly token limit reached
+This limit applies only to Standard.
+Your weekly limit resets on Monday (UTC).
+455 Tokens
+Message Raven…
+
+
+
+

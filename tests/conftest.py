@@ -8,7 +8,9 @@ Uso:
 
 import json
 import os
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 # Agregar src y scripts al path
@@ -20,7 +22,35 @@ import pytest
 
 
 # ============================================================
-# DATOS DE PRUEBA — LOTE AAA0127AZPA (El Prado)
+# AISLAMIENTO DEL ENTORNO (2026-10-02)
+# ============================================================
+
+@pytest.fixture(autouse=True, scope="session")
+def _aislar_entorno_proyecto():
+    """Apunta DISENO_PARAMETRICO_ROOT a un directorio temporal durante los tests.
+
+    Motivo (incidente 2026-10-02): el test conductual ejecuta el componente
+    PATIO v02, cuya funcion _exportar_diagnostico consume
+    data/pot-cache/lados-export-flag.json y escribe data/pot-cache/<CHIP>-lados.json
+    sobre el proyecto real. Con la raiz en un temporal vacio, el export no
+    encuentra el flag y no escribe nada; el valor original se restaura al
+    final de la sesion de tests.
+    """
+    anterior = os.environ.get("DISENO_PARAMETRICO_ROOT")
+    raiz_tmp = tempfile.mkdtemp(prefix="dp_tests_root_")
+    os.environ["DISENO_PARAMETRICO_ROOT"] = raiz_tmp
+    try:
+        yield
+    finally:
+        if anterior is None:
+            os.environ.pop("DISENO_PARAMETRICO_ROOT", None)
+        else:
+            os.environ["DISENO_PARAMETRICO_ROOT"] = anterior
+        shutil.rmtree(raiz_tmp, ignore_errors=True)
+
+
+# ============================================================
+# DATOS DE PRUEBA - LOTE AAA0127AZPA (El Prado)
 # ============================================================
 
 @pytest.fixture
