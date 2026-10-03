@@ -45,11 +45,17 @@ class Vector3d(object):
 
 
 class Polyline(object):
-    def __init__(self):
+    def __init__(self, points=None):
         self._pts = []
+        if points:
+            for p in points:
+                self.Add(p)
 
     def Add(self, a, b=None, c=None):
-        if b is None and c is None:
+        if isinstance(a, Point3d):
+            self._pts.append(a)
+        elif b is None and c is None:
+            # Assume it's a tuple/list of coordinates
             self._pts.append(Point3d(a))
         else:
             self._pts.append(Point3d(a, b, c))
@@ -171,6 +177,37 @@ class PolylineCurve(object):
             return False
         return self._pts[0].DistanceTo(self._pts[-1]) < 1e-8
 
+    @property
+    def IsValid(self):
+        return True
+
+
+class Curve(object):
+    @staticmethod
+    def CreateBooleanDifference(curve, cutters, tol):
+        # Minimal stub: if cutters exist, return empty list (simulates difference)
+        return []
+
+    @staticmethod
+    def CreateBooleanUnion(curves, tol):
+        return None
+
+    @staticmethod
+    def CreatePlanarBreps(curves, tol):
+        # Delegate to Brep.CreatePlanarBreps
+        return Brep.CreatePlanarBreps(curves, tol)
+
+    def TryGetPolyline(self):
+        if hasattr(self, '_pts'):
+            return (True, self.ToPolyline())
+        return (False, None)
+
+    def IsClosed(self):
+        return getattr(self, '_closed', False)
+
+    def IsValid(self):
+        return True
+
 
 class Line(object):
     def __init__(self, a, b):
@@ -239,5 +276,67 @@ class _IntersectNS(object):
 # ---------------- modulo Rhino.Geometry ----------------
 Intersect = _IntersectNS
 
+class AreaMassProperties(object):
+    @staticmethod
+    def Compute(obj):
+        # obj can be PolylineCurve or Brep
+        if hasattr(obj, '_pts'):
+            # PolylineCurve -> area via shoelace
+            pts = obj._pts
+            if len(pts) < 3:
+                return None
+            area = 0.0
+            n = len(pts)
+            for i in range(n):
+                p1 = pts[i]
+                p2 = pts[(i + 1) % n]
+                area += p1.X * p2.Y - p2.X * p1.Y
+            area = abs(area) / 2.0
+            class Props:
+                Area = area
+            return Props()
+        elif hasattr(obj, '_breps'):
+            # Brep list
+            total = 0.0
+            for b in obj._breps:
+                total += b.Area
+            class Props:
+                Area = total
+            return Props()
+        return None
+
+
+class Brep(object):
+    def __init__(self, curves):
+        self._curves = curves
+        # compute area from first curve
+        if curves:
+            c = curves[0]
+            if hasattr(c, '_pts'):
+                pts = c._pts
+                area = 0.0
+                n = len(pts)
+                for i in range(n):
+                    p1 = pts[i]
+                    p2 = pts[(i + 1) % n]
+                    area += p1.X * p2.Y - p2.X * p1.Y
+                self.Area = abs(area) / 2.0
+            else:
+                self.Area = 0.0
+        else:
+            self.Area = 0.0
+
+    @staticmethod
+    def CreatePlanarBreps(curves, tol):
+        if not curves:
+            return None
+        # Wrap each curve in a Brep
+        breps = []
+        for c in curves:
+            breps.append(Brep([c]))
+        return breps
+
+
 __all__ = ['Point3d', 'Vector3d', 'Polyline', 'PolylineCurve', 'Line',
-           'Intersection', 'IntersectionEvent', 'EventList', 'Intersect']
+           'Intersection', 'IntersectionEvent', 'EventList', 'Intersect',
+           'AreaMassProperties', 'Brep', 'Curve']

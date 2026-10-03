@@ -1,6 +1,6 @@
 # DiseñoParametrico — Ecosistema BIM-GIS-AI para diseño arquitectónico paramétrico en Bogotá
 
-**Última actualización:** 2026-08-18 · **Hardware:** i5-12600K · 64 GB RAM · RTX 4070 Ti · Win 11 Pro
+**Última actualización:** 2026-10-03 · **Hardware:** i5-12600K · 64 GB RAM · RTX 4070 Ti · Win 11 Pro
 
 Sistema que automatiza el flujo completo de prefactibilidad arquitectónica: contexto normativo
 POT/NSR-10 desde geodatos oficiales, análisis de demanda y modelo financiero, generación de masa,
@@ -11,9 +11,9 @@ análisis ambiental y inyección BIM nativa en ArchiCAD vía Grasshopper.
 | Fase | Módulo | Estado | Contenido |
 |---|---|---|---|
 | **F0** | Setup BIM | ✅ Hecha | Layers ArchiCAD (GuBIMclass), plantilla XML |
-| **F1** | Contexto normativo y lote | ✅ Hecha | Pipeline modular v26 (2 etapas): fetch contexto → clasificación de lados → patios → normativa/envolvente. Linaje legacy en `_legacy\` |
+| **F1** | Contexto normativo y lote | 🔶 **En validación IO** | Pipeline modular v26 → **v13.1 (Tope Ocupación IO ≤ 0.70)**: NORMATIVA v09 (presupuesto IO + `barras_json`), F3_DISTRIBUCION_v03 (entrepiso adaptativo 3.05/3.80, prioridad profundidad→entrepiso→cuerpos), Export GFA v02.4 (modo APROBADO), LADOS v06.8 (altura 0 = patio confirmado), PATIO v03.3 (1 vol=patio normativo; ≥2 vol=separaciones en IO). **Canvas F1_CONTEXTO_v13.1 pendiente patch manual**. Linaje legacy en `_legacy\` |
 | **F2** | Demanda + modelo financiero | ✅ Hecha | `src\fase-2-demanda\`: 4 scripts de pipeline + `F2_Modelo_Financiero\` (motor v3.0: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja, hook GFA desde F1) + `F2_Modelo_Renta\` (motor v3.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable, hook GFA desde F1). Re-evaluado 2026-08-16 con GFA F1 v06 (1.461 m²): C_LUJO casi viable en compra, aporte/arriendo viables, BTR marginal |
-| **F3** | Generación de masa | Avanzada | `src\fase-3-masa\`: `F3_DISTRIBUCION_v02` (matriz/layout/programa-areas balanceado; v02: usos §2 + bloques multivolumen), `F3_VOLUM_GENERADOR_v08` (v08: núcleo excluido, circulación/servicios separados, núcleo contra medianera, **volumetría por uso**), `F3_ACCESOS_INTEGRADOR_v02` (accesos por uso + segregación de flujos), casos A/B/B_SALUD/C regenerados, prueba real Rhino 8.33 (caso A) |
+| **F3** | Generación de masa | Avanzada | `src\fase-3-masa\`: **`F3_DISTRIBUCION_v03` (distribuidor con presupuesto IO, entrepiso adaptativo 3.05/3.80, prioridad D3)**, `F3_DISTRIBUCION_v02` (usos §2 + bloques multivolumen), `F3_VOLUM_GENERADOR_v08` (v08: núcleo excluido, circulación/servicios separados, núcleo contra medianera, **volumetría por uso**), `F3_ACCESOS_INTEGRADOR_v02` (accesos por uso + segregación de flujos), casos A/B/B_SALUD/C regenerados, prueba real Rhino 8.33 (caso A) |
 | **F4** | Análisis ambiental | 🔶 Iniciada | `src\fase-4-ambiental\`: F4_LADYBUG_ANALISIS v02 |
 | **F5** | Inyección BIM nativa | ⏳ Pendiente | `src\fase-5-bim\` (solo README) |
 

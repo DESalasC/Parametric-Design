@@ -2,7 +2,7 @@
 """
 ================================================================================
 run_pipeline_v01.py — Orquestador + Checklist interactivo (DiseñoParametrico)
-Parte 1: F1 (contexto) -> F2 (demanda/financiero) -> F3 (masa)
+Parte 1: F1 (contexto) -> F2 (demanda/financiero) -> F3 (masa) + LOOP BARRAS IO
 Proyecto: DisenoParametrico / Utilidad transversal
 Python 3 externo (NO IronPython). Se ejecuta desde la terminal.
 ================================================================================
@@ -17,6 +17,11 @@ PROPOSITO:
        y verifica el artefacto resultante.
     5. Genera un checklist HTML visual (fácil para un operador sin destreza).
 
+NUEVO (v01.1, 2026-10-03) — Loop distribuidor↔validador (P2):
+  - Paso F3_BARRAS (F3_DISTRIBUCION_v03 --presupuesto-ocupacion): genera barras_json
+  - Paso NORMATIVA v09 RE-EJECUTADA con barras_json: valida ocupación ≤ presupuesto
+  - Paso F1_EXPORTAR_GFA_v02.4: escribe SOLO gfa_aprobado_m2 (modo APROBADO)
+
 MODOS:
   python run_pipeline_v01.py --status             # solo muestra el estado (sin ejecutar)
   python run_pipeline_v01.py --run [--chip X --caso A --modo mixto --yes]  # guiado/ejecuta
@@ -29,19 +34,12 @@ VARIABLES (fuente unica -> parametros_pipeline.json):
   gfa_m2          (opcional) override de GFA para los motores F2
   costo_lote_cop  (opcional) override de costo de lote total para F2
 
-MAPA CASO -> CHIP (coherente con F3_DISTRIBUCION_v02):
+MAPA CASO -> CHIP (coherente con F3_DISTRIBUCION_v03):
   A       -> AAA0127AZPA
   B       -> AAA0030JKOE
   B_SALUD -> AAA0030JKOE
   C       -> AAA0039KRMR
 
-CAMBIOS (2026-09-28):
-  - Fix: import shutil (la copia de canonicos fallaba en silencio).
-  - Fix: post_comando movido a la rama de exito (antes nunca se ejecutaba).
-  - Estado f1_contexto/f1_contexto50 por FRESCURA (chip en el archivo), no
-    por existencia: arranque en frio ya no salta el fetch.
-  - Fetch unificado: usa scripts/utilities/fetch-contexto-completo_v01.py
-    (--solo-base / --solo-50).
 ================================================================================
 """
 
@@ -59,7 +57,6 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 
 
 def _candidatos_python():
-    """2026-09-28: interpretes candidatos (el .venv quedo con ruedas cp312 sobre 3.11)."""
     cands = [sys.executable]
     try:
         p = subprocess.run(["py", "-0p"], capture_output=True, text=True, timeout=20)
@@ -76,7 +73,6 @@ def _candidatos_python():
 
 
 def _elegir_python_pipeline():
-    """Primer interprete que importe numpy/pandas/geopandas/pyogrio (stack del fetch)."""
     for c in _candidatos_python():
         if not c or not os.path.exists(c) or not c.lower().endswith("python.exe"):
             continue
@@ -111,8 +107,6 @@ F3_DIR = os.path.join(ROOT, "src", "fase-3-masa")
 PARAM_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "parametros_pipeline.json")
 
 
-# ------------------------------------------------------------------ helpers
-
 def _existe(ruta):
     return os.path.exists(ruta) if ruta else False
 
@@ -142,7 +136,6 @@ def _guardar_parametros(params):
 
 
 def _copy_file(src, dst):
-    """Copy file from src to dst, creating directories as needed."""
     try:
         if _existe(src):
             shutil.copy2(src, dst)
@@ -153,15 +146,6 @@ def _copy_file(src, dst):
 
 
 def _ruta_parametros_f2_mercado(chip, dias_frescura=60):
-    """Parametros de mercado sincronizados desde MercadoViviendaBogota.
-
-    Busca en data/fase-2-demanda/mercado/ el archivo
-    parametros_<chip>_f2mercado_*.json mas reciente (generado por el paso
-    F2_SINCRONIZAR_MERCADO_v01.py). Solo lo acepta si su
-    meta.mercado.fecha_captura_origen tiene <= dias_frescura dias; en caso
-    contrario devuelve None y la cadena de prioridad sigue con los parametros
-    curados del proyecto (fallback retrocompatible).
-    """
     import glob
     import datetime
     dir_mercado = os.path.join(ROOT, "data", "fase-2-demanda", "mercado")
@@ -185,15 +169,6 @@ def _ruta_parametros_f2_mercado(chip, dias_frescura=60):
 
 
 def _validar_contexto_fresco(chip, tipo_contexto):
-    """Valida si el archivo de contexto es fresco (contiene el chip actual).
-
-    Args:
-        chip: Chip actual a validar contra
-        tipo_contexto: "contexto" o "contexto50"
-
-    Returns:
-        tuple: (es_fresco, mensaje) donde es_fresco es booleano y mensaje es string
-    """
     if tipo_contexto == "contexto":
         candidatos = [os.path.join(POT_CACHE, chip + "-contexto.json"),
                       os.path.join(POT_CACHE, "CHIP-contexto.json")]
@@ -230,7 +205,6 @@ def _validar_contexto_fresco(chip, tipo_contexto):
 
 
 def _detectar_parametros(chip, tipo):
-    """Busca el parametros.json mas adecuado para el chip (venta o renta)."""
     if tipo == "renta":
         base = os.path.join(F2_RENTA_DIR, "parametros_{}_renta.json".format(chip))
         if os.path.exists(base):
@@ -267,17 +241,49 @@ def detectar_estado(chip, caso):
                 ),
             ) if _existe(os.path.join(POT_CACHE, chip + "-contexto.json")) else None,
         },
+        "f1_contexto50": {
+            "tipo": "auto",
+            "estado": "hecho" if _validar_contexto_fresco(chip, "contexto50")[0] else "falta",
+            "artefacto": "data/pot-cache/contexto50-actual.json",
+            "comando": [PY, os.path.join(ROOT, "scripts", "utilities", "fetch-contexto-completo_v01.py"),
+                      "--chip", chip, "--solo-50"],
+            "post_comando": lambda: _copy_file(
+                os.path.join(POT_CACHE, chip + "-contexto50.json"),
+                os.path.join(POT_CACHE, "contexto50-actual.json")
+            ) if _existe(os.path.join(POT_CACHE, chip + "-contexto50.json")) else None,
+            "depends_on": ["f1_contexto"],
+        },
         "f1_gfa": {
             "tipo": "manual",
             "estado": "hecho" if _existe(os.path.join(F2_DEMANDA, chip + "-gfa-gh.json")) else "manual",
             "artefacto": "data/fase-2-demanda/{}-gfa-gh.json".format(chip),
             "comando": None,
         },
+        # --- NUEVOS PASOS LOOP BARRAS (P2) ---
+        "f3_barras": {
+            "tipo": "auto",
+            "estado": "hecho" if _existe(os.path.join(F3_CASOS, caso, "barras.json")) else "falta",
+            "artefacto": "src/fase-3-masa/casos/{}/barras.json".format(caso),
+            "comando": None,  # se construye dinámicamente con presupuesto_ocupacion
+        },
+        "f1_normativa_aprobada": {
+            "tipo": "manual",
+            "estado": "manual",
+            "artefacto": "NORMATIVA v09 re-ejecutada con barras_json (canvas v13.1)",
+            "comando": None,
+        },
+        "f1_exportar_gfa_aprobado": {
+            "tipo": "manual",
+            "estado": "manual",
+            "artefacto": "data/fase-2-demanda/{}-gfa-gh.json (modo APROBADO, solo gfa_aprobado)".format(chip),
+            "comando": None,
+        },
+        # --- FIN NUEVOS PASOS ---
         "f2_venta": {
             "tipo": "auto",
             "estado": "hecho" if _hay_json_en(os.path.join(F2_VENTA_DIR, "resultados")) else "falta",
             "artefacto": "src/fase-2-demanda/F2_Modelo_Financiero/resultados/",
-            "comando": None,  # se construye en _ejecutar con los overrides
+            "comando": None,
         },
         "f2_renta": {
             "tipo": "auto",
@@ -303,23 +309,10 @@ def detectar_estado(chip, caso):
             "artefacto": "Morphs nativos en ArchiCAD (sesión abierta de Rhino)",
             "comando": None,
         },
-        "f1_contexto50": {
-            "tipo": "auto",
-            "estado": "hecho" if _validar_contexto_fresco(chip, "contexto50")[0] else "falta",
-            "artefacto": "data/pot-cache/contexto50-actual.json",
-            "comando": [PY, os.path.join(ROOT, "scripts", "utilities", "fetch-contexto-completo_v01.py"),
-                      "--chip", chip, "--solo-50"],
-            "post_comando": lambda: _copy_file(
-                os.path.join(POT_CACHE, chip + "-contexto50.json"),
-                os.path.join(POT_CACHE, "contexto50-actual.json")
-            ) if _existe(os.path.join(POT_CACHE, chip + "-contexto50.json")) else None,
-            "depends_on": ["f1_contexto"],
-        },
     }
 
 
 def _comando_f2(tipo, params):
-    """Construye el comando del motor F2 (venta o renta) con los overrides."""
     if tipo == "renta":
         script = os.path.join(F2_RENTA_DIR, "F2_RENTA_MOTOR_v03.py")
         cwd = F2_RENTA_DIR
@@ -337,7 +330,6 @@ def _comando_f2(tipo, params):
 
 
 def _ejecutar(cmd, cwd=ROOT):
-    """Ejecuta un comando y devuelve (ok, salida). Nunca lanza excepción."""
     try:
         proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True,
                               encoding="utf-8", errors="replace")
@@ -356,13 +348,6 @@ def _pedir(mensaje, default=""):
 
 
 def estado_lados_patio(chip):
-    """F1.5 (2026-09-28) - Verifica el diagnostico <CHIP>-lados.json del canvas v11.
-
-    El canvas lo genera cuando el servidor/orquestador pone el flag
-    data/pot-cache/lados-export-flag.json (componente PATIO v02.4).
-    Devuelve dict con comprobaciones minimas: chip correcto, lados >= 3,
-    patio >= 1, area >= 9 m2 y claridad >= 3 m (decision operador 2026-09-28).
-    """
     ruta = os.path.join(POT_CACHE, chip + "-lados.json")
     res = {"existe": False, "ok": False,
            "artefacto": "data/pot-cache/{}-lados.json".format(chip),
@@ -409,18 +394,24 @@ def estado_lados_patio(chip):
 
 def _imprimir_estado(estado, chip, caso, modo):
     print("=" * 64)
-    print("ORQUESTADOR DiseñoParametrico — Parte 1 (F1 -> F3)")
+    print("ORQUESTADOR DiseñoParametrico — Parte 1 (F1 -> F3 + LOOP BARRAS)")
     print("CHIP: {} | CASO: {} | MODO: {}".format(chip, caso, modo))
     print("=" * 64)
     simbolos = {"hecho": "[OK]", "falta": "[  ]", "manual": "[??]"}
-    orden = ["f1_contexto", "f1_contexto50", "f1_gfa", "f2_venta", "f2_renta", "f3_distribucion", "f3_accesos", "f3_masa_rhino"]
+    orden = ["f1_contexto", "f1_contexto50", "f1_gfa",
+             "f3_barras", "f1_normativa_aprobada", "f1_exportar_gfa_aprobado",
+             "f2_venta", "f2_renta",
+             "f3_distribucion", "f3_accesos", "f3_masa_rhino"]
     nombres = {
         "f1_contexto": "F1  Contexto normativo (fetch)",
         "f1_contexto50": "F1  Contexto 50 m (fetch)",
         "f1_gfa": "F1  Exportar GFA (manual Rhino)",
+        "f3_barras": "F3  Distribuidor barras (--presupuesto-ocupacion)",
+        "f1_normativa_aprobada": "F1  NORMATIVA v09 + barras_json (manual canvas)",
+        "f1_exportar_gfa_aprobado": "F1  Exportar GFA APROBADO (solo gfa_aprobado)",
         "f2_venta": "F2  Modelo financiero (venta)",
         "f2_renta": "F2  Modelo Build-to-Rent (renta)",
-        "f3_distribucion": "F3  Distribución espacial",
+        "f3_distribucion": "F3  Distribución espacial (v02)",
         "f3_accesos": "F3  Accesos por uso",
         "f3_masa_rhino": "F3  Masa en Rhino + Morphs ArchiCAD (manual)",
     }
@@ -435,7 +426,6 @@ def _imprimir_estado(estado, chip, caso, modo):
 def _modo_run(args):
     params = _cargar_parametros()
 
-    # 1. variables (con defaults desde el parametros existente o detección)
     if args.chip:
         chip = args.chip
     else:
@@ -445,7 +435,6 @@ def _modo_run(args):
     if args.caso:
         caso = args.caso
     else:
-        # si el chip dado no corresponde al caso previo, intentar inferir
         caso_previo = params.get("caso", "A")
         chip_de_caso = CASO_CHIP.get(caso_previo, "")
         default_caso = caso_previo if (not params.get("chip") or chip == chip_de_caso) else "A"
@@ -455,7 +444,6 @@ def _modo_run(args):
         print("ERROR: caso inválido '{}'. Opciones: {}".format(caso, CASOS))
         sys.exit(1)
 
-    # coherencia chip <-> caso
     chip_esperado = CASO_CHIP[caso]
     if not args.chip and chip != chip_esperado:
         print("AVISO: el caso {} corresponde al chip {}; se usa {}.".format(caso, chip_esperado, chip_esperado))
@@ -485,7 +473,6 @@ def _modo_run(args):
     }
     _guardar_parametros(params_nuevos)
 
-    # Initialize blank canonical context files if they don't exist
     contexto_blank = json.dumps({
         "metadata": {"chip": "", "origen_sirgas": {"x": 0, "y": 0, "z": 0}},
         "lote_objetivo": {"vertices_3d_local": []},
@@ -512,26 +499,20 @@ def _modo_run(args):
 
     estado = detectar_estado(chip, caso)
     if args.refresh:
-        # Force refresh of context steps by marking them as 'falta'
         for paso_key in ["f1_contexto", "f1_contexto50"]:
             if paso_key in estado:
                 estado[paso_key]["estado"] = "falta"
     _imprimir_estado(estado, chip, caso, modo)
 
-    # 2. pasos automáticos
-    pasos_auto = [
+    # 1. Pasos automáticos base (F1 fetch + F3 distribución v02 + accesos)
+    pasos_auto_base = [
         ("f1_contexto", "F1 fetch contexto", lambda: _ejecutar(estado["f1_contexto"]["comando"])),
         ("f1_contexto50", "F1 fetch contexto 50m", lambda: _ejecutar(estado["f1_contexto50"]["comando"])),
-        ("f2_venta", "F2 motor venta", None) if modo in ("venta", "mixto") else None,
-        ("f2_renta", "F2 motor renta", None) if modo in ("renta", "mixto") else None,
-        ("f3_distribucion", "F3 distribución", lambda: _ejecutar(estado["f3_distribucion"]["comando"])),
+        ("f3_distribucion", "F3 distribución (v02)", lambda: _ejecutar(estado["f3_distribucion"]["comando"])),
         ("f3_accesos", "F3 accesos", lambda: _ejecutar(estado["f3_accesos"]["comando"])),
     ]
 
-    for paso in pasos_auto:
-        if paso is None:
-            continue
-        clave, nombre, fn = paso
+    for clave, nombre, fn in pasos_auto_base:
         if estado[clave]["estado"] == "hecho":
             print("\n[OK] {} ya está hecho ({}). Se omite.".format(nombre, estado[clave]["artefacto"]))
             continue
@@ -540,16 +521,9 @@ def _modo_run(args):
             if resp and resp != "s":
                 continue
         print(">>> Ejecutando {} ...".format(nombre))
-        if clave in ("f2_venta", "f2_renta"):
-            cmd, cwd = _comando_f2("renta" if clave == "f2_renta" else "venta", params_nuevos)
-            ok, salida = _ejecutar(cmd, cwd)
-        else:
-            ok, salida = fn()
+        ok, salida = fn()
         if ok:
             print("[OK] {} completado.".format(nombre))
-            # Post-comando (fix 2026-09-28: el bloque estaba dentro de la rama
-            # de fallo y nunca se ejecutaba; p.ej. copia <CHIP>-contexto.json
-            # -> contexto-actual.json).
             if "post_comando" in estado[clave] and estado[clave]["post_comando"]:
                 try:
                     estado[clave]["post_comando"]()
@@ -566,20 +540,121 @@ def _modo_run(args):
                     print("Detenido por el operador.")
                     sys.exit(1)
 
-    # 3. pasos manuales (guiados)
+    # 2. Loop barras IO (P2) - pasos semi-automáticos/guiados
+    print("\n" + "=" * 64)
+    print("LOOP BARRAS IO (P2) — F3_DISTRIBUCION_v03 + NORMATIVA v09 + EXPORT GFA APROBADO")
+    print("=" * 64)
+
+    # 2a. Obtener presupuesto_ocupacion_m2 desde NORMATIVA v09 (canvas v13.1)
+    # El operador debe ejecutar NORMATIVA v09 en el canvas v13.1 y leer el Panel
+    # salida: presupuesto_ocupacion_m2
+    presupuesto_ocupacion = None
+    if estado.get("f3_barras", {}).get("estado") == "falta":
+        print("\n[MANUAL] Paso F3_BARRAS: Leer presupuesto_ocupacion_m2 del Panel NORMATIVA v09")
+        print("  1. Abrir canvas F1_CONTEXTO_v13.1.gh en Rhino/Grasshopper")
+        print("  2. Ejecutar NORMATIVA v09 (cablear json_path, sides_table_json, patio_curves, etc.)")
+        print("  3. Leer Panel 'presupuesto_ocupacion_m2' (Number)")
+        if not args.yes:
+            presupuesto_str = _pedir("  Introduce presupuesto_ocupacion_m2 [662.44]: ", "662.44")
+            try:
+                presupuesto_ocupacion = float(presupuesto_str)
+            except:
+                presupuesto_ocupacion = 662.44
+            print("  Presupuesto IO capturado: {:.2f} m2".format(presupuesto_ocupacion))
+    else:
+        presupuesto_ocupacion = 662.44
+
+    # 2b. Ejecutar F3_DISTRIBUCION_v03 (distribuidor) con --presupuesto-ocupacion
+    if estado.get("f3_barras", {}).get("estado") == "falta":
+        print("\n>>> Ejecutando F3_DISTRIBUCION_v03 (distribuidor barras)...")
+        cmd_barras = [
+            PY, os.path.join(F3_DIR, "F3_DISTRIBUCION_v03.py"),
+            "--caso", caso,
+            "--presupuesto-ocupacion", str(presupuesto_ocupacion),
+            "--n-barras", "2,3",
+            "--entrepiso-adaptativo", "True",
+            "--output-json", os.path.join(F3_CASOS, caso, "barras.json")
+        ]
+        ok, salida = _ejecutar(cmd_barras)
+        if ok:
+            print("[OK] F3_DISTRIBUCION_v03 completado -> barras.json generado")
+            # Post: copiar a cache si sirve
+            _copy_file(
+                os.path.join(F3_CASOS, caso, "barras.json"),
+                os.path.join(POT_CACHE, chip + "-barras.json")
+            )
+            estado["f3_barras"]["estado"] = "hecho"
+        else:
+            print("[ERROR] F3_DISTRIBUCION_v03 falló:")
+            for linea in salida.strip().splitlines()[-8:]:
+                print("    " + linea)
+            if not args.yes:
+                resp = _pedir("¿Continuar? [s/N]: ", "n").lower()
+                if resp != "s":
+                    sys.exit(1)
+
+    # 2c. Re-ejecutar NORMATIVA v09 con barras_json (manual en canvas)
+    if estado.get("f1_normativa_aprobada", {}).get("estado") == "manual":
+        print("\n[MANUAL] Paso NORMATIVA APROBADA: Re-ejecutar NORMATIVA v09 con barras_json")
+        print("  1. En canvas v13.1, conectar entrada 'barras_json' al Panel con contenido de barras.json")
+        print("  2. Re-ejecutar NORMATIVA v09")
+        print("  3. Verificar Panel: valido=True, io_real ≤ 0.70, gfa_aprobado_m2 > 0")
+        if not args.yes:
+            _pedir("  Presiona Enter cuando NORMATIVA reporte VALIDADO (APROBADO)...", "")
+        estado["f1_normativa_aprobada"]["estado"] = "hecho"
+
+    # 2d. Exportar GFA APROBADO (F1_EXPORTAR_GFA_v02.4)
+    if estado.get("f1_exportar_gfa_aprobado", {}).get("estado") == "manual":
+        print("\n[MANUAL] Paso EXPORTAR GFA APROBADO: Ejecutar F1_EXPORTAR_GFA_v02.4")
+        print("  1. En canvas, conectar 'gfa_aprobado_m2' y 'ocupacion_aprobada_m2' desde NORMATIVA v09")
+        print("  2. Poner flag exportar=true (orquestador POST /api/exportar-gfa)")
+        print("  3. Verificar: JSON escrito con modo=APROBADO y gfa_aprobado_m2")
+        if not args.yes:
+            _pedir("  Presiona Enter cuando GFA APROBADO exportado...", "")
+        estado["f1_exportar_gfa_aprobado"]["estado"] = "hecho"
+
+    # 3. F2 motores (usarán gfa_aprobado del JSON exportado)
+    pasos_f2 = [
+        ("f2_venta", "F2 motor venta", "venta") if modo in ("venta", "mixto") else None,
+        ("f2_renta", "F2 motor renta", "renta") if modo in ("renta", "mixto") else None,
+    ]
+    for paso in pasos_f2:
+        if paso is None:
+            continue
+        clave, nombre, tipo = paso
+        if estado[clave]["estado"] == "hecho":
+            print("\n[OK] {} ya está hecho ({}). Se omite.".format(nombre, estado[clave]["artefacto"]))
+            continue
+        if not args.yes:
+            resp = _pedir("\nEjecutar {}? [S/n]: ".format(nombre), "s").lower()
+            if resp and resp != "s":
+                continue
+        print(">>> Ejecutando {} ...".format(nombre))
+        cmd, cwd = _comando_f2(tipo, params_nuevos)
+        ok, salida = _ejecutar(cmd, cwd)
+        if ok:
+            print("[OK] {} completado.".format(nombre))
+        else:
+            print("[ERROR] {} falló. Últimas líneas:".format(nombre))
+            for linea in salida.strip().splitlines()[-8:]:
+                print("    " + linea)
+            if not args.yes:
+                resp = _pedir("¿Continuar de todas formas? [s/N]: ", "n").lower()
+                if resp != "s":
+                    print("Detenido por el operador.")
+                    sys.exit(1)
+
+    # 4. Pasos manuales finales (GFA original, Masa Rhino)
     manuales = [
-        ("f1_gfa", "F1 Exportar GFA (Rhino)",
-         "En el canvas F1_Contexto_Base (sesión abierta de Rhino), cablea "
-         "F1_EXPORTAR_GFA_v02 y ejecuta para escribir data/fase-2-demanda/{}-gfa-gh.json.".format(chip),
+        ("f1_gfa", "F1 Exportar GFA (Rhino, modo POTENCIAL - referencia)",
+         "En el canvas F1_Contexto_Base, cablea F1_EXPORTAR_GFA_v02 y ejecuta para escribir data/fase-2-demanda/{}-gfa-gh.json (modo POTENCIAL, referencia).".format(chip),
          "data/fase-2-demanda/{}-gfa-gh.json".format(chip)),
         ("f3_masa_rhino", "F3 Masa en Rhino + Morphs ArchiCAD",
-         "Carga F3_VOLUM_GENERADOR_v08.py en el componente GHPython, cablea "
-         "envelope_por_piso <- NORMATIVA_v08 y json_path <- casos/{}/programa-areas.json; "
-         "cablea las salidas *_mesh a los AC_* de Live Connection (Morphs).".format(caso),
+         "Carga F3_VOLUM_GENERADOR_v08.py en el componente GHPython, cablea envelope_aprobado_por_piso <- NORMATIVA v09 (si APROBADO) o envelope_por_piso (potencial); cablea salidas *_mesh a AC_* (Live Connection).".format(caso),
          "Morphs en ArchiCAD (round-trip GetElements)"),
     ]
     for clave, nombre, instrucciones, artefacto in manuales:
-        estado_actual = detectar_estado(chip, caso)[clave]["estado"]
+        estado_actual = estado[clave]["estado"]
         if estado_actual == "hecho":
             print("\n[OK] {} ya está hecho ({}).".format(nombre, artefacto))
             continue
@@ -597,13 +672,20 @@ def _modo_run(args):
             print("[AVISO] Aún no se detecta el artefacto. Verifica antes de continuar.")
 
     print("\n" + "=" * 64)
-    print("Fin de la Parte 1 (F1 -> F3).")
+    print("Fin de la Parte 1 (F1 -> F3 + LOOP BARRAS IO).")
     print("Genera el checklist visual con: python run_pipeline_v01.py --checklist")
-    print("La Parte 2 (F4 ambiental + F5 BIM) se desarrollará aparte.")
     print("=" * 64)
 
 
-# ------------------------------------------------------------------ checklist HTML
+def _pedir(mensaje, default=""):
+    try:
+        valor = input(mensaje).strip()
+    except (EOFError, KeyboardInterrupt):
+        valor = ""
+    return valor if valor else default
+
+
+# ------------------------------------------------------------------ checklist HTML (same as before, updated order)
 
 def _estado_badge(estado):
     if estado == "hecho":
@@ -613,38 +695,69 @@ def _estado_badge(estado):
     return ('<span class="badge falta">✗ Falta</span>')
 
 
+def _modo_checklist(args):
+    params = _cargar_parametros()
+    chip = args.chip or params.get("chip", "AAA0127AZPA")
+    caso = args.caso or params.get("caso", "A")
+    modo = args.modo or params.get("modo", "mixto")
+    estado = detectar_estado(chip, caso)
+    html = _generar_html(estado, chip, caso, modo)
+    salida = os.path.join(os.path.dirname(os.path.abspath(__file__)), "checklist.html")
+    with io.open(salida, "w", encoding="utf-8") as f:
+        f.write(html)
+    print("Checklist generado: {}".format(salida))
+
+
 def _generar_html(estado, chip, caso, modo):
     pasos = [
         ("Fase 1 — Contexto", [
             ("f1_contexto", "1.1 Fetch contexto normativo", "auto",
              "Genera el JSON de contexto del predio (coordenadas locales, vías, vecinos).",
-             "python scripts/utilities/fetch-urban-context-v7.py --chip {}".format(chip),
+             "python scripts/utilities/fetch-contexto-completo_v01.py --chip {} --solo-base".format(chip),
              estado["f1_contexto"]["artefacto"]),
-            ("f1_gfa", "1.2 Exportar GFA (manual Rhino)", "manual",
-             "Cablea F1_EXPORTAR_GFA_v02 en el canvas y ejecuta para escribir el GFA que consumirán los motores F2.",
+            ("f1_contexto50", "1.2 Fetch contexto 50 m", "auto",
+             "Extrae edificios vecinos en radio 50 m (contexto50).",
+             "python scripts/utilities/fetch-contexto-completo_v01.py --chip {} --solo-50".format(chip),
+             estado["f1_contexto50"]["artefacto"]),
+            ("f1_gfa", "1.3 Exportar GFA (manual Rhino, modo POTENCIAL)", "manual",
+             "Cablea F1_EXPORTAR_GFA_v02 en el canvas y ejecuta para escribir GFA potencial (referencia).",
              "Componente F1_EXPORTAR_GFA_v02 en Grasshopper",
              estado["f1_gfa"]["artefacto"]),
         ]),
+        ("Loop Barras IO (P2) — Ocupación ≤ IO", [
+            ("f3_barras", "2.1 Distribuidor barras (F3_DISTRIBUCION_v03)", "auto",
+             "Genera 2–3 barras crujía única que quepan en presupuesto_ocupacion_m2; emite barras.json.",
+             "python src/fase-3-masa/F3_DISTRIBUCION_v03.py --caso {} --presupuesto-ocupacion <valor> --n-barras 2,3 --entrepiso-adaptativo".format(caso),
+             estado["f3_barras"]["artefacto"]),
+            ("f1_normativa_aprobada", "2.2 NORMATIVA v09 + barras_json (manual canvas)", "manual",
+             "Re-ejecutar NORMATIVA v09 con entrada barras_json; validar valido=True, io_real ≤ 0.70, gfa_aprobado_m2 > 0.",
+             "Canvas F1_CONTEXTO_v13.1: conectar barras_json → NORMATIVA v09",
+             estado["f1_normativa_aprobada"]["artefacto"]),
+            ("f1_exportar_gfa_aprobado", "2.3 Exportar GFA APROBADO (F1_EXPORTAR_GFA_v02.4)", "manual",
+             "Cablear gfa_aprobado_m2 + ocupacion_aprobada_m2; flag exportar=true; escribe SOLO gfa_aprobado_m2.",
+             "Componente F1_EXPORTAR_GFA_v02.4 + flag gfa-export-flag.json",
+             estado["f1_exportar_gfa_aprobado"]["artefacto"]),
+        ]),
         ("Fase 2 — Demanda / Financiero", [
-            ("f2_venta", "2.1 Modelo financiero (venta)", "auto",
+            ("f2_venta", "3.1 Modelo financiero (venta)", "auto",
              "KPIs, alertas, sensibilidad y recomendación de venta.",
              "python F2_DEMANDA_MOTOR_v03.py --parametros <p> --chip {}".format(chip),
              estado["f2_venta"]["artefacto"]),
-            ("f2_renta", "2.2 Modelo Build-to-Rent (renta)", "auto",
+            ("f2_renta", "3.2 Modelo Build-to-Rent (renta)", "auto",
              "Construir para arrendar (CP/LP), TIR/VPN/cap rate, suelo soportable.",
              "python F2_RENTA_MOTOR_v03.py --parametros <p> --chip {}".format(chip),
              estado["f2_renta"]["artefacto"]),
         ]),
         ("Fase 3 — Masa", [
-            ("f3_distribucion", "3.1 Distribución espacial", "auto",
+            ("f3_distribucion", "4.1 Distribución espacial (v02, layout usos)", "auto",
              "Programa-areas balanceado, matriz de adyacencias, layout y planos.",
              "python src/fase-3-masa/F3_DISTRIBUCION_v02.py {}".format(caso),
              estado["f3_distribucion"]["artefacto"]),
-            ("f3_accesos", "3.2 Accesos por uso", "auto",
+            ("f3_accesos", "4.2 Accesos por uso", "auto",
              "Accesos por uso (público/privado) y segregación de flujos.",
              "python src/fase-3-masa/F3_ACCESOS_INTEGRADOR_v02.py --caso {}".format(caso),
              estado["f3_accesos"]["artefacto"]),
-            ("f3_masa_rhino", "3.3 Masa en Rhino + Morphs (manual)", "manual",
+            ("f3_masa_rhino", "4.3 Masa en Rhino + Morphs ArchiCAD (manual)", "manual",
              "F3_VOLUM_GENERADOR_v08 + salidas a Morphs nativos de ArchiCAD (Live Connection).",
              "Componente F3_VOLUM_GENERADOR_v08 en Grasshopper",
              estado["f3_masa_rhino"]["artefacto"]),
@@ -685,40 +798,40 @@ def _generar_html(estado, chip, caso, modo):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Orquestador DiseñoParametrico — F1→F3</title>
+<title>Orquestador DiseñoParametrico — F1→F3 + Loop Barras IO</title>
 <style>
-  :root {{ --ok:#1a7f37; --manual:#b8860b; --falta:#b42318; --bg:#f6f7f9; --card:#fff; }}
-  * {{ box-sizing: border-box; }}
-  body {{ font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; margin:0; background:var(--bg); color:#1f2328; line-height:1.5; }}
-  header {{ background:#1f2937; color:#fff; padding:22px 20px; }}
-  header h1 {{ margin:0 0 6px; font-size:22px; }}
-  header .meta {{ font-size:13px; opacity:.85; }}
-  .wrap {{ max-width:860px; margin:0 auto; padding:20px 16px 60px; }}
-  .progress {{ background:#fff; border:1px solid #e2e5ea; border-radius:10px; padding:16px; margin:18px 0; }}
-  .bar {{ height:12px; background:#e8ebef; border-radius:6px; overflow:hidden; margin-top:8px; }}
-  .bar > div {{ height:100%; background:var(--ok); }}
-  h2 {{ font-size:18px; margin:26px 0 10px; border-left:4px solid #1f2937; padding-left:10px; }}
-  .card {{ background:var(--card); border:1px solid #e2e5ea; border-radius:10px; padding:14px 16px; margin:10px 0; }}
-  .card.manual {{ border-left:4px solid var(--manual); }}
-  .card.auto {{ border-left:4px solid #64748b; }}
-  .card-head {{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }}
-  .titulo {{ font-weight:600; }}
-  .desc {{ margin:6px 0; color:#3a3f46; font-size:14px; }}
-  .badge {{ font-size:12px; padding:3px 9px; border-radius:20px; color:#fff; white-space:nowrap; }}
-  .badge.ok {{ background:var(--ok); }}
-  .badge.manual {{ background:var(--manual); }}
-  .badge.falta {{ background:var(--falta); }}
-  code.cmd {{ display:block; background:#0f172a; color:#d7e0ea; padding:8px 10px; border-radius:6px; font-size:12.5px; margin:8px 0; overflow-x:auto; white-space:pre-wrap; }}
-  .artefacto {{ font-size:12.5px; color:#57606a; margin:4px 0 0; }}
-  .parte2 {{ margin-top:34px; border:1px dashed #cbd5e1; border-radius:10px; padding:18px; background:#fbfcfe; }}
-  .parte2 h2 {{ margin-top:0; }}
-  footer {{ text-align:center; color:#8a9199; font-size:12px; margin-top:30px; }}
-  @media (max-width:560px) {{ header h1 {{ font-size:19px; }} .card-head {{ flex-direction:column; align-items:flex-start; }} }}
+  :root { --ok:#1a7f37; --manual:#b8860b; --falta:#b42318; --bg:#f6f7f9; --card:#fff; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; margin:0; background:var(--bg); color:#1f2328; line-height:1.5; }
+  header { background:#1f2937; color:#fff; padding:22px 20px; }
+  header h1 { margin:0 0 6px; font-size:22px; }
+  header .meta { font-size:13px; opacity:.85; }
+  .wrap { max-width:860px; margin:0 auto; padding:20px 16px 60px; }
+  .progress { background:#fff; border:1px solid #e2e5ea; border-radius:10px; padding:16px; margin:18px 0; }
+  .bar { height:12px; background:#e8ebef; border-radius:6px; overflow:hidden; margin-top:8px; }
+  .bar > div { height:100%; background:var(--ok); }
+  h2 { font-size:18px; margin:26px 0 10px; border-left:4px solid #1f2937; padding-left:10px; }
+  .card { background:var(--card); border:1px solid #e2e5ea; border-radius:10px; padding:14px 16px; margin:10px 0; }
+  .card.manual { border-left:4px solid var(--manual); }
+  .card.auto { border-left:4px solid #64748b; }
+  .card-head { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+  .titulo { font-weight:600; }
+  .desc { margin:6px 0; color:#3a3f46; font-size:14px; }
+  .badge { font-size:12px; padding:3px 9px; border-radius:20px; color:#fff; white-space:nowrap; }
+  .badge.ok { background:var(--ok); }
+  .badge.manual { background:var(--manual); }
+  .badge.falta { background:var(--falta); }
+  code.cmd { display:block; background:#0f172a; color:#d7e0ea; padding:8px 10px; border-radius:6px; font-size:12.5px; margin:8px 0; overflow-x:auto; white-space:pre-wrap; }
+  .artefacto { font-size:12.5px; color:#57606a; margin:4px 0 0; }
+  .parte2 { margin-top:34px; border:1px dashed #cbd5e1; border-radius:10px; padding:18px; background:#fbfcfe; }
+  .parte2 h2 { margin-top:0; }
+  footer { text-align:center; color:#8a9199; font-size:12px; margin-top:30px; }
+  @media (max-width:560px) { header h1 { font-size:19px; } .card-head { flex-direction:column; align-items:flex-start; } }
 </style>
 </head>
 <body>
 <header>
-  <h1>Orquestador DiseñoParametrico — Parte 1 (F1 → F3)</h1>
+  <h1>Orquestador DiseñoParametrico — Parte 1 (F1 → F3 + Loop Barras IO)</h1>
   <div class="meta">CHIP: {chip} &nbsp;|&nbsp; CASO: {caso} &nbsp;|&nbsp; MODO: {modo} &nbsp;|&nbsp; Generado: {fecha}</div>
 </header>
 <div class="wrap">
@@ -737,7 +850,7 @@ def _generar_html(estado, chip, caso, modo):
        <b>Live Connection GetElements</b>; esa geometría final — no la generada por F3 — es la
        que debe alimentar Ladybug (F4).</p>
   </div>
-  <footer>Generado por run_pipeline_v01.py · DiseñoParametrico</footer>
+  <footer>Generado por run_pipeline_v01.py v01.1 · DiseñoParametrico</footer>
 </div>
 </body>
 </html>""".format(chip=chip, caso=caso, modo=modo, fecha=fecha, hechos=hechos,
@@ -745,23 +858,10 @@ def _generar_html(estado, chip, caso, modo):
     return html
 
 
-def _modo_checklist(args):
-    params = _cargar_parametros()
-    chip = args.chip or params.get("chip", "AAA0127AZPA")
-    caso = args.caso or params.get("caso", "A")
-    modo = args.modo or params.get("modo", "mixto")
-    estado = detectar_estado(chip, caso)
-    html = _generar_html(estado, chip, caso, modo)
-    salida = os.path.join(os.path.dirname(os.path.abspath(__file__)), "checklist.html")
-    with io.open(salida, "w", encoding="utf-8") as f:
-        f.write(html)
-    print("Checklist generado: {}".format(salida))
-
-
 # ------------------------------------------------------------------ main
 
 def main():
-    parser = argparse.ArgumentParser(description="Orquestador + checklist DiseñoParametrico (F1->F3)")
+    parser = argparse.ArgumentParser(description="Orquestador + checklist DiseñoParametrico (F1->F3 + Loop Barras IO)")
     parser.add_argument("--status", action="store_true", help="Solo muestra el estado (sin ejecutar)")
     parser.add_argument("--run", action="store_true", help="Ejecuta el flujo guiado")
     parser.add_argument("--checklist", action="store_true", help="Genera checklist.html")

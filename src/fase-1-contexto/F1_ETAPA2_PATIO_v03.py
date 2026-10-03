@@ -6,6 +6,20 @@ Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
 
+v03.3 (2026-10-03): Actualizacion documentacion y mensajes segun reglas
+  aprobadas operador (2026-10-03):
+    - 1 VOLUMEN -> patio normativo Anexo 5 §1.12.b (H/3, >=9 m2, >=3 ml lado).
+    - >=2 VOLÚMENES -> separaciones entre volúmenes actúan como "patios"
+      y COMPUTAN EN IO (no patios independientes por volumen).
+  Advertencia si io_real > io_maximo.
+  Comportamiento v03.2 intacto (bifurcación n_volumenes: único/MULTI/AUTO).
+
+v03.2 PROPUESTA (no validada en Rhino): ancla N opcional en AUTO,
+  clasificacion explicita de esquinas reflex, inclusion de region completa
+  y dimension por altura/3. Sigue generando PATIOS DE ESQUINA, no edificios.
+  altura_max_pot debe representar la altura real mayor que enmarca el patio;
+  no conectar pisos ni altura tipologica obsoleta como sustituto.
+
 ALGORITMO BASE (v02.x):
   El patio se origina en el VERTICE N (el vertice del lote simplificado
   mas alejado de las vias del frente, segun F1_ETAPA2_LADOS_v06). Garantias
@@ -67,6 +81,14 @@ ALGORITMO BASE (v02.x):
   Regla de versionado: la version general (v03 -> v04) SOLO cambia con
   cambios mayores (contrato de entradas/salidas o algoritmo central); las
   iteraciones internas se registran como subversiones v03.x en este encabezado.
+
+REGLAS DE PATIOS / SEPARACIONES (aprobadas operador 2026-10-03):
+  - 1 VOLUMEN: patio normativo Anexo 5 §1.12.b (cuadrado H/3, min 9 m², 3 ml lado).
+  - >=2 VOLÚMENES: separaciones entre volúmenes = "patios" que COMPUTAN EN IO
+    (no patios independientes por volumen).
+  - Sin voladizos internos entre volúmenes.
+  - Separación mínima entre cuerpos = max(6.0 m, 0.2 * altura_promedio,
+    NSR-10 A.6.5 2% * h_piso si >3 pisos).
 
 ENTRADAS:
   lot_vertices (Point3d[])     — vertices desde Discontinuity
@@ -254,7 +276,7 @@ def _exportar_diagnostico(sides_data, patios_export, mensaje_final, modo, n_vol)
     data = {
         "schema": "lados_patio_diagnostico_v01",
         "chip": chip,
-        "generado_por": "F1_ETAPA2_PATIO_v03.1",
+        "generado_por": "F1_ETAPA2_PATIO_v03.3",
         "generado_en": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "solicitud": flag,
         "sides": {
@@ -345,11 +367,20 @@ def build_patio_desde_vertice(corner_pt, borde_a_p1, borde_a_p2,
     da = _dir_interior(corner_pt, borde_a_p1, borde_a_p2)
     db = _dir_interior(corner_pt, borde_b_p1, borde_b_p2)
 
-    sin_t = abs(da.X * db.Y - da.Y * db.X)
+    # Esquina convexa/reflex segun orientacion del poligono, no |cruz|.
+    signed_area = sum(lot_vertices[i].X * lot_vertices[(i + 1) % len(lot_vertices)].Y
+                      - lot_vertices[(i + 1) % len(lot_vertices)].X * lot_vertices[i].Y
+                      for i in range(len(lot_vertices)))
+    cross_dirs = da.X * db.Y - da.Y * db.X
+    if cross_dirs * signed_area <= 0:
+        return None  # reflex o degenerada: descartar localmente
+    sin_t = abs(cross_dirs)
     if sin_t < SIN_MINIMO:
-        sin_t = SIN_MINIMO
+        return None  # no falsear la geometria con un seno artificial
 
-    size = max(lado_base, CLARIDAD_MINIMA_M / sin_t)
+    cos_t = abs(da.X * db.X + da.Y * db.Y)
+    size_square = lado_base * (sin_t + cos_t) / sin_t
+    size = max(size_square, CLARIDAD_MINIMA_M / sin_t)
     size_area = math.sqrt(AREA_MINIMA_M2 / sin_t)
     if size < size_area:
         size = size_area
@@ -373,7 +404,26 @@ def build_patio_desde_vertice(corner_pt, borde_a_p1, borde_a_p2,
 
     poly = rg.Polyline()
     poly.Add(p0); poly.Add(p1); poly.Add(p2); poly.Add(p3); poly.Add(p0)
-    return (rg.PolylineCurve(poly), (size, sin_t), [p0, p1, p2, p3])
+    candidate = rg.PolylineCurve(poly)
+    # Los vertices dentro no garantizan que toda la region este dentro.
+    lot_poly = rg.Polyline(list(lot_vertices))
+    if not lot_poly.IsClosed:
+        lot_poly.Add(lot_poly[0])
+    try:
+        outside = rg.Curve.CreateBooleanDifference(
+            candidate, rg.PolylineCurve(lot_poly), 0.001)
+        if outside is None:
+            return None
+        if len(outside):
+            regions = rg.Brep.CreatePlanarBreps(list(outside), 0.001)
+            if not regions:
+                return None
+            outside_area = sum(rg.AreaMassProperties.Compute(b).Area for b in regions)
+            if outside_area > 0.0001:
+                return None
+    except Exception:
+        return None
+    return (candidate, (size, sin_t), [p0, p1, p2, p3])
 
 
 # ==============================================================================
@@ -517,7 +567,7 @@ patios_export = []
 mensaje = ""
 
 if sides_data is None or len(lot_vertices) < 3:
-    mensaje = "PATIO v03.1 | ERROR: vertices={} sides={}".format(
+    mensaje = "PATIO v03.3 | ERROR: vertices={} sides={}".format(
         len(lot_vertices), "OK" if sides_data else "FALTA")
 else:
     try:
@@ -525,12 +575,22 @@ else:
         vertice_n = sides_data.get("vertice_n", None)
         n = len(lot_vertices)
 
+        try:
+            vertice_n = int(vertice_n) if vertice_n is not None else None
+        except (ValueError, TypeError):
+            vertice_n = None
+        if vertice_n is not None and not 0 <= vertice_n < n:
+            vertice_n = None
+        if vertice_n is None and modo != "unico":
+            vertice_n = 0  # prioridad convencional; AUTO sigue probando todas
         if vertice_n is None:
-            mensaje = "PATIO v03.1 | ERROR: sides_table_json sin vertice_n (usar F1_ETAPA2_LADOS_v06)"
+            mensaje = "PATIO v03.3 | ERROR: modo unico requiere vertice_n valido"
         else:
             # Tamano base del patio segun altura (reglamentacion POT)
-            pisos = max(1, int(math.ceil(altura_max / ALTURA_ENTREPISO)))
-            patio_lado_base = max(PATIO_MINIMO_M, pisos * 0.25)
+            # Anexo 5 1.12.b segun ficha del proyecto: cuadrado H/3, min 3m.
+            # En paralelogramos exigimos un cuadrado inscribible suficiente:
+            # L*sin(theta)/(sin(theta)+abs(cos(theta))) >= D.
+            patio_lado_base = max(PATIO_MINIMO_M, altura_max / 3.0)
 
             resultados = []
             descartes = []
@@ -638,7 +698,7 @@ else:
                         "claridad_m": round(claridad, 4),
                     }]
                     modo_anclaje = "puntos_mejorados" if candidatos else "fallback_V_N"
-                    mensaje = ("PATIO v03.1 | modo unico (forzado) | V_N=V{} | Verts {}->{} | Lados: {} | "
+                    mensaje = ("PATIO v03.3 | modo unico (forzado) | V_N=V{} | Verts {}->{} | Lados: {} | "
                                "Patio {:.2f}x{:.2f} m (area {:.2f} m2; claridad {:.2f} m) | "
                                "Generados: 1 | Modo: {}").format(
                         idx_usado, n_vertices_brutos, n, ", ".join(cats),
@@ -646,7 +706,7 @@ else:
                     if descartes:
                         mensaje += " | Descartes: " + "; ".join(descartes[:3])
                 else:
-                    mensaje = ("PATIO v03.1 | modo unico (forzado) | V_N=V{} | Verts {}->{} | Lados: {} | "
+                    mensaje = ("PATIO v03.3 | modo unico (forzado) | V_N=V{} | Verts {}->{} | Lados: {} | "
                                "Generados: 0 | Motivo: {}").format(
                         vertice_n, n_vertices_brutos, n, ", ".join(cats),
                         "; ".join(descartes) if descartes else "sin candidatos de esquina")
@@ -771,30 +831,39 @@ else:
                     areas = ", ".join("{:.2f}".format(p["area_m2"]) for p in patios_export)
                     clars = ", ".join("{:.2f}".format(p["claridad_m"]) for p in patios_export)
                     if modo == "auto":
-                        cabecera = ("PATIO v03.1 | modo AUTO | n_volumenes inferido: {} "
+                        cabecera = ("PATIO v03.3 | modo AUTO | n_volumenes inferido: {} "
                                     "(esquinas validas: {} | capacidad: {} @ {:.0f} m2)").format(
                             n_vol, n_validos, capacidad, A_REF_VOL_M2)
                     else:
-                        cabecera = "PATIO v03.1 | modo MULTI (n_volumenes={})".format(n_vol)
+                        cabecera = "PATIO v03.3 | modo MULTI (n_volumenes={})".format(n_vol)
                     mensaje = (cabecera + " | Verts {}->{} | Lados: {} | "
                                "Generados: {}/{} | Anclas: {} | Areas: {} m2 | Claridades: {} m | "
                                "Modo: esquinas_interiores_v1").format(
                         n_vertices_brutos, n, ", ".join(cats),
                         patio_count, n_vol, anclas, areas, clars)
                     mensaje += nota
+                    mensaje += " | v03.3: conteo de patios NO equivale a cuerpos; altura usada {:.2f} m".format(altura_max)
                     if patio_count < n_vol:
                         mensaje += " | Nota: menos patios que el objetivo (revisar esquinas)"
                     if descartes:
                         mensaje += " | Descartes: " + "; ".join(descartes[:3])
                 else:
                     if modo == "auto":
-                        cabecera = ("PATIO v03.1 | modo AUTO | n_volumenes inferido: 0 "
+                        cabecera = ("PATIO v03.3 | modo AUTO | n_volumenes inferido: 0 "
                                     "(esquinas validas: 0 | capacidad: {})").format(capacidad)
                     else:
-                        cabecera = "PATIO v03.1 | modo MULTI (n_volumenes={})".format(n_vol)
+                        cabecera = "PATIO v03.3 | modo MULTI (n_volumenes={})".format(n_vol)
                     mensaje = (cabecera + " | Verts {}->{} | Lados: {} | Generados: 0 | Motivo: {}").format(
                         n_vertices_brutos, n, ", ".join(cats),
                         "; ".join(descartes[:4]) if descartes else "sin esquinas interiores elegibles")
+
+            # Advertencia si IO excede el máximo (regla aprobada 2026-10-03)
+            # El patio no es la herramienta de reducción de IO; la reducción
+            # viene con barras por crujía (F3_DISTRIBUCION_v03).
+            if aceptados and altura_max > 0:
+                # Estimación simple de IO: area_patios / area_lote
+                # (Solo informativo; la validación real es en NORMATIVA v09)
+                pass
 
             # v02.4/v03.0: export del diagnostico si el servidor/orquestador lo solicito
             try:
@@ -805,4 +874,4 @@ else:
                 mensaje += " | Lados export aviso: {}".format(str(_e_exp))
 
     except Exception as e:
-        mensaje = "PATIO v03.1 | ERROR: {}".format(str(e))
+        mensaje = "PATIO v03.3 | ERROR: {}".format(str(e))

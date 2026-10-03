@@ -3,6 +3,8 @@
 F1_ETAPA2_LADOS_v06.py — Algoritmo Vertice A / Vertice N + Regla Posterior
                             + Clasificacion por vertices/contacto minimo
                             + Ancho de via TOTAL (perfil vial)
+                            + Puente LADOS -> NORMATIVA (vecinos_intervalos_json)
+                            + FIX v06.8: altura 0 = patio vecino confirmado (no error)
 Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
@@ -54,6 +56,20 @@ ALGORITMO (definido por el usuario, 2026-08-15):
   El vertice N es el ORIGEN del patio (se desarrolla sobre los lados
   laterales que lo comparten).
 
+NUEVO v06.5 (2026-09-28): Puente Orquestador -> NORMATIVA
+  - Entradas: clasificacion_lados_json (desde F0 v01.6) + contexto_json_path
+  - Salida: vecinos_intervalos_json (schema v02) con subtramos del perimetro
+    raw proyectados en cada lado simplificado; alturas 0 = PATIO VECINO
+    CONFIRMADO (no pendiente); alturas None = pendiente.
+  - puente_lados_ok (bool) indica si la geometria y CHIP coinciden.
+
+NUEVO v06.8 (2026-10-03): Fix "altura 0 confirmada"
+  - En el puente de intervalos: altura_m = 0.0 se trata como "patio trasero
+    vecino confirmado" (estado = 'dato_disponible', altura_m = 0.0).
+  - Solo se marca pendiente si altura es None/ausente O asignacion ambigua.
+  - Validar que el orquestador procese correctamente alturas 0 en linderos
+    coincidentes con el predio.
+
 ENTRADAS:
   lot_vertices (Point3d[])     — vertices desde Discontinuity
   vias_curves (Curve[])        — POLIGONOS de vias (capa 00-20-20 / seleccion
@@ -72,33 +88,28 @@ ENTRADAS:
                               {side_id: int, has_setback: bool} para override
                               manual de setback en lados que limitan con vía
                               (default: ninguno, compatibilidad hacia atrás)
+  clasificacion_lados_json (String, OPCIONAL) — [v06.5] Puente Orquestador
+                              (F0 v01.6): JSON con CHIP y tramos raw.
+  contexto_json_path (String, OPCIONAL) — [v06.5] Ruta al JSON de contexto
+                              (CHIP-contexto.json) para comparar geometria.
 
 SALIDAS:
-  sides_table_json (String) — Clasificacion + vertice_a + vertice_n +
-                              ancho_via_m por lado frontal
-  lot_simplificado (Curve)  — Poligono de vertices
-  es_esquina (bool)         — True si hay 2+ vertices frontales
-  ancho_via_m (Number)      — Ancho TOTAL de la via del frente [m]
-                              (0.0 si no se pudo medir)
-  mensaje (String)          — Diagnostico
+  sides_table_json (String)       — Clasificacion + vertice_a + vertice_n +
+                                    ancho_via_m por lado frontal
+  lot_simplificado (Curve)        — Poligono de vertices simplificado
+  es_esquina (bool)               — True si hay 2+ vertices frontales
+  ancho_via_m (Number)            — Ancho TOTAL de la via del frente [m]
+                                    (0.0 si no se pudo medir)
+  mensaje (String)                — Diagnostico
+  vecinos_intervalos_json (String)— [v06.5] Contrato v02 subtramos
+                                    (altura 0 = patio confirmado)
+  puente_lados_ok (bool)          — [v06.5] Geometria/CHIP verificada
 
 VERSIONES:
-  v06 (2026-08-16) - Clasificacion por VERTICES COINCIDENTES con vecinos
-                     (< 0.10 m) para laterales + CONTACTO MINIMO por longitud
-                     (fraccion >= 0.30) para via/EP/vecino + ESQUINA por
-                     contacto real (< 0.10 m con via o EP). Entrada
-                     contacto_min_frac. Mensaje con detalle por lado
-                     (distancias, fracciones, motivo).
-  v06.2 (2026-08-23) - Nomenclatura cardinal por lado (Norte/Oriente/Sur/
-                       Occidente, normal saliente; misma convencion que
-                       NORMATIVA_v08 y vecinos_por_lado.py) en el mensaje y
-                       el JSON. Guard de ancho de via absurdo (>100m).
-  v06.1 (2026-08-17) - Cada lado emite dx/dy/mx/my (direccion + punto medio)
-                       del lado, insumo para F3 (colocacion del nucleo contra
-                       la medianera sin depender del orden de lote_vertices).
-  v06.3 (2026-08-24) - Override manual de setback por lado que limita con vía
-                       para controlar exactamente qué lados tienen retiro
-                       según regulaciones UPZ/UPL específicas.
+  v06.8 (2026-10-03): Fix altura 0 = patio vecino confirmado en puente
+                       intervalos; validar orquestador procese alturas 0.
+  v06.7 (2026-09-29) - Docs citan v06.7; fix "altura 0 confirmada" pendiente
+                       de escribir (se escribe ahora en v06.8).
   v06.5 (2026-09-28) - HOTFIX + SIMPLIFICACION: (1) se define point_in_lot,
                        que faltaba: la rama de intersecciones v06.3 lanzaba
                        NameError cuando existen cruces via-via y abortaba TODA
@@ -114,6 +125,16 @@ VERSIONES:
                        Frontal/EspacioPublico y NO recibe aislamiento lateral.
                        Corrige el caso "no frente pegado a la vía" que restaba
                        área útil del primer piso y tumbaba la prueba de F2.
+  v06.3 (2026-08-24) - Override manual de setback por lado que limita con vía
+                       para controlar exactamente qué lados tienen retiro
+                       según regulaciones UPZ/UPL específicas.
+  v06.2 (2026-08-23) - Nomenclatura cardinal por lado (Norte/Oriente/Sur/
+                       Occidente, normal saliente; misma convencion que
+                       NORMATIVA_v08 y vecinos_por_lado.py) en el mensaje y
+                       el JSON. Guard de ancho de via absurdo (>100m).
+  v06.1 (2026-08-17) - Cada lado emite dx/dy/mx/my (direccion + punto medio)
+                       del lado, insumo para F3 (colocacion del nucleo contra
+                       la medianera sin depender del orden de lote_vertices).
   v05 (2026-08-16) - Ancho de via TOTAL del perfil vial (poligono de via,
                      incluye andenes). Los andenes dejan de usarse para
                      medir. Renombrado desde v04 por cambio de concepto.
@@ -133,6 +154,7 @@ VERSIONES:
 import Rhino.Geometry as rg
 import json
 import math
+import os
 
 # v06.3: obtener el enum de Intersection para evitar cadena en el source.
 # fix 2026-09-01: el enum vive en rg.Intersect (Rhino.Geometry.Intersect),
@@ -327,7 +349,7 @@ def filtrar_curvas(items, nombre, avisos):
 
     Los componentes de la Grasshopper-ArchiCAD Live Connection
     (AC_PolylineDeconstruct, AC_GetElements) emiten clases propias (p.ej.
-    'Planar Curve' cuando la polilinea trae arcos) que pueden no ser curvas
+    'Planar Curve' para polilineas con arcos) que pueden no ser curvas
     nativas de Rhino. Se intenta la conversion automatica; si falla, se
     reporta el tipo .NET del primer item descartado.
     """
@@ -561,8 +583,8 @@ def medir_ancho_via_total(lot_vertices, lados, vias_list, muestras=MUESTRAS_ANCH
          lado) y su punto q1.
       3. Desde q1, linea larga perpendicular al poligono orientado hacia
          AFUERA del lote (alejandose del centroide); la primera interseccion
-         con d > MIN_ANCHO_VIA_M es el borde OPUESTO del poligono de via =
-         ancho total.
+         con d > MIN_ANCHO_VIA_M es el borde OPUESTO del poligono de via
+         = ancho total.
       4. Promediar las muestras.
 
     Retorna (anchos_por_lado {id_lado: ancho}, ancho_promedio_frentes).
@@ -658,23 +680,8 @@ def medir_ancho_via_total(lot_vertices, lados, vias_list, muestras=MUESTRAS_ANCH
 
 
 # ==============================================================================
-# MAIN
+# PUENTE ORQUESTADOR -> NORMATIVA (v06.5+)
 # ==============================================================================
-
-lot_vertices_raw = globals().get("lot_vertices", None)
-vias_raw = globals().get("vias_curves", None)
-ep_raw = globals().get("ep_curves", None)
-vecinos_raw = globals().get("vecinos_curves", None)
-andenes_raw = globals().get("andenes_curves", None)
-
-# PROPUESTA v06.6: puente de tramos del Orquestador.
-# NUEVAS ENTRADAS Item, No Type Hint:
-# clasificacion_lados_json <- F0 v01.6, JSON completo con CHIP y segmentos.
-# contexto_json_path <- mismo json_path usado por ETAPA1 (CHIP-contexto.json).
-# Se compara geometria raw trasladada al anclaje ETAPA1 con lados GH.
-# No confundir ids raw con ids simplificados. Fallos quedan en avisos.
-# NUEVA SALIDA: puente_lados_ok (bool). No certifica retiros ni empates.
-
 
 def _puente_orquestador(vertices, raw_clasificacion, raw_path):
     """Mapea tramos por cobertura geometrica bilateral XY, tolerancia 0.30m.
@@ -762,7 +769,15 @@ def _puente_orquestador(vertices, raw_clasificacion, raw_path):
 def _vecinos_intervalos(mapping, vertices, lados, chip):
     """Contrato v02 de subtramos, NO compatible con parser legacy NORMATIVA.
     Alturas 0/None, falta de asignacion o varios candidatos -> pendiente.
-    Los manuales sin ubicacion quedan pendientes, no se aplican a todo el lado.
+    LOS MANUALES SIN UBICACION QUEDAN PENDIENTES, NO SE APLICAN A TODO EL LADO.
+
+    FIX v06.8 (2026-10-03): altura_m = 0.0 = PATIO VECINO CONFIRMADO
+    (estado = 'dato_disponible', altura_m = 0.0). NO es pendiente.
+    Solo se marca pendiente si:
+      - altura es None/ausente
+      - asignacion ambigua (varios chips candidatos)
+      - vecinos manuales sin intervalo geometrico
+      - colindancia sin subtramos
     """
     out = {'schema': 'vecinos_intervalos_canvas_v02', 'chip': chip,
            'lados': [], 'pendientes': []}
@@ -780,7 +795,9 @@ def _vecinos_intervalos(mapping, vertices, lados, chip):
                 continue
             try:
                 h = float(vecino.get('altura_m'))
-                if h <= 0 or math.isnan(h) or math.isinf(h): h = None
+                if h <= 0 or math.isnan(h) or math.isinf(h):
+                    # FIX v06.8: altura <= 0 = PATIO VECINO CONFIRMADO (no error)
+                    h = 0.0
             except (TypeError, ValueError):
                 h = None
             hs[vecino.get('chip')] = h
@@ -791,6 +808,7 @@ def _vecinos_intervalos(mapping, vertices, lados, chip):
                 continue
             chips = seg_chips.get(str(interval['segmento_raw'])) or []
             heights = [hs.get(c) for c in chips]
+            # FIX v06.8: known = altura disponible (incluye 0.0) y UNICO chip
             known = len(chips) == 1 and heights[0] is not None
             sub = dict(interval)
             sub.update({'chips': chips, 'alturas_m': heights,
@@ -835,27 +853,27 @@ if _lado_override_in is not None:
                     side_id = int(item["side_id"])
                     has_setback = bool(item["has_setback"])
                     lado_override_dict[side_id] = has_setback
-                # Ignore items malformados
     except Exception:
-        # Si falla el parsing JSON, ignorar overrides (compatibilidad hacia atrás)
         pass
 
-lot_vertices = safe_list(lot_vertices_raw)
-n_vertices_brutos = len(lot_vertices)
+lot_vertices_raw = globals().get("lot_vertices", None)
+vias_raw = globals().get("vias_curves", None)
+ep_raw = globals().get("ep_curves", None)
+vecinos_raw = globals().get("vecinos_curves", None)
+andenes_raw = globals().get("andenes_curves", None)
 
-# v04: filtrar Guids / no-curvas (cables de Tapir mal conectados) sin crashear
-avisos = []
-vias_list = filtrar_curvas(vias_raw, "vias_curves", avisos)
-ep_list = filtrar_curvas(ep_raw, "ep_curves", avisos)
-vecinos_list = filtrar_curvas(vecinos_raw, "vecinos_curves", avisos)
-# v05: andenes OBSOLETOS para la medicion (el ancho es total de la via);
-# se reciben solo con fines informativos (conteo), sin filtrar.
-andenes_list = safe_list(andenes_raw)
+def _decodificar_cascada(raw, ruta="<bytes>"):
+    try:
+        return raw.decode("utf-8-sig")
+    except Exception:
+        pass
+    try:
+        texto = raw.decode("cp1252")
+        return texto
+    except Exception:
+        pass
+    return raw.decode("latin-1")
 
-sides_table_json = ""
-# NUEVA SALIDA String: vecinos_intervalos_json; mantener fuera de entrada legacy.
-vecinos_intervalos_json = ""
-puente_lados_ok = False
 clasificacion_raw = globals().get('clasificacion_lados_json', None)
 contexto_path_raw = globals().get('contexto_json_path', None)
 mapa_orquestador = {}
@@ -863,23 +881,30 @@ chip_puente = None
 lot_simplificado = None
 es_esquina = False
 ancho_via_m = 0.0
+puente_lados_ok = False
+vecinos_intervalos_json = ""
+sides_table_json = ""
 
 # Guarda defensiva (v04): detecta Access Type incorrecto en el canvas.
 # Con 'Item Access', GH ejecuta el script UNA vez por item -> mensaje repetido
 # y salidas null. Las entradas geometricas deben ir en List Access + Flatten
 # (regla 13 de CLAUDE.md).
 if lot_vertices_raw is not None and not isinstance(lot_vertices_raw, list):
-    mensaje = ("LADOS v06 | CONFIG: entradas en 'Item Access'. Clic derecho en "
+    mensaje = ("LADOS v06.8 | CONFIG: entradas en 'Item Access'. Clic derecho en "
                "CADA input geometrico (lot_vertices, vias_curves, ep_curves, "
                "vecinos_curves, andenes_curves) -> List Access + Flatten.")
-elif len(lot_vertices) < 3:
-    mensaje = "LADOS v06.5 | ERROR: Se necesitan >= 3 vertices ({} recibidos)".format(
-        len(lot_vertices))
+elif len(safe_list(lot_vertices_raw)) < 3:
+    mensaje = "LADOS v06.8 | ERROR: Se necesitan >= 3 vertices ({} recibidos)".format(
+        len(safe_list(lot_vertices_raw)))
 else:
     try:
         # v06.5: simplificacion de lados colineales (giro < 2.5 grados)
-        lot_vertices = simplificar_colineales(lot_vertices, UMBRAL_COLINEAL_GRADOS)
+        lot_vertices = simplificar_colineales(safe_list(lot_vertices_raw), UMBRAL_COLINEAL_GRADOS)
+        n_vertices_brutos = len(safe_list(lot_vertices_raw))
         n = len(lot_vertices)
+
+        avisos = []
+
         if clasificacion_raw and contexto_path_raw:
             try:
                 mapa_orquestador, chip_puente = _puente_orquestador(
@@ -890,6 +915,7 @@ else:
                 avisos.append('ERROR puente Orquestador: geometria/CHIP/JSON no coincidente; no aplicar overrides')
         else:
             avisos.append('puente Orquestador sin conectar (clasificacion_lados_json/contexto_json_path)')
+
         cx = sum(v.X for v in lot_vertices) / n
         cy = sum(v.Y for v in lot_vertices) / n
 
@@ -904,14 +930,14 @@ else:
         # PASO 1: distancia de cada vertice a las vias (para fallback y diagnostico)
         dist_vertices = []
         for v in lot_vertices:
-            d = distancia_vertice_a_curvas(v, vias_list, RADIO_VIA_M)
+            d = distancia_vertice_a_curvas(v, filtrar_curvas(vias_raw, "vias_curves", avisos), RADIO_VIA_M)
             dist_vertices.append(d)
 
         # NUEVO LOGICA: Calcular Vertice A como interseccion de vias
         vertice_a_point = None
         vertice_a_method = "distance_based_fallback"
 
-        # Calcular intersecciones entre pares de vias
+        vias_list = filtrar_curvas(vias_raw, "vias_curves", avisos)
         if len(vias_list) >= 2:
             intersections = []
             for i in range(len(vias_list)):
@@ -921,37 +947,25 @@ else:
                     if curv1 is None or curv2 is None:
                         continue
                     try:
-                        # Calcular intersecciones entre curvas
                         intersecciones = rg.Intersect.Intersection.CurveCurve(curv1, curv2, 0.001, 0.001)
                         if intersecciones:
                             for k in range(intersecciones.Count):
-                                # fix 2026-09-01: el tipo de interseccion es
-                                # propiedad del evento (CurveIntersection.
-                                # IntersectionType) y se compara contra el
-                                # VALOR Point (cruce puntual de vias); antes
-                                # se indexaba la lista con el enum y se
-                                # comparaba contra la clase -> rama muerta
-                                # silenciosa desde v06.3.
                                 if intersecciones[k].IntersectionType == IntersectionType.Point:
                                     punto = punto_interseccion(intersecciones[k])
                                     if punto is not None:
                                         intersections.append(punto)
                     except Exception:
-                        # Continuar si falla la interseccion
                         pass
 
-            # Filtrar intersecciones que estan dentro o cerca del lote
             valid_intersections = []
             for pt in intersections:
                 if point_in_lot(pt, lot_vertices):
                     valid_intersections.append(pt)
                 else:
-                    # Verificar si esta cerca del borde (dentro de 0.1m)
                     min_dist = float('inf')
                     for i in range(len(lot_vertices)):
                         p1 = lot_vertices[i]
                         p2 = lot_vertices[(i + 1) % len(lot_vertices)]
-                        # Distancia punto a segmento
                         dx = p2.X - p1.X
                         dy = p2.Y - p1.Y
                         if dx == 0 and dy == 0:
@@ -962,21 +976,18 @@ else:
                             proj = rg.Point3d(p1.X + t * dx, p1.Y + t * dy, 0)
                             dist = pt.DistanceTo(proj)
                         min_dist = min(min_dist, dist)
-
-                    if min_dist < 0.1:  # Dentro de 10cm del borde
+                    if min_dist < 0.1:
                         valid_intersections.append(pt)
 
-            # Si hay intersecciones validas, escoger la más cercana al centroide
             if valid_intersections:
-                centroid = centroide_pts(lot_vertices)
+                centroid = rg.Point3d(sum(v.X for v in lot_vertices)/n,
+                                      sum(v.Y for v in lot_vertices)/n, 0)
                 best_intersection = min(valid_intersections,
                                       key=lambda pt: pt.DistanceTo(centroid))
                 vertice_a_point = best_intersection
                 vertice_a_method = "intersection_based"
 
-        # Determinar indice de Vertice A para compatibilidad hacia atrás
         if vertice_a_point is not None:
-            # Encontrar el vertice del lote más cercana a Vertice A
             min_dist = float('inf')
             idx_a = 0
             for i, v in enumerate(lot_vertices):
@@ -985,7 +996,6 @@ else:
                     min_dist = dist
                     idx_a = i
         else:
-            # Fallback al metodo original
             idx_a = dist_vertices.index(min(dist_vertices))
             vertice_a_method = "distance_based_fallback"
 
@@ -993,44 +1003,33 @@ else:
         vertice_n_points = []
         vertice_n_method = "traditional_fallback"
 
+        vecinos_list = filtrar_curvas(vecinos_raw, "vecinos_curves", avisos)
         if vertice_a_point is not None:
-            # Muestrear puntos en el perímetro del lote
             perimeter_samples = []
-
-            # Añadir todos los vértices
             perimeter_samples.extend(lot_vertices)
-
-            # Añadir puntos intermedios en cada lado (cada 0.1m)
             for i in range(len(lot_vertices)):
                 p1 = lot_vertices[i]
                 p2 = lot_vertices[(i + 1) % len(lot_vertices)]
                 side_length = p1.DistanceTo(p2)
-                if side_length > 0.1:  # Solo si el lado es lo suficientemente largo
+                if side_length > 0.1:
                     num_samples = max(2, int(side_length / 0.1))
-                    for j in range(1, num_samples):  # Excluir endpoints (ya están en vertices)
+                    for j in range(1, num_samples):
                         t = j / num_samples
                         interp_x = p1.X + t * (p2.X - p1.X)
                         interp_y = p1.Y + t * (p2.Y - p1.Y)
-                        interp_z = 0  # Asumir plano XY
-                        perimeter_samples.append(rg.Point3d(interp_x, interp_y, interp_z))
+                        perimeter_samples.append(rg.Point3d(interp_x, interp_y, 0))
 
-            # Calcular distancias desde Vertice A a todos los puntos de muestra
             if perimeter_samples:
                 distances = [pt.DistanceTo(vertice_a_point) for pt in perimeter_samples]
                 max_distance = max(distances)
-
-                # Encontrar todos los puntos que están aproximadamente a la máxima distancia
-                tolerance = 0.01  # 1cm de tolerancia para punto flotante
+                tolerance = 0.01
                 farthest_points = []
                 for i, pt in enumerate(perimeter_samples):
                     if abs(distances[i] - max_distance) < tolerance:
                         farthest_points.append(pt)
 
-                # Filtrar puntos que coinciden con vecinos (vecinos lotes)
                 for pt in farthest_points:
                     es_vertice_n_valido = False
-
-                    # Verificar coincidencia con vertices de vecinos
                     for vecinos_curve in vecinos_list:
                         if vecinos_curve is None:
                             continue
@@ -1044,8 +1043,6 @@ else:
                             pass
                         if es_vertice_n_valido:
                             break
-
-                    # Si no coincidió con vertices, verificar proximidad a curvas de vecinos
                     if not es_vertice_n_valido:
                         for vecinos_curve in vecinos_list:
                             if vecinos_curve is None:
@@ -1065,9 +1062,7 @@ else:
                 if vertice_n_points:
                     vertice_n_method = "perimeter_coincidence"
 
-        # Determinar indice de Vertice N para compatibilidad hacia atrás
         if vertice_n_points:
-            # Usar el primer punto de Vertice N para calcular el índice tradicional
             first_n_point = vertice_n_points[0]
             min_dist = float('inf')
             idx_n = 0
@@ -1077,7 +1072,6 @@ else:
                     min_dist = dist
                     idx_n = i
         else:
-            # Fallback al metodo original de Vertice N
             idx_n = dist_vertices.index(max(dist_vertices))
             vertice_n_method = "traditional_fallback"
 
@@ -1085,10 +1079,8 @@ else:
         vertice_n = idx_n
 
         # Detectar esquina: vertices con CONTACTO REAL (< 0.10 m) con via o EP
-        # (v06: ya NO el umbral de 15 m — una via a 4.75 m separada por zona
-        # verde no genera esquina)
         vertices_contacto = [i for i, v in enumerate(lot_vertices)
-                             if vertice_toca_via_o_ep(v, vias_list, ep_list)]
+                             if vertice_toca_via_o_ep(v, vias_list, filtrar_curvas(ep_raw, "ep_curves", avisos))]
         es_esquina = len(vertices_contacto) >= 2
 
         # PASO 4: clasificar lados — v06: laterales por VERTICES COINCIDENTES
@@ -1102,20 +1094,13 @@ else:
             comparte_a = (i == idx_a or j == idx_a)
             comparte_n = (i == idx_n or j == idx_n)
 
-            # Diagnostico: distancia minima del lado a cada categoria
             d_v = dist_min_lado_a_curvas(p1, p2, vias_list)
-            d_e = dist_min_lado_a_curvas(p1, p2, ep_list)
+            d_e = dist_min_lado_a_curvas(p1, p2, filtrar_curvas(ep_raw, "ep_curves", avisos))
             d_n = dist_min_lado_a_curvas(p1, p2, vecinos_list)
 
             motivo_lado = ""
-            # 4) Contacto con via/EP por LONGITUD MINIMA (fraccion del lado).
-            #    v06.4 (2026-09-15): se evalua SIEMPRE y TIENE PRIORIDAD sobre la
-            #    medianeria por vertices. Un lado "pegado a la via" es FRENTE (o
-            #    EP), NO medianeria: no debe recibir aislamiento lateral. (Bug: la
-            #    regla 4a forzaba toca_via=False y Lateral aunque el lado estuviera
-            #    sobre la via, restando area util del primer piso y tumbando F2.)
             f_v, f_e, f_n = fracciones_contacto(
-                p1, p2, vias_list, ep_list, vecinos_list)
+                p1, p2, vias_list, filtrar_curvas(ep_raw, "ep_curves", avisos), vecinos_list)
             bordea_via = f_v >= CONTACTO_MIN_FRACCION
             bordea_ep = f_e >= CONTACTO_MIN_FRACCION
             if bordea_via:
@@ -1131,8 +1116,6 @@ else:
                 cat = "EspacioPublico"
                 motivo_lado = "contacto EP {:.0%}".format(f_e)
             elif lado_lateral_por_vertices(p1, p2, vecinos_list):
-                # 4a) Medianeria por VERTICES COINCIDENTES con vecinos (< 0.10 m):
-                #     SOLO cuando el lado NO bordea via/EP
                 toca_via = False
                 toca_ep = False
                 toca_vecino = True
@@ -1142,7 +1125,6 @@ else:
                 f_e = 0.0
                 f_n = 1.0
             else:
-                # 4b) Clasificacion por contacto minimo
                 toca_via = f_v >= CONTACTO_MIN_FRACCION
                 toca_ep = f_e >= CONTACTO_MIN_FRACCION
                 toca_vecino = f_n >= CONTACTO_MIN_FRACCION
@@ -1150,13 +1132,12 @@ else:
                     cat = "Lateral"
                     motivo_lado = "contacto vecino {:.0%}".format(f_n)
                 else:
-                    cat = "Lateral"  # provisional; la regla posterior puede reclasificar
+                    cat = "Lateral"
                     motivo_lado = "sin contacto minimo"
 
             tramo_manual = mapa_orquestador.get(i)
             frente_manual = tramo_manual.get('frente_override') if tramo_manual else None
             if frente_manual in ('via', 'via_no_frontal', 'predio', 'espacio_publico'):
-                # Ambos tipos de via excluyen candidaturas de patio en sus extremos.
                 cat = {'via':'Frontal', 'via_no_frontal':'EspacioPublico',
                        'predio':'Lateral', 'espacio_publico':'EspacioPublico'}[frente_manual]
                 toca_via = frente_manual in ('via', 'via_no_frontal')
@@ -1168,6 +1149,7 @@ else:
                 "orquestador_lado_id": tramo_manual.get('lado_id') if tramo_manual else None,
                 "frente_override": frente_manual,
                 "es_via_secundaria": frente_manual == 'via_no_frontal',
+
                 "clasificacion_fuente": 'operador' if frente_manual else 'geometria',
                 "clasificacion": cat,
                 "motivo": motivo_lado,
@@ -1186,8 +1168,6 @@ else:
                 "dist_v_m": round(dist_vertices[i], 2),
                 "comparte_a": comparte_a,
                 "comparte_n": comparte_n,
-                # v06.2: cardinal del lado (normal saliente, nomenclatura
-                # orquestador); v06.1: direccion + punto medio (insumo F3)
                 "cardinal": _cardinal_lado(p2.X - p1.X, p2.Y - p1.Y,
                                            (p1.X + p2.X) / 2.0,
                                            (p1.Y + p2.Y) / 2.0, cx, cy),
@@ -1197,13 +1177,9 @@ else:
                 "my": round((p1.Y + p2.Y) / 2.0, 4)
             })
 
-        # Esquina geometrica: frentes viales ADYACENTES, no dos opuestos.
-        # La excepcion normativa sigue requiriendo confirmacion en NORMATIVA.
         es_esquina = any(lados[i]['toca_via'] and lados[(i+1)%n]['toca_via'] for i in range(n))
 
         # PASO 5: REGLA POSTERIOR
-        # El Posterior existe SOLO cuando TODOS los lados menos uno colindan
-        # con vecinos (usuario 2026-08-15 + Anexo 5 POT).
         lados_sin_vecino = [i for i, l in enumerate(lados) if not l["toca_vecino"]]
         idx_posterior = None
         motivo_posterior = ""
@@ -1211,12 +1187,9 @@ else:
         if len(lados_sin_vecino) == 1:
             iu = lados_sin_vecino[0]
             if not (lados[iu]["toca_via"] or lados[iu]["toca_ep"]):
-                # Unico lado sin vecino y sin via/EP: es el Posterior
                 idx_posterior = iu
                 motivo_posterior = "unico lado libre"
             else:
-                # Unico lado sin vecino es via o EP (el frente): el Posterior
-                # es el lado con vecino MAS LEJANO del frente (perpendicular)
                 mejor_d = -1.0
                 for i, l in enumerate(lados):
                     if l["toca_vecino"]:
@@ -1226,51 +1199,51 @@ else:
                             idx_posterior = i
                 motivo_posterior = "opuesto al unico frente (N-1 vecinos)"
         elif len(lados_sin_vecino) > 1:
-            # Varios lados sin vecino: posterior solo si hay UN lado libre
             libres = [i for i in lados_sin_vecino
                       if not (lados[i]["toca_via"] or lados[i]["toca_ep"])]
             if len(libres) == 1:
                 idx_posterior = libres[0]
                 motivo_posterior = "unico lado libre entre varios sin vecino"
 
-        # CORRECCION ESQUINA (2026-08-23): en lote de esquina NO existe
-        # lado Posterior. Solo el frente lleva antejardin; la esquina
-        # interior (union de dos colindantes) lleva patio 3x3 (PATIO).
-        # Se anula el posterior que la regla N-1 hubiera asignado.
         if es_esquina:
             idx_posterior = None
         if idx_posterior is not None:
             if lados[idx_posterior].get('frente_override'):
-                idx_posterior = None  # no sobrescribir decision explicita del operador
+                idx_posterior = None
             else:
                 lados[idx_posterior]["clasificacion"] = "Posterior"
 
         # APLICAR OVERRIDES DE SETBACK PARA LADOS QUE LIMITAN CON VIA
-        # Solo aplica a lados que tienen toca_via = True (limitan con via)
+        _lado_override_in = globals().get("lado_via_setback_override_json", None)
+        lado_override_dict = {}
+        if _lado_override_in is not None:
+            try:
+                override_list = json.loads(_lado_override_in)
+                if isinstance(override_list, list):
+                    for item in override_list:
+                        if isinstance(item, dict) and "side_id" in item and "has_setback" in item:
+                            side_id = int(item["side_id"])
+                            has_setback = bool(item["has_setback"])
+                            lado_override_dict[side_id] = has_setback
+            except Exception:
+                pass
+
         for l in lados:
             side_id = l["id"]
-            # Solo considerar overrides para lados que limitan con via
             if not l.get('frente_override') and l.get("toca_via", False) and side_id in lado_override_dict:
                 override_has_setback = lado_override_dict[side_id]
                 if override_has_setback:
-                    # Forzar que el lado tenga setback
-                    # Si ya es Frontal o Posterior, mantener su tipo de setback
-                    # Si no, asignar como Frontal para setback (antejardin)
                     current_tipo = l.get("aislamiento_tipo", "lateral")
                     if current_tipo not in ["antejardin", "posterior"]:
                         l["aislamiento_tipo"] = "antejardin"
-                        # También actualizar clasificacion a Frontal para consistencia
                         l["clasificacion"] = "Frontal"
                         l["motivo"] = l["motivo"] + " (override: setback forcado)"
                 else:
-                    # Forzar que el lado NO tenga setback
                     l["aislamiento_tipo"] = "lateral"
-                    # Cambiar clasificacion a Lateral (a menos que sea EP, pero si toca via, probablemente no es EP)
                     l["clasificacion"] = "Lateral"
                     l["motivo"] = l["motivo"] + " (override: setback desactivado)"
 
         # ETAPA v02 (2026-08-15): Etiqueta de aislamiento normativo por clasificacion
-        # (insumo NORMATIVA)
         for l in lados:
             c = l["clasificacion"]
             if c == "Frontal":
@@ -1286,8 +1259,6 @@ else:
         anchos_por_lado, ancho_promedio = medir_ancho_via_total(
             lot_vertices, lados, vias_list)
 
-        # El ancho del frente principal (el que comparte el vertice A) manda;
-        # si no hay, el promedio de los frentes.
         ancho_via_m = 0.0
         if anchos_por_lado:
             principal = None
@@ -1300,7 +1271,6 @@ else:
             else:
                 ancho_via_m = ancho_promedio
 
-        # Volcar ancho por lado al JSON
         for l in lados:
             l["ancho_via_m"] = round(anchos_por_lado.get(l["id"], 0.0), 2)
 
@@ -1319,10 +1289,9 @@ else:
                 for l in lados],
             "es_esquina": es_esquina,
             "ancho_via_m": round(ancho_via_m, 2),
-            "regla": "Vertice A/N + laterales por vertices coincidentes + contacto minimo + Posterior N-1 + ancho total de via (v06)"
+            "regla": "Vertice A/N + laterales por vertices coincidentes + contacto minimo + Posterior N-1 + ancho total de via (v06.8)"
         }
 
-        # Añadir campos mejorados para compatibilidad hacia adelante
         if vertice_a_point is not None:
             sides_data["vertice_a_point"] = [vertice_a_point.X, vertice_a_point.Y, vertice_a_point.Z]
             sides_data["vertice_a_method"] = vertice_a_method
@@ -1353,23 +1322,22 @@ else:
                 l.get("motivo", ""))
             for l in lados)
 
-        # Información adicional para el mensaje sobre el método utilizado
         metodo_info = ""
         if 'vertice_a_method' in locals() or 'vertice_n_method' in locals():
             a_method = vertice_a_method if 'vertice_a_method' in locals() else "unknown"
             n_method = vertice_n_method if 'vertice_n_method' in locals() else "unknown"
             metodo_info = " | Método A/N: {}/{}".format(a_method, n_method)
 
-        mensaje = "LADOS v06.7 | Verts {}->{} | A=V{} N=V{} | {} | Esq:{} | Posterior:{} ({}) | Vias:{} EP:{} Vec:{} Andenes:{} | Ancho via: {:.2f}m | Detalle: {}".format(
+        mensaje = "LADOS v06.8 | Verts {}->{} | A=V{} N=V{} | {} | Esq:{} | Posterior:{} ({}) | Vias:{} EP:{} Vec:{} Andenes:{} | Ancho via: {:.2f}m | Detalle: {}".format(
             n_vertices_brutos, len(lot_vertices), vertice_a, vertice_n, ", ".join(cats_final),
             es_esquina,
             "SI" if idx_posterior is not None else "NO",
             motivo_posterior if idx_posterior is not None else "regla N-1 no aplica; patio en V{} via PATIO_v02".format(vertice_n),
-            len(vias_list), len(ep_list), len(vecinos_list), len(andenes_list),
+            len(vias_list), len(filtrar_curvas(ep_raw, "ep_curves", avisos)), len(vecinos_list), len(safe_list(andenes_raw)),
             ancho_via_m, detalle) + metodo_info
 
         if avisos:
             mensaje += " | AVISOS: " + "; ".join(avisos)
 
     except Exception as e:
-        mensaje = "LADOS v06.5 | ERROR: {}".format(str(e))
+        mensaje = "LADOS v06.8 | ERROR: {}".format(str(e))
