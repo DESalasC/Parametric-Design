@@ -833,13 +833,17 @@ if barras_ocupacion is not None and barras_huellas is not None:
     # Validar presupuesto
     if area_lote > 0 and barras_ocupacion > presupuesto_ocupacion_m2 + TOLERANCIA**2:
         bloqueos.append("VALIDADOR v09: ocupacion_total {:.2f} > presupuesto {:.2f}; excedente {:.2f} m2".format(barras_ocupacion, presupuesto_ocupacion_m2, barras_ocupacion - presupuesto_ocupacion_m2))
+        valido = False
     else:
+        # APROBADO: barras dentro de presupuesto -> suprimir bloqueos previos de regimen/alturas/empates
+        # porque las barras ya traen geometría validada desde F3_DISTRIBUCION_v03
+        bloqueos = [b for b in bloqueos if "regimen/alturas/empates" not in b and "intervalos no verificables" not in b]
         ocupacion_real = barras_ocupacion
         gfa_total = barras_gfa
         envelope_por_piso = barras_huellas
         envelope_curve = envelope_por_piso[0] if envelope_por_piso else None
         altura_total = barras_altura if barras_altura else pisos_finales * (barras_floor_h if barras_floor_h else floor_h)
-        valido = not bloqueos
+        valido = True
 else:
     # MODO POTENCIAL (comportamiento actual v08)
     if lot_polygon is not None and vertices_lote:

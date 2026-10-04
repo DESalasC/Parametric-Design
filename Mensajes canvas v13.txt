@@ -1,3 +1,18 @@
-#116-F1_ETAPA2_NORMATIVA_v09.py
+lot_poligon esta conectada a lot_simplificado de #115-F1_ETAPA2_LADOS_v06.8.py.
+sides_table_json esta conectada a sides_table_json de #115-F1_ETAPA2_LADOS_v06.8.py.
+patio_curves esta conectada a patios_curves de #124-F1_ETAPA2_PATIO_v03.3.py,
+vecinos_intervalos_json esta conectada a vecinos_intervalos_json de #115-F1_ETAPA2_LADOS_v06.8.py.
+reglamentacion_json esta conectada a reglamentacion_json de #52-F1_ETAPA1_CONTEXTO_v04.4.1.py.
+normativa_confirmada deberia venir directamente del orquestador, pero actualmente tiene un boolean = false
+pisos_maximos_total deberia venir directamente del orquestador, pero actualmente tiene un valor number slider = 5
+barras_json de  F3_DISTRIBUCION_v03, no funciona porque el Script da el siguiente mensaje de error: 
+Runtime error (SyntaxErrorException): unexpected token ':'
 
-1. Solution exception:unsupported operand type(s) for *: 'float' and 'NoneType'
+File "", line 140
+    def normalizar_uso(uso: str) -> str:
+                          ^
+SyntaxError: unexpected token ':'
+
+1. Solution exception:unexpected token ':'
+
+Adicionalmente no tengo claro todas las conexiones de este script, como y de donde vienen y para donde van, porque en el encabezado del mismo, aunque dan los nombres de las variables de entrada, no da ni el tipo, ni si son "list access" o "item access" porque no lo encuentro en la descripción incluida.
