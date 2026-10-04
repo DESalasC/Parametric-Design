@@ -681,11 +681,18 @@ elif vecinos_raw is not None and str(vecinos_raw).strip() != "":
 
 try: floor_h = float(unwrap(floor_h_raw)) if floor_h_raw else 3.0
 except: floor_h = 3.0
+if floor_h <= 0: floor_h = 3.0
 
 try: io_user = float(unwrap(io_user_raw)) if io_user_raw else 0.0
 except: io_user = 0.0
 
 tratamiento = str(unwrap(tratamiento_raw)) if tratamiento_raw else "Consolidacion"
+
+# --- IO MÁXIMO (inicialización temprana para presupuesto_ocupacion_m2) ---
+if io_user > 0: io_maximo = io_user
+elif tratamiento == "Consolidacion": io_maximo = 0.70
+elif tratamiento in ("Desarrollo", "Mejoramiento"): io_maximo = 0.60
+else: io_maximo = 0.70
 
 # --- PISOS Y ALTURA ---
 ic_maximo_base = RANGO_PISOS.get(rango, RANGO_PISOS[RANGO_DEFAULT])
@@ -736,7 +743,7 @@ retiros_por_piso = ""
 ocupacion_real = 0.0
 valido = False
 area_lote = area_curve(lot_polygon) if lot_polygon else 0.0
-presupuesto_ocupacion_m2 = area_lote * io_maximo if io_user > 0 else area_lote * (0.70 if tratamiento == "Consolidacion" else 0.60 if tratamiento in ("Desarrollo","Mejoramiento") else 0.70)
+presupuesto_ocupacion_m2 = area_lote * io_maximo
 
 # --- 1. Patios ---
 patios_list = [p for p in safe_list(patio_raw) if p is not None]

@@ -1,0 +1,174 @@
+Microsoft Hyper-V UEFI
+Virtual Machine Boot summary
+1. SCSI DVD (0,0)
+   The boot loader failed. 
+2. Network Adapter (00155D010200)
+   A boot image was nor found
+3. SCSI Disk (0,0)
+   The boot loader did not load an operating system.
+
+No operating system was loaded. Your virtual machine nay be configurated incorrectly.
+Exit and reconfigure your VM or click restart to retry the current boot sequence again.
+
+En la VM ahora:
+Descargar instalador AutoClaw → Instalar
+Al abrir: usar tu cuenta habitual (la auth ya está en el bind mount)
+Verificar: netstat -an | findstr 19723 → 0.0.0.0:19723 LISTENING
+Probar ArchiCAD → Teamwork → Join Project → <IP_VM>:19723
+PRUEBAS REALIZADAS
+
+# Etapa 1: AutoClaw y ArchiCAD cerrados:
+netstat -an | findstr 19723
+netstat -an | findstr 19724
+netstat -an | findstr 19725
+
+# Respuesta Etapa 1: Ninguna respuesta, no estan en uso
+
+# Etapa 2: Abrir Archicad+Rhino+LiveConection
+netstat -an | findstr 19723
+
+# Respuesta Etapa 2:
+netstat -an | findstr 19723
+  TCP    0.0.0.0:19723          0.0.0.0:0              LISTENING
+  TCP    127.0.0.1:19723        127.0.0.1:50618        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50619        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50620        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50621        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50622        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50623        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50624        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50625        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50626        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50627        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50628        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50629        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50630        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50631        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50632        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50633        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50634        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50635        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50636        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50637        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50638        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50639        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50640        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50642        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50643        ESTABLISHED
+  TCP    127.0.0.1:50618        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50619        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50620        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50621        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50622        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50623        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50624        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50625        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50626        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50627        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50628        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50629        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50630        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50631        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50632        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50633        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50634        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50635        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50636        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50637        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50638        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50639        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50640        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50642        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50643        127.0.0.1:19723        ESTABLISHED
+
+# Etapa 3: Cambiar el puerto en ArchiCAD a 19725, 19726, 19727, 19728, 19729 y 19730
+netstat -an | findstr 19725...
+
+# Respuesta Etapa 3:
+PS C:\Windows\System32> netstat -an | findstr 19725
+PS C:\Windows\System32> netstat -an | findstr 19726
+PS C:\Windows\System32> netstat -an | findstr 19727
+PS C:\Windows\System32> netstat -an | findstr 19728
+PS C:\Windows\System32> netstat -an | findstr 19729
+PS C:\Windows\System32> netstat -an | findstr 19730
+PS C:\Windows\System32>
+
+# Etapa 4: Cambiar el puerto en ArchiCAD nuevamente a 19723
+netstat -an | findstr 19723
+
+# Respuesta Etapa 4:
+PS C:\Windows\System32> netstat -an | findstr 19723
+  TCP    0.0.0.0:19723          0.0.0.0:0              LISTENING
+  TCP    127.0.0.1:19723        127.0.0.1:50746        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50747        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50748        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50749        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50750        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50751        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50752        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50753        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50754        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50755        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50756        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50757        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50758        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50759        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50760        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50761        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50762        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50763        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50764        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50765        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50766        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50767        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50768        ESTABLISHED
+  TCP    127.0.0.1:19723        127.0.0.1:50770        ESTABLISHED
+  TCP    127.0.0.1:50746        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50747        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50748        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50749        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50750        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50751        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50752        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50753        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50754        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50755        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50756        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50757        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50758        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50759        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50760        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50761        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50762        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50763        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50764        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50765        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50766        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50767        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50768        127.0.0.1:19723        ESTABLISHED
+  TCP    127.0.0.1:50770        127.0.0.1:19723        ESTABLISHED
+PS C:\Windows\System32>
+
+# Etapa 5: Nuevamente todo cerrado
+netstat -an | findstr 19723....
+
+#Respuesta Etapa 5:
+PS C:\Windows\System32> netstat -an | findstr 19723
+PS C:\Windows\System32> netstat -an | findstr 19724
+PS C:\Windows\System32> netstat -an | findstr 19725
+PS C:\Windows\System32> netstat -an | findstr 19726
+PS C:\Windows\System32> netstat -an | findstr 19727
+PS C:\Windows\System32> netstat -an | findstr 19728
+PS C:\Windows\System32> netstat -an | findstr 19729
+PS C:\Windows\System32> netstat -an | findstr 19730
+PS C:\Windows\System32>
+
+# Etapa 6: AutoClaw Abierto
+netstat -an | findstr 19723
+
+# Respuesta Etapa 6: 
+
+  TCP    127.0.0.1:19723        0.0.0.0:0              LISTENING
+PS C:\Windows\System32>
+
+¿Alguna duda?
