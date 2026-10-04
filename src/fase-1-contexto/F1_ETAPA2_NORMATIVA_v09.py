@@ -944,14 +944,14 @@ if valido:
                "Empate 1.9.c: {} | Patios: {:.1f}m2 | Tipo:{} | Antejardin {:.1f}m (via {:.1f}m) | "
                "Lat {:.1f}m | Post {:.1f}m{}").format(
         modo, area_lote, ocupacion_real, io_maximo, presupuesto_ocupacion_m2,
-        (gfa_aprobado_m2 or gfa_total) / area_lote if area_lote > 0 else 0, pisos_extra, altura_total,
-        pisos_finales, gfa_aprobado_m2 if gfa_aprobado_m2 else gfa_total, len(escalonados),
+        float((gfa_aprobado_m2 or gfa_total) / area_lote if area_lote > 0 else 0), pisos_extra, altura_total,
+        pisos_finales, float(gfa_aprobado_m2 if gfa_aprobado_m2 else gfa_total), len(escalonados),
         voladizo_frontal, len(vecinos_por_lado), total_vecinos, empate_txt,
         patio_area_total, tipologia, antejardin, ancho_via_m, retiro_lateral, retiro_posterior,
         " (empate)" if empate_posterior else "")
 else:
     mensaje = ("NORMATIVA v09.0 | NO VALIDADO | Lote {:.2f} m2 | Ocup {:.2f} m2 | IO real {:.4f} / max {:.4f} | Presupuesto {:.2f} m2 | {} pisos | Alt {:.2f} m | GFA {:.2f} m2 | {}").format(
-        area_lote, ocupacion_real, io_real, io_maximo, presupuesto_ocupacion_m2, pisos_finales, altura_total, gfa_total if 'gfa_total' in locals() else 0, "; ".join(sorted(set(bloqueos))))
+        area_lote, ocupacion_real, io_real, io_maximo, presupuesto_ocupacion_m2, pisos_finales, altura_total, float(gfa_total if 'gfa_total' in locals() else 0), "; ".join(sorted(set(bloqueos))))
 
 if altura_vecinos_m <= 0: warnings.append("sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)")
 
