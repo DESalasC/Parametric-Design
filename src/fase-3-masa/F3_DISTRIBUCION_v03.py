@@ -6,41 +6,99 @@ Proyecto: DisenoParametrico / Fase 3
 GH Python Script para Grasshopper (IronPython 2.7 compatible) + CLI
 ================================================================================
 
-HISTORIAL:
+RESUMEN:
+  Genera 2–3 barras escalonadas de crujía única que QUEPAN en el
+  presupuesto de ocupación (area_lote * io_maximo), ajustando por prioridad:
+  1) PROFUNDIDAD de barras (reducción continua)
+  2) ENTREPISO (3.05 m vs 3.80 m)
+  3) NÚMERO DE CUERPOS (último recurso)
+  Salida principal: barras_json (schema f3_barras_salida_v01) que consume
+  F1_ETAPA2_NORMATIVA_v09.py (entrada barras_json) para emitir los productos
+  APROBADOS (ocupacion_aprobada_m2, gfa_aprobado_m2, envelope_aprobado_por_piso).
+
+HISTORIAL DE VERSIONES:
+  v03.1 (2026-10-05): Corregido para uso vivo en canvas v13.1.
+    - FIX IronPython 2.7: eliminada anotación de tipo Python 3 en
+      normalizar_uso() ("def normalizar_uso(uso: str) -> str:" provocaba
+      SyntaxErrorException "unexpected token ':'" en el componente GHPython).
+    - SECCIÓN GRASSHOPPER completa: el script ahora también funciona DENTRO
+      del componente del canvas (lee entradas, calcula y publica las 7
+      salidas GH: barras_json, mensaje, alternativa_recomendada,
+      ocupacion_total_m2, gfa_real_m2, floor_h_usado, n_barras_usado).
+    - Lectura defensiva de entradas GH (tolerante a None / listas / guiones
+      en nombres) + fallback por índice de parámetro (ghenv).
+    - Si presupuesto_ocupacion_m2 está vacío, se DERIVA = lote_m2 × io_max
+      con un margen de seguridad (0,1% / mín. 0,25 m²) para que la
+      validación APROBADA de NORMATIVA v09 no falle por centésimas; el
+      mensaje lo indica. Para coincidencia exacta, escribir el valor del
+      Panel presupuesto_ocupacion_m2 de NORMATIVA v09.
+    - Raíz del proyecto robusta: archivo (CLI) → variable de entorno
+      DISENO_PARAMETRICO_ROOT (canvas) → validación con carpeta src/.
+    - Cableado documentado en este encabezado (tipo + acceso + origen/destino).
   v03.0 (2026-10-03): Cambio mayor (v02 -> v03) — contrato entradas/salidas.
-    - Nueva entrada: presupuesto_ocupacion_m2 (Number, Item Access)
-    - Nueva entrada: n_barras_objetivo (Number/List, Item/List Access) — ej. 2,3
-    - Nueva entrada: entrepiso_adaptativo (Boolean, Item Access, default True)
-    - Nueva entrada: prioridad_ajuste (String/List, Item/List Access) —
-      "profundidad,entrepiso,num_cuerpos" (orden de prioridad D3)
-    - Nueva salida: barras_json (String) — schema f3_barras_salida_v01
-      con alternativas, recomendada, ocupación_total, GFA real, floor_h usado.
+    - Nuevas entradas: presupuesto_ocupacion_m2, n_barras_objetivo,
+      entrepiso_adaptativo, prioridad_ajuste.
+    - Nueva salida: barras_json (schema f3_barras_salida_v01) con
+      alternativas, recomendada, ocupación total, GFA real, floor_h usado.
     - Lógica iteradora: para cada n_barras, prueba floor_h en [3.05, 3.80],
-      ajusta profundidad para caber en presupuesto; valida separaciones
-      por altura (POT 1.9.b/c + NSR-10 A.6.5), patios según nº volúmenes
-      (1 vol: Anexo 5 1.12.b; >=2 vol: separaciones = "patios" en IO), accesos.
-    - Homogeneizado: versión interna = nombre archivo (v03.0).
+      ajusta profundidad para caber en presupuesto; valida separaciones por
+      altura (POT 1.9.b/c + NSR-10 A.6.5), patios según nº volúmenes
+      (1 vol: Anexo 5 §1.12.b; >=2 vol: separaciones = "patios" en IO), accesos.
+    - Homogeneizado: versión interna = nombre archivo (v03.x).
   v02.2 (2026-09-29): tipo crujia doble|unica, posicion nucleo, orientacion
     referida al predio, niveles auto, ancho minimo por programa.
   v02.1: --usos filtra/renormaliza mix; --bloques N + separacion/desnivel.
   v02.0: acople seccion 2 -> modelado (usos + bloques multivolumen).
 
-OBJETIVO (D3 prioridad):
-  Generar 2–3 barras escalonadas de crujía única que QUEPAN en el
-  presupuesto_ocupacion_m2 (area_lote * io_maximo), ajustando:
-  1) PROFUNDIDAD de barras (reducción continua)
-  2) ENTREPISO (3.05 m → 3.80 m si permite más separación)
-  3) NÚMERO DE CUERPOS (3 → 2 → 1, último recurso)
-
 REGLAS DE PATIOS/SEPARACIONES (aprobadas operador 2026-10-03):
-  - 1 VOLUMEN: patio normativo Anexo 5 1.12.b (H/3, min 9 m², 3 ml lado).
+  - 1 VOLUMEN: patio normativo Anexo 5 §1.12.b (H/3, min 9 m², 3 ml lado).
   - >=2 VOLÚMENES: separaciones entre volúmenes actúan como "patios"
     y COMPUTAN EN IO (no patios independientes por volumen).
   - Sin voladizos internos entre volúmenes.
   - Separación mínima entre cuerpos = max(6.0 m, 0.2 * altura_promedio,
     NSR-10 A.6.5 2% * h_piso si >3 pisos).
 
-ENTRADAS (CLI / GH):
+================================================================================
+CABLEADO EN EL CANVAS F1_CONTEXTO_v13.1  (actualizado 2026-10-05)
+================================================================================
+ENTRADAS del componente (acceso "Item" = un valor por rama; "List" = lista):
+
+  nombre                     tipo GH   acceso  estado / origen
+  ---------------------------------------------------------------------------
+  chip                       Text      Item    CABLEADO ← #28-F0_LOAD_PROYECTO_v01.chip
+  presupuesto_ocupacion_m2   Number    Item    sin cable (opcional). Fuente recomendada:
+                                               leer el Panel presupuesto_ocupacion_m2 de
+                                               NORMATIVA v09 y escribirlo en un Panel/Slider.
+                                               NO cablear directo desde NORMATIVA
+                                               (se forma ciclo NORMATIVA→F3→NORMATIVA).
+                                               Si queda vacío → se deriva = lote × io_max.
+  io_max                     Number    Item    sin cable. Default 0.70 (solo para derivar).
+  n_barras_objetivo          Integer   Item    sin cable. Default 2,3. Admite 2 | 3 | "2,3".
+  entrepiso_adaptativo       Boolean   Item    sin cable. Default True (v1 itera 3.05/3.80 siempre).
+  prioridad_ajuste           Text      List    sin cable. Reservado (D3: "profundidad,entrepiso,num_cuerpos").
+  usos                       Text      List    sin cable. Filtro del mix, p.ej. "Vivienda,Local comercial".
+  bloques_separacion_m       Number    Item    sin cable. Default 6.0 (Anexo 5 §1.10.b).
+  bloques_crujia             Text      Item    sin cable. "unica" (def) | "doble".
+  bloques_nucleo             Text      Item    sin cable. "centro" (def) | "extremo".
+  output_json                Text      Item    sin cable. Ruta opcional: escribe barras.json en disco.
+
+  NOTA v03.1: las entradas se llamaban antes con guiones (presupuesto-ocupacion,
+  io-max, n-barras, ...) y fueron renombradas a snake_case según la convención
+  del proyecto; el script acepta internamente AMBAS formas (normaliza "-" ↔ "_").
+
+SALIDAS del componente:
+
+  nombre                   tipo     destino
+  ---------------------------------------------------------------------------
+  barras_json              Text     → #118-F1_ETAPA2_NORMATIVA_v09.py.barras_json (CABLEADO)
+  mensaje                  Text     → Panel diagnóstico (recomendado)
+  alternativa_recomendada  Text     → Panel (opcional)
+  ocupacion_total_m2       Number   → Panel (opcional)
+  gfa_real_m2              Number   → Panel (opcional)
+  floor_h_usado            Number   → Panel (opcional)
+  n_barras_usado           Integer  → Panel (opcional)
+
+CLI (pipeline / pruebas):
   --caso / --chip                 ID caso (A, B, B_SALUD, C) o CHIP
   --presupuesto-ocupacion         Presupuesto ocupación [m²] (desde NORMATIVA v09)
   --io-max                        IO máximo (default 0.70)
@@ -53,23 +111,19 @@ ENTRADAS (CLI / GH):
   --bloques-nucleo                "centro" | "extremo" (default centro)
   --output-json                   Ruta salida barras_json (default stdout)
 
-SALIDAS (GH):
-  barras_json (String)            JSON schema f3_barras_salida_v01
-  mensaje (String)                Diagnóstico
-  alternativa_recomendada (String) ID de la recomendada
-  ocupacion_total_m2 (Number)     Ocupación de la recomendada
-  gfa_real_m2 (Number)            GFA real de la recomendada
-  floor_h_usado (Number)          Entrepiso usado (3.05 o 3.80)
-  n_barras_usado (int)            Nº barras de la recomendada
-
 ================================================================================
 """
-import argparse
 import io
 import json
 import math
 import os
 import sys
+
+# CLI: argparse puede no existir en algunos entornos embebidos (GHPython).
+try:
+    import argparse
+except ImportError:
+    argparse = None
 
 # rhino3dm (opcional): exporta masa 3D si disponible
 try:
@@ -90,10 +144,36 @@ except ImportError:
     _ShPolygon = None; _ShLineString = None; _ShPoint = None; _sh_affinity = None
     _HAY_SHAPELY = False
 
-BASE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.normpath(os.path.join(BASE, "..", ".."))
-FIN = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Financiero", "resultados")
-OUT = os.path.join(BASE, "casos")
+
+def _resolver_raiz_proyecto():
+    """v03.1 - Raíz del proyecto para localizar resultados F2.
+
+    Orden: archivo (CLI) → entorno (canvas GH: DISENO_PARAMETRICO_ROOT) → "".
+    Valida que la raíz candidata tenga subcarpeta src/ antes de aceptarla
+    (evita falsos positivos de entornos de test que apuntan a temporales).
+    """
+    candidatos = []
+    try:
+        base = os.path.dirname(os.path.abspath(__file__))
+        candidatos.append(os.path.normpath(os.path.join(base, "..", "..")))
+    except Exception:
+        pass
+    r_env = os.environ.get("DISENO_PARAMETRICO_ROOT", "")
+    if r_env:
+        candidatos.append(r_env)
+    for c in candidatos:
+        if c and os.path.isdir(os.path.join(c, "src")):
+            return c
+    return ""
+
+
+ROOT = _resolver_raiz_proyecto()
+if ROOT:
+    FIN = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Financiero", "resultados")
+    OUT = os.path.join(ROOT, "src", "fase-3-masa", "casos")
+else:
+    FIN = ""
+    OUT = ""
 
 # ------------------------------------------------------------------ parámetros
 ALTURA_PISO_BASE = 3.05      # m, escenario base (D2)
@@ -117,8 +197,15 @@ PERS_SERVICIOS_M2 = 0.10
 CIRC_MIN_M       = 1.2       # circulación mínima por lado núcleo
 CRUJIA_PROF_REF_M = 9.0     # profundidad referencia unidad
 ANCHO_NUCLEO_FALLBACK_M = 6.4
-SEPARACION_MIN_BASE = 6.0    # Anexo 5 1.10.b
+SEPARACION_MIN_BASE = 6.0    # Anexo 5 §1.10.b
 NSR10_COEF       = 0.02      # A.6.5 2% h
+
+# v03.1: margen de seguridad al DERIVAR el presupuesto (solo si la entrada
+# presupuesto_ocupacion_m2 no está disponible): absorbe la diferencia entre
+# el área de lote del archivo F2 y el área del polígono simplificado que
+# usa NORMATIVA v09, para que la validación APROBADA no falle por centésimas.
+MARGEN_DERIVACION_PCT = 0.001      # 0,1 %
+MARGEN_DERIVACION_MIN_M2 = 0.25    # mínimo absoluto
 
 USOS = ["Vivienda", "Local comercial", "Consultorios", "Oficinas",
         "Institucional salud", "Hogar geriatrico"]
@@ -137,7 +224,8 @@ CASOS = {
 }
 
 
-def normalizar_uso(uso: str) -> str:
+def normalizar_uso(uso):
+    # type: (str) -> str
     u = uso.lower()
     if "vivienda" in u or "vis" in u or "estandar" in u: return "Vivienda"
     if "local" in u or "comercio" in u: return "Local comercial"
@@ -161,6 +249,7 @@ def _tiene_mixto(ruta):
 
 def buscar_resultados(chip):
     if not chip: return None
+    if not FIN or not os.path.isdir(FIN): return None
     resultados_dir = FIN
     canonico = "resultados_" + chip + ".json"
     candidatos = []
@@ -329,9 +418,313 @@ def build_barras_json(chip, alternativas, lote_m2, presupuesto_m2, io_max):
 
 
 # ============================================================================
+# SECCIÓN GRASSHOPPER (GH) — v03.1
+# Utilidades de lectura de entradas y ejecución dentro del componente.
+# (Inofensivas fuera de GH: solo se usan cuando _EN_GH es True.)
+# ============================================================================
+try:
+    import ghenv  # noqa: F401 — módulo disponible solo dentro de Grasshopper
+    _EN_GH = True
+except Exception:
+    _EN_GH = False
+
+try:
+    _TIPOS_ENTEROS = (int, long)   # Python 2 / IronPython
+except NameError:
+    _TIPOS_ENTEROS = (int,)        # Python 3
+
+
+def _gh_str(x):
+    """Texto seguro (evita UnicodeEncodeError en py2/IronPython)."""
+    if isinstance(x, bytes):
+        for enc in ("utf-8", "cp1252", "latin-1"):
+            try:
+                return x.decode(enc)
+            except Exception:
+                pass
+        return ""
+    try:
+        return str(x)
+    except Exception:
+        try:
+            return unicode(x)  # noqa: F821 (Python 2)
+        except Exception:
+            return repr(x)
+
+
+def _gh_norm(s):
+    """Normaliza nombre de entrada: trim + minúsculas + guiones→guion_bajo."""
+    return _gh_str(s).strip().lower().replace("-", "_")
+
+
+def _gh_lookup(nombres):
+    """Busca una entrada por nombre en globals() (compatible dash/underscore)."""
+    g = globals()
+    for n in nombres:
+        if n in g and g[n] is not None:
+            return g[n]
+    objetivo = [_gh_norm(n) for n in nombres]
+    for k in list(g.keys()):
+        try:
+            if _gh_norm(k) in objetivo and g[k] is not None:
+                return g[k]
+        except Exception:
+            pass
+    return None
+
+
+def _gh_input_idx(indice):
+    """Fallback: lee el valor del input i del componente (por índice, vía ghenv)."""
+    try:
+        import ghenv
+        param = ghenv.Component.Params.Input[indice]
+        for goo in param.VolatileData.AllData(True):
+            try:
+                return goo.Value
+            except Exception:
+                return _gh_str(goo)
+    except Exception:
+        pass
+    return None
+
+
+def _gh_leer(indice, nombres, default=None):
+    """Lee una entrada: nombre (globals) → índice (ghenv) → default."""
+    v = _gh_lookup(nombres)
+    if v is None and _EN_GH:
+        v = _gh_input_idx(indice)
+    if v is None:
+        return default
+    if isinstance(v, (list, tuple)):
+        vv = [x for x in v if x is not None]
+        if not vv:
+            return default
+        return vv[0] if len(vv) == 1 else vv
+    return v
+
+
+def _gh_num(v, default=None):
+    """Number defensivo: None / listas / "" / "None" → default."""
+    if v is None:
+        return default
+    if isinstance(v, (list, tuple)):
+        for x in v:
+            r = _gh_num(x, None)
+            if r is not None:
+                return r
+        return default
+    if isinstance(v, bool):
+        return float(v)
+    if isinstance(v, (int, float)):
+        return float(v)
+    s = _gh_str(v).strip()
+    if not s or s.lower() in ("none", "null"):
+        return default
+    try:
+        return float(s.replace(",", "."))
+    except Exception:
+        return default
+
+
+def _gh_bool(v, default=False):
+    if v is None:
+        return default
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, (int, float)):
+        return bool(v)
+    if isinstance(v, (list, tuple)):
+        for x in v:
+            if x is None:
+                continue
+            return _gh_bool(x, default)
+        return default
+    s = _gh_str(v).strip().lower()
+    if s == "":
+        return default
+    if s in ("true", "1", "si", "sí", "yes", "verdadero"):
+        return True
+    if s in ("false", "0", "no", "falso"):
+        return False
+    return default
+
+
+def _gh_ints(v, default=None):
+    """'2,3' | 2 | 2.0 | [2,3] → [2, 3]."""
+    out = []
+
+    def _add(x):
+        if x is None:
+            return
+        if isinstance(x, (list, tuple)):
+            for y in x:
+                _add(y)
+            return
+        if isinstance(x, bool):
+            return
+        if isinstance(x, float):
+            if abs(x - round(x)) < 1e-9:
+                out.append(int(round(x)))
+            return
+        if isinstance(x, _TIPOS_ENTEROS):
+            out.append(int(x))
+            return
+        s = _gh_str(x).strip()
+        if not s or s.lower() == "none":
+            return
+        for parte in s.replace(";", ",").split(","):
+            parte = parte.strip()
+            if not parte:
+                continue
+            try:
+                out.append(int(round(float(parte))))
+            except Exception:
+                pass
+
+    _add(v)
+    if not out and default is not None:
+        return list(default)
+    return out
+
+
+def _gh_lista_textos(v):
+    """Lista/texto separado por comas → lista de strings."""
+    out = []
+    if v is None:
+        return out
+    if isinstance(v, (list, tuple)):
+        for x in v:
+            if x is None:
+                continue
+            for parte in _gh_str(x).split(","):
+                p = parte.strip()
+                if p:
+                    out.append(p)
+        return out
+    for parte in _gh_str(v).split(","):
+        p = parte.strip()
+        if p:
+            out.append(p)
+    return out
+
+
+# ----------------------------------------------------------------------------
+# Salidas del componente (siempre definidas para que GH las publique)
+# ----------------------------------------------------------------------------
+barras_json = ""
+mensaje = ""
+alternativa_recomendada = ""
+ocupacion_total_m2 = 0.0
+gfa_real_m2 = 0.0
+floor_h_usado = 0.0
+n_barras_usado = 0
+
+if _EN_GH:
+    try:
+        _chip = _gh_str(_gh_leer(0, ["chip"], "") or "").strip()
+
+        _presupuesto_in = _gh_num(
+            _gh_leer(1, ["presupuesto_ocupacion_m2", "presupuesto_ocupacion",
+                         "presupuesto-ocupacion"]), None)
+        _io_max = _gh_num(_gh_leer(2, ["io_max", "io-max"]), OCUPACION_POT)
+        if _io_max is None or _io_max <= 0:
+            _io_max = OCUPACION_POT
+
+        _n_barras = _gh_ints(
+            _gh_leer(3, ["n_barras_objetivo", "n_barras", "n-barras"]), [2, 3])
+        if not _n_barras:
+            _n_barras = [2, 3]
+
+        # Entradas informativas en v03 (documentadas en el encabezado):
+        _entrepiso_adap = _gh_bool(
+            _gh_leer(4, ["entrepiso_adaptativo", "entrepiso-adaptativo"]), True)
+        _prioridad = _gh_str(_gh_leer(
+            5, ["prioridad_ajuste", "prioridad-ajuste"],
+            "profundidad,entrepiso,num_cuerpos"))
+
+        _usos = _gh_lista_textos(_gh_leer(6, ["usos"], ""))
+
+        _sep = _gh_num(_gh_leer(
+            7, ["bloques_separacion_m", "bloques-separacion-m"]), None)
+        _crujia = _gh_str(_gh_leer(
+            8, ["bloques_crujia", "bloques-crujia"], "unica") or "unica").strip().lower()
+        if _crujia not in ("unica", "doble"):
+            _crujia = "unica"
+        _nucleo = _gh_str(_gh_leer(
+            9, ["bloques_nucleo", "bloques-nucleo"], "centro") or "centro").strip().lower()
+        if _nucleo not in ("centro", "extremo"):
+            _nucleo = "centro"
+
+        _output_json = _gh_str(_gh_leer(
+            10, ["output_json", "output-json"], "") or "").strip()
+
+        if not _chip:
+            raise ValueError("chip vacío: cablear la salida chip de F0_LOAD_PROYECTO_v01")
+
+        _prog = leer_programa_chip(_chip, "D_MIXTO")
+        _lote_m2 = _prog.get("lote_m2")
+        if not _lote_m2:
+            raise ValueError("lote_m2 no disponible para el chip " + _chip)
+
+        _derivado = False
+        _presupuesto = _presupuesto_in
+        if _presupuesto is None or _presupuesto <= 0:
+            _base = _lote_m2 * _io_max
+            _margen = max(_base * MARGEN_DERIVACION_PCT, MARGEN_DERIVACION_MIN_M2)
+            _presupuesto = _base - _margen
+            if _presupuesto <= 0:
+                raise ValueError(
+                    "presupuesto_ocupacion_m2 vacío y no se pudo derivar (lote/io desconocidos)")
+            _derivado = True
+
+        if _usos:
+            _filtro = [normalizar_uso(_u) for _u in _usos]
+            _comps = [c for c in _prog.get("componentes", []) if c["uso"] in _filtro]
+            if _comps:
+                _prog["componentes"] = _comps
+                _tot = sum(c["pct_gfa"] for c in _prog["componentes"])
+                if _tot > 0:
+                    for _c in _prog["componentes"]:
+                        _c["pct_gfa"] = _c["pct_gfa"] / _tot * 100.0
+                        _c["gfa_m2"] = _prog["gfa_total"] * _c["pct_gfa"] / 100.0
+
+        _sep_real = _sep if (_sep and _sep > 0) else SEPARACION_MIN_BASE
+
+        _alternativas = iterar_barras(
+            _lote_m2, _presupuesto, _n_barras, _sep_real, _prog, _crujia, _nucleo)
+        _salida = build_barras_json(_chip, _alternativas, _lote_m2, _presupuesto, _io_max)
+
+        barras_json = json.dumps(_salida, ensure_ascii=False)
+        mensaje = "F3 v03.1 | " + _salida.get("mensaje", "")
+        if _derivado:
+            mensaje += " | presupuesto derivado = lote {:.1f} m2 x IO {:.2f} (con margen)".format(
+                _lote_m2, _io_max)
+        if _alternativas:
+            _rec = _alternativas[0]
+            alternativa_recomendada = _rec.get("id", "")
+            ocupacion_total_m2 = float(_rec.get("ocupacion_total_m2", 0.0))
+            gfa_real_m2 = float(_rec.get("gfa_real_m2", 0.0))
+            floor_h_usado = float(_rec.get("floor_h", 0.0))
+            n_barras_usado = int(_rec.get("n_barras", 0))
+        if _output_json:
+            try:
+                with io.open(_output_json, "w", encoding="utf-8") as _f:
+                    _f.write(json.dumps(_salida, indent=2, ensure_ascii=False))
+                mensaje += " | escrito: " + _output_json
+            except Exception as _e_out:
+                mensaje += " | aviso escritura {}: {}".format(_output_json, _gh_str(_e_out))
+    except Exception as _e_gh:
+        barras_json = ""
+        mensaje = "F3 v03.1 | ERROR: " + _gh_str(_e_gh)
+
+
+# ============================================================================
 # MAIN (CLI)
 # ============================================================================
 def main():
+    if argparse is None:
+        raise RuntimeError("argparse no disponible; usar la sección GH del canvas "
+                           "o ejecutar con un intérprete Python completo")
     parser = argparse.ArgumentParser(description="F3_DISTRIBUCION_v03 - Distribuidor barras IO")
     parser.add_argument("--caso", choices=list(CASOS.keys()), help="ID caso (A, B, B_SALUD, C)")
     parser.add_argument("--chip", help="CHIP del predio (ej. AAA0030JKOE)")
@@ -404,5 +797,11 @@ def main():
         print(json.dumps(salida, indent=2, ensure_ascii=False))
 
 
-if __name__ == "__main__":
+# Guard CLI: en GHPython `__name__` puede no existir; protegido por si acaso.
+try:
+    _ES_MAIN = (__name__ == "__main__")
+except Exception:
+    _ES_MAIN = False
+
+if _ES_MAIN and not _EN_GH:
     main()
