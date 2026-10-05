@@ -83,6 +83,33 @@ entradas ni publicaba salidas dentro del componente.
   (171.241 bytes) y validado con GH_IO (0 avisos).
 - Tests: 13/13 (nuevos: `_leer_json` con acentos; mensaje con paso de error).
 
+## Revisión v03.4 (misma jornada, tras 3.ª prueba viva ~13:16)
+- **Fallo vivo 3**: con v03.3 el componente pasó lectura y cálculo; el paso
+  diagnóstico indicó `ERROR en [publicar salidas]: 'unknown' codec can't decode
+  byte 0xed in position 12` (todo lo anterior OK).
+- **Diagnóstico definitivo**: reproducido en LOCAL con IronPython 2.7.12
+  portable (workspace `tmp/ipy27`): `json.dumps(obj, ensure_ascii=True)` FALLA
+  en IronPython con strings unicode acentuados (bug en
+  `py_encode_basestring_ascii`; 'unknown' codec). Verificado además que
+  `ensure_ascii=False` funciona y que bytes UTF-8 funcionan — es bug del runtime.
+- **Fix v03.4**: `_json_dumps_ascii()` — intento estándar → bytes UTF-8 →
+  serializador ASCII manual (`_json_manual_ascii`, escapa a \\uXXXX). Usado para
+  `barras_json` y `output_json`. Mensaje y pasos con prefijo v03.4.
+- **Validado E2E sin Rhino**: simulación GH completa bajo IronPython 2.7.12
+  (mismo mechanism: ghenv inyectado, env var, lecturas rb+cascada) — incluido
+  el **CodeInput EXACTO del canvas parcheado** → mensaje v03.4 + barras_json
+  (10.290 chars) + roundtrip OK (ocupación 661.85, 5 pisos). También verificado
+  el camino manual forzado.
+- Canvas re-parcheado (backups `.bak-20261005-1324*`) + `.gh` regenerado
+  (172.208 bytes) + GH_IO 0 avisos.
+- Tests: 15/15 (nuevos: roundtrip del dumper ASCII y del serializador manual).
+- Nota: un `\uXXXX` literal en un docstring rompía `py_compile` de py3 →
+  corregido a `\\uXXXX`.
+- **Herramienta local nueva**: IronPython 2.7.12 portable en
+  `C:\Users\Dario Salas\.openclaw-autoclaw\workspace\tmp\ipy27\bin\net45\ipy.exe`
+  (+ runners `gh_sim_ipy.py`, `gh_sim_ipy_manual.py`, `gh_sim_embedded.py`) —
+  permite reproducir GHPython sin abrir Rhino.
+
 ## Hallazgos: `normativa_confirmada` / `pisos_maximos_total`
 - Hoy: `normativa_confirmada` ← `#99-Boolean Toggle` (false);
   `pisos_maximos_total` ← `#94-Number Slider` (5). Son controles manuales del canvas.
@@ -102,9 +129,9 @@ entradas ni publicaba salidas dentro del componente.
 - ghx→gh: `GH_IO` re-escribió `F1_CONTEXTO_v13.1.gh` (170 KB) → archivo válido.
 
 ## Pendientes
-- Validación viva del operador (v03.3): cerrar el canvas SIN guardar, reabrir
+- Validación viva del operador (v03.4): cerrar el canvas SIN guardar, reabrir
   `F1_CONTEXTO_v13.1.gh` (o `.ghx`) y correr con chip `AAA0030JKOE`; verificar
-  mensaje "F3 v03.3 | ..." y que `barras_json` → NORMATIVA v09 dé `valido=True`
+  mensaje "F3 v03.4 | ..." y que `barras_json` → NORMATIVA v09 dé `valido=True`
   y `gfa_aprobado_m2 > 0`. Si algo falla, el mensaje dirá el PASO exacto
   ("ERROR en [paso]: ... | tb: ...") — enviarlo tal cual para converger.
   Si Rhino fue abierto antes de crearse la env var del proyecto, reiniciarlo

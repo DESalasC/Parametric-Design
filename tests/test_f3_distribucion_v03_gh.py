@@ -133,11 +133,38 @@ def test_sin_anotaciones_python3():
 
 def test_seccion_gh_presente():
     txt = _leer_fuente()
-    for marcador in ("SECCIÓN GRASSHOPPER", "v03.3", "def _gh_leer",
+    for marcador in ("SECCIÓN GRASSHOPPER", "v03.4", "def _gh_leer",
                      "def _gh_modulo", "def _gh_input_idx",
                      "def _leer_json", "def _texto_seguro",
-                     "MARGEN_DERIVACION_PCT", "barras_json = json.dumps"):
+                     "def _json_dumps_ascii", "def _json_manual_ascii",
+                     "MARGEN_DERIVACION_PCT", "barras_json = _json_dumps_ascii"):
         assert marcador in txt, marcador
+
+
+def test_json_dumps_ascii_roundtrip():
+    """El dumper ASCII-safe funciona y es 100% ASCII (incluso con acentos)."""
+    ns = _ejecutar_como_gh({})
+    d = ns["_json_dumps_ascii"]({
+        "mensaje": u"2 barras crujía única",
+        "n": [1, 2.5, True, None],
+        "nested": [[0.0, 661.85]],
+    })
+    assert isinstance(d, str)
+    assert all(ord(c) < 128 for c in d), d[:80]
+    back = json.loads(d)
+    assert back["mensaje"] == u"2 barras crujía única"
+    assert back["n"] == [1, 2.5, True, None]
+    assert back["nested"] == [[0.0, 661.85]]
+
+
+def test_json_manual_ascii_roundtrip():
+    """El serializador manual (fallback) también produce JSON válido ASCII."""
+    ns = _ejecutar_como_gh({})
+    d = ns["_json_manual_ascii"]({u"crujía": u"ocupación 661,85 m²", u"k": [1, 2.0]})
+    assert all(ord(c) < 128 for c in d), d
+    back = json.loads(d)
+    assert back[u"crujía"] == u"ocupación 661,85 m²"
+    assert back[u"k"] == [1, 2.0]
 
 
 def test_gh_real_variable_no_import():
@@ -149,7 +176,7 @@ def test_gh_real_variable_no_import():
     )
     out = _salidas(ns)
     assert "ERROR" not in out["mensaje"], out["mensaje"]
-    assert out["mensaje"].startswith("F3 v03.3")
+    assert out["mensaje"].startswith("F3 v03.4")
     _validar_barras_json(out["barras_json"])
 
 
@@ -198,7 +225,7 @@ def test_gh_presupuesto_cableado():
         "n_barras_objetivo": "2,3",
     })
     out = _salidas(ns)
-    assert out["mensaje"].startswith("F3 v03.3")
+    assert out["mensaje"].startswith("F3 v03.4")
     assert "ERROR" not in out["mensaje"]
     data, alt = _validar_barras_json(out["barras_json"])
     assert data["chip"] == "AAA0030JKOE"

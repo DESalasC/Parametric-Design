@@ -17,6 +17,12 @@ RESUMEN:
   APROBADOS (ocupacion_aprobada_m2, gfa_aprobado_m2, envelope_aprobado_por_piso).
 
 HISTORIAL DE VERSIONES:
+  v03.4 (2026-10-05, 4.ª iteración): FIX json.dumps en IronPython.
+    - Bug del runtime IronPython 2.7 (json/encoder.py → py_encode_basestring_ascii):
+      con strings unicode no-ASCII, json.dumps(ensure_ascii=True) lanza
+      "'unknown' codec can't decode byte 0x..". Se añade _json_dumps_ascii():
+      intento estándar → bytes UTF-8 → serializador ASCII manual (nunca depende
+      del codec). Reproducido y verificado con IronPython 2.7.12 local.
   v03.3 (2026-10-05, 3.ª iteración): FIX lectura de archivos en GHPython.
     - Lectura JSON con el PATRÓN CANÓNICO del proyecto (lección 2026-09-17):
       open(rb) + decodificación explícita utf-8-sig → cp1252 → latin-1 +
@@ -330,6 +336,98 @@ def _escribir_texto(ruta, texto):
         f.write(texto)
 
 
+def _a_utf8_bytes(obj):
+    """v03.4 - Convierte recursivamente textos a bytes UTF-8 (solo py2/IronPython).
+
+    Workaround del bug de IronPython: json.dumps(ensure_ascii=True) falla con
+    strings unicode no-ASCII; con bytes UTF-8 el codificador los decodifica y
+    los escapa correctamente. En py3 devuelve el objeto tal cual.
+    """
+    try:
+        _u = unicode  # noqa: F821 (Python 2)
+    except NameError:
+        return obj  # Python 3: json maneja unicode sin problema
+    if isinstance(obj, dict):
+        out = {}
+        for k, v in obj.items():
+            out[_a_utf8_bytes(k)] = _a_utf8_bytes(v)
+        return out
+    if isinstance(obj, (list, tuple)):
+        return [_a_utf8_bytes(v) for v in obj]
+    if isinstance(obj, _u):
+        return obj.encode("utf-8")
+    return obj
+
+
+def _json_manual_ascii(obj):
+    """v03.4 - Serializador JSON mínimo 100% ASCII (sin dependencia de codecs).
+
+    Soporta dict/list/tuple/str/unicode/int/float/bool/None; escapa todo lo
+    no-ASCII a \\uXXXX. Último recurso si json.dumps falla (bug IronPython).
+    """
+    try:
+        _t_ints = (int, long)   # noqa: F821 (Python 2)
+    except NameError:
+        _t_ints = (int,)
+
+    def _esc(txt):
+        out = []
+        for ch in _texto_seguro(txt):
+            n = ord(ch)
+            if ch == u'"':
+                out.append(u'\\"')
+            elif ch == u'\\':
+                out.append(u'\\\\')
+            elif n < 0x20:
+                out.append(u'\\u%04x' % n)
+            elif n < 0x80:
+                out.append(ch)
+            else:
+                out.append(u'\\u%04x' % n)
+        return u'"' + u''.join(out) + u'"'
+
+    def _dump(o):
+        if o is None:
+            return u'null'
+        if o is True:
+            return u'true'
+        if o is False:
+            return u'false'
+        if isinstance(o, _t_ints):
+            return u'%d' % o
+        if isinstance(o, float):
+            if o != o or o in (float('inf'), float('-inf')):
+                return u'null'
+            return u'%r' % o
+        if isinstance(o, dict):
+            partes = []
+            for k, v in o.items():
+                partes.append(_esc(k) + u': ' + _dump(v))
+            return u'{' + u', '.join(partes) + u'}'
+        if isinstance(o, (list, tuple)):
+            return u'[' + u', '.join(_dump(v) for v in o) + u']'
+        return _esc(o)
+
+    return _dump(obj)
+
+
+def _json_dumps_ascii(obj):
+    """v03.4 - json.dumps(ensure_ascii=True) tolerante a IronPython.
+
+    1) intento estándar; 2) bytes UTF-8 (sortea el bug del codificador ipy);
+    3) serializador ASCII manual. Salida 100% ASCII en todos los casos.
+    """
+    try:
+        return json.dumps(obj, ensure_ascii=True)
+    except Exception:
+        pass
+    try:
+        return json.dumps(_a_utf8_bytes(obj), ensure_ascii=True)
+    except Exception:
+        pass
+    return _json_manual_ascii(obj)
+
+
 def _tiene_mixto(ruta):
     try:
         paquete = _leer_json(ruta)
@@ -514,7 +612,7 @@ def build_barras_json(chip, alternativas, lote_m2, presupuesto_m2, io_max):
 
 
 # ============================================================================
-# SECCIÓN GRASSHOPPER (GH) — v03.3
+# SECCIÓN GRASSHOPPER (GH) — v03.4
 # Utilidades de lectura de entradas y ejecución dentro del componente.
 # (Inofensivas fuera de GH: solo se usan cuando _EN_GH es True.)
 # ============================================================================
@@ -805,13 +903,15 @@ if _EN_GH:
             _lote_m2, _presupuesto, _n_barras, _sep_real, _prog, _crujia, _nucleo)
         _salida = build_barras_json(_chip, _alternativas, _lote_m2, _presupuesto, _io_max)
 
-        _paso = u"publicar salidas"
-        barras_json = json.dumps(_salida, ensure_ascii=True)  # ASCII-safe (convención del proyecto)
-        mensaje = u"F3 v03.3 | " + _gh_str(_salida.get("mensaje", ""))
+        _paso = u"publicar salidas: json"
+        barras_json = _json_dumps_ascii(_salida)
+        _paso = u"publicar salidas: mensaje"
+        mensaje = u"F3 v03.4 | " + _gh_str(_salida.get("mensaje", ""))
         if _derivado:
             mensaje += u" | presupuesto derivado = lote {:.1f} m2 x IO {:.2f} (con margen)".format(
                 _lote_m2, _io_max)
         if _alternativas:
+            _paso = u"publicar salidas: recomendada"
             _rec = _alternativas[0]
             alternativa_recomendada = _rec.get("id", "")
             ocupacion_total_m2 = float(_rec.get("ocupacion_total_m2", 0.0))
@@ -821,7 +921,7 @@ if _EN_GH:
         if _output_json:
             _paso = u"escribir output_json"
             try:
-                _escribir_texto(_output_json, json.dumps(_salida, indent=2, ensure_ascii=True))
+                _escribir_texto(_output_json, _json_dumps_ascii(_salida))
                 mensaje += u" | escrito: " + _output_json
             except Exception as _e_out:
                 mensaje += u" | aviso escritura {}: {}".format(_output_json, _gh_str(_e_out))
@@ -836,7 +936,7 @@ if _EN_GH:
         except Exception:
             pass
         barras_json = ""
-        mensaje = u"F3 v03.3 | ERROR en [{}]: {}{}".format(_paso, _gh_str(_e_gh), _detalle)
+        mensaje = u"F3 v03.4 | ERROR en [{}]: {}{}".format(_paso, _gh_str(_e_gh), _detalle)
 
 
 # ============================================================================
@@ -946,7 +1046,7 @@ except Exception:
 
 # Diagnóstico: en Rhino/.NET pero sin ghenv disponible en el script.
 if (_ES_IRON or _ES_CLR) and not _EN_GH and not mensaje:
-    mensaje = (u"F3 v03.3 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
+    mensaje = (u"F3 v03.4 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
                u"está disponible en el script; revisar el componente")
 
 if _ES_MAIN and not _EN_GH and not _ES_IRON and not _ES_CLR:
