@@ -117,3 +117,4 @@ entradas ni publicaba salidas dentro del componente.
 ## Commits
 - `ee84be28` — v03.1 (sección GH + fix sintaxis IronPython; incluye 2.ª pasada).
 - `56be9869` — v03.2 (detección ghenv/ghdoc + guard CLI; amend final).
+- `e5dd8bea` — v03.3 (lectura canónica rb+cascada; pasos de diagnóstico).
