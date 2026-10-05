@@ -17,6 +17,17 @@ RESUMEN:
   APROBADOS (ocupacion_aprobada_m2, gfa_aprobado_m2, envelope_aprobado_por_piso).
 
 HISTORIAL DE VERSIONES:
+  v03.2 (2026-10-05, misma jornada): FIX detección de entorno GH (canvas vivo).
+    - En GHPython (Rhino 8) `import ghenv` FALLA: `ghenv` (y `ghdoc`) se
+      inyectan como VARIABLES del script; la detección ahora usa
+      `"ghenv"/"ghdoc" in globals()` con fallback de import. Antes, `_EN_GH`
+      quedaba False y main() corría dentro de Grasshopper (SystemExit de
+      argparse). Si hay .NET/Rhino pero ghenv no aparece, se emite un aviso.
+    - Guard CLI reforzado: main() solo corre si __name__ == "__main__" Y el
+      entorno NO es IronPython Y no hay `clr` (.NET) — nunca dentro de Rhino.
+    - barras_json (salida GH) y los JSON de CLI con ensure_ascii=True
+      (convención ASCII-safe del proyecto; evita errores de codificación al
+      pasar el string entre componentes).
   v03.1 (2026-10-05): Corregido para uso vivo en canvas v13.1.
     - FIX IronPython 2.7: eliminada anotación de tipo Python 3 en
       normalizar_uso() ("def normalizar_uso(uso: str) -> str:" provocaba
@@ -418,15 +429,31 @@ def build_barras_json(chip, alternativas, lote_m2, presupuesto_m2, io_max):
 
 
 # ============================================================================
-# SECCIÓN GRASSHOPPER (GH) — v03.1
+# SECCIÓN GRASSHOPPER (GH) — v03.2
 # Utilidades de lectura de entradas y ejecución dentro del componente.
 # (Inofensivas fuera de GH: solo se usan cuando _EN_GH es True.)
 # ============================================================================
-try:
-    import ghenv  # noqa: F401 — módulo disponible solo dentro de Grasshopper
-    _EN_GH = True
-except Exception:
-    _EN_GH = False
+
+
+def _gh_modulo():
+    """Objeto ghenv del entorno de script.
+
+    En GHPython (Rhino 8) `ghenv` (y `ghdoc`) se INYECTAN como VARIABLES del
+    script y `import ghenv` FALLA; el import queda como fallback para otros
+    builds. Fuera de Rhino/Grasshopper devuelve None (nada inyectado).
+    """
+    g = globals()
+    for nombre in ("ghenv", "ghdoc"):
+        if nombre in g and g[nombre] is not None:
+            return g[nombre]
+    try:
+        import ghenv as _gm  # noqa: F401
+        return _gm
+    except Exception:
+        return None
+
+
+_EN_GH = _gh_modulo() is not None
 
 try:
     _TIPOS_ENTEROS = (int, long)   # Python 2 / IronPython
@@ -475,9 +502,11 @@ def _gh_lookup(nombres):
 
 def _gh_input_idx(indice):
     """Fallback: lee el valor del input i del componente (por índice, vía ghenv)."""
+    mod = _gh_modulo()
+    if mod is None:
+        return None
     try:
-        import ghenv
-        param = ghenv.Component.Params.Input[indice]
+        param = mod.Component.Params.Input[indice]
         for goo in param.VolatileData.AllData(True):
             try:
                 return goo.Value
@@ -694,8 +723,8 @@ if _EN_GH:
             _lote_m2, _presupuesto, _n_barras, _sep_real, _prog, _crujia, _nucleo)
         _salida = build_barras_json(_chip, _alternativas, _lote_m2, _presupuesto, _io_max)
 
-        barras_json = json.dumps(_salida, ensure_ascii=False)
-        mensaje = "F3 v03.1 | " + _salida.get("mensaje", "")
+        barras_json = json.dumps(_salida, ensure_ascii=True)  # ASCII-safe (convención del proyecto)
+        mensaje = "F3 v03.2 | " + _salida.get("mensaje", "")
         if _derivado:
             mensaje += " | presupuesto derivado = lote {:.1f} m2 x IO {:.2f} (con margen)".format(
                 _lote_m2, _io_max)
@@ -715,7 +744,7 @@ if _EN_GH:
                 mensaje += " | aviso escritura {}: {}".format(_output_json, _gh_str(_e_out))
     except Exception as _e_gh:
         barras_json = ""
-        mensaje = "F3 v03.1 | ERROR: " + _gh_str(_e_gh)
+        mensaje = "F3 v03.2 | ERROR: " + _gh_str(_e_gh)
 
 
 # ============================================================================
@@ -791,17 +820,43 @@ def main():
 
     if args.output_json:
         with io.open(args.output_json, "w", encoding="utf-8") as f:
-            f.write(json.dumps(salida, indent=2, ensure_ascii=False))
+            f.write(json.dumps(salida, indent=2, ensure_ascii=True))
         print("Escrito:", args.output_json)
     else:
-        print(json.dumps(salida, indent=2, ensure_ascii=False))
+        print(json.dumps(salida, indent=2, ensure_ascii=True))
 
 
-# Guard CLI: en GHPython `__name__` puede no existir; protegido por si acaso.
+# Guard CLI: en GHPython `__name__` ES "__main__" y `ghenv` está inyectado;
+# por seguridad adicional, main() solo corre fuera de Rhino/Grasshopper y en
+# CPython (CLI/pruebas): nunca en IronPython ni con clr (.NET) presente.
 try:
     _ES_MAIN = (__name__ == "__main__")
 except Exception:
     _ES_MAIN = False
 
-if _ES_MAIN and not _EN_GH:
+_ES_IRON = False
+try:
+    import platform as _platform
+    _ES_IRON = ((_platform.python_implementation() or "").lower() == "ironpython")
+except Exception:
+    pass
+if not _ES_IRON:
+    try:
+        _ES_IRON = (sys.platform == "cli")
+    except Exception:
+        pass
+
+_ES_CLR = False
+try:
+    import clr  # noqa: F401 — solo existe en entornos .NET (Rhino/IronPython)
+    _ES_CLR = True
+except Exception:
+    _ES_CLR = False
+
+# Diagnóstico: en Rhino/.NET pero sin ghenv disponible en el script.
+if (_ES_IRON or _ES_CLR) and not _EN_GH and not mensaje:
+    mensaje = ("F3 v03.2 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
+               "está disponible en el script; revisar el componente")
+
+if _ES_MAIN and not _EN_GH and not _ES_IRON and not _ES_CLR:
     main()

@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-"""F3_DISTRIBUCION_v03.1: fix IronPython 2.7 + sección GH (simulada).
+"""F3_DISTRIBUCION_v03.2: fix IronPython 2.7 + sección GH (simulada).
 
-Simula el entorno Grasshopper (módulo ghenv falso + variables inyectadas)
-para verificar que la sección GH:
+Simula el entorno Grasshopper (ghenv INYECTADO como variable — como en
+Rhino 8 real — y opcionalmente como módulo importable) para verificar que la
+sección GH:
   - compila en Python 3 sin anotaciones py3 (fix del SyntaxError de IronPython),
+  - detecta el entorno GH aunque `import ghenv` falle (regresión del fallo
+    real: '__main__' + SystemExit de argparse),
   - lee entradas con los nombres reales del componente (snake_case o guiones),
   - cae al fallback por índice (ghenv) cuando el nombre no está en globals,
   - deriva presupuesto = lote × io_max (con margen) cuando no está cableado,
@@ -54,23 +57,36 @@ class _Component(object):
         self.Params = _Params(inputs)
 
 
-def _ejecutar_como_gh(vars_gh, inputs_idx=None, n_inputs=11):
-    """Ejecuta F3_DISTRIBUCION_v03.py simulando GHPython + ghenv."""
+def _ejecutar_como_gh(vars_gh, inputs_idx=None, n_inputs=11, via_modulo=False,
+                      sin_ghenv=False, nombre="gh_sim"):
+    """Ejecuta F3_DISTRIBUCION_v03.py simulando GHPython + ghenv.
+
+    Modo real (default): `ghenv` se INYECTA como variable del script y NO es
+    importable (así funciona el componente real en Rhino 8).
+    via_modulo=True: ghenv registrado en sys.modules (fallback de import).
+    sin_ghenv=True: sin ghenv (ni variable ni módulo) — para probar avisos.
+    """
     inputs = [[] for _ in range(n_inputs)]
     if inputs_idx:
         for i, v in inputs_idx.items():
             inputs[i] = v if isinstance(v, (list, tuple)) else [v]
     ghenv = types.ModuleType("ghenv")
     ghenv.Component = _Component(inputs)
-    sys.modules["ghenv"] = ghenv
+    sys.modules.pop("ghenv", None)
+    ns = {"__name__": nombre, "__file__": F3_PATH}
+    ns.update(vars_gh or {})
+    if sin_ghenv:
+        pass  # nada: ni variable ni módulo
+    elif via_modulo:
+        sys.modules["ghenv"] = ghenv
+    else:
+        ns["ghenv"] = ghenv  # variable inyectada (comportamiento real)
     try:
-        ns = {"__name__": "gh_sim", "__file__": F3_PATH}
-        ns.update(vars_gh or {})
         code = _leer_fuente()
         exec(compile(code, F3_PATH, "exec"), ns)
         return ns
     finally:
-        del sys.modules["ghenv"]
+        sys.modules.pop("ghenv", None)
 
 
 def _salidas(ns):
@@ -117,10 +133,42 @@ def test_sin_anotaciones_python3():
 
 def test_seccion_gh_presente():
     txt = _leer_fuente()
-    for marcador in ("SECCIÓN GRASSHOPPER", "v03.1", "def _gh_leer",
-                     "def _gh_input_idx", "MARGEN_DERIVACION_PCT",
-                     "barras_json = json.dumps"):
+    for marcador in ("SECCIÓN GRASSHOPPER", "v03.2", "def _gh_leer",
+                     "def _gh_modulo", "def _gh_input_idx",
+                     "MARGEN_DERIVACION_PCT", "barras_json = json.dumps"):
         assert marcador in txt, marcador
+
+
+def test_gh_real_variable_no_import():
+    """Regresión del fallo vivo: en GHPython __name__ == '__main__' y `ghenv`
+    se inyecta como VARIABLE (import ghenv falla); main() NO debe ejecutarse."""
+    ns = _ejecutar_como_gh(
+        {"chip": "AAA0030JKOE", "presupuesto_ocupacion_m2": 662.44},
+        nombre="__main__",
+    )
+    out = _salidas(ns)
+    assert "ERROR" not in out["mensaje"], out["mensaje"]
+    assert out["mensaje"].startswith("F3 v03.2")
+    _validar_barras_json(out["barras_json"])
+
+
+def test_gh_via_modulo_import_fallback():
+    """Fallback: builds donde ghenv sí es importable (sys.modules)."""
+    ns = _ejecutar_como_gh(
+        {"chip": "AAA0030JKOE", "presupuesto_ocupacion_m2": 662.44},
+        via_modulo=True,
+    )
+    out = _salidas(ns)
+    assert "ERROR" not in out["mensaje"], out["mensaje"]
+    _validar_barras_json(out["barras_json"])
+
+
+def test_aviso_entorno_rhino_sin_ghenv(monkeypatch):
+    """En entorno .NET/IronPython sin ghenv disponible: aviso, sin SystemExit."""
+    import platform as _pl
+    monkeypatch.setattr(_pl, "python_implementation", lambda: "IronPython")
+    ns = _ejecutar_como_gh({}, sin_ghenv=True, nombre="__main__")
+    assert "aviso" in (ns.get("mensaje") or "")
 
 
 # ------------------------------------------------------------------ GH sim
@@ -132,7 +180,7 @@ def test_gh_presupuesto_cableado():
         "n_barras_objetivo": "2,3",
     })
     out = _salidas(ns)
-    assert out["mensaje"].startswith("F3 v03.1")
+    assert out["mensaje"].startswith("F3 v03.2")
     assert "ERROR" not in out["mensaje"]
     data, alt = _validar_barras_json(out["barras_json"])
     assert data["chip"] == "AAA0030JKOE"

@@ -39,9 +39,28 @@ entradas ni publicaba salidas dentro del componente.
    - Description del componente actualizada (cableado resumido).
    - Script: `scripts/utilities/patch-ghx-v131-f3-distribucion-2026-10-05.py`
      (backups `.bak-20261005-*`; validaciones OK; comentarios XML preservados).
-3. Tests: `tests/test_f3_distribucion_v03_gh.py` (8/8) — simula `ghenv` para
+3. Tests: `tests/test_f3_distribucion_v03_gh.py` (10/10) — simula `ghenv` para
    validar lectura de entradas (nombre/índice), derivación con margen y JSON
    consumible por el parser de NORMATIVA v09.
+
+## Revisión v03.2 (misma jornada, tras primera prueba viva ~12:43)
+- **Fallo vivo**: al ejecutar #61 en el canvas → `Solution exception: SystemExit`
+  (argparse sin argumentos desde `main()`). Causa: en GHPython (Rhino 8)
+  `import ghenv` **FALLA** (ghenv se inyecta como VARIABLE de script, no como
+  módulo) → `_EN_GH=False`; y `__name__` **ES** `"__main__"` dentro del
+  componente → el guard corrió `main()` dentro de Grasshopper.
+- **Fix**: detección `_gh_modulo()` = `"ghenv" in globals()` → fallback import;
+  guard CLI ampliado: `__name__=="__main__"` Y no-GH Y no-IronPython (platform /
+  `sys.platform=="cli"`) Y no-`clr`. `main()` ya no puede correr dentro de Rhino.
+- `barras_json` (salida GH) y los JSON de CLI → `ensure_ascii=True` (convención
+  ASCII-safe; evita `UnicodeEncodeError` en el `str()` de NORMATIVA v09 al
+  pasar el string entre componentes).
+- Canvas re-parcheado (3.ª tanda de backups) + `.gh` regenerado (170.001 bytes)
+  y re-validado con GH_IO (lectura OK, 0 avisos).
+- Tests: 10/10 (nuevo test de regresión: ghenv como variable + `__name__`
+  `"__main__"` → main NO se ejecuta).
+- Entorno verificado: `DISENO_PARAMETRICO_ROOT` existe como variable de USUARIO
+  (= `D:\Work\PROJECTS\DiseñoParametrico`) → la ruta se resuelve en GH.
 
 ## Hallazgos: `normativa_confirmada` / `pisos_maximos_total`
 - Hoy: `normativa_confirmada` ← `#99-Boolean Toggle` (false);
@@ -55,16 +74,18 @@ entradas ni publicaba salidas dentro del componente.
 ## Verificación
 - CLI: `F3_DISTRIBUCION_v03.py --caso B --presupuesto-ocupacion 662.44` → 4
   alternativas; recomendada `ALT-2B-305` (ocupación 662.44, GFA 3312.2) ✓.
-- pytest nuevo: 8/8 ✓. Suite completa: **332 passed / 19 failed** — los 19 fallos
+- pytest nuevo: 10/10 ✓. Suite completa: **332 passed / 19 failed** — los 19 fallos
   son PREEXISTENTES (tests desactualizados vs fuentes actuales: LADOS v06.5→v06.8,
   NORMATIVA 'POTENCIAL'→'NO VALIDADO', PATIO bifurcación, orquestador; ya presentes
   en la corrida del 04-10; no tocan F3_DISTRIBUCION_v03; fallan también aislados).
-- ghx→gh: `GH_IO` re-escribió `F1_CONTEXTO_v13.1.gh` (169 KB) → archivo válido.
+- ghx→gh: `GH_IO` re-escribió `F1_CONTEXTO_v13.1.gh` (170 KB) → archivo válido.
 
 ## Pendientes
-- Validación viva del operador: abrir `F1_CONTEXTO_v13.1.gh` (o `.ghx`), correr
-  canvas con chip `AAA0030JKOE`; verificar mensaje "F3 v03.1 | ..." y que
-  `barras_json` → NORMATIVA v09 dé `valido=True` y `gfa_aprobado_m2 > 0`.
+- Validación viva del operador (v03.2): cerrar el canvas SIN guardar, reabrir
+  `F1_CONTEXTO_v13.1.gh` (o `.ghx`) y correr con chip `AAA0030JKOE`; verificar
+  mensaje "F3 v03.2 | ..." y que `barras_json` → NORMATIVA v09 dé `valido=True`
+  y `gfa_aprobado_m2 > 0`. Si Rhino fue abierto antes de crearse la env var del
+  proyecto, reiniciarlo para heredar `DISENO_PARAMETRICO_ROOT`.
 - Limpieza de los 19 tests desactualizados (sesión futura).
 - Decidir si `normativa_confirmada`/`pisos_maximos_total` se cablean desde el
   orquestador (requiere campos nuevos).
