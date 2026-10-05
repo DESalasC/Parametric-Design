@@ -49,16 +49,19 @@ entradas ni publicaba salidas dentro del componente.
   `import ghenv` **FALLA** (ghenv se inyecta como VARIABLE de script, no como
   módulo) → `_EN_GH=False`; y `__name__` **ES** `"__main__"` dentro del
   componente → el guard corrió `main()` dentro de Grasshopper.
-- **Fix**: detección `_gh_modulo()` = `"ghenv" in globals()` → fallback import;
-  guard CLI ampliado: `__name__=="__main__"` Y no-GH Y no-IronPython (platform /
-  `sys.platform=="cli"`) Y no-`clr`. `main()` ya no puede correr dentro de Rhino.
+- **Fix**: detección `_gh_modulo()` = `"ghenv"`/`"ghdoc" in globals()` (ambas
+  se inyectan como variables; confirmado en docs de mcneel/ghpython) → fallback
+  import + aviso si entorno .NET/Rhino sin ghenv; guard CLI ampliado:
+  `__name__=="__main__"` Y no-GH Y no-IronPython (platform / `sys.platform=="cli"`)
+  Y no-`clr`. `main()` ya no puede correr dentro de Rhino.
 - `barras_json` (salida GH) y los JSON de CLI → `ensure_ascii=True` (convención
   ASCII-safe; evita `UnicodeEncodeError` en el `str()` de NORMATIVA v09 al
   pasar el string entre componentes).
 - Canvas re-parcheado (3.ª tanda de backups) + `.gh` regenerado (170.001 bytes)
   y re-validado con GH_IO (lectura OK, 0 avisos).
-- Tests: 10/10 (nuevo test de regresión: ghenv como variable + `__name__`
-  `"__main__"` → main NO se ejecuta).
+- Tests: 11/11 (nuevo test de regresión: ghenv como variable + `__name__`
+  `"__main__"` → main NO se ejecuta; fallback por módulo; aviso entorno .NET
+  sin ghenv).
 - Entorno verificado: `DISENO_PARAMETRICO_ROOT` existe como variable de USUARIO
   (= `D:\Work\PROJECTS\DiseñoParametrico`) → la ruta se resuelve en GH.
 
@@ -90,3 +93,7 @@ entradas ni publicaba salidas dentro del componente.
 - Decidir si `normativa_confirmada`/`pisos_maximos_total` se cablean desde el
   orquestador (requiere campos nuevos).
 - (Bloqueador histórico) puerto 19723 para conexión AutoClaw↔Live Connection.
+
+## Commits
+- `ee84be28` — v03.1 (sección GH + fix sintaxis IronPython; incluye 2.ª pasada).
+- `56be9869` — v03.2 (detección ghenv/ghdoc + guard CLI; amend final).
