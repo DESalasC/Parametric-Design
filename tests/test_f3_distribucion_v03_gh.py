@@ -133,8 +133,9 @@ def test_sin_anotaciones_python3():
 
 def test_seccion_gh_presente():
     txt = _leer_fuente()
-    for marcador in ("SECCIÓN GRASSHOPPER", "v03.2", "def _gh_leer",
+    for marcador in ("SECCIÓN GRASSHOPPER", "v03.3", "def _gh_leer",
                      "def _gh_modulo", "def _gh_input_idx",
+                     "def _leer_json", "def _texto_seguro",
                      "MARGEN_DERIVACION_PCT", "barras_json = json.dumps"):
         assert marcador in txt, marcador
 
@@ -148,8 +149,25 @@ def test_gh_real_variable_no_import():
     )
     out = _salidas(ns)
     assert "ERROR" not in out["mensaje"], out["mensaje"]
-    assert out["mensaje"].startswith("F3 v03.2")
+    assert out["mensaje"].startswith("F3 v03.3")
     _validar_barras_json(out["barras_json"])
+
+
+def test_leer_json_con_acentos(tmp_path):
+    """_leer_json lee JSON con tildes (patrón rb + cascada de decodificación)."""
+    ns = _ejecutar_como_gh({})
+    p = tmp_path / "t.json"
+    p.write_text(u'{"mensaje": "crujía, ocupación y diseño"}', encoding="utf-8")
+    data = ns["_leer_json"](str(p))
+    assert data["mensaje"] == u"crujía, ocupación y diseño"
+
+
+def test_error_muestra_paso():
+    """Si falla un paso, el mensaje lo indica (diagnóstico rápido)."""
+    ns = _ejecutar_como_gh({"chip": "ZZZZZZ"})
+    msg = ns.get("mensaje") or ""
+    assert "ERROR en [leer resultados F2]" in msg, msg
+    assert "Sin resultados" in msg, msg
 
 
 def test_gh_via_modulo_import_fallback():
@@ -180,7 +198,7 @@ def test_gh_presupuesto_cableado():
         "n_barras_objetivo": "2,3",
     })
     out = _salidas(ns)
-    assert out["mensaje"].startswith("F3 v03.2")
+    assert out["mensaje"].startswith("F3 v03.3")
     assert "ERROR" not in out["mensaje"]
     data, alt = _validar_barras_json(out["barras_json"])
     assert data["chip"] == "AAA0030JKOE"

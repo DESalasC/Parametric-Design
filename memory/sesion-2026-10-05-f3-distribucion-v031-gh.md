@@ -65,6 +65,24 @@ entradas ni publicaba salidas dentro del componente.
 - Entorno verificado: `DISENO_PARAMETRICO_ROOT` existe como variable de USUARIO
   (= `D:\Work\PROJECTS\DiseñoParametrico`) → la ruta se resuelve en GH.
 
+## Revisión v03.3 (misma jornada, tras 2.ª prueba viva ~12:57)
+- **Fallo vivo 2**: tras recargar v03.2 el componente corrió (GH OK) y falló con
+  `F3 v03.2 | ERROR: 'unknown' codec can't decode byte 0xed in position 12` —
+  mismo patrón de la lección 2026-09-17: en IronPython, `io.open`/`open` en modo
+  texto intentan decodificar con el codec por defecto "unknown" y fallan con
+  contenido/paths no-ASCII. (El SystemExit quedó resuelto por la v03.2.)
+- **Fix v03.3**: lectura JSON con el patrón canónico del proyecto — `open(rb)` +
+  cascada utf-8-sig → cp1252 → latin-1 + `json.loads` (`_leer_json`); escrituras
+  binarias (`_escribir_texto`); `_texto_seguro()` normaliza rutas/entorno/entradas
+  (bytes→unicode por cascada); literales con tilde de rutas activas como u"...";
+  prints silenciados dentro de GH.
+- **Diagnóstico v03.3**: el mensaje de error ahora indica el PASO
+  (p.ej. "ERROR en [leer resultados F2]") + cola del traceback → converge rápido
+  si quedara algo.
+- Canvas re-parcheado (backups `.bak-20261005-1307*`) + `.gh` regenerado
+  (171.241 bytes) y validado con GH_IO (0 avisos).
+- Tests: 13/13 (nuevos: `_leer_json` con acentos; mensaje con paso de error).
+
 ## Hallazgos: `normativa_confirmada` / `pisos_maximos_total`
 - Hoy: `normativa_confirmada` ← `#99-Boolean Toggle` (false);
   `pisos_maximos_total` ← `#94-Number Slider` (5). Son controles manuales del canvas.
@@ -84,11 +102,13 @@ entradas ni publicaba salidas dentro del componente.
 - ghx→gh: `GH_IO` re-escribió `F1_CONTEXTO_v13.1.gh` (170 KB) → archivo válido.
 
 ## Pendientes
-- Validación viva del operador (v03.2): cerrar el canvas SIN guardar, reabrir
+- Validación viva del operador (v03.3): cerrar el canvas SIN guardar, reabrir
   `F1_CONTEXTO_v13.1.gh` (o `.ghx`) y correr con chip `AAA0030JKOE`; verificar
-  mensaje "F3 v03.2 | ..." y que `barras_json` → NORMATIVA v09 dé `valido=True`
-  y `gfa_aprobado_m2 > 0`. Si Rhino fue abierto antes de crearse la env var del
-  proyecto, reiniciarlo para heredar `DISENO_PARAMETRICO_ROOT`.
+  mensaje "F3 v03.3 | ..." y que `barras_json` → NORMATIVA v09 dé `valido=True`
+  y `gfa_aprobado_m2 > 0`. Si algo falla, el mensaje dirá el PASO exacto
+  ("ERROR en [paso]: ... | tb: ...") — enviarlo tal cual para converger.
+  Si Rhino fue abierto antes de crearse la env var del proyecto, reiniciarlo
+  para heredar `DISENO_PARAMETRICO_ROOT`.
 - Limpieza de los 19 tests desactualizados (sesión futura).
 - Decidir si `normativa_confirmada`/`pisos_maximos_total` se cablean desde el
   orquestador (requiere campos nuevos).

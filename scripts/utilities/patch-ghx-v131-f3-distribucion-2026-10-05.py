@@ -3,7 +3,7 @@
 
 Cambios (2026-10-05):
   1. Componente #61-F3_DISTRIBUCION_v03.py -> embebe el
-     src/fase-3-masa/F3_DISTRIBUCION_v03.py corregido (v03.2):
+     src/fase-3-masa/F3_DISTRIBUCION_v03.py corregido (v03.3):
        - FIX IronPython 2.7: sin anotación de tipo py3 en normalizar_uso()
          (provocaba SyntaxErrorException "unexpected token ':'" en GHPython);
        - SECCIÓN GRASSHOPPER completa (lee entradas del canvas y publica las
@@ -12,7 +12,9 @@ Cambios (2026-10-05):
        - v03.2: detección de entorno GH vía `"ghenv" in globals()` (en Rhino 8
          `import ghenv` FALLA: se inyecta como variable; main() ya no corre
          dentro de Grasshopper) + guard CLI con detección IronPython/clr;
-       - barras_json con ensure_ascii=True (ASCII-safe entre componentes).
+       - v03.3: lectura JSON con patrón canónico (rb + cascada utf-8-sig →
+         cp1252 → latin-1; evita el codec "unknown" de IronPython) y pasos de
+         diagnóstico en el mensaje; barras_json/JSON en ensure_ascii=True.
   2. Renombra las entradas con guion a snake_case (convención del proyecto):
        presupuesto-ocupacion -> presupuesto_ocupacion_m2
        io-max                -> io_max
@@ -57,7 +59,7 @@ RENOMBRES = {
 }
 
 DESCRIPCION = (
-    "F3_DISTRIBUCION v03.2 - Distribuidor de barras por crujia (presupuesto IO). "
+    "F3_DISTRIBUCION v03.3 - Distribuidor de barras por crujia (presupuesto IO). "
     "ENTRADAS (Item salvo indicacion): chip <- F0_LOAD_PROYECTO_v01.chip | "
     "presupuesto_ocupacion_m2 (Number; si vacio se deriva = lote x io_max con margen) | "
     "io_max (0.70) | n_barras_objetivo (2 | 3 | '2,3') | entrepiso_adaptativo (Boolean) | "
@@ -244,9 +246,11 @@ def main():
     checks = [
         ('XML serializado re-parseable', xml_ok),
         ('code con seccion GH', 'SECCIÓN GRASSHOPPER' in (ci.text or '') or 'SECCION GRASSHOPPER' in (ci.text or '')),
-        ('code v03.2', 'v03.2' in (ci.text or '')),
+        ('code v03.3', 'v03.3' in (ci.text or '')),
         ('code con _gh_leer', 'def _gh_leer' in (ci.text or '')),
         ('code con _gh_modulo', 'def _gh_modulo' in (ci.text or '')),
+        ('code con _leer_json', 'def _leer_json' in (ci.text or '')),
+        ('code con _texto_seguro', 'def _texto_seguro' in (ci.text or '')),
         ('code con ghdoc (2a senal)', 'ghdoc' in (ci.text or '')),
         ('code con barras_json json.dumps', 'barras_json = json.dumps' in (ci.text or '')),
         ('entradas renombradas == esperados', set(names2) == esperados),
@@ -271,7 +275,7 @@ def main():
         f.write(b'\xef\xbb\xbf' + data)
     print('backup:', bak)
     print('escrito:', GHX)
-    print('OK PATCH F3_DISTRIBUCION v03.2 aplicado')
+    print('OK PATCH F3_DISTRIBUCION v03.3 aplicado')
 
 
 if __name__ == '__main__':

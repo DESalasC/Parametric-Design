@@ -27732,6 +27732,17 @@ RESUMEN:
   APROBADOS (ocupacion_aprobada_m2, gfa_aprobado_m2, envelope_aprobado_por_piso).
 
 HISTORIAL DE VERSIONES:
+  v03.3 (2026-10-05, 3.ª iteración): FIX lectura de archivos en GHPython.
+    - Lectura JSON con el PATRÓN CANÓNICO del proyecto (lección 2026-09-17):
+      open(rb) + decodificación explícita utf-8-sig → cp1252 → latin-1 +
+      json.loads. (En IronPython, io.open/codecs.open intentan decodificar con
+      el codec por defecto "unknown" y fallan con "'unknown' codec can't
+      decode byte 0x.." en contenido no-ASCII; las escrituras también van a binario.)
+    - Normalización de texto: _texto_seguro() (bytes → unicode por cascada)
+      aplicada a rutas, variable de entorno y entradas; literales con tilde de
+      las rutas activas como u"..."; prints silenciados dentro de GH.
+    - Diagnóstico: si algo falla, el mensaje indica el PASO
+      (p.ej. "ERROR en [leer resultados F2]") + cola del traceback.
   v03.2 (2026-10-05, misma jornada): FIX detección de entorno GH (canvas vivo).
     - En GHPython (Rhino 8) `import ghenv` FALLA: `ghenv` (y `ghdoc`) se
       inyectan como VARIABLES del script; la detección ahora usa
@@ -27871,35 +27882,72 @@ except ImportError:
     _HAY_SHAPELY = False
 
 
+try:
+    _TEXTO_T = unicode   # Python 2 / IronPython
+except NameError:
+    _TEXTO_T = str       # Python 3
+
+
+def _texto_seguro(x):
+    """v03.3 - Texto unicode seguro para GH/IronPython y CPython.
+
+    Los bytes (py2 str) se decodifican con cascada utf-8 → cp1252 → latin-1
+    (evita el codec por defecto "unknown" de IronPython en conversiones
+    implícitas). En py3 devuelve str normal.
+    """
+    if isinstance(x, bytes):
+        for enc in ("utf-8", "cp1252", "latin-1"):
+            try:
+                return x.decode(enc)
+            except Exception:
+                pass
+        return u""
+    try:
+        return _TEXTO_T(x)
+    except Exception:
+        pass
+    try:
+        return str(x)
+    except Exception:
+        return repr(x)
+
+
 def _resolver_raiz_proyecto():
-    """v03.1 - Raíz del proyecto para localizar resultados F2.
+    """v03.3 - Raíz del proyecto para localizar resultados F2.
 
     Orden: archivo (CLI) → entorno (canvas GH: DISENO_PARAMETRICO_ROOT) → "".
     Valida que la raíz candidata tenga subcarpeta src/ antes de aceptarla
     (evita falsos positivos de entornos de test que apuntan a temporales).
+    Todo el texto se normaliza (evita codec "unknown" de IronPython).
     """
     candidatos = []
     try:
-        base = os.path.dirname(os.path.abspath(__file__))
-        candidatos.append(os.path.normpath(os.path.join(base, "..", "..")))
+        base = os.path.dirname(os.path.abspath(_texto_seguro(__file__)))
+        candidatos.append(os.path.normpath(os.path.join(base, u"..", u"..")))
     except Exception:
         pass
-    r_env = os.environ.get("DISENO_PARAMETRICO_ROOT", "")
+    try:
+        r_env = _texto_seguro(os.environ.get("DISENO_PARAMETRICO_ROOT", ""))
+    except Exception:
+        r_env = u""
     if r_env:
         candidatos.append(r_env)
     for c in candidatos:
-        if c and os.path.isdir(os.path.join(c, "src")):
-            return c
-    return ""
+        try:
+            if c and os.path.isdir(os.path.join(c, u"src")):
+                return c
+        except Exception:
+            continue
+    return u""
 
 
 ROOT = _resolver_raiz_proyecto()
 if ROOT:
-    FIN = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Financiero", "resultados")
-    OUT = os.path.join(ROOT, "src", "fase-3-masa", "casos")
+    FIN = os.path.join(ROOT, u"src", u"fase-2-demanda", u"F2_Modelo_Financiero", u"resultados")
+    OUT = os.path.join(ROOT, u"src", u"fase-3-masa", u"casos")
 else:
-    FIN = ""
-    OUT = ""
+    FIN = u""
+    OUT = u""
 
 # ------------------------------------------------------------------ parámetros
 ALTURA_PISO_BASE = 3.05      # m, escenario base (D2)
@@ -27963,10 +28011,43 @@ def normalizar_uso(uso):
     return u
 
 
+def _decodificar_cascada(raw, ruta=u"&lt;bytes&gt;"):
+    """LECTOR CANÓNICO (v03.3): utf-8-sig estricto → cp1252 → latin-1."""
+    try:
+        return raw.decode("utf-8-sig")
+    except Exception:
+        pass
+    try:
+        return raw.decode("cp1252")
+    except Exception:
+        pass
+    return raw.decode("latin-1")
+
+
+def _leer_json(ruta):
+    """v03.3 - Lee y parsea un JSON sin depender del codec por defecto.
+
+    Patrón canónico del proyecto para GH/IronPython: leer BYTES (rb) y
+    decodificar explícitamente. Compatible con CPython (misma ruta de código).
+    """
+    ruta_t = _texto_seguro(ruta)
+    with open(ruta_t, "rb") as f:
+        raw = f.read()
+    return json.loads(_decodificar_cascada(raw, ruta_t))
+
+
+def _escribir_texto(ruta, texto):
+    """v03.3 - Escribe texto UTF-8 en modo binario (sin codec por defecto)."""
+    ruta_t = _texto_seguro(ruta)
+    if not isinstance(texto, bytes):
+        texto = _texto_seguro(texto).encode("utf-8")
+    with open(ruta_t, "wb") as f:
+        f.write(texto)
+
+
 def _tiene_mixto(ruta):
     try:
-        with io.open(ruta, encoding="utf-8") as f:
-            paquete = json.load(f)
+        paquete = _leer_json(ruta)
         for x in (paquete.get("escenarios") or []):
             if x.get("mix_usos_detalle"): return True
     except Exception: return False
@@ -27976,13 +28057,15 @@ def _tiene_mixto(ruta):
 def buscar_resultados(chip):
     if not chip: return None
     if not FIN or not os.path.isdir(FIN): return None
+    chip_t = _texto_seguro(chip)
     resultados_dir = FIN
-    canonico = "resultados_" + chip + ".json"
+    canonico = u"resultados_" + chip_t + u".json"
     candidatos = []
     if os.path.exists(os.path.join(resultados_dir, canonico)):
         candidatos.append(canonico)
-    otros = [n for n in os.listdir(resultados_dir)
-             if n.endswith(".json") and n.startswith("resultados_" + chip + "_")]
+    nombres = [_texto_seguro(n) for n in os.listdir(resultados_dir)]
+    otros = [n for n in nombres
+             if n.endswith(u".json") and n.startswith(u"resultados_" + chip_t + u"_")]
     otros.sort(key=lambda n: os.path.getmtime(os.path.join(resultados_dir, n)), reverse=True)
     candidatos.extend(otros)
     if not candidatos: return None
@@ -27992,14 +28075,14 @@ def buscar_resultados(chip):
 
 
 def _cargar_programa(resultados_file, escenario, gfa=None, lote_m2=None, huella_m2=None):
-    with io.open(os.path.join(FIN, resultados_file), encoding="utf-8") as f:
-        paquete = json.load(f)
+    paquete = _leer_json(os.path.join(FIN, resultados_file))
     esc = next((x for x in paquete["escenarios"] if x["escenario_id"] == escenario), None)
     if esc is None:
         for x in paquete["escenarios"]:
             if x.get("mix_usos_detalle"):
                 esc = x; escenario = x["escenario_id"]
-                print("  [escenario] sin D_MIXTO exacto; se usa:", escenario)
+                if not _EN_GH:
+                    print("  [escenario] sin D_MIXTO exacto; se usa:", escenario)
                 break
     if esc is None:
         raise ValueError("Sin escenario de uso mixto (D_MIXTO*) en " + str(resultados_file))
@@ -28025,14 +28108,16 @@ def leer_programa(caso_id):
     nombre = buscar_resultados(cfg.get("chip", ""))
     if not nombre:
         nombre = cfg["resultados"]  # fallback al canónico
-    print("  [resultados] usando:", nombre, "| escenario:", cfg["escenario"])
+    if not _EN_GH:
+        print("  [resultados] usando:", nombre, "| escenario:", cfg["escenario"])
     return _cargar_programa(nombre, cfg["escenario"], cfg.get("gfa"), cfg.get("lote_m2"), cfg.get("huella_m2"))
 
 
 def leer_programa_chip(chip, escenario="D_MIXTO"):
     nombre = buscar_resultados(chip)
-    if not nombre: raise ValueError("Sin resultados F2 para el CHIP " + str(chip))
-    print("  [resultados] usando:", nombre, "| escenario:", escenario)
+    if not nombre: raise ValueError(u"Sin resultados F2 para el CHIP " + _texto_seguro(chip))
+    if not _EN_GH:
+        print("  [resultados] usando:", nombre, "| escenario:", escenario)
     return _cargar_programa(nombre, escenario)
 
 
@@ -28137,14 +28222,14 @@ def build_barras_json(chip, alternativas, lote_m2, presupuesto_m2, io_max):
         "chip": chip,
         "alternativas": alternativas,
         "recomendada": rec["id"],
-        "mensaje": "{} barras crujía única {:.1f} m prof., sep. {:.1f} m; ocupación {:.1f} m² (margen {:.1f} m²); entrepiso {:.2f} m".format(
+        "mensaje": u"{} barras crujía única {:.1f} m prof., sep. {:.1f} m; ocupación {:.1f} m² (margen {:.1f} m²); entrepiso {:.2f} m".format(
             rec["n_barras"], rec["profundidad_m"], rec["separacion_m"],
             rec["ocupacion_total_m2"], presupuesto_m2 - rec["ocupacion_total_m2"], rec["floor_h"])
     }
 
 
 # ============================================================================
-# SECCIÓN GRASSHOPPER (GH) — v03.2
+# SECCIÓN GRASSHOPPER (GH) — v03.3
 # Utilidades de lectura de entradas y ejecución dentro del componente.
 # (Inofensivas fuera de GH: solo se usan cuando _EN_GH es True.)
 # ============================================================================
@@ -28177,21 +28262,8 @@ except NameError:
 
 
 def _gh_str(x):
-    """Texto seguro (evita UnicodeEncodeError en py2/IronPython)."""
-    if isinstance(x, bytes):
-        for enc in ("utf-8", "cp1252", "latin-1"):
-            try:
-                return x.decode(enc)
-            except Exception:
-                pass
-        return ""
-    try:
-        return str(x)
-    except Exception:
-        try:
-            return unicode(x)  # noqa: F821 (Python 2)
-        except Exception:
-            return repr(x)
+    """v03.3 - Texto seguro: delega en _texto_seguro (unicode en py2)."""
+    return _texto_seguro(x)
 
 
 def _gh_norm(s):
@@ -28224,9 +28296,12 @@ def _gh_input_idx(indice):
         param = mod.Component.Params.Input[indice]
         for goo in param.VolatileData.AllData(True):
             try:
-                return goo.Value
+                v = goo.Value
             except Exception:
                 return _gh_str(goo)
+            if isinstance(v, bool) or isinstance(v, (int, float)):
+                return v
+            return _gh_str(v)
     except Exception:
         pass
     return None
@@ -28286,9 +28361,9 @@ def _gh_bool(v, default=False):
     s = _gh_str(v).strip().lower()
     if s == "":
         return default
-    if s in ("true", "1", "si", "sí", "yes", "verdadero"):
+    if s in (u"true", u"1", u"si", u"sí", u"yes", u"verdadero"):
         return True
-    if s in ("false", "0", "no", "falso"):
+    if s in (u"false", u"0", u"no", u"falso"):
         return False
     return default
 
@@ -28364,7 +28439,9 @@ floor_h_usado = 0.0
 n_barras_usado = 0
 
 if _EN_GH:
+    _paso = u"inicio"
     try:
+        _paso = u"leer entradas"
         _chip = _gh_str(_gh_leer(0, ["chip"], "") or "").strip()
 
         _presupuesto_in = _gh_num(
@@ -28402,14 +28479,17 @@ if _EN_GH:
         _output_json = _gh_str(_gh_leer(
             10, ["output_json", "output-json"], "") or "").strip()
 
+        _paso = u"validar chip"
         if not _chip:
-            raise ValueError("chip vacío: cablear la salida chip de F0_LOAD_PROYECTO_v01")
+            raise ValueError(u"chip vacío: cablear la salida chip de F0_LOAD_PROYECTO_v01")
 
+        _paso = u"leer resultados F2"
         _prog = leer_programa_chip(_chip, "D_MIXTO")
         _lote_m2 = _prog.get("lote_m2")
         if not _lote_m2:
-            raise ValueError("lote_m2 no disponible para el chip " + _chip)
+            raise ValueError(u"lote_m2 no disponible para el chip " + _chip)
 
+        _paso = u"derivar presupuesto"
         _derivado = False
         _presupuesto = _presupuesto_in
         if _presupuesto is None or _presupuesto &lt;= 0:
@@ -28418,9 +28498,10 @@ if _EN_GH:
             _presupuesto = _base - _margen
             if _presupuesto &lt;= 0:
                 raise ValueError(
-                    "presupuesto_ocupacion_m2 vacío y no se pudo derivar (lote/io desconocidos)")
+                    u"presupuesto_ocupacion_m2 vacío y no se pudo derivar (lote/io desconocidos)")
             _derivado = True
 
+        _paso = u"filtrar usos"
         if _usos:
             _filtro = [normalizar_uso(_u) for _u in _usos]
             _comps = [c for c in _prog.get("componentes", []) if c["uso"] in _filtro]
@@ -28434,14 +28515,16 @@ if _EN_GH:
 
         _sep_real = _sep if (_sep and _sep &gt; 0) else SEPARACION_MIN_BASE
 
+        _paso = u"generar barras"
         _alternativas = iterar_barras(
             _lote_m2, _presupuesto, _n_barras, _sep_real, _prog, _crujia, _nucleo)
         _salida = build_barras_json(_chip, _alternativas, _lote_m2, _presupuesto, _io_max)
 
+        _paso = u"publicar salidas"
         barras_json = json.dumps(_salida, ensure_ascii=True)  # ASCII-safe (convención del proyecto)
-        mensaje = "F3 v03.2 | " + _salida.get("mensaje", "")
+        mensaje = u"F3 v03.3 | " + _gh_str(_salida.get("mensaje", ""))
         if _derivado:
-            mensaje += " | presupuesto derivado = lote {:.1f} m2 x IO {:.2f} (con margen)".format(
+            mensaje += u" | presupuesto derivado = lote {:.1f} m2 x IO {:.2f} (con margen)".format(
                 _lote_m2, _io_max)
         if _alternativas:
             _rec = _alternativas[0]
@@ -28451,15 +28534,24 @@ if _EN_GH:
             floor_h_usado = float(_rec.get("floor_h", 0.0))
             n_barras_usado = int(_rec.get("n_barras", 0))
         if _output_json:
+            _paso = u"escribir output_json"
             try:
-                with io.open(_output_json, "w", encoding="utf-8") as _f:
-                    _f.write(json.dumps(_salida, indent=2, ensure_ascii=False))
-                mensaje += " | escrito: " + _output_json
+                _escribir_texto(_output_json, json.dumps(_salida, indent=2, ensure_ascii=True))
+                mensaje += u" | escrito: " + _output_json
             except Exception as _e_out:
-                mensaje += " | aviso escritura {}: {}".format(_output_json, _gh_str(_e_out))
+                mensaje += u" | aviso escritura {}: {}".format(_output_json, _gh_str(_e_out))
     except Exception as _e_gh:
+        _detalle = u""
+        try:
+            import traceback as _traceback
+            _txt_tb = _gh_str(_traceback.format_exc())
+            _lineas_tb = _txt_tb.strip().splitlines()
+            if _lineas_tb:
+                _detalle = u" | tb: " + _lineas_tb[-1][:160]
+        except Exception:
+            pass
         barras_json = ""
-        mensaje = "F3 v03.2 | ERROR: " + _gh_str(_e_gh)
+        mensaje = u"F3 v03.3 | ERROR en [{}]: {}{}".format(_paso, _gh_str(_e_gh), _detalle)
 
 
 # ============================================================================
@@ -28534,8 +28626,7 @@ def main():
         print("RECOMENDADA:", salida["recomendada"])
 
     if args.output_json:
-        with io.open(args.output_json, "w", encoding="utf-8") as f:
-            f.write(json.dumps(salida, indent=2, ensure_ascii=True))
+        _escribir_texto(args.output_json, json.dumps(salida, indent=2, ensure_ascii=True))
         print("Escrito:", args.output_json)
     else:
         print(json.dumps(salida, indent=2, ensure_ascii=True))
@@ -28570,13 +28661,13 @@ except Exception:
 
 # Diagnóstico: en Rhino/.NET pero sin ghenv disponible en el script.
 if (_ES_IRON or _ES_CLR) and not _EN_GH and not mensaje:
-    mensaje = ("F3 v03.2 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
-               "está disponible en el script; revisar el componente")
+    mensaje = (u"F3 v03.3 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
+               u"está disponible en el script; revisar el componente")
 
 if _ES_MAIN and not _EN_GH and not _ES_IRON and not _ES_CLR:
     main()
 </item>
-                    <item name="Description" type_name="gh_string" type_code="10">F3_DISTRIBUCION v03.2 - Distribuidor de barras por crujia (presupuesto IO). ENTRADAS (Item salvo indicacion): chip &lt;- F0_LOAD_PROYECTO_v01.chip | presupuesto_ocupacion_m2 (Number; si vacio se deriva = lote x io_max con margen) | io_max (0.70) | n_barras_objetivo (2 | 3 | '2,3') | entrepiso_adaptativo (Boolean) | prioridad_ajuste (List; reservado) | usos (List; filtra mix, p.ej. 'Vivienda,Local comercial') | bloques_separacion_m (6.0) | bloques_crujia ('unica'|'doble') | bloques_nucleo ('centro'|'extremo') | output_json (ruta opcional). SALIDAS: barras_json -&gt; NORMATIVA v09.barras_json | mensaje | alternativa_recomendada | ocupacion_total_m2 | gfa_real_m2 | floor_h_usado | n_barras_usado. Doc: encabezado del script + docs/planes/2026-10-03-tope-ocupacion-io/PLAN-ACCION.md</item>
+                    <item name="Description" type_name="gh_string" type_code="10">F3_DISTRIBUCION v03.3 - Distribuidor de barras por crujia (presupuesto IO). ENTRADAS (Item salvo indicacion): chip &lt;- F0_LOAD_PROYECTO_v01.chip | presupuesto_ocupacion_m2 (Number; si vacio se deriva = lote x io_max con margen) | io_max (0.70) | n_barras_objetivo (2 | 3 | '2,3') | entrepiso_adaptativo (Boolean) | prioridad_ajuste (List; reservado) | usos (List; filtra mix, p.ej. 'Vivienda,Local comercial') | bloques_separacion_m (6.0) | bloques_crujia ('unica'|'doble') | bloques_nucleo ('centro'|'extremo') | output_json (ruta opcional). SALIDAS: barras_json -&gt; NORMATIVA v09.barras_json | mensaje | alternativa_recomendada | ocupacion_total_m2 | gfa_real_m2 | floor_h_usado | n_barras_usado. Doc: encabezado del script + docs/planes/2026-10-03-tope-ocupacion-io/PLAN-ACCION.md</item>
                     <item name="EditorLocation" type_name="gh_drawing_point" type_code="30">
                       <X>104</X>
                       <Y>104</Y>
