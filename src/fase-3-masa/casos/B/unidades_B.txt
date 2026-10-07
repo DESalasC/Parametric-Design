@@ -1,0 +1,20 @@
+========================================================================
+F3 - UNIDADES TIPOLÓGICAS, CIRCULACIONES Y PARQUEADEROS
+========================================================================
+
+UNIDADES TOTALES: 48
+  Local comercial (Local comercial turístico): 24 unds, 1084.3 m², pisos [1, 2]
+  Vivienda (Vivienda estándar): 24 unds, 1324.8 m², pisos [3, 4, 5]
+
+CIRCULACIONES: 5
+  Piso 1: pasillo_central 25.0x1.5m
+  Piso 2: pasillo_central 25.0x1.5m
+  Piso 3: pasillo_central 25.0x1.5m
+  Piso 4: pasillo_central 25.0x1.5m
+  Piso 5: pasillo_central 25.0x1.5m
+
+PARQUEADEROS: 40 puestos en 1 nivel(es)
+  Sótano 1 (z=-2.5m): 40 pts, 650.0 m² [SÓTANO]
+
+VERIFICACIONES:
+  Ventilación natural: 48/48

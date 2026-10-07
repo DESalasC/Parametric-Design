@@ -565,6 +565,8 @@ patios_curves = []
 patio_count = 0
 patios_export = []
 mensaje = ""
+# Inicialización explícita para Grasshopper (evita NullReferenceException)
+# Las variables patios_curves, patio_count, mensaje ya están arriba
 
 if sides_data is None or len(lot_vertices) < 3:
     mensaje = "PATIO v03.3 | ERROR: vertices={} sides={}".format(

@@ -1,0 +1,2473 @@
+{
+  "metadata": {
+    "version": "2.0.0",
+    "modulo": "F3_UNIDADES_TIPOLOGIAS_v02",
+    "chip": "B",
+    "total_unidades_base": 22,
+    "total_duplex": 16,
+    "total_circulaciones": 4,
+    "total_parqueaderos": 40,
+    "lote_frente_m": 25.0,
+    "lote_fondo_m": 38.0,
+    "cota_via_m": 0.0,
+    "restricciones": {
+      "comercio_solo_fachada": true,
+      "parking_sotano_consolidado": true,
+      "duplex_vivienda": true,
+      "duplex_comercio": false
+    }
+  },
+  "unidades": [
+    {
+      "id": "U_1_LOC_01",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 1,
+      "piso_fin": 1,
+      "z_base_m": 0.0,
+      "altura_total": 3.6,
+      "vertices": [
+        [
+          -11.5,
+          5.25
+        ],
+        [
+          -8.214285714285715,
+          5.25
+        ],
+        [
+          -8.214285714285715,
+          19.0
+        ],
+        [
+          -11.5,
+          19.0
+        ],
+        [
+          -11.5,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_1_LOC_02",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 1,
+      "piso_fin": 1,
+      "z_base_m": 0.0,
+      "altura_total": 3.6,
+      "vertices": [
+        [
+          -8.214285714285715,
+          5.25
+        ],
+        [
+          -4.928571428571429,
+          5.25
+        ],
+        [
+          -4.928571428571429,
+          19.0
+        ],
+        [
+          -8.214285714285715,
+          19.0
+        ],
+        [
+          -8.214285714285715,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_1_LOC_03",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 1,
+      "piso_fin": 1,
+      "z_base_m": 0.0,
+      "altura_total": 3.6,
+      "vertices": [
+        [
+          -4.928571428571429,
+          5.25
+        ],
+        [
+          -1.6428571428571437,
+          5.25
+        ],
+        [
+          -1.6428571428571437,
+          19.0
+        ],
+        [
+          -4.928571428571429,
+          19.0
+        ],
+        [
+          -4.928571428571429,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_1_LOC_04",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 1,
+      "piso_fin": 1,
+      "z_base_m": 0.0,
+      "altura_total": 3.6,
+      "vertices": [
+        [
+          -1.6428571428571428,
+          5.25
+        ],
+        [
+          1.6428571428571428,
+          5.25
+        ],
+        [
+          1.6428571428571428,
+          19.0
+        ],
+        [
+          -1.6428571428571428,
+          19.0
+        ],
+        [
+          -1.6428571428571428,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_1_LOC_05",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 1,
+      "piso_fin": 1,
+      "z_base_m": 0.0,
+      "altura_total": 3.6,
+      "vertices": [
+        [
+          1.642857142857142,
+          5.25
+        ],
+        [
+          4.928571428571427,
+          5.25
+        ],
+        [
+          4.928571428571427,
+          19.0
+        ],
+        [
+          1.642857142857142,
+          19.0
+        ],
+        [
+          1.642857142857142,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_1_LOC_06",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 1,
+      "piso_fin": 1,
+      "z_base_m": 0.0,
+      "altura_total": 3.6,
+      "vertices": [
+        [
+          4.928571428571427,
+          5.25
+        ],
+        [
+          8.214285714285712,
+          5.25
+        ],
+        [
+          8.214285714285712,
+          19.0
+        ],
+        [
+          4.928571428571427,
+          19.0
+        ],
+        [
+          4.928571428571427,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_1_LOC_07",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 1,
+      "piso_fin": 1,
+      "z_base_m": 0.0,
+      "altura_total": 3.6,
+      "vertices": [
+        [
+          8.214285714285715,
+          5.25
+        ],
+        [
+          11.5,
+          5.25
+        ],
+        [
+          11.5,
+          19.0
+        ],
+        [
+          8.214285714285715,
+          19.0
+        ],
+        [
+          8.214285714285715,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_2_LOC_01",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 2,
+      "piso_fin": 2,
+      "z_base_m": 3.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          -11.5,
+          5.25
+        ],
+        [
+          -8.214285714285715,
+          5.25
+        ],
+        [
+          -8.214285714285715,
+          19.0
+        ],
+        [
+          -11.5,
+          19.0
+        ],
+        [
+          -11.5,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_2_LOC_02",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 2,
+      "piso_fin": 2,
+      "z_base_m": 3.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          -8.214285714285715,
+          5.25
+        ],
+        [
+          -4.928571428571429,
+          5.25
+        ],
+        [
+          -4.928571428571429,
+          19.0
+        ],
+        [
+          -8.214285714285715,
+          19.0
+        ],
+        [
+          -8.214285714285715,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_2_LOC_03",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 2,
+      "piso_fin": 2,
+      "z_base_m": 3.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          -4.928571428571429,
+          5.25
+        ],
+        [
+          -1.6428571428571437,
+          5.25
+        ],
+        [
+          -1.6428571428571437,
+          19.0
+        ],
+        [
+          -4.928571428571429,
+          19.0
+        ],
+        [
+          -4.928571428571429,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_2_LOC_04",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 2,
+      "piso_fin": 2,
+      "z_base_m": 3.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          -1.6428571428571428,
+          5.25
+        ],
+        [
+          1.6428571428571428,
+          5.25
+        ],
+        [
+          1.6428571428571428,
+          19.0
+        ],
+        [
+          -1.6428571428571428,
+          19.0
+        ],
+        [
+          -1.6428571428571428,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_2_LOC_05",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 2,
+      "piso_fin": 2,
+      "z_base_m": 3.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          1.642857142857142,
+          5.25
+        ],
+        [
+          4.928571428571427,
+          5.25
+        ],
+        [
+          4.928571428571427,
+          19.0
+        ],
+        [
+          1.642857142857142,
+          19.0
+        ],
+        [
+          1.642857142857142,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_2_LOC_06",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 2,
+      "piso_fin": 2,
+      "z_base_m": 3.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          4.928571428571427,
+          5.25
+        ],
+        [
+          8.214285714285712,
+          5.25
+        ],
+        [
+          8.214285714285712,
+          19.0
+        ],
+        [
+          4.928571428571427,
+          19.0
+        ],
+        [
+          4.928571428571427,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_2_LOC_07",
+      "uso": "Local comercial",
+      "tipologia": "Local fachada publica",
+      "piso_inicio": 2,
+      "piso_fin": 2,
+      "z_base_m": 3.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          8.214285714285715,
+          5.25
+        ],
+        [
+          11.5,
+          5.25
+        ],
+        [
+          11.5,
+          19.0
+        ],
+        [
+          8.214285714285715,
+          19.0
+        ],
+        [
+          8.214285714285715,
+          5.25
+        ]
+      ],
+      "area_m2": 45.18,
+      "ancho_m": 3.29,
+      "profundidad_m": 13.75,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": false,
+      "duplex_con_piso": null
+    },
+    {
+      "id": "U_3_VIV_01",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar",
+      "piso_inicio": 3,
+      "piso_fin": 3,
+      "z_base_m": 6.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          -11.5,
+          5.25
+        ],
+        [
+          0.0,
+          5.25
+        ],
+        [
+          0.0,
+          17.25
+        ],
+        [
+          -11.5,
+          17.25
+        ],
+        [
+          -11.5,
+          5.25
+        ]
+      ],
+      "area_m2": 138.0,
+      "ancho_m": 11.5,
+      "profundidad_m": 12.0,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 4,
+      "unidad_alto_id": "U_4_VIV_01_DUP"
+    },
+    {
+      "id": "U_4_VIV_01_DUP",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar (Duplex alto)",
+      "piso_inicio": 3,
+      "piso_fin": 4,
+      "z_base_m": 6.6,
+      "altura_total": 6.0,
+      "vertices": [
+        [
+          -11.5,
+          5.25
+        ],
+        [
+          0.0,
+          5.25
+        ],
+        [
+          0.0,
+          17.25
+        ],
+        [
+          -11.5,
+          17.25
+        ],
+        [
+          -11.5,
+          5.25
+        ]
+      ],
+      "area_m2": 276.0,
+      "ancho_m": 11.5,
+      "profundidad_m": 12.0,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 3,
+      "unidad_base_id": "U_3_VIV_01"
+    },
+    {
+      "id": "U_3_VIV_02",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar",
+      "piso_inicio": 3,
+      "piso_fin": 3,
+      "z_base_m": 6.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          0.0,
+          5.25
+        ],
+        [
+          11.5,
+          5.25
+        ],
+        [
+          11.5,
+          17.25
+        ],
+        [
+          0.0,
+          17.25
+        ],
+        [
+          0.0,
+          5.25
+        ]
+      ],
+      "area_m2": 138.0,
+      "ancho_m": 11.5,
+      "profundidad_m": 12.0,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 4,
+      "unidad_alto_id": "U_4_VIV_02_DUP"
+    },
+    {
+      "id": "U_4_VIV_02_DUP",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar (Duplex alto)",
+      "piso_inicio": 3,
+      "piso_fin": 4,
+      "z_base_m": 6.6,
+      "altura_total": 6.0,
+      "vertices": [
+        [
+          0.0,
+          5.25
+        ],
+        [
+          11.5,
+          5.25
+        ],
+        [
+          11.5,
+          17.25
+        ],
+        [
+          0.0,
+          17.25
+        ],
+        [
+          0.0,
+          5.25
+        ]
+      ],
+      "area_m2": 276.0,
+      "ancho_m": 11.5,
+      "profundidad_m": 12.0,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 3,
+      "unidad_base_id": "U_3_VIV_02"
+    },
+    {
+      "id": "U_3_VIV_03",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar",
+      "piso_inicio": 3,
+      "piso_fin": 3,
+      "z_base_m": 6.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          -11.5,
+          -19.0
+        ],
+        [
+          0.0,
+          -19.0
+        ],
+        [
+          0.0,
+          -5.25
+        ],
+        [
+          -11.5,
+          -5.25
+        ],
+        [
+          -11.5,
+          -19.0
+        ]
+      ],
+      "area_m2": 158.12,
+      "ancho_m": 11.5,
+      "profundidad_m": 13.75,
+      "lado": "patio",
+      "fachada_publica": false,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 4,
+      "unidad_alto_id": "U_4_VIV_03_DUP"
+    },
+    {
+      "id": "U_4_VIV_03_DUP",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar (Duplex alto)",
+      "piso_inicio": 3,
+      "piso_fin": 4,
+      "z_base_m": 6.6,
+      "altura_total": 6.0,
+      "vertices": [
+        [
+          -11.5,
+          -19.0
+        ],
+        [
+          0.0,
+          -19.0
+        ],
+        [
+          0.0,
+          -5.25
+        ],
+        [
+          -11.5,
+          -5.25
+        ],
+        [
+          -11.5,
+          -19.0
+        ]
+      ],
+      "area_m2": 316.25,
+      "ancho_m": 11.5,
+      "profundidad_m": 13.75,
+      "lado": "patio",
+      "fachada_publica": false,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 3,
+      "unidad_base_id": "U_3_VIV_03"
+    },
+    {
+      "id": "U_3_VIV_04",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar",
+      "piso_inicio": 3,
+      "piso_fin": 3,
+      "z_base_m": 6.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          0.0,
+          -19.0
+        ],
+        [
+          11.5,
+          -19.0
+        ],
+        [
+          11.5,
+          -5.25
+        ],
+        [
+          0.0,
+          -5.25
+        ],
+        [
+          0.0,
+          -19.0
+        ]
+      ],
+      "area_m2": 158.12,
+      "ancho_m": 11.5,
+      "profundidad_m": 13.75,
+      "lado": "patio",
+      "fachada_publica": false,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 4,
+      "unidad_alto_id": "U_4_VIV_04_DUP"
+    },
+    {
+      "id": "U_4_VIV_04_DUP",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar (Duplex alto)",
+      "piso_inicio": 3,
+      "piso_fin": 4,
+      "z_base_m": 6.6,
+      "altura_total": 6.0,
+      "vertices": [
+        [
+          0.0,
+          -19.0
+        ],
+        [
+          11.5,
+          -19.0
+        ],
+        [
+          11.5,
+          -5.25
+        ],
+        [
+          0.0,
+          -5.25
+        ],
+        [
+          0.0,
+          -19.0
+        ]
+      ],
+      "area_m2": 316.25,
+      "ancho_m": 11.5,
+      "profundidad_m": 13.75,
+      "lado": "patio",
+      "fachada_publica": false,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 3,
+      "unidad_base_id": "U_3_VIV_04"
+    },
+    {
+      "id": "U_4_VIV_01",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar",
+      "piso_inicio": 4,
+      "piso_fin": 4,
+      "z_base_m": 9.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          -11.5,
+          5.25
+        ],
+        [
+          0.0,
+          5.25
+        ],
+        [
+          0.0,
+          17.25
+        ],
+        [
+          -11.5,
+          17.25
+        ],
+        [
+          -11.5,
+          5.25
+        ]
+      ],
+      "area_m2": 138.0,
+      "ancho_m": 11.5,
+      "profundidad_m": 12.0,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 5,
+      "unidad_alto_id": "U_5_VIV_01_DUP"
+    },
+    {
+      "id": "U_5_VIV_01_DUP",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar (Duplex alto)",
+      "piso_inicio": 4,
+      "piso_fin": 5,
+      "z_base_m": 9.6,
+      "altura_total": 6.0,
+      "vertices": [
+        [
+          -11.5,
+          5.25
+        ],
+        [
+          0.0,
+          5.25
+        ],
+        [
+          0.0,
+          17.25
+        ],
+        [
+          -11.5,
+          17.25
+        ],
+        [
+          -11.5,
+          5.25
+        ]
+      ],
+      "area_m2": 276.0,
+      "ancho_m": 11.5,
+      "profundidad_m": 12.0,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 4,
+      "unidad_base_id": "U_4_VIV_01"
+    },
+    {
+      "id": "U_4_VIV_02",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar",
+      "piso_inicio": 4,
+      "piso_fin": 4,
+      "z_base_m": 9.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          0.0,
+          5.25
+        ],
+        [
+          11.5,
+          5.25
+        ],
+        [
+          11.5,
+          17.25
+        ],
+        [
+          0.0,
+          17.25
+        ],
+        [
+          0.0,
+          5.25
+        ]
+      ],
+      "area_m2": 138.0,
+      "ancho_m": 11.5,
+      "profundidad_m": 12.0,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 5,
+      "unidad_alto_id": "U_5_VIV_02_DUP"
+    },
+    {
+      "id": "U_5_VIV_02_DUP",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar (Duplex alto)",
+      "piso_inicio": 4,
+      "piso_fin": 5,
+      "z_base_m": 9.6,
+      "altura_total": 6.0,
+      "vertices": [
+        [
+          0.0,
+          5.25
+        ],
+        [
+          11.5,
+          5.25
+        ],
+        [
+          11.5,
+          17.25
+        ],
+        [
+          0.0,
+          17.25
+        ],
+        [
+          0.0,
+          5.25
+        ]
+      ],
+      "area_m2": 276.0,
+      "ancho_m": 11.5,
+      "profundidad_m": 12.0,
+      "lado": "fachada",
+      "fachada_publica": true,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 4,
+      "unidad_base_id": "U_4_VIV_02"
+    },
+    {
+      "id": "U_4_VIV_03",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar",
+      "piso_inicio": 4,
+      "piso_fin": 4,
+      "z_base_m": 9.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          -11.5,
+          -19.0
+        ],
+        [
+          0.0,
+          -19.0
+        ],
+        [
+          0.0,
+          -5.25
+        ],
+        [
+          -11.5,
+          -5.25
+        ],
+        [
+          -11.5,
+          -19.0
+        ]
+      ],
+      "area_m2": 158.12,
+      "ancho_m": 11.5,
+      "profundidad_m": 13.75,
+      "lado": "patio",
+      "fachada_publica": false,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 5,
+      "unidad_alto_id": "U_5_VIV_03_DUP"
+    },
+    {
+      "id": "U_5_VIV_03_DUP",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar (Duplex alto)",
+      "piso_inicio": 4,
+      "piso_fin": 5,
+      "z_base_m": 9.6,
+      "altura_total": 6.0,
+      "vertices": [
+        [
+          -11.5,
+          -19.0
+        ],
+        [
+          0.0,
+          -19.0
+        ],
+        [
+          0.0,
+          -5.25
+        ],
+        [
+          -11.5,
+          -5.25
+        ],
+        [
+          -11.5,
+          -19.0
+        ]
+      ],
+      "area_m2": 316.25,
+      "ancho_m": 11.5,
+      "profundidad_m": 13.75,
+      "lado": "patio",
+      "fachada_publica": false,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 4,
+      "unidad_base_id": "U_4_VIV_03"
+    },
+    {
+      "id": "U_4_VIV_04",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar",
+      "piso_inicio": 4,
+      "piso_fin": 4,
+      "z_base_m": 9.6,
+      "altura_total": 3.0,
+      "vertices": [
+        [
+          0.0,
+          -19.0
+        ],
+        [
+          11.5,
+          -19.0
+        ],
+        [
+          11.5,
+          -5.25
+        ],
+        [
+          0.0,
+          -5.25
+        ],
+        [
+          0.0,
+          -19.0
+        ]
+      ],
+      "area_m2": 158.12,
+      "ancho_m": 11.5,
+      "profundidad_m": 13.75,
+      "lado": "patio",
+      "fachada_publica": false,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 5,
+      "unidad_alto_id": "U_5_VIV_04_DUP"
+    },
+    {
+      "id": "U_5_VIV_04_DUP",
+      "uso": "Vivienda",
+      "tipologia": "Vivienda estandar (Duplex alto)",
+      "piso_inicio": 4,
+      "piso_fin": 5,
+      "z_base_m": 9.6,
+      "altura_total": 6.0,
+      "vertices": [
+        [
+          0.0,
+          -19.0
+        ],
+        [
+          11.5,
+          -19.0
+        ],
+        [
+          11.5,
+          -5.25
+        ],
+        [
+          0.0,
+          -5.25
+        ],
+        [
+          0.0,
+          -19.0
+        ]
+      ],
+      "area_m2": 316.25,
+      "ancho_m": 11.5,
+      "profundidad_m": 13.75,
+      "lado": "patio",
+      "fachada_publica": false,
+      "ventilacion_natural": true,
+      "acceso_pasillo": true,
+      "es_duplex": true,
+      "duplex_con_piso": 4,
+      "unidad_base_id": "U_4_VIV_04"
+    }
+  ],
+  "circulaciones": [
+    {
+      "tipo": "pasillo_central",
+      "piso": 1,
+      "z_base_m": 0.0,
+      "vertices": [
+        [
+          -12.5,
+          4.5
+        ],
+        [
+          12.5,
+          4.5
+        ],
+        [
+          12.5,
+          6.0
+        ],
+        [
+          -12.5,
+          6.0
+        ],
+        [
+          -12.5,
+          4.5
+        ]
+      ],
+      "ancho_m": 1.5,
+      "largo_m": 25.0,
+      "conecta_nucleo": true,
+      "lado": "fachada"
+    },
+    {
+      "tipo": "pasillo_central",
+      "piso": 2,
+      "z_base_m": 3.6,
+      "vertices": [
+        [
+          -12.5,
+          4.5
+        ],
+        [
+          12.5,
+          4.5
+        ],
+        [
+          12.5,
+          6.0
+        ],
+        [
+          -12.5,
+          6.0
+        ],
+        [
+          -12.5,
+          4.5
+        ]
+      ],
+      "ancho_m": 1.5,
+      "largo_m": 25.0,
+      "conecta_nucleo": true,
+      "lado": "fachada"
+    },
+    {
+      "tipo": "pasillo_central",
+      "piso": 3,
+      "z_base_m": 6.6,
+      "vertices": [
+        [
+          -12.5,
+          4.5
+        ],
+        [
+          12.5,
+          4.5
+        ],
+        [
+          12.5,
+          6.0
+        ],
+        [
+          -12.5,
+          6.0
+        ],
+        [
+          -12.5,
+          4.5
+        ]
+      ],
+      "ancho_m": 1.5,
+      "largo_m": 25.0,
+      "conecta_nucleo": true,
+      "lado": "fachada"
+    },
+    {
+      "tipo": "pasillo_central",
+      "piso": 4,
+      "z_base_m": 9.6,
+      "vertices": [
+        [
+          -12.5,
+          4.5
+        ],
+        [
+          12.5,
+          4.5
+        ],
+        [
+          12.5,
+          6.0
+        ],
+        [
+          -12.5,
+          6.0
+        ],
+        [
+          -12.5,
+          4.5
+        ]
+      ],
+      "ancho_m": 1.5,
+      "largo_m": 25.0,
+      "conecta_nucleo": true,
+      "lado": "fachada"
+    }
+  ],
+  "parqueaderos": [
+    {
+      "nivel": -1,
+      "nombre": "Sotano 1",
+      "z_base_m": -2.5,
+      "altura_m": 2.5,
+      "capacidad": 40,
+      "area_m2": 650.0,
+      "tipo": "sotano",
+      "cota_via_m": 0.0,
+      "es_sotano": true,
+      "consolidado": true,
+      "lote_frente": 25.0,
+      "lote_fondo": 38.0
+    }
+  ],
+  "volumenes_para_F3_VOLUM_GENERADOR": {
+    "volumenes_por_uso": [
+      [
+        [
+          [
+            -11.5,
+            5.25,
+            0
+          ],
+          [
+            -8.214285714285715,
+            5.25,
+            0
+          ],
+          [
+            -8.214285714285715,
+            19.0,
+            0
+          ],
+          [
+            -11.5,
+            19.0,
+            0
+          ],
+          [
+            -11.5,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -8.214285714285715,
+            5.25,
+            0
+          ],
+          [
+            -4.928571428571429,
+            5.25,
+            0
+          ],
+          [
+            -4.928571428571429,
+            19.0,
+            0
+          ],
+          [
+            -8.214285714285715,
+            19.0,
+            0
+          ],
+          [
+            -8.214285714285715,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -4.928571428571429,
+            5.25,
+            0
+          ],
+          [
+            -1.6428571428571437,
+            5.25,
+            0
+          ],
+          [
+            -1.6428571428571437,
+            19.0,
+            0
+          ],
+          [
+            -4.928571428571429,
+            19.0,
+            0
+          ],
+          [
+            -4.928571428571429,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -1.6428571428571428,
+            5.25,
+            0
+          ],
+          [
+            1.6428571428571428,
+            5.25,
+            0
+          ],
+          [
+            1.6428571428571428,
+            19.0,
+            0
+          ],
+          [
+            -1.6428571428571428,
+            19.0,
+            0
+          ],
+          [
+            -1.6428571428571428,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            1.642857142857142,
+            5.25,
+            0
+          ],
+          [
+            4.928571428571427,
+            5.25,
+            0
+          ],
+          [
+            4.928571428571427,
+            19.0,
+            0
+          ],
+          [
+            1.642857142857142,
+            19.0,
+            0
+          ],
+          [
+            1.642857142857142,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            4.928571428571427,
+            5.25,
+            0
+          ],
+          [
+            8.214285714285712,
+            5.25,
+            0
+          ],
+          [
+            8.214285714285712,
+            19.0,
+            0
+          ],
+          [
+            4.928571428571427,
+            19.0,
+            0
+          ],
+          [
+            4.928571428571427,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            8.214285714285715,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            19.0,
+            0
+          ],
+          [
+            8.214285714285715,
+            19.0,
+            0
+          ],
+          [
+            8.214285714285715,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -11.5,
+            5.25,
+            0
+          ],
+          [
+            -8.214285714285715,
+            5.25,
+            0
+          ],
+          [
+            -8.214285714285715,
+            19.0,
+            0
+          ],
+          [
+            -11.5,
+            19.0,
+            0
+          ],
+          [
+            -11.5,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -8.214285714285715,
+            5.25,
+            0
+          ],
+          [
+            -4.928571428571429,
+            5.25,
+            0
+          ],
+          [
+            -4.928571428571429,
+            19.0,
+            0
+          ],
+          [
+            -8.214285714285715,
+            19.0,
+            0
+          ],
+          [
+            -8.214285714285715,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -4.928571428571429,
+            5.25,
+            0
+          ],
+          [
+            -1.6428571428571437,
+            5.25,
+            0
+          ],
+          [
+            -1.6428571428571437,
+            19.0,
+            0
+          ],
+          [
+            -4.928571428571429,
+            19.0,
+            0
+          ],
+          [
+            -4.928571428571429,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -1.6428571428571428,
+            5.25,
+            0
+          ],
+          [
+            1.6428571428571428,
+            5.25,
+            0
+          ],
+          [
+            1.6428571428571428,
+            19.0,
+            0
+          ],
+          [
+            -1.6428571428571428,
+            19.0,
+            0
+          ],
+          [
+            -1.6428571428571428,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            1.642857142857142,
+            5.25,
+            0
+          ],
+          [
+            4.928571428571427,
+            5.25,
+            0
+          ],
+          [
+            4.928571428571427,
+            19.0,
+            0
+          ],
+          [
+            1.642857142857142,
+            19.0,
+            0
+          ],
+          [
+            1.642857142857142,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            4.928571428571427,
+            5.25,
+            0
+          ],
+          [
+            8.214285714285712,
+            5.25,
+            0
+          ],
+          [
+            8.214285714285712,
+            19.0,
+            0
+          ],
+          [
+            4.928571428571427,
+            19.0,
+            0
+          ],
+          [
+            4.928571428571427,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            8.214285714285715,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            19.0,
+            0
+          ],
+          [
+            8.214285714285715,
+            19.0,
+            0
+          ],
+          [
+            8.214285714285715,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -11.5,
+            5.25,
+            0
+          ],
+          [
+            0.0,
+            5.25,
+            0
+          ],
+          [
+            0.0,
+            17.25,
+            0
+          ],
+          [
+            -11.5,
+            17.25,
+            0
+          ],
+          [
+            -11.5,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -11.5,
+            5.25,
+            0
+          ],
+          [
+            0.0,
+            5.25,
+            0
+          ],
+          [
+            0.0,
+            17.25,
+            0
+          ],
+          [
+            -11.5,
+            17.25,
+            0
+          ],
+          [
+            -11.5,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            0.0,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            17.25,
+            0
+          ],
+          [
+            0.0,
+            17.25,
+            0
+          ],
+          [
+            0.0,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            0.0,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            17.25,
+            0
+          ],
+          [
+            0.0,
+            17.25,
+            0
+          ],
+          [
+            0.0,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -11.5,
+            -19.0,
+            0
+          ],
+          [
+            0.0,
+            -19.0,
+            0
+          ],
+          [
+            0.0,
+            -5.25,
+            0
+          ],
+          [
+            -11.5,
+            -5.25,
+            0
+          ],
+          [
+            -11.5,
+            -19.0,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -11.5,
+            -19.0,
+            0
+          ],
+          [
+            0.0,
+            -19.0,
+            0
+          ],
+          [
+            0.0,
+            -5.25,
+            0
+          ],
+          [
+            -11.5,
+            -5.25,
+            0
+          ],
+          [
+            -11.5,
+            -19.0,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            0.0,
+            -19.0,
+            0
+          ],
+          [
+            11.5,
+            -19.0,
+            0
+          ],
+          [
+            11.5,
+            -5.25,
+            0
+          ],
+          [
+            0.0,
+            -5.25,
+            0
+          ],
+          [
+            0.0,
+            -19.0,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            0.0,
+            -19.0,
+            0
+          ],
+          [
+            11.5,
+            -19.0,
+            0
+          ],
+          [
+            11.5,
+            -5.25,
+            0
+          ],
+          [
+            0.0,
+            -5.25,
+            0
+          ],
+          [
+            0.0,
+            -19.0,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -11.5,
+            5.25,
+            0
+          ],
+          [
+            0.0,
+            5.25,
+            0
+          ],
+          [
+            0.0,
+            17.25,
+            0
+          ],
+          [
+            -11.5,
+            17.25,
+            0
+          ],
+          [
+            -11.5,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -11.5,
+            5.25,
+            0
+          ],
+          [
+            0.0,
+            5.25,
+            0
+          ],
+          [
+            0.0,
+            17.25,
+            0
+          ],
+          [
+            -11.5,
+            17.25,
+            0
+          ],
+          [
+            -11.5,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            0.0,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            17.25,
+            0
+          ],
+          [
+            0.0,
+            17.25,
+            0
+          ],
+          [
+            0.0,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            0.0,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            5.25,
+            0
+          ],
+          [
+            11.5,
+            17.25,
+            0
+          ],
+          [
+            0.0,
+            17.25,
+            0
+          ],
+          [
+            0.0,
+            5.25,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -11.5,
+            -19.0,
+            0
+          ],
+          [
+            0.0,
+            -19.0,
+            0
+          ],
+          [
+            0.0,
+            -5.25,
+            0
+          ],
+          [
+            -11.5,
+            -5.25,
+            0
+          ],
+          [
+            -11.5,
+            -19.0,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -11.5,
+            -19.0,
+            0
+          ],
+          [
+            0.0,
+            -19.0,
+            0
+          ],
+          [
+            0.0,
+            -5.25,
+            0
+          ],
+          [
+            -11.5,
+            -5.25,
+            0
+          ],
+          [
+            -11.5,
+            -19.0,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            0.0,
+            -19.0,
+            0
+          ],
+          [
+            11.5,
+            -19.0,
+            0
+          ],
+          [
+            11.5,
+            -5.25,
+            0
+          ],
+          [
+            0.0,
+            -5.25,
+            0
+          ],
+          [
+            0.0,
+            -19.0,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            0.0,
+            -19.0,
+            0
+          ],
+          [
+            11.5,
+            -19.0,
+            0
+          ],
+          [
+            11.5,
+            -5.25,
+            0
+          ],
+          [
+            0.0,
+            -5.25,
+            0
+          ],
+          [
+            0.0,
+            -19.0,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -12.5,
+            4.5,
+            0
+          ],
+          [
+            12.5,
+            4.5,
+            0
+          ],
+          [
+            12.5,
+            6.0,
+            0
+          ],
+          [
+            -12.5,
+            6.0,
+            0
+          ],
+          [
+            -12.5,
+            4.5,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -12.5,
+            4.5,
+            0
+          ],
+          [
+            12.5,
+            4.5,
+            0
+          ],
+          [
+            12.5,
+            6.0,
+            0
+          ],
+          [
+            -12.5,
+            6.0,
+            0
+          ],
+          [
+            -12.5,
+            4.5,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -12.5,
+            4.5,
+            0
+          ],
+          [
+            12.5,
+            4.5,
+            0
+          ],
+          [
+            12.5,
+            6.0,
+            0
+          ],
+          [
+            -12.5,
+            6.0,
+            0
+          ],
+          [
+            -12.5,
+            4.5,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -12.5,
+            4.5,
+            0
+          ],
+          [
+            12.5,
+            4.5,
+            0
+          ],
+          [
+            12.5,
+            6.0,
+            0
+          ],
+          [
+            -12.5,
+            6.0,
+            0
+          ],
+          [
+            -12.5,
+            4.5,
+            0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -12.747548783981962,
+            -12.747548783981962,
+            0
+          ],
+          [
+            12.747548783981962,
+            -12.747548783981962,
+            0
+          ],
+          [
+            12.747548783981962,
+            12.747548783981962,
+            0
+          ],
+          [
+            -12.747548783981962,
+            12.747548783981962,
+            0
+          ],
+          [
+            -12.747548783981962,
+            -12.747548783981962,
+            0
+          ]
+        ]
+      ]
+    ],
+    "usos_etiquetas": [
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Local comercial Local fachada publica",
+      "Vivienda Vivienda estandar",
+      "Vivienda Vivienda estandar (Duplex alto)",
+      "Vivienda Vivienda estandar",
+      "Vivienda Vivienda estandar (Duplex alto)",
+      "Vivienda Vivienda estandar",
+      "Vivienda Vivienda estandar (Duplex alto)",
+      "Vivienda Vivienda estandar",
+      "Vivienda Vivienda estandar (Duplex alto)",
+      "Vivienda Vivienda estandar",
+      "Vivienda Vivienda estandar (Duplex alto)",
+      "Vivienda Vivienda estandar",
+      "Vivienda Vivienda estandar (Duplex alto)",
+      "Vivienda Vivienda estandar",
+      "Vivienda Vivienda estandar (Duplex alto)",
+      "Vivienda Vivienda estandar",
+      "Vivienda Vivienda estandar (Duplex alto)",
+      "Circulacion",
+      "Circulacion",
+      "Circulacion",
+      "Circulacion",
+      "Parqueadero Sotano 1"
+    ],
+    "usos_pisos": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      1,
+      2,
+      3,
+      4,
+      -1
+    ]
+  }
+}

@@ -169,7 +169,7 @@ TOL_VERTICES_COINC_M = 0.10
 # v06: fraccion minima del lado con contacto para clasificar
 CONTACTO_MIN_FRACCION = 0.30
 # Intersecciones de linea mas cercanas que esto se ignoran (borde propio/ruido)
-MIN_ANCHO_VIA_M = 0.5
+MIN_ANCHO_VIA_M = -0.1
 # v06.2: ancho de via absurdo (>100m) indica geometria en otro frame de
 # coordenadas; se descarta la muestra para no propagar el error a NORMATIVA.
 MAX_ANCHO_VIA_M = 100.0
@@ -664,7 +664,11 @@ def medir_ancho_via_total(lot_vertices, lados, vias_list, muestras=MUESTRAS_ANCH
                 if len(distancias) >= 2:
                     distancias.sort()
                     # Width = distance between first and second intersection (entry and exit)
-                    ancho_muestra = distancias[1] - distancias[0]
+                    ancho_candidato = distancias[1] - distancias[0]
+                    # FIX v06.8: validar que la primera intersección esté cerca (< 2m) = borde cercano
+                    # y el ancho sea razonable para una calle (2-30m típico)
+                    if distancias[0] < 2.0 and 2.0 <= ancho_candidato <= 30.0:
+                        ancho_muestra = ancho_candidato
                 # If we have 0 or 1 intersection, we can't measure width
             if ancho_muestra is not None and ancho_muestra <= MAX_ANCHO_VIA_M:
                 # Also check that the measured width is reasonable

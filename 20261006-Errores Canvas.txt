@@ -1,0 +1,231 @@
+He revisado el script y la información de la definición. La razón por la cual la variable de salida ancho_via_m está dando 0.0 se debe a la forma geométrica de las vías que estás ingresando.
+
+El Problema
+El script calcula el ancho de la vía lanzando una línea recta (un rayo) perpendicular al frente del lote hacia afuera, y mide la distancia buscando dos intersecciones con la geometría de la vía: el borde de entrada y el borde de salida opuesto.
+
+En tu definición, el parámetro vias_curves recibe geometrías desde un componente de ArchiCAD (Deconstruct 2D Polyline). Al inspeccionar los datos vivos, noté que están llegando 3 polilíneas abiertas (closed: false).
+
+Como las curvas son líneas abiertas (probablemente solo el eje de la vía o un solo borde), el rayo que lanza el script solo intersecta la curva una vez. El código exige explícitamente que la geometría sea un polígono cerrado para tener dos lados contra los cuales chocar:
+
+python
+# Extracto del código (líneas 372-378)
+# We need at least two intersection points to measure width (entry and exit)
+if len(distancias) >= 2:
+    distancias.sort()
+    # Width = distance between first and second intersection (entry and exit)
+    ancho_muestra = distancias[1] - distancias[0]
+Como no detecta 2 intersecciones, descarta la medición y termina devolviendo 0.0.
+
+Adicionalmente, los propios comentarios en la documentación interna de tu script confirman este requisito:
+> "vias_curves (Curve[]) — POLIGONOS de vias (capa 00-20-20 / seleccion manual; el perfil completo incluye andenes)"
+
+Cómo solucionarlo
+Para que el script funcione correctamente y calcule el ancho, debes modificar las geometrías de las vías desde su origen (en ArchiCAD):
+
+Asegúrate de dibujar las vías como polígonos cerrados (rectángulos o polígonos) que envuelvan el área total de la calle.
+Estos polígonos deben representar el ancho total o "perfil vial", abarcando desde el paramento (límite del lote) hasta el paramento opuesto de los vecinos de enfrente.
+Una vez que la geometría de ArchiCAD esté formada por contornos cerrados (polígonos), el componente Deconstruct 2D Polyline enviará curvas cerradas al script, este logrará cruzar ambos bordes con el rayo y el valor de ancho_via_m se calculará correctamente.
+ASK
+esta cerrada, pero da una medida que no corresponde, en el archivo base son 15 mts aproximadamente no los 33 que esta reportando
+2 objects selected
+¡Excelente que ya lo hayas cerrado! El hecho de que ahora reporte 33 metros revela exactamente lo que está sucediendo con la lógica interna del script.
+
+El script tiene un pequeño "punto ciego" matemático cuando el polígono de la vía está dibujado de ciertas maneras, y te está midiendo el espacio equivocado (como el ancho de la manzana).
+
+¿Por qué está dando 33 metros?
+El componente GhPython Script mide el ancho lanzando un rayo desde el borde de tu lote hacia la calle.
+
+Si dibujaste el polígono de la vía exactamente pegado (o muy cerca) a la línea de tu lote, el rayo choca inmediatamente al salir. Esa distancia es 0.0m.
+Por una regla de limpieza en la línea 131 del código (MIN_ANCHO_VIA_M = 0.5), el script ignora cualquier choque a menos de 0.5 metros. Por tanto, ignora el borde cercano de la calle.
+El rayo cruza la calle (los 15m) y choca con el borde opuesto. El script registra este borde lejano como la primera intersección.
+Como el código exige restar dos intersecciones, el rayo sigue viajando. Si tu polígono de vía es una malla grande, tiene forma de "L", "U", o da la vuelta a la manzana, el rayo eventualmente choca con otra parte del mismo polígono más adelante (por ejemplo, a 48m de distancia).
+El script hace la resta: 48m - 15m = 33m. Te está midiendo el espacio que hay entre una calle y la otra (probablemente el ancho de la manzana que está enfrente), no la calle en sí.
+Cómo solucionarlo
+Tienes dos formas de arreglar esto: ajustando el dibujo en ArchiCAD o editando el código en Grasshopper.
+
+#### Opción 1: Ajustar el dibujo en ArchiCAD (Recomendado)
+Para que la matemática del script encaje sin tener que programar, haz lo siguiente:
+
+Asegúrate de que el polígono de la vía sea un rectángulo simple que solo cubra el tramo de calle frente a tu lote, y no una red vial completa que rodee la manzana.
+El truco clave: Mueve el polígono de la calle para que NO esté totalmente pegado a tu lote. Sepáralo ligeramente hacia afuera unos 60 centímetros (0.60 m).
+¿Por qué funciona? Al estar a 0.6m, el rayo ya no ignora el primer choque (porque 0.6 es mayor al filtro de 0.5). El script tomará la primera intersección (0.6m) y la segunda (15.6m). Al restarlas, te dará exactamente los 15 metros correctos.
+
+#### Opción 2: Corregir el script en Grasshopper
+Si tienes permitido editar el código y prefieres arreglar el problema de raíz para que funcione con polígonos pegados:
+
+Haz doble clic en el componente GhPython Script (#117-F1_ETAPA2_LADOS_v06.py).
+Ve a la línea 131 del código, donde dice:
+python
+   MIN_ANCHO_VIA_M = 0.5
+Cámbialo por una tolerancia mucho menor para que no descarte el borde de la vía cuando está pegada al lote:
+python
+   MIN_ANCHO_VIA_M = -0.1
+Haz clic en "Test" y luego en "OK" para guardar.
+Al permitirle detectar el contacto en la distancia 0.0, el script tomará correctamente el inicio y el fin de tu calle de 15 metros sin saltarse hasta el siguiente polígono.
+
+ASK
+Esta dando ahora una distancia de 21 mts y realmente son 15 mts
+1 object selected
+¡Qué buen avance! Ya logramos que el script deje de medir la manzana de enfrente y empiece a reconocer el polígono correcto. Que ahora te dé 21 metros en lugar de 15 se explica por cómo el GhPython Script hace la medición matemáticamente.
+
+¿Por qué te da 21 metros?
+El script no lanza un solo rayo para medir la calle. Para ser más preciso, el código toma 7 muestras (7 rayos) repartidas a lo largo de todo el frente de tu lote, mide el ancho de la vía en cada uno de esos puntos, y luego promedia los resultados.
+
+Si esperas 15 metros pero obtienes 21, está ocurriendo una de estas tres cosas:
+
+Rayos "fugados" hacia una esquina o intersección:
+Si el polígono de tu vía en ArchiCAD se extiende hasta la esquina o cruza una intersección, los rayos que salen desde los bordes de tu lote podrían no estar chocando rectos contra la acera de enfrente, sino "escapándose" en diagonal hacia el fondo de la intersección.
+Ejemplo: 5 rayos miden 15 metros, pero los 2 rayos de los extremos se fugan en diagonal y miden 36 metros. El promedio de todos eleva el resultado a 21m.
+
+El script incluye los andenes (Perfil Vial Completo):
+Según los comentarios internos del código de tu script, el diseño exige medir el perfil completo: "El ancho de vía NO es la calzada entre andenes: es el ancho TOTAL de la vía incluyendo los andenes". Si tus 15 metros son solo el asfalto por donde pasan los carros, y hay 3 metros de andén a cada lado, el script medirá correctamente los 21 metros totales del espacio público.
+
+El frente del lote no es paralelo a la vía:
+El rayo sale perpendicular al borde de la calle. Si la calle y el lote tienen una ligera inclinación entre sí, el rayo puede estar cruzando la calle en diagonal (midiendo la hipotenusa del triángulo, que siempre es más larga que la distancia recta).
+
+La solución definitiva (en ArchiCAD)
+Para "obligar" a la matemática del script a devolverte exactamente los 15 metros que necesitas, te recomiendo simplificar el polígono de la vía en ArchiCAD.
+
+No dibujes toda la calle de la manzana; dibuja un polígono de control estricto:
+
+Dibuja un rectángulo simple y cerrado frente a tu lote.
+Haz que el ancho de ese rectángulo sea exactamente de 15 metros.
+Córtalo a ras de tu lote: No dejes que el rectángulo se extienda más allá del ancho de tu fachada. Sus lados cortos deben alinear con los límites laterales de tu predio. Así evitas que los rayos de los extremos se fuguen hacia las esquinas.
+Asegúrate de que el borde del rectángulo sea paralelo a la línea frontal de tu lote.
+Al darle al componente GhPython Script este bloque rectangular perfecto como entrada en vias_curves, los 7 rayos chocarán rectas a 15 metros de distancia y tu promedio será exactamente 15.0.
+
+ASK
+tengo este error :Runtime error (NullReferenceException): Object reference not set to an instance of an object.
+
+Traceback:
+  line 953, in script ---> ¿Puedes resolverlo?
+1 object selected
+El error Runtime error (NullReferenceException): Object reference not set to an instance of an object. apuntando a la línea 953 es un clásico en los scripts de Grasshopper Python.
+
+Dado que tu código tiene alrededor de 530 líneas, que el error reporte la línea 953 significa que el fallo no está ocurriendo dentro de tu lógica principal, sino en el "código invisible" (boilerplate) que Grasshopper genera automáticamente para envolver tu script.
+
+Esto sucede casi exclusivamente por dos razones: un fallo al convertir los datos de entrada (Type Hints) o un fallo al recolectar las variables de salida.
+
+Aquí tienes los pasos exactos para resolverlo:
+
+1. Problema de Type Hints en las entradas (Causa más probable)
+Grasshopper intenta convertir los datos que entran al script antes de ejecutar tu código. Si un componente anterior (como #117-F1_ETAPA2_LADOS_v06.py o #127-F1_ETAPA2_PATIO_v03.py) envía un dato vacío (Null), y tu entrada tiene un Type Hint estricto (como PolylineCurve o Double), el motor interno de Grasshopper colapsa lanzando un NullReferenceException en esa línea 900+.
+
+Cómo solucionarlo:
+
+Haz clic derecho sobre la entrada lot_polygon del componente GhPython Script.
+Ve a Type hint y cámbialo a No Type Hint (o en su defecto a Curve).
+Repite este mismo paso para la entrada patio_curves (cámbialo a No Type Hint).
+Haz lo mismo con barras_json y cualquier parámetro al que le hayas puesto un Type Hint recientemente.
+Nota: Tu código ya tiene funciones protectoras muy buenas (if lot_polygon is not None: y safe_list(patio_raw)), así que quitar el Type Hint dejará que tu código maneje los nulos correctamente sin que Grasshopper explote antes de tiempo.
+
+2. Falta declarar la variable de salida ic_real
+El componente tiene una salida llamada ic_real esperando recibir datos. En Grasshopper Python, el script busca variables locales que se llamen exactamente igual que los puertos de salida.
+
+Revisando tu código, haces el cálculo matemático directo dentro del formateo del mensaje final (línea 506):
+
+python
+float((gfa_aprobado_m2 or gfa_total) / area_lote if area_lote > 0 else 0)
+Pero nunca asignas ese valor a una variable ic_real = ... en ninguna parte del código. En algunas versiones de Rhino/IronPython, intentar recolectar una variable de salida que jamás fue declarada en el entorno global provoca un fallo de referencia nula.
+
+Cómo solucionarlo:
+Ve a la línea 495 (justo antes de armar el mensaje final) y declara explícitamente la variable. Añade esto:
+
+python
+# --- ASIGNAR VARIABLE ic_real FALTANTE ---
+if area_lote > 0:
+    ic_real = float((gfa_aprobado_m2 if gfa_aprobado_m2 else gfa_total) / area_lote)
+else:
+    ic_real = 0.0
+
+if valido:
+    modo = "APROBADO (barras_json)" if barras_ocupacion is not None else "POTENCIAL"
+    # ... resto de tu código
+3. Cuidado con geometrías degeneradas en el BooleanDifference
+Si las dos soluciones anteriores no lo resuelven, el error viene de las entrañas de RhinoCommon. En tu línea 425 usas rg.Curve.CreateBooleanDifference(...). Si la variable lote o la variable merged contienen polilíneas corruptas (auto-intersectadas, o segmentos de longitud cero), el núcleo de C++ de Rhino lanza un NullReferenceException hacia Python.
+
+Para depurar si es esto:
+
+Desconecta temporalmente la entrada patio_curves.
+Si el error desaparece, significa que una de las curvas que llega desde el componente de patios es inválida o no está cerrada. Deberás revisar la geometría original de
+ASK
+Retire la conexion de patio_curves, cambie el codigo definiendo el ic_real, pero el error de la linae 964 no cambia. Tambien cambie los type hints.
+1 object selected
+Archicad
+Tapir
+El error ha persistido y se ha movido a la línea 964 porque el código que pegaste para solucionar lo de ic_real quedó atrapado dentro de una función interna.
+
+Al revisar el código de tu componente GhPython Script, noto que pegaste la solución alrededor de la línea 385, adentro de la definición def _subsegmentos_piso(...). En Python, cualquier variable declarada dentro de una función es local e "invisible" para el resto del programa. Por lo tanto, cuando Grasshopper intentó recolectar la salida global ic_real al final del todo, siguió sin encontrarla y volvió a colapsar.
+
+Adicionalmente, noto que la variable gfa_total también está sufriendo este mismo problema si el script detecta un error temprano y no alcanza a calcularse.
+
+Para solucionarlo de forma definitiva, vamos a limpiar el código mal ubicado y declarar las variables correctamente en el ámbito global (afuera de cualquier función).
+
+Sigue estos 3 pasos exactos:
+
+Paso 1: Limpiar el código mal pegado
+Busca la función _subsegmentos_piso (alrededor de la línea 380) y borra el código que habías pegado ahí. Debe quedarte así:
+
+Reemplaza esto:
+
+python
+def _subsegmentos_piso(nv, lados, vertices, retiros_base, vecinos_por_lado,
+                       altura_vecinos_m, empate_lateral_min, nsr_coef,
+                       pisos_finales, floor_h, voladizo_frontal, empate_activo=True):
+    h_piso = nv * floor_h
+    r_sismica = separacion_sismica_piso(h_piso, nsr_coef) \
+        if (pisos_finales > 3 and nv > 1) else 0.0
+    subs = []; n = len(vertices) - 1
+    # --- ASIGNAR VARIABLE ic_real FALTANTE ---
+    if area_lote > 0:
+         ic_real = float((gfa_aprobado_m2 if gfa_aprobado_m2 else gfa_total) / area_lote)
+    else:
+         ic_real = 0.0
+    if valido:
+         modo = "APROBADO (barras_json)" if barras_ocupacion is not None else "POTENCIAL"
+    # ... resto de tu código
+    for i in range(n):
+Por esto:
+
+python
+def _subsegmentos_piso(nv, lados, vertices, retiros_base, vecinos_por_lado,
+                       altura_vecinos_m, empate_lateral_min, nsr_coef,
+                       pisos_finales, floor_h, voladizo_frontal, empate_activo=True):
+    h_piso = nv * floor_h
+    r_sismica = separacion_sismica_piso(h_piso, nsr_coef) \
+        if (pisos_finales > 3 and nv > 1) else 0.0
+    subs = []; n = len(vertices) - 1
+    
+    for i in range(n):
+Paso 2: Inicializar variables globales de salida
+Ve a la línea ~290 donde dice # --- Inicializar outputs ---. Vamos a asegurarnos de que gfa_total e ic_real existan desde el principio para que Grasshopper jamás lance el error de nulo.
+
+Cambia ese bloque para que quede así:
+
+python
+# --- Inicializar outputs ---
+envelope_curve = None
+envelope_por_piso = []
+retiros_por_piso = ""
+ocupacion_real = 0.0
+gfa_total = 0.0      # <-- AÑADIDO
+ic_real = 0.0        # <-- AÑADIDO
+valido = False
+area_lote = area_curve(lot_polygon) if lot_polygon else 0.0
+presupuesto_ocupacion_m2 = area_lote * io_maximo
+Paso 3: Calcular ic_real al final del script
+Baja hasta casi el final de todo tu código, busca la línea que dice # --- Mensaje final --- (alrededor de la línea 535) y pega el cálculo correcto justo encima (totalmente pegado a la izquierda, sin sangría).
+
+Debe quedarte así:
+
+python
+# --- CALCULAR ic_real FINAL ---
+if area_lote > 0:
+    ic_real = float((gfa_aprobado_m2 if gfa_aprobado_m2 else gfa_total) / area_lote)
+else:
+    ic_real = 0.0
+
+# --- Mensaje final ---
+if io_user > 0: io_maximo = io_user
+elif tratamiento == "Consolidacion": io_maximo = 0.70
+¡

@@ -1,0 +1,45 @@
+================================================================================
+F3 - PRE-VALIDACION UNIDADES TIPOLOGICAS (REVISION OPERADOR)
+================================================================================
+
+LOTE: 25.0 x 38.0 m = 950.0 m2
+COTA VIA: 0.0 m -> Parqueaderos en sotano (z<0)
+
+RESTRICCIONES APLICADAS:
+  [OK] Comercio SOLO en fachada publica (lado +Y, frente a via)
+  [OK] Vivienda en fachada + patio (ventilacion cruzada)
+  [OK] Pasillos >= 1.5m (NSR-10 K)
+  [OK] Profundidad max: Viv fachada 12.0m, Viv 2 fach 18.0m, Com 15.0m
+  [OK] Parqueaderos consolidados en sotano unico (no consume ocupacion lote)
+
+TIPOLOGIA                   OBJ F2  ASIGNADOS  GENERADOS   AREA TOTAL PISOS
+--------------------------------------------------------------------------------
+Local fachada publica           21         21         14       632.5 m2  [1, 2]
+Vivienda estandar               31         31          8      2369.0 m2  [3, 4]
+
+DUPLEX/LOFT (16 pares):
+  U_3_VIV_01: Pisos 3-3, 138.0 m2, lado fachada
+  U_4_VIV_01_DUP: Pisos 3-4, 276.0 m2, lado fachada
+  U_3_VIV_02: Pisos 3-3, 138.0 m2, lado fachada
+  U_4_VIV_02_DUP: Pisos 3-4, 276.0 m2, lado fachada
+  U_3_VIV_03: Pisos 3-3, 158.1 m2, lado patio
+  U_4_VIV_03_DUP: Pisos 3-4, 316.2 m2, lado patio
+  U_3_VIV_04: Pisos 3-3, 158.1 m2, lado patio
+  U_4_VIV_04_DUP: Pisos 3-4, 316.2 m2, lado patio
+  U_4_VIV_01: Pisos 4-4, 138.0 m2, lado fachada
+  U_5_VIV_01_DUP: Pisos 4-5, 276.0 m2, lado fachada
+  U_4_VIV_02: Pisos 4-4, 138.0 m2, lado fachada
+  U_5_VIV_02_DUP: Pisos 4-5, 276.0 m2, lado fachada
+  U_4_VIV_03: Pisos 4-4, 158.1 m2, lado patio
+  U_5_VIV_03_DUP: Pisos 4-5, 316.2 m2, lado patio
+  U_4_VIV_04: Pisos 4-4, 158.1 m2, lado patio
+  U_5_VIV_04_DUP: Pisos 4-5, 316.2 m2, lado patio
+
+PARQUEADEROS: 40 puestos en 1 nivel(es) sotano
+  Sotano 1: 40 pts, 650.0 m2, z=-2.5m
+
+VERIFICACIONES NORMATIVAS:
+  Comercio en patio (PROHIBIDO): 0 [OK]
+  Unidades sin ventilacion natural: 0 [OK]
+
+>>> ESTADO: LISTO PARA GENERAR

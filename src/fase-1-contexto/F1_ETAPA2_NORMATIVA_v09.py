@@ -741,6 +741,8 @@ envelope_curve = None
 envelope_por_piso = []
 retiros_por_piso = ""
 ocupacion_real = 0.0
+gfa_total = 0.0      # <-- AÑADIDO: inicialización global para salida Grasshopper
+ic_real = 0.0        # <-- AÑADIDO: inicialización global para salida Grasshopper
 valido = False
 area_lote = area_curve(lot_polygon) if lot_polygon else 0.0
 presupuesto_ocupacion_m2 = area_lote * io_maximo
@@ -932,6 +934,12 @@ for nv in range(1, pisos_finales + 1):
 try:
     retiros_por_piso = json.dumps([{"piso": i+1, "altura_m": round((i+1)*floor_h,2), "area_m2": round(areas_por_piso[i],2), "escalonado": (i+1) in escalonados, "voladizo_frontal_m": round(voladizo_frontal if i>0 else 0.0,2), "vecinos_por_lado": {str(k): [round(v[0],2) for v in vs] for k,vs in vecinos_por_lado.items()}} for i in range(pisos_finales)], ensure_ascii=False)
 except: retiros_por_piso = "[]"
+
+# --- CALCULAR ic_real FINAL ---
+if area_lote > 0:
+    ic_real = float((gfa_aprobado_m2 if gfa_aprobado_m2 else gfa_total) / area_lote)
+else:
+    ic_real = 0.0
 
 # --- Mensaje final ---
 if io_user > 0: io_maximo = io_user
