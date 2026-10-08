@@ -640,6 +640,7 @@ salida_morph_raw = globals().get("salida_morph", False)        # v07.9
 sides_json_raw = globals().get("sides_table_json", None)       # v07.14
 lote_vertices_raw = globals().get("lote_vertices", None)       # v07.14
 alineacion_nucleo_raw = globals().get("alineacion_nucleo", 1)  # v07.18
+salida_zona_raw = globals().get("salida_zona", False)
 
 json_path = str(unwrap(json_path_raw)) if json_path_raw else ""
 json_path = _resolver_json(json_path)
