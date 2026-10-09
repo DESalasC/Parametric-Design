@@ -69,29 +69,51 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
    - `70-20-30_Volumetrias_vecinas` — Morphs de construcciones existentes en predios vecinos (ruta primaria: **contexto50**; ruta manual: opcional/fallback)
    - `00-10-20_Elementos_referencia` — Líneas de referencia y ejes auxiliares
 
-### Pipeline Fase 1 — Dos Etapas (v26)
+### Pipeline Fase 1 — Dos Etapas (v26) — **ACTUALIZADO 2026-10-06**
 
 #### ETAPA 1: Datos en bruto → ArchiCAD (clasificación manual)
 ```
-fetch-urban-context-v7 → JSON → F1_ETAPA1_CONTEXTO (GH Python)
-  → lot_curve, vecinos_curves, vias_oficiales, espacios_publicos
+fetch-urban-context-v7 → JSON → F1_ETAPA1_CONTEXTO_v02 (GH Python)
+  → lot_curve, vecinos_curves, vias_oficiales, espacios_publicos, topo_mesh, layers_json, layer_lote_ok
   → Live Connection: crear layers + enviar geometría a ArchiCAD
-  → MANUAL en ArchiCAD: clasificar lotes de vías, ejes, andenes,
-    zonas verdes, predios vecinos en layers especiales
-  → Vecinos: RUTA PRIMARIA `contexto50` (FETCH 50 m → JSON → F1_ETAPA3_CONTEXTO50/F1_CONTEXTO50_BUILD)
-    → RUTA MANUAL (opcional/fallback): construir volumetrías de vecinos (Morph) si no hay
+  → MANUAL en ArchiCAD: clasificar polígonos en layers: vías, andenes, zonas verdes, predios vecinos
+  → Vecinos: RUTA PRIMARIA `contexto50` (FETCH 50 m → JSON → F1_CONTEXTO50_BUILD_v01e / F1_ETAPA3_CONTEXTO50_v01.1)
+    → genera <CHIP>-contexto50.json + .geojson + contexto50-actual.json (canónico para canvas)
+    → RUTA MANUAL (opcional/fallback): construir volumetrías de vecinos (Morph) en 70-20-30 si no hay
       información adecuada para resolverlo por contexto50
 ```
 
 #### ETAPA 2: Geometría clasificada → ocupación y patios
 ```
 ArchiCAD (layers clasificados) → Live Connection GetElements → GH
-  → F1_ETAPA2_LADOS: clasificar lados según capas
-  → F1_ETAPA2_PATIO: patios según colindancias reales
-  → F1_ETAPA2_NORMATIVA: ocupación + envolvente (GFA total = ocupación_real × pisos_finales)
-  → F1_OVERRIDE_USO (opcional): override de uso del operador (USO-MULTIPLE)
-  → F1_EXPORTAR_GFA: escribe data/fase-2-demanda/<CHIP>-gfa-gh.json (auto, sin toggle)
-  → Fase 2: F2_DEMANDA_MOTOR_v03 / F2_RENTA_MOTOR_v03 (leen el GFA si no se pasa --gfa)
+  → F1_ETAPA2_LADOS_v06.py      (clasificación: laterales por vértices coincidentes
+                                 con vecinos <0.10 m + contacto mínimo por longitud
+                                 (fracción ≥0.30); Esq por contacto real; Posterior SOLO
+                                 cuando todos los lados menos uno colindan con vecinos;
+                                 ancho de vía TOTAL del perfil vial — incluye andenes)
+  → F1_ETAPA2_PATIO_v03.py      (patios de aislamiento en vértices vecino-vecino;
+                                 bifurcación: 1 vol=patio normativo 3×3 m; ≥2 vol=separaciones
+                                 que SÍ computan en IO según Anexo 5 POT)
+  → F1_ETAPA2_NORMATIVA_v09.py  (retiros por clasificación + tipología Continua/Aislada
+                                 + antejardín por ancho de vía (CU-5.5/regla histórica)
+                                 + posterior tabla Consolidación por pisos + empate
+                                 volumétrico; IO/IC/altura/GFA; ENVOLVENTE ESCALONADA:
+                                 retiro lateral en pisos superiores = max(empate Anexo 5
+                                 SECCION 1.9.c — 1/5 de la altura desde el nivel de empate,
+                                 min configurable 3,0 m; separación sísmica NSR-10 A.6.5 —
+                                 2% × h en >3 pisos) solo en lados Lateral (vecino);
+                                 Frontales (vía) y EspacioPublico no se escalonan;
+                                 VECINOS CON ALTURAS VARIABLES por lateral (v08+: entrada
+                                 vecinos_por_lado_json, retiro por sub-segmento — SECCION
+                                 1.9.c por vecino; recorte por semiplanos robusto en
+                                 cóncavos; sin la entrada = comportamiento v07);
+                                 **NUEVO v09:** validador de presupuesto IO (IO≤0.70),
+                                 cálculo de barras (retiros por piso) y salida barras_json;
+                                 fix `float * NoneType` con guards defensivos)
+                                 salidas: envelope_por_piso + retiros_por_piso + envelope_curve (compat F3) + barras_json
+  → F1_OVERRIDE_USO_v01.py      (opcional: override de uso del operador, USO-MULTIPLE)
+  → F1_EXPORTAR_GFA_v02.4.py    (auto-write: data/fase-2-demanda/<CHIP>-gfa-gh.json; modo APROBADO: solo gfa_aprobado)
+  → Fase 2: F2_DEMANDA_MOTOR_v03 / F2_RENTA_MOTOR_v03 (hook --gfa opcional; leen GFA si no se pasa)
 ```
 
 ### Normativa
@@ -150,6 +172,7 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
 27. El script genera un JSON en 'data/pot-cache/<CHIP>-contexto.json' con coordenadas locales (0,0,0) + metadatos SIRGAS + topografía.
 28. Los scripts GHPython de la Fase 1 SOLO deben leer este JSON. Si el JSON no existe, el pipeline debe detenerse e indicar al usuario que ejecute el script de fetch primero.
 29. La topografía maneja dos estados: 'ESTIMADA' (raster público) y 'REAL' (levantamiento). El sistema debe actualizarse dinámicamente cuando el estado cambie a REAL.
+30. **Canvas maestro actual:** `gh-definitions/F1_CONTEXTO_v13.1.ghx` (2026-10-06: recarga por GUID verificada; sección F3 integrada con UNIDADES v02 · VOLUM v08 · MORPH v02 · ACCESOS v02; 339/358 tests pass, 19 desactualizados pendientes de limpieza).
 
 ### Datos
 30. Archivo POT fuente (geobase): `bd_uaecd.gpkg` — **NO versionado**. Ubicación configurable vía:
@@ -251,11 +274,11 @@ DiseñoParametrico/
 
 ## Fases del proyecto
 - [x] **Fase 0**: Setup BIM (capas ArchiCAD)
-- [x] **Fase 1**: Contexto POT + retiros + vecinos (clasificación híbrida ADR-008, pipeline modular v26)
-- [x] **Fase 2**: Motor de demanda + modelo financiero de prefactibilidad (`F2_Modelo_Financiero`, v3.0: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja, hook GFA desde F1) + **modelo Build-to-Rent** (`F2_Modelo_Renta`, v3.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable, hook GFA desde F1)
-- [~] **Fase 3**: Generación de masa (`VOLUM_GENERADOR` v08 con volumetría por uso, `ACCESOS_INTEGRADOR` v02, `PREP_LADYBUG`)
-- [~] **Fase 4**: Análisis ambiental (Ladybug + EPW Bogotá)
-- [ ] **Fase 5**: Inyección BIM nativa (ArchiCAD API / protocolo Tapir → ArchiCAD)
+- [x] **Fase 1**: Contexto POT + retiros + vecinos (clasificación híbrida ADR-008, pipeline modular v26). **Canvas maestro: F1_CONTEXTO_v13.1.ghx** (2026-10-06: recarga por GUID verificada; sección F3 integrada con UNIDADES v02 · VOLUM v08 · MORPH v02 · ACCESOS v02; 339/358 tests pass, 19 desactualizados pendientes de limpieza). Scripts vigentes: F1_ETAPA1_CONTEXTO_v02, F1_ETAPA2_LADOS_v06 (v06.8), F1_ETAPA2_PATIO_v03 (v03.3), F1_ETAPA2_NORMATIVA_v09, F1_LAYERS_XML_v02, F1_EXPORTAR_GFA_v02.4, F1_OVERRIDE_USO_v01.
+- [x] **Fase 2**: Motor de demanda + modelo financiero de prefactibilidad (`F2_DEMANDA_MOTOR_v03`, v3.0: KPIs, alertas, sensibilidad, escenarios D/E, flujo de caja, hook GFA desde F1) + **modelo Build-to-Rent** (`F2_RENTA_MOTOR_v03`, v3.0: construir para arrendar CP/LP, TIR/VPN/cap rate, suelo soportable, hook GFA desde F1). 3 casos validados (A: El Prado, B: La Candelaria, C: Muzú).
+- [~] **Fase 3**: Generación de masa (`F3_VOLUM_GENERADOR_v08` con volumetría por uso, núcleo real, escalonamiento; `F3_UNIDADES_TIPOLOGIAS_v02`; `F3_ACCESOS_INTEGRADOR_v02`; `F3_DISTRIBUCION_v03` con presupuesto IO y entrepiso adaptativo). `F3_PREP_LADYBUG_v01` listo para F4.
+- [~] **Fase 4**: Análisis ambiental (Ladybug + EPW Bogotá). `F4_LADYBUG_ANALISIS_v02` vigente. Falta conectar salidas F3.
+- [ ] **Fase 5**: Inyección BIM nativa (ArchiCAD API / protocolo Tapir → ArchiCAD). Por crear: `F5_MAPEO_TAPIR_v01.py`. Base: XML capas GuBIMclass, muestras Tapir, exploración C#. **Bloqueador resuelto 2026-10-06:** puerto 19723 (portproxy VM→host funcional).
 
 ## Referencias clave
 - **POT Bogotá**: Decreto 555 de 2021
