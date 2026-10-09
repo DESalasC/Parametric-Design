@@ -38,6 +38,16 @@ SALIDAS:
 USO CLI:
   python F3_ACCESOS_INTEGRADOR_v02.py --caso A
   python F3_ACCESOS_INTEGRADOR_v02.py --layout <layout.json> --matriz <matriz.json>
+
+HISTORIAL DE VERSIONES:
+  v02.1 (2026-10-08): Cambio menor — FIX para lectura de entradas GH:
+    1. Nueva función `_parse_json_input()`: acepta dict/list ya parseados,
+       string JSON, o ruta a archivo .json (resuelve error "sin layout_espacial.json").
+  v02.0 (2026-10-03): Cambio mayor — refactor completo compatible IronPython 2.7:
+    - Eliminados rs, type hints, f-strings.
+    - Separación CLI (`main()`) / GH (bloque final) con detección automática via `ghenv`.
+    - Salidas: accesos_json (String), mensaje (String).
+
 ================================================================================
 """
 
@@ -46,7 +56,11 @@ import io
 import os
 import sys
 
-BASE = os.path.dirname(os.path.abspath(__file__))
+# __file__ no existe en IronPython/GH; usar cwd como fallback para modo CLI
+try:
+    BASE = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    BASE = os.getcwd()
 CASOS_DIR = os.path.join(BASE, "casos")
 
 # Categorias de acceso por uso. Los usos PUBLICOS (atencion al publico,
@@ -259,51 +273,72 @@ def main():
 #   matriz_json (String, ruta) o matriz_adyacencias_json (String, JSON crudo)
 # Salidas: accesos_json (String), mensaje (String)
 
-layout_json_raw = globals().get("layout_json", None)
-matriz_json_raw = globals().get("matriz_json", None)
-layout_crudo = globals().get("layout_espacial_json", None)
-matriz_crudo = globals().get("matriz_adyacencias_json", None)
+# Detectar modo GH: si ghenv existe o hay entradas inyectadas, NO ejecutar main()
+_es_gh = False
+try:
+    ghenv  # noqa: F821
+    _es_gh = True
+except NameError:
+    pass
 
+if not _es_gh:
+    # Verificar si hay entradas GH inyectadas (globals de GH)
+    if globals().get("layout_json") is not None \
+            or globals().get("layout_espacial_json") is not None \
+            or globals().get("matriz_json") is not None \
+            or globals().get("matriz_adyacencias_json") is not None:
+        _es_gh = True
 
-def _unwrap(v):
-    if v is None:
-        return ""
-    if hasattr(v, "Value"):
-        return v.Value
-    return v
+if _es_gh:
+    # MODO GH: procesar entradas y asignar salidas globales
+    layout_json_raw = globals().get("layout_json", None)
+    matriz_json_raw = globals().get("matriz_json", None)
+    layout_crudo = globals().get("layout_espacial_json", None)
+    matriz_crudo = globals().get("matriz_adyacencias_json", None)
 
+    def _unwrap(v):
+        if v is None:
+            return None
+        if hasattr(v, "Value"):
+            return v.Value
+        # GH a veces entrega listas de 1 elemento en lugar del valor directo
+        if isinstance(v, (list, tuple)) and len(v) > 0:
+            return _unwrap(v[0])
+        return v
 
-def _gh():
-    layout = {}
-    matriz = {}
-    if layout_crudo:
+    def _parse_json_input(v):
+        """Parsea entrada JSON: string, archivo .json, o dict/list ya parseado."""
+        v = _unwrap(v)
+        if v is None:
+            return None
+        # Si ya es dict o list, retornarlo directamente (IMPORTANTE: antes de str())
+        if isinstance(v, (dict, list)):
+            return v
+        # Si es string, intentar parsear como JSON o cargar archivo
+        s = str(v).strip()
+        if s.endswith(".json") and os.path.exists(s):
+            return _cargar_json(s)
         try:
-            layout = json.loads(str(_unwrap(layout_crudo)))
+            return json.loads(s)
         except Exception:
-            layout = {}
-    if matriz_crudo:
-        try:
-            matriz = json.loads(str(_unwrap(matriz_crudo)))
-        except Exception:
-            matriz = {}
-    if not layout and layout_json_raw:
-        layout = _cargar_json(str(_unwrap(layout_json_raw)))
-    if not matriz and matriz_json_raw:
-        matriz = _cargar_json(str(_unwrap(matriz_json_raw)))
+            return None
+
+    layout = _parse_json_input(layout_crudo) or _parse_json_input(layout_json_raw) or {}
+    matriz = _parse_json_input(matriz_crudo) or _parse_json_input(matriz_json_raw) or {}
     if not layout:
-        return "", "ACCESOS v2.0 | ERROR: sin layout_espacial.json"
-    if not matriz:
-        matriz = {"usos": list(layout.get("reparto_vertical", {}).keys()),
-                  "matriz": {}}
-    resultado = analizar_accesos(layout, matriz)
-    accesos_json = json.dumps(resultado, indent=2, ensure_ascii=False)
-    r = resultado["resumen"]
-    mensaje = ("ACCESOS v2.0 | OK | {} usos ({} publicos / {} privados) | "
-               "{} accesos | {} pares incompatibles").format(
-        r["total_usos"], r["usos_publicos"], r["usos_privados"],
-        r["total_accesos"], r["pares_incompatibles"])
-    return accesos_json, mensaje
-
-
-if __name__ == "__main__":
+        accesos_json = ""
+        mensaje = "ACCESOS v2.0 | ERROR: sin layout_espacial.json"
+    else:
+        if not matriz:
+            matriz = {"usos": list(layout.get("reparto_vertical", {}).keys()),
+                      "matriz": {}}
+        resultado = analizar_accesos(layout, matriz)
+        accesos_json = json.dumps(resultado, indent=2, ensure_ascii=False)
+        r = resultado["resumen"]
+        mensaje = ("ACCESOS v2.0 | OK | {} usos ({} publicos / {} privados) | "
+                   "{} accesos | {} pares incompatibles").format(
+            r["total_usos"], r["usos_publicos"], r["usos_privados"],
+            r["total_accesos"], r["pares_incompatibles"])
+else:
+    # MODO CLI: ejecutar main()
     main()

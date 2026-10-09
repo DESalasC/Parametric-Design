@@ -255,20 +255,31 @@ def extraer_anillos(ed):
 
 
 def altura_de(ed, altura_por_piso):
-    """Devuelve (altura_m, pisos, es_fallback).
+    """Devuelve (altura_m, pisos, es_fallback, z_base_m).
 
-    Prioridad: altura_m > 0  ->  pisos * altura_por_piso  ->  DEFAULT_ALTURA_M.
+    Prioridad:
+      1. altura_m > 0 (del JSON, catastral) + z_base_m opcional
+      2. pisos * altura_por_piso (si no hay altura_m) + z_base_m opcional
+      3. DEFAULT_ALTURA_M (fallback) + z_base_m = 0.0
     """
     altura = to_float(ed.get("altura_m"), None)
+    z_base = to_float(ed.get("z_base_m"), None)  # cota base del edificio (MDT muestreado)
     pisos_raw = to_float(ed.get("pisos"), None)
+
     if altura is not None and altura > 0:
         p = int(round(pisos_raw)) if (pisos_raw is not None and pisos_raw > 0) \
             else max(1, int(round(altura / altura_por_piso)))
-        return altura, p, False
+        # z_base ya viene del JSON; si es None, default 0.0
+        if z_base is None:
+            z_base = 0.0
+        return altura, p, False, z_base
     if pisos_raw is not None and pisos_raw > 0 and altura_por_piso > 0:
         p = int(round(pisos_raw))
-        return p * altura_por_piso, p, True
-    return DEFAULT_ALTURA_M, 1, True
+        if z_base is None:
+            z_base = 0.0
+        return p * altura_por_piso, p, True, z_base
+    # fallback total
+    return DEFAULT_ALTURA_M, 1, True, 0.0
 
 
 def _area_compacidad(pts):
@@ -508,11 +519,10 @@ else:
                     n_skip += 1
                     continue
 
-                altura, p, es_fallback = altura_de(ed, altura_por_piso)
+                altura, p, es_fallback, z_base = altura_de(ed, altura_por_piso)
                 if es_fallback:
                     n_fallback += 1
 
-                z_base = to_float(ed.get("z_base_m"), 0.0)
                 crv = construir_huella(pts, z_base)
                 if crv is None:
                     descartados.append(ed_id or "(sin id)")
@@ -588,6 +598,16 @@ else:
         else:
             a_min, a_max = 0.0, 0.0
 
+        # Diagnóstico detallado por edificio (primeros 10)
+        detalle_edificios = []
+        for i in range(min(len(ids), 10)):
+            zb = zbs[i] if i < len(zbs) else 0.0
+            h = alturas[i] if i < len(alturas) else 0.0
+            p = pisos[i] if i < len(pisos) else 0
+            detalle_edificios.append("{0}: z={1:.1f} h={2:.1f} p={3}".format(ids[i], zb, h, p))
+        if len(ids) > 10:
+            detalle_edificios.append("... (+{0} mas)".format(len(ids) - 10))
+
         mensaje = (
             "CONTEXTO50_BUILD | CHIP {0} | R {1:.0f}m | Volumenes {2}/{3} | "
             "Descartados {4} | Alturas {5:.1f}-{6:.1f}m | Fallbacks {7}"
@@ -595,6 +615,8 @@ else:
         if any(zb != 0.0 for zb in zbs):
             mensaje += " | z_base {0:.1f}-{1:.1f}m ({2} con cota)".format(
                 min(zbs), max(zbs), len(zbs))
+        if detalle_edificios:
+            mensaje += " | Detalle: " + "; ".join(detalle_edificios)
         mensaje += " | Excluidos: {0} predio objetivo, {1} andenes/menores".format(
             n_predio, n_menores)
         if nota_lote:

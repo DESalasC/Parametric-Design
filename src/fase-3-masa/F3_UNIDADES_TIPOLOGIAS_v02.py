@@ -39,12 +39,24 @@ SALIDAS:
   prevalidacion_<chip>.txt    : REPORTE PARA OPERADOR (areas, conteos, alertas)
   (GH) volumenes_por_uso, usos_etiquetas, usos_pisos -> F3_VOLUM_GENERADOR
 ================================================================================
+
+HISTORIAL DE VERSIONES:
+  v02.1 (2026-10-08): Cambio menor — FIXES para compatibilidad GH:
+    1. Fix `_pj()`: ahora acepta dict/list ya parseados (no solo string/archivo).
+    2. Fix `_gh()`: fallback automático de `lote_frente_m`/`lote_fondo_m` desde
+       huella del layout si no vienen de F1.
+    3. Fix detección modo GH: más robusta con lista de inputs esperados.
+  v02.0 (2026-10-03): Cambio mayor — refactor completo compatible IronPython 2.7:
+    - Eliminados f-strings, type hints, walrus operator.
+    - Separación CLI (`main()`) / GH (`_gh()`) con detección automática.
+    - Salidas paralelas: volumenes_por_uso, usos_etiquetas, usos_pisos (para F3_VOLUM_GENERADOR).
+
+================================================================================
 """
 import json
 import os
 import sys
 import math
-from typing import List, Dict, Any, Optional, Tuple
 
 # ============================================================
 # CONSTANTES NORMATIVAS
@@ -110,11 +122,11 @@ def resolve(caso):
 # LOGICA PRINCIPAL: DISTRIBUCION ADAPTATIVA
 # ============================================================
 def distribuir_piso(nivel, nucleo, uso, tip, area_neta, lote_frente, lote_fondo, ang,
-                    lado_permitido: str,  # "fachada" | "patio" | "ambos"
-                    n_und_obj: int,
-                    altura_piso: float,
-                    duplex: bool = False,
-                    piso_siguiente: Optional[Dict] = None) -> Tuple[List[Dict], List[Dict]]:
+                    lado_permitido,  # "fachada" | "patio" | "ambos"
+                    n_und_obj,
+                    altura_piso,
+                    duplex=False,
+                    piso_siguiente=None):
     """
     Distribuye unidades en UN piso (o 2 si duplex).
     lado_permitido: donde puede ir este uso ("fachada"=solo +Y, "patio"=solo -Y, "ambos"=ambos)
@@ -168,7 +180,7 @@ def distribuir_piso(nivel, nucleo, uso, tip, area_neta, lote_frente, lote_fondo,
             verts_r = rot(verts, ang)
             
             und = {
-                "id": f"U_{nivel['nivel']}_{uso[:3].upper()}_{id_base+1:02d}",
+                "id": "U_{0}_{1}_{2:02d}".format(nivel['nivel'], uso[:3].upper(), id_base+1),
                 "uso": uso, "tipologia": tip.get("nombre", uso),
                 "piso_inicio": nivel["nivel"], "piso_fin": nivel["nivel"],
                 "z_base_m": nivel["z_base_m"], "altura_total": altura_piso,
@@ -182,7 +194,7 @@ def distribuir_piso(nivel, nucleo, uso, tip, area_neta, lote_frente, lote_fondo,
             if duplex and piso_siguiente:
                 verts2 = rot(rect(x_centro, y_centro, ancho_real, prof), ang)
                 und2 = {
-                    "id": f"U_{piso_siguiente['nivel']}_{uso[:3].upper()}_{id_base+1:02d}_DUP",
+                    "id": "U_{0}_{1}_{2:02d}_DUP".format(piso_siguiente['nivel'], uso[:3].upper(), id_base+1),
                     "uso": uso, "tipologia": tip.get("nombre", uso) + " (Duplex alto)",
                     "piso_inicio": nivel["nivel"], "piso_fin": piso_siguiente["nivel"],
                     "z_base_m": nivel["z_base_m"], "altura_total": altura_piso + piso_siguiente["altura_m"],
@@ -228,7 +240,7 @@ def calc_parqueaderos(layout, f2_mix, cota_via, lote_frente, lote_fondo, consoli
     for i in range(n_niv):
         z = -(i+1)*2.5
         cap = min(cap_niv, total - i*cap_niv)
-        parqs.append({"nivel":-(i+1),"nombre":f"Sotano {i+1}","z_base_m":z,"altura_m":2.5,
+        parqs.append({"nivel":-(i+1),"nombre":"Sotano {0}".format(i+1),"z_base_m":z,"altura_m":2.5,
             "capacidad":cap,"area_m2":round(cap*a_und,1),"tipo":"sotano",
             "cota_via_m":cota_via,"es_sotano":True,"consolidado":consolidar,
             "lote_frente":lote_frente,"lote_fondo":lote_fondo})
@@ -320,14 +332,14 @@ def to_volum(unds, circs, parqs):
     base_unds = [u for u in unds if not u.get("es_duplex") or u.get("duplex_con_piso") is not None]
     for u in base_unds:
         vol.append([[[v[0],v[1],0] for v in u["vertices"]]])
-        et.append(f"{u['uso']} {u['tipologia']}"); pi.append(u["piso_inicio"])
+        et.append("{0} {1}".format(u['uso'], u['tipologia'])); pi.append(u["piso_inicio"])
     for c in circs:
         vol.append([[[v[0],v[1],0] for v in c["vertices"]]])
         et.append("Circulacion"); pi.append(c["piso"])
     for p in parqs:
         a=p["area_m2"]; l=math.sqrt(a)
         vol.append([[[v[0],v[1],0] for v in rect(0,0,l,l)]])
-        et.append(f"Parqueadero {p['nombre']}"); pi.append(p["nivel"])
+        et.append("Parqueadero {0}".format(p['nombre'])); pi.append(p["nivel"])
     return vol, et, pi
 
 def prevalidacion(unds, circs, parqs, objetivos, asign, lote_frente, lote_fondo, cota_via):
@@ -456,11 +468,22 @@ def main():
 def _u(v):
     if v is None: return None
     if hasattr(v,"Value"): return v.Value
+    # GH a veces entrega listas de 1 elemento en lugar del valor directo
+    if isinstance(v, (list, tuple)) and len(v) > 0:
+        return _u(v[0])
     return v
 def _pj(v):
-    if not v: return None
-    s=str(v).strip()
-    if s.endswith(".json") and os.path.exists(s): return load_json(s)
+    """Parsea JSON desde string, archivo, o retorna dict/list si ya está parseado."""
+    if v is None:
+        return None
+    # Si ya es dict o list, retornarlo directamente (IMPORTANTE: antes de str())
+    if isinstance(v, (dict, list)):
+        return v
+    s = str(v).strip()
+    # Si es ruta a archivo .json
+    if s.endswith(".json") and os.path.exists(s):
+        return load_json(s)
+    # Si es string JSON, parsearlo
     try: return json.loads(s)
     except: return None
 
@@ -472,6 +495,14 @@ def _gh():
     ang=math.radians(float(_u(globals().get("angulo_fachada_deg",0)) or 0))
     lf=float(_u(globals().get("lote_frente_m",0)) or 0)
     lfo=float(_u(globals().get("lote_fondo_m",0)) or 0)
+    # Fallback: si no vienen de F1, calcular desde envelope del layout
+    if (lf <= 0 or lfo <= 0) and lay and lay.get("niveles"):
+        # Usar huella del primer nivel como referencia
+        huella = lay["niveles"][0].get("gfa_m2", 0)
+        if huella > 0:
+            # Asumir ratio típico 1:1.5 (frente:fondo)
+            lf = math.sqrt(huella / 1.5)
+            lfo = lf * 1.5
     dviv=bool(_u(globals().get("permitir_duplex_vivienda",False)))
     dcom=bool(_u(globals().get("permitir_duplex_comercio",False)))
     cons=bool(_u(globals().get("consolidar_parqueaderos",True)))
@@ -495,14 +526,44 @@ def _gh():
                 len([x for x in u if x.get('es_duplex') and x.get('duplex_con_piso')]),
                 len(c), tp, len(p)))
 
-if __name__=="__main__": main()
-
-unidades_json=parqueaderos_json=circulaciones_json=mensaje=""
-volumenes_por_uso=[]; usos_etiquetas=[]; usos_pisos=[]
+# ------------------------------------------------------------------ Detección modo GH vs CLI
+# En GH: ghenv existe, o hay entradas inyectadas (f2_resultados_json, layout_espacial_json, etc.)
+_es_gh = False
 try:
-    (unidades_json,parqueaderos_json,circulaciones_json,
-     volumenes_por_uso,usos_etiquetas,usos_pisos,mensaje)=_gh()
-except Exception as e:
-    mensaje="UNIDADES v2.0 | ERROR: {}".format(e)
-    try: ghenv.Component.Message=mensaje
-    except: pass
+    ghenv  # noqa: F821
+    _es_gh = True
+except NameError:
+    pass
+
+if not _es_gh:
+    # Verificar si hay entradas GH inyectadas
+    gh_inputs = ["f2_resultados_json", "layout_espacial_json", "cota_via_m", "chip",
+                 "angulo_fachada_deg", "lote_frente_m", "lote_fondo_m",
+                 "permitir_duplex_vivienda", "permitir_duplex_comercio",
+                 "consolidar_parqueaderos", "modo_validacion"]
+    for inp in gh_inputs:
+        if globals().get(inp) is not None:
+            _es_gh = True
+            break
+
+if _es_gh:
+    # MODO GH: ejecutar _gh() y asignar salidas globales
+    unidades_json = ""
+    parqueaderos_json = ""
+    circulaciones_json = ""
+    mensaje = ""
+    volumenes_por_uso = []
+    usos_etiquetas = []
+    usos_pisos = []
+    try:
+        (unidades_json, parqueaderos_json, circulaciones_json,
+         volumenes_por_uso, usos_etiquetas, usos_pisos, mensaje) = _gh()
+    except Exception as e:
+        mensaje = "UNIDADES v2.0 | ERROR: {}".format(e)
+        try:
+            ghenv.Component.Message = mensaje  # noqa: F821
+        except Exception:
+            pass
+else:
+    # MODO CLI: ejecutar main()
+    main()

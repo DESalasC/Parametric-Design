@@ -134,18 +134,18 @@ def test_extraer_anillos_geojson_polygon():
 def test_altura_de_prioridades():
     ns = _helpers()
     altura_de = ns["altura_de"]
-    # altura_m manda sobre pisos
-    h, p, fb = altura_de({"altura_m": 19.0, "pisos": 5}, 3.8)
-    assert abs(h - 19.0) < 1e-9 and p == 5 and fb is False
+    # altura_m manda sobre pisos (ahora retorna 4 valores: h, p, fb, z_base)
+    h, p, fb, zb = altura_de({"altura_m": 19.0, "pisos": 5}, 3.8)
+    assert abs(h - 19.0) < 1e-9 and p == 5 and fb is False and zb == 0.0
     # sin altura_m -> pisos * altura_piso (fallback True)
-    h, p, fb = altura_de({"pisos": 4}, 3.8)
-    assert abs(h - 15.2) < 1e-9 and p == 4 and fb is True
+    h, p, fb, zb = altura_de({"pisos": 4}, 3.8)
+    assert abs(h - 15.2) < 1e-9 and p == 4 and fb is True and zb == 0.0
     # sin nada -> DEFAULT_ALTURA_M (3.0), 1 piso
-    h, p, fb = altura_de({}, 3.8)
-    assert abs(h - 3.0) < 1e-9 and p == 1 and fb is True
+    h, p, fb, zb = altura_de({}, 3.8)
+    assert abs(h - 3.0) < 1e-9 and p == 1 and fb is True and zb == 0.0
     # altura_m infiere pisos si no vienen
-    h, p, fb = altura_de({"altura_m": 7.6}, 3.8)
-    assert p == 2 and fb is False
+    h, p, fb, zb = altura_de({"altura_m": 7.6}, 3.8)
+    assert p == 2 and fb is False and zb == 0.0
 
 
 def test_es_horario_y_area_compacidad():

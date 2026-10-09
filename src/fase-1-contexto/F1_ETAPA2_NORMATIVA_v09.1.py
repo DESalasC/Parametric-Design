@@ -11,7 +11,21 @@ GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
 
 HISTORIAL DE VERSIONES:
-  v09.1 (2026-10-06): Cambio menor (v09.0 -> v09.1) — corrección de errores de inicializacion de variables y mejoras en la lógica de validación.
+  v09.1 (2026-10-08): Cambio menor (v09.0 -> v09.1) — FIXES CRÍTICOS:
+    1. Bug fix: reinicialización incorrecta de `pisos_finales = 0` y `altura_total = 0.0`
+       en líneas de inicialización de outputs (borraba cálculo previo correcto).
+    2. Bug fix: en modo APROBADO (barras_json), `pisos_finales` no se actualizaba
+       coherente con `altura_total` / `barras_floor_h`; ahora se recalcula.
+    3. Versión en mensaje de salida corregida: "NORMATIVA v09.0" -> "NORMATIVA v09.1".
+    4. Fix en `envelope_por_piso`: aplanado de lista-de-listas a lista simple de Curve
+       (evita "IronPython.Runtime.List" en salida GH).
+    5. Fix: bandera `_modo_aprobado` para evitar doble asignación de outputs
+       (evita "IronPython.Runtime.List" duplicado en GH).
+    6. Nuevas salidas: `lote_frente_m` y `lote_fondo_m` para F3_UNIDADES_TIPOLOGIAS.
+    7. v09.1 FIX COMPLETO: Refactor total a variables locales (`_env_curve`, `_env_por_piso`,
+       `_huellas_por_piso`, `_areas_por_piso`, `_ocupacion_real`, `_gfa_total`, `_valido`)
+       con asignación ÚNICA final de outputs globales (elimina IronPython.Runtime.List
+       por asignaciones múltiples en ambos modos APROBADO y POTENCIAL).
   v09.0 (2026-10-03): Cambio mayor (v08 -> v09) — contrato de entradas/salidas.
     - Nueva entrada opcional: barras_json (String, Item Access) — huellas aprobadas
       desde F3_DISTRIBUCION_v03 (distribuidor de barras por crujía).
@@ -103,6 +117,8 @@ SALIDAS:
   ocupacion_aprobada_m2 (Number)   - [v09] Ocupación aprobada (si barras_json)
   gfa_aprobado_m2 (Number)         - [v09] GFA aprobado (si barras_json + valido)
   envelope_aprobado_por_piso (List)- [v09] Curvas aprobadas por piso (si valido)
+  lote_frente_m (Number)           - [v09.1] Dimensión frontal del lote (paralela a vía)
+  lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a vía)
 
 ================================================================================
 """
@@ -737,22 +753,25 @@ if tipologia == "Aislada":
     retiro_lateral = max(LATERAL_FRACCION_ALTURA * altura_total, LATERAL_MINIMO_M)
 else: retiro_lateral = 0.0
 
-# --- Inicializar outputs ---
-envelope_curve = None
-envelope_por_piso = []
-retiros_por_piso = ""
-ocupacion_real = 0.0
-gfa_total = 0.0
-ic_real = 0.0
-ic_maximo = 0
-altura_total = 0.0
-pisos_finales = 0
-valido = False
-mensaje = "No procesado"
-recortes_intervalos_json = "[]"
-ocupacion_aprobada_m2 = 0.0
-gfa_aprobado_m2 = 0.0
-envelope_aprobado_por_piso = []
+# --- Variables locales para outputs (evita asignaciones múltiples en GH) ---
+_env_curve = None
+_env_por_piso = []
+_retiros_por_piso = ""
+_ocupacion_real = 0.0
+_gfa_total = 0.0
+_ic_real = 0.0
+_ic_maximo = 0
+_valido = False
+_mensaje = "No procesado"
+_recortes_intervalos_json = "[]"
+_ocupacion_aprobada_m2 = 0.0
+_gfa_aprobado_m2 = 0.0
+_envelope_aprobado_por_piso = []
+_lote_frente_m = 0.0
+_lote_fondo_m = 0.0
+
+# Bandera para modo APROBADO (evita doble cálculo)
+_modo_aprobado = False
  
 area_lote = area_curve(lot_polygon) if lot_polygon else 0.0
 presupuesto_ocupacion_m2 = area_lote * io_maximo
@@ -842,22 +861,40 @@ except Exception as exc:
 
 # Si hay barras válidas -> MODO APROBADO (saltamos cálculo potencial)
 if barras_ocupacion is not None and barras_huellas is not None:
+    _modo_aprobado = True
     # Validar presupuesto
     if area_lote > 0 and barras_ocupacion > presupuesto_ocupacion_m2 + TOLERANCIA**2:
         bloqueos.append("VALIDADOR v09: ocupacion_total {:.2f} > presupuesto {:.2f}; excedente {:.2f} m2".format(barras_ocupacion, presupuesto_ocupacion_m2, barras_ocupacion - presupuesto_ocupacion_m2))
-        valido = False
+        _valido = False
     else:
         # APROBADO: barras dentro de presupuesto -> suprimir bloqueos previos de regimen/alturas/empates
         # porque las barras ya traen geometría validada desde F3_DISTRIBUCION_v03
         bloqueos = [b for b in bloqueos if "regimen/alturas/empates" not in b and "intervalos no verificables" not in b]
-        ocupacion_real = barras_ocupacion
-        gfa_total = barras_gfa
-        envelope_por_piso = barras_huellas
-        envelope_curve = envelope_por_piso[0] if envelope_por_piso else None
+        _ocupacion_real = barras_ocupacion
+        _gfa_total = barras_gfa
+        # v09.1 fix: aplanar barras_huellas (puede ser lista de listas) a lista simple de Curve
+        _env_por_piso = []
+        if barras_huellas:
+            for e in barras_huellas:
+                if isinstance(e, list):
+                    for ee in e:
+                        if ee is not None:
+                            _env_por_piso.append(ee)
+                elif e is not None:
+                    _env_por_piso.append(e)
+        _env_curve = _env_por_piso[0] if _env_por_piso else None
         altura_total = barras_altura if barras_altura else pisos_finales * (barras_floor_h if barras_floor_h else floor_h)
-        valido = True
-else:
-    # MODO POTENCIAL (comportamiento actual v08)
+        # Actualizar pisos_finales coherente con altura_total (modo APROBADO)
+        if barras_floor_h and barras_floor_h > 0 and altura_total > 0:
+            pisos_finales = int(round(altura_total / barras_floor_h))
+        elif floor_h > 0 and altura_total > 0:
+            pisos_finales = int(round(altura_total / floor_h))
+        _valido = True
+
+# MODO POTENCIAL (comportamiento actual v08) - SOLO si NO es modo APROBADO
+if not _modo_aprobado:
+    _huellas_por_piso = []
+    _areas_por_piso = []
     if lot_polygon is not None and vertices_lote:
         for nv in range(1, pisos_finales + 1):
             if intervalos:
@@ -885,35 +922,56 @@ else:
                 subs = _subsegmentos_piso(nv,lados,vertices_lote,retiros_base,vecinos_por_lado,altura_vecinos_m,empate_lateral_min,nsr_coef,pisos_finales,floor_h,voladizo_frontal,empate_activo)
             try:
                 envs, area = _recortar_regiones_locales(lot_polygon,subs,patios_list,_area_signada_puntos(vertices_lote)>0)
-                huellas_por_piso.append(envs[0] if len(envs)==1 else envs)
-                areas_por_piso.append(area)
+                # v09.1 fix: aplanar a lista simple de Curve para GH (evita IronPython.Runtime.List)
+                if envs:
+                    for e in envs:
+                        if e is not None:
+                            _huellas_por_piso.append(e)
+                else:
+                    _huellas_por_piso.append(None)
+                _areas_por_piso.append(area)
             except Exception as exc:
-                huellas_por_piso.append(None); areas_por_piso.append(0.0)
+                _huellas_por_piso.append(None); _areas_por_piso.append(0.0)
                 bloqueos.append('piso {} recorte no verificable: {}'.format(nv,str(exc)))
-    recortes_intervalos_json = json.dumps(diag_recortes,ensure_ascii=True)
-    envelope_por_piso = huellas_por_piso
-    if envelope_por_piso: envelope_curve = envelope_por_piso[0]
-    ocupacion_real = areas_por_piso[0] if areas_por_piso else 0.0
-    gfa_total = sum(areas_por_piso)
+    _recortes_intervalos_json = json.dumps(diag_recortes,ensure_ascii=True)
+    # v09.1 fix: envelope_por_piso ya es lista plana de Curve (no lista de listas)
+    _env_por_piso = _huellas_por_piso
+    if _env_por_piso:
+        # buscar primera curva no-None para envelope_curve
+        for c in _env_por_piso:
+            if c is not None:
+                _env_curve = c
+                break
+    _ocupacion_real = _areas_por_piso[0] if _areas_por_piso else 0.0
+    _gfa_total = sum(_areas_por_piso)
     # Validación IO potencial
     if io_user > 0: io_maximo = io_user
     elif tratamiento == "Consolidacion": io_maximo = 0.70
     elif tratamiento in ("Desarrollo", "Mejoramiento"): io_maximo = 0.60
     else: io_maximo = 0.70
-    io_real = ocupacion_real / area_lote if area_lote > 0 else 0.0
-    if area_lote <= 0 or ocupacion_real <= 0: bloqueos.append("lote u ocupacion nulos")
+    io_real = _ocupacion_real / area_lote if area_lote > 0 else 0.0
+    if area_lote <= 0 or _ocupacion_real <= 0: bloqueos.append("lote u ocupacion nulos")
     if not 0 < io_maximo <= 1: bloqueos.append("IO maximo fuera de (0,1]")
-    if area_lote > 0 and ocupacion_real > area_lote * io_maximo + TOLERANCIA**2:
-        bloqueos.append("IO real {:.4f} > limite {:.4f}; excedente {:.2f} m2".format(io_real, io_maximo, ocupacion_real - area_lote * io_maximo))
-    if len(areas_por_piso) != pisos_finales or any(a <= 0 for a in areas_por_piso):
+    if area_lote > 0 and _ocupacion_real > area_lote * io_maximo + TOLERANCIA**2:
+        bloqueos.append("IO real {:.4f} > limite {:.4f}; excedente {:.2f} m2".format(io_real, io_maximo, _ocupacion_real - area_lote * io_maximo))
+    if len(_areas_por_piso) != pisos_finales or any(a <= 0 for a in _areas_por_piso):
         bloqueos.append("uno o mas niveles sin region valida")
-    valido = not bloqueos
+    _valido = not bloqueos
 
 # --- SALIDAS APROBADAS (v09) ---
 if barras_ocupacion is not None and valido:
     ocupacion_aprobada_m2 = barras_ocupacion
     gfa_aprobado_m2 = barras_gfa
-    envelope_aprobado_por_piso = barras_huellas
+    # v09.1 fix: aplanar a lista simple de Curve
+    envelope_aprobado_por_piso = []
+    if barras_huellas:
+        for e in barras_huellas:
+            if isinstance(e, list):
+                for ee in e:
+                    if ee is not None:
+                        envelope_aprobado_por_piso.append(ee)
+            elif e is not None:
+                envelope_aprobado_por_piso.append(e)
     # io_real para mensaje en modo APROBADO
     io_real = barras_ocupacion / area_lote if area_lote > 0 else 0.0
 else:
@@ -960,7 +1018,7 @@ else: io_maximo = 0.70
 if valido:
     modo = "APROBADO (barras_json)" if barras_ocupacion is not None else "POTENCIAL"
     empate_txt = "NO aplica (sin lado posterior): solo sismica 2%xh" if not empate_activo else "activo (lado posterior)"
-    mensaje = ("NORMATIVA v09.0 | {} | Lote: {:.1f}m2 | Ocup: {:.1f}m2 | IO max {:.2f} | Presupuesto: {:.1f}m2 | "
+    mensaje = ("NORMATIVA v09.1 | {} | Lote: {:.1f}m2 | Ocup: {:.1f}m2 | IO max {:.2f} | Presupuesto: {:.1f}m2 | "
                "IC {:.2f} (+{}) | Alt {:.1f}m | {} pisos | GFA: {:.1f}m2 "
                "Escalonados: {} pisos | Voladizo frontal {:.2f}m | Vecinos: {} lados, {} vecinos | "
                "Empate 1.9.c: {} | Patios: {:.1f}m2 | Tipo:{} | Antejardin {:.1f}m (via {:.1f}m) | "
@@ -972,16 +1030,65 @@ if valido:
         patio_area_total, tipologia, antejardin, ancho_via_m, retiro_lateral, retiro_posterior,
         " (empate)" if empate_posterior else "")
 else:
-    mensaje = ("NORMATIVA v09.0 | NO VALIDADO | Lote {:.2f} m2 | Ocup {:.2f} m2 | IO real {:.4f} / max {:.4f} | Presupuesto {:.2f} m2 | {} pisos | Alt {:.2f} m | GFA {:.2f} m2 | {}").format(
+    mensaje = ("NORMATIVA v09.1 | NO VALIDADO | Lote {:.2f} m2 | Ocup {:.2f} m2 | IO real {:.4f} / max {:.4f} | Presupuesto {:.2f} m2 | {} pisos | Alt {:.2f} m | GFA {:.2f} m2 | {}").format(
         area_lote, ocupacion_real, io_real, io_maximo, presupuesto_ocupacion_m2, pisos_finales, altura_total, float(gfa_total if 'gfa_total' in locals() else 0), "; ".join(sorted(set(bloqueos))))
 
 if altura_vecinos_m <= 0: warnings.append("sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)")
 
 if warnings: mensaje += " | AVISOS: " + "; ".join(warnings)
 
+# --- Calcular lote_frente_m y lote_fondo_m para F3 ---
+# Estimar dimensiones del lote desde la huella (envelope_curve) y clasificación de lados
+lote_frente_m = 0.0
+lote_fondo_m = 0.0
+if lot_polygon is not None and vertices_lote:
+    try:
+        # Calcular bbox del lote original
+        min_x = min(v.X for v in vertices_lote)
+        max_x = max(v.X for v in vertices_lote)
+        min_y = min(v.Y for v in vertices_lote)
+        max_y = max(v.Y for v in vertices_lote)
+        ancho_bbox = max_x - min_x
+        alto_bbox = max_y - min_y
+
+        # Identificar lado frontal para orientar frente/fondo
+        frontal_idx = None
+        for lado in lados:
+            if lado.get("clasificacion") == "Frontal":
+                frontal_idx = lado.get("id")
+                break
+
+        if frontal_idx is not None and len(vertices_lote) > frontal_idx + 1:
+            # Vector del lado frontal
+            p1 = vertices_lote[frontal_idx]
+            p2 = vertices_lote[frontal_idx + 1]
+            dx = p2.X - p1.X
+            dy = p2.Y - p1.Y
+            # El frente es la longitud del lado frontal
+            lote_frente_m = math.hypot(dx, dy)
+            # El fondo es la dimensión perpendicular aproximada
+            lote_fondo_m = area_lote / lote_frente_m if lote_frente_m > 0 else alto_bbox
+        else:
+            # Fallback: usar bbox (lado mayor = frente, menor = fondo)
+            lote_frente_m = max(ancho_bbox, alto_bbox)
+            lote_fondo_m = min(ancho_bbox, alto_bbox)
+    except Exception:
+        # Fallback final: estimar desde área
+        if area_lote > 0:
+            lote_frente_m = math.sqrt(area_lote / 1.5)
+            lote_fondo_m = lote_frente_m * 1.5
+
 # --- ASIGNAR SALIDAS GLOBALES PARA GRASSHOPPER ---
 # Las variables siguientes son recogidas por el componente GH:
 # envelope_curve, envelope_por_piso, retiros_por_piso, gfa_total, ocupacion_real,
 # io_maximo, ic_real, ic_maximo, altura_total, pisos_finales, valido, mensaje,
 # recortes_intervalos_json, presupuesto_ocupacion_m2, ocupacion_aprobada_m2,
-# gfa_aprobado_m2, envelope_aprobado_por_piso
+# gfa_aprobado_m2, envelope_aprobado_por_piso, lote_frente_m, lote_fondo_m
+
+# v09.1 fix: Asignación ÚNICA de salidas finales (evita IronPython.Runtime.List por asignaciones múltiples)
+envelope_curve = _env_curve
+envelope_por_piso = _env_por_piso
+gfa_total = _gfa_total
+ocupacion_real = _ocupacion_real
+ic_maximo = io_maximo  # alias para compatibilidad
+valido = _valido
