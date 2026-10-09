@@ -38093,7 +38093,7 @@ a = mensaje</item>
                     <item name="NickName" type_name="gh_string" type_code="10">#96-Panel</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="ScrollRatio" type_name="gh_double" type_code="6">0</item>
-                    <item name="Source" index="0" type_name="gh_guid" type_code="9">2f5b4ab4-e543-46c7-8270-0cd5f842331f</item>
+                    <item name="Source" index="0" type_name="gh_guid" type_code="9">8f8d6966-7a4c-4eff-a647-d8b64e6c95d6</item>
                     <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
                     <item name="UserText" type_name="gh_string" type_code="10">Double click to edit panel content…</item>
                   </items>
