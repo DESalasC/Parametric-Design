@@ -323,11 +323,60 @@ if _es_gh:
         except Exception:
             return None
 
-    layout = _parse_json_input(layout_crudo) or _parse_json_input(layout_json_raw) or {}
-    matriz = _parse_json_input(matriz_crudo) or _parse_json_input(matriz_json_raw) or {}
+    # Debug: listar globales disponibles
+    try:
+        gh_globals = [k for k in globals().keys() if not k.startswith('_') and k not in ['json', 'io', 'os', 'sys', '_cargar_json', '_resolver', '_pisos_de_uso', 'analizar_accesos', '_reporte_txt', 'main', '_es_gh', '_unwrap', '_parse_json_input', 'USOS_PUBLICOS', '_normalizar', '_categoria', 'layout_json_raw', 'matriz_json_raw', 'layout_crudo', 'matriz_crudo', 'alt_name', 'alt_val']]
+    except:
+        gh_globals = []
+
+    # Intentar múltiples nombres posibles para layout
+    layout = _parse_json_input(layout_crudo) or _parse_json_input(layout_json_raw)
+    tried_layout_names = ["layout_espacial_json", "layout_json"]
+    if not layout:
+        # Fallback: intentar nombres alternativos
+        for alt_name in ["layoutEspacialJson", "layout_espacial", "LayoutEspacialJson", "layout-espacial-json"]:
+            tried_layout_names.append(alt_name)
+            alt_val = globals().get(alt_name)
+            if alt_val is not None:
+                layout = _parse_json_input(alt_val)
+                if layout:
+                    break
+
+    # Si aún no hay layout, buscar en todas las globales
+    if not layout:
+        for k, v in globals().items():
+            kl = k.lower()
+            if ('layout' in kl or 'espacial' in kl) and v is not None:
+                tried_layout_names.append(k)
+                layout = _parse_json_input(v)
+                if layout:
+                    break
+
+    # Intentar múltiples nombres para matriz
+    matriz = _parse_json_input(matriz_crudo) or _parse_json_input(matriz_json_raw)
+    tried_matriz_names = ["matriz_adyacencias_json", "matriz_json"]
+    if not matriz:
+        for alt_name in ["matrizAdyacenciasJson", "matriz_adyacencias", "MatrizAdyacenciasJson", "matriz-adyacencias-json"]:
+            tried_matriz_names.append(alt_name)
+            alt_val = globals().get(alt_name)
+            if alt_val is not None:
+                matriz = _parse_json_input(alt_val)
+                if matriz:
+                    break
+
+    if not matriz:
+        for k, v in globals().items():
+            kl = k.lower()
+            if ('matriz' in kl or 'adyacen' in kl) and v is not None:
+                tried_matriz_names.append(k)
+                matriz = _parse_json_input(v)
+                if matriz:
+                    break
+
     if not layout:
         accesos_json = ""
-        mensaje = "ACCESOS v2.0 | ERROR: sin layout_espacial.json"
+        mensaje = "ACCESOS v2.0 | ERROR: sin layout_espacial.json. Globales: {} | Layout probados: {} | Matriz probados: {}".format(
+            ", ".join(sorted(gh_globals)[:15]), ", ".join(tried_layout_names), ", ".join(tried_matriz_names))
     else:
         if not matriz:
             matriz = {"usos": list(layout.get("reparto_vertical", {}).keys()),

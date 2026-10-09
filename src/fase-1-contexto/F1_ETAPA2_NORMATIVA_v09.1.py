@@ -865,6 +865,24 @@ if barras_ocupacion is not None and barras_huellas is not None:
     # Validar presupuesto
     if area_lote > 0 and barras_ocupacion > presupuesto_ocupacion_m2 + TOLERANCIA**2:
         bloqueos.append("VALIDADOR v09: ocupacion_total {:.2f} > presupuesto {:.2f}; excedente {:.2f} m2".format(barras_ocupacion, presupuesto_ocupacion_m2, barras_ocupacion - presupuesto_ocupacion_m2))
+        # Budget failed: still need to set local vars from barras for output
+        _ocupacion_real = barras_ocupacion
+        _gfa_total = barras_gfa
+        _env_por_piso = []
+        if barras_huellas:
+            for e in barras_huellas:
+                if isinstance(e, list):
+                    for ee in e:
+                        if ee is not None:
+                            _env_por_piso.append(ee)
+                elif e is not None:
+                    _env_por_piso.append(e)
+        _env_curve = _env_por_piso[0] if _env_por_piso else None
+        altura_total = barras_altura if barras_altura else pisos_finales * (barras_floor_h if barras_floor_h else floor_h)
+        if barras_floor_h and barras_floor_h > 0 and altura_total > 0:
+            pisos_finales = int(round(altura_total / barras_floor_h))
+        elif floor_h > 0 and altura_total > 0:
+            pisos_finales = int(round(altura_total / floor_h))
         _valido = False
     else:
         # APROBADO: barras dentro de presupuesto -> suprimir bloqueos previos de regimen/alturas/empates
@@ -890,6 +908,8 @@ if barras_ocupacion is not None and barras_huellas is not None:
         elif floor_h > 0 and altura_total > 0:
             pisos_finales = int(round(altura_total / floor_h))
         _valido = True
+else:
+    _modo_aprobado = False
 
 # MODO POTENCIAL (comportamiento actual v08) - SOLO si NO es modo APROBADO
 if not _modo_aprobado:
@@ -1003,9 +1023,11 @@ try:
     retiros_por_piso = json.dumps([{"piso": i+1, "altura_m": round((i+1)*floor_h,2), "area_m2": round(areas_por_piso[i],2), "escalonado": (i+1) in escalonados, "voladizo_frontal_m": round(voladizo_frontal if i>0 else 0.0,2), "vecinos_por_lado": {str(k): [round(v[0],2) for v in vs] for k,vs in vecinos_por_lado.items()}} for i in range(pisos_finales)], ensure_ascii=False)
 except: retiros_por_piso = "[]"
 
-# --- CALCULAR ic_real FINAL ---
+# --- CALCULAR ic_real FINAL (usar variables locales) ---
 if area_lote > 0:
-    ic_real = float((gfa_aprobado_m2 if gfa_aprobado_m2 else gfa_total) / area_lote)
+    # Usar gfa_aprobado_m2 si está definido (modo APROBADO), sino _gfa_total
+    gfa_para_ic = gfa_aprobado_m2 if (barras_ocupacion is not None and gfa_aprobado_m2 > 0) else _gfa_total
+    ic_real = float(gfa_para_ic / area_lote) if gfa_para_ic else 0.0
 else:
     ic_real = 0.0
 
@@ -1015,23 +1037,36 @@ elif tratamiento == "Consolidacion": io_maximo = 0.70
 elif tratamiento in ("Desarrollo", "Mejoramiento"): io_maximo = 0.60
 else: io_maximo = 0.70
 
-if valido:
+# Determinar variables para mensaje (usar locales _xxx)
+_msg_ocupacion = _ocupacion_real
+_msg_gfa_total = _gfa_total
+_msg_valido = _valido
+_msg_io_real = _ocupacion_real / area_lote if area_lote > 0 else 0.0
+
+if _msg_valido:
     modo = "APROBADO (barras_json)" if barras_ocupacion is not None else "POTENCIAL"
     empate_txt = "NO aplica (sin lado posterior): solo sismica 2%xh" if not empate_activo else "activo (lado posterior)"
+    # Para modo APROBADO, usar valores de barras; para POTENCIAL, usar calculados
+    if barras_ocupacion is not None:
+        msg_gfa = gfa_aprobado_m2 if gfa_aprobado_m2 else _gfa_total
+        msg_ic = float(msg_gfa / area_lote) if area_lote > 0 and msg_gfa else 0.0
+    else:
+        msg_gfa = _gfa_total
+        msg_ic = ic_real
     mensaje = ("NORMATIVA v09.1 | {} | Lote: {:.1f}m2 | Ocup: {:.1f}m2 | IO max {:.2f} | Presupuesto: {:.1f}m2 | "
                "IC {:.2f} (+{}) | Alt {:.1f}m | {} pisos | GFA: {:.1f}m2 "
                "Escalonados: {} pisos | Voladizo frontal {:.2f}m | Vecinos: {} lados, {} vecinos | "
                "Empate 1.9.c: {} | Patios: {:.1f}m2 | Tipo:{} | Antejardin {:.1f}m (via {:.1f}m) | "
                "Lat {:.1f}m | Post {:.1f}m{}").format(
-        modo, area_lote, ocupacion_real, io_maximo, presupuesto_ocupacion_m2,
-        float((gfa_aprobado_m2 or gfa_total) / area_lote if area_lote > 0 else 0), pisos_extra, altura_total,
-        pisos_finales, float(gfa_aprobado_m2 if gfa_aprobado_m2 else gfa_total), len(escalonados),
+        modo, area_lote, _msg_ocupacion, io_maximo, presupuesto_ocupacion_m2,
+        msg_ic, pisos_extra, altura_total,
+        pisos_finales, msg_gfa, len(escalonados),
         voladizo_frontal, len(vecinos_por_lado), total_vecinos, empate_txt,
         patio_area_total, tipologia, antejardin, ancho_via_m, retiro_lateral, retiro_posterior,
         " (empate)" if empate_posterior else "")
 else:
     mensaje = ("NORMATIVA v09.1 | NO VALIDADO | Lote {:.2f} m2 | Ocup {:.2f} m2 | IO real {:.4f} / max {:.4f} | Presupuesto {:.2f} m2 | {} pisos | Alt {:.2f} m | GFA {:.2f} m2 | {}").format(
-        area_lote, ocupacion_real, io_real, io_maximo, presupuesto_ocupacion_m2, pisos_finales, altura_total, float(gfa_total if 'gfa_total' in locals() else 0), "; ".join(sorted(set(bloqueos))))
+        area_lote, _msg_ocupacion, _msg_io_real, io_maximo, presupuesto_ocupacion_m2, pisos_finales, altura_total, _msg_gfa_total, "; ".join(sorted(set(bloqueos))))
 
 if altura_vecinos_m <= 0: warnings.append("sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)")
 

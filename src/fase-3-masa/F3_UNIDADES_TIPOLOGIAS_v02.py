@@ -488,8 +488,34 @@ def _pj(v):
     except: return None
 
 def _gh():
+    # Debug: listar todas las globales disponibles para diagnosticar nombres de entradas
+    try:
+        gh_globals = [k for k in globals().keys() if not k.startswith('_') and k not in ['json', 'os', 'sys', 'math', 'rg', 'io', 'load_json', 'resolve', 'rect', 'area', 'rot', 'bbox', 'distribuir_piso', 'calc_parqueaderos', 'generar', 'to_volum', 'prevalidacion', 'main', '_u', '_pj', '_gh', '_es_gh', 'gh_inputs', 'inp', 'TIPOLOGIAS_BASE', 'USO_LAYOUT_A_OBJETIVO', 'ANCHO_PASILLO_MIN', 'ANCHO_PASILLO_PREF', 'AREA_MIN_VIV_VIS', 'AREA_MIN_VIV_EST', 'AREA_MIN_LOCAL', 'PROF_MAX_VIV_FACHADA', 'PROF_MAX_VIV_2FACHADAS', 'PROF_MAX_LOCAL', 'RECORRIDO_MAX_EVAC', 'PARQ_VIV', 'PARQ_COM_100M2', 'AREA_PARQ_UND', 'AREA_PARQ_CIRC']]
+    except:
+        gh_globals = []
+
+    # Intentar múltiples nombres posibles para layout (compatibilidad con diferentes cableados)
+    lay = None
+    tried_names = []
+    for layout_name in ["layout_espacial_json", "layout_json", "layoutEspacialJson", "layout_espacial", "LayoutEspacialJson", "layout-espacial-json"]:
+        tried_names.append(layout_name)
+        val = globals().get(layout_name)
+        if val is not None:
+            lay = _pj(_u(val))
+            if lay:
+                break
+
+    # Si aún no hay layout, intentar buscar en todas las globales que contengan "layout" o "espacial"
+    if not lay:
+        for k, v in globals().items():
+            kl = k.lower()
+            if ('layout' in kl or 'espacial' in kl) and v is not None:
+                tried_names.append(k)
+                lay = _pj(_u(v))
+                if lay:
+                    break
+
     f2=_pj(_u(globals().get("f2_resultados_json")))
-    lay=_pj(_u(globals().get("layout_espacial_json")))
     cota=float(_u(globals().get("cota_via_m",0)) or 0)
     chip=_u(globals().get("chip")) or "chip"
     ang=math.radians(float(_u(globals().get("angulo_fachada_deg",0)) or 0))
@@ -497,17 +523,17 @@ def _gh():
     lfo=float(_u(globals().get("lote_fondo_m",0)) or 0)
     # Fallback: si no vienen de F1, calcular desde envelope del layout
     if (lf <= 0 or lfo <= 0) and lay and lay.get("niveles"):
-        # Usar huella del primer nivel como referencia
         huella = lay["niveles"][0].get("gfa_m2", 0)
         if huella > 0:
-            # Asumir ratio típico 1:1.5 (frente:fondo)
             lf = math.sqrt(huella / 1.5)
             lfo = lf * 1.5
     dviv=bool(_u(globals().get("permitir_duplex_vivienda",False)))
     dcom=bool(_u(globals().get("permitir_duplex_comercio",False)))
     cons=bool(_u(globals().get("consolidar_parqueaderos",True)))
     val=bool(_u(globals().get("modo_validacion",False)))
-    if not lay: return "","","",[],[],[],"UNIDADES v2.0 | ERROR: sin layout"
+    if not lay:
+        debug_msg = "UNIDADES v2.0 | ERROR: sin layout. Globales disponibles: {}".format(", ".join(sorted(gh_globals)[:20]))
+        return "","","",[],[],[],debug_msg
     if not f2:
         f2={"escenarios":[{"escenario_id":"D_MIXTO","mix_usos_detalle":[
             {"uso":"Local comercial turistico","num_unidades":21,"area_vendible_m2":840},
