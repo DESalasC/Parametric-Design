@@ -40,6 +40,15 @@ USO CLI:
   python F3_ACCESOS_INTEGRADOR_v02.py --layout <layout.json> --matriz <matriz.json>
 
 HISTORIAL DE VERSIONES:
+  v02.2 (2026-10-09): Robustez de entradas + diagnostico:
+    1. Parser JSON multi-forma: dict/list/string/ruta, listas anidadas y
+       JSON embebido; valida que el contenido sea layout/matriz real.
+    2. Si el cableado entrega otro JSON (p.ej. unidades_json) el mensaje
+       lo indica en lugar de dar un error opaco.
+    3. Respaldo desde disco: casos/*/layout_espacial.json y
+       matriz_adyacencias.json (chip si existe) cuando el cableado no
+       entrega datos validos.
+    4. main() solo con __name__ == "__main__" (importable desde tests).
   v02.1 (2026-10-08): Cambio menor — FIX para lectura de entradas GH:
     1. Nueva función `_parse_json_input()`: acepta dict/list ya parseados,
        string JSON, o ruta a archivo .json (resuelve error "sin layout_espacial.json").
@@ -83,14 +92,21 @@ def _categoria(uso):
 
 
 def _cargar_json(ruta):
+    """v02.2 - JSON en binario + cascada utf-8-sig/cp1252/latin-1 (IronPython-safe)."""
     if not ruta or not os.path.exists(ruta):
         return {}
     try:
-        with io.open(ruta, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data if isinstance(data, dict) else {}
+        with open(ruta, "rb") as f:
+            raw = f.read()
     except Exception:
         return {}
+    for enc in ("utf-8-sig", "cp1252", "latin-1"):
+        try:
+            data = json.loads(raw.decode(enc))
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            continue
+    return {}
 
 
 def _resolver(caso_id):
@@ -289,105 +305,299 @@ if not _es_gh:
             or globals().get("matriz_adyacencias_json") is not None:
         _es_gh = True
 
-if _es_gh:
-    # MODO GH: procesar entradas y asignar salidas globales
-    layout_json_raw = globals().get("layout_json", None)
-    matriz_json_raw = globals().get("matriz_json", None)
-    layout_crudo = globals().get("layout_espacial_json", None)
-    matriz_crudo = globals().get("matriz_adyacencias_json", None)
-
-    def _unwrap(v):
-        if v is None:
-            return None
-        if hasattr(v, "Value"):
-            return v.Value
-        # GH a veces entrega listas de 1 elemento en lugar del valor directo
-        if isinstance(v, (list, tuple)) and len(v) > 0:
-            return _unwrap(v[0])
-        return v
-
-    def _parse_json_input(v):
-        """Parsea entrada JSON: string, archivo .json, o dict/list ya parseado."""
-        v = _unwrap(v)
-        if v is None:
-            return None
-        # Si ya es dict o list, retornarlo directamente (IMPORTANTE: antes de str())
-        if isinstance(v, (dict, list)):
-            return v
-        # Si es string, intentar parsear como JSON o cargar archivo
-        s = str(v).strip()
-        if s.endswith(".json") and os.path.exists(s):
-            return _cargar_json(s)
+def _desempaquetar(v):
+    """v02.2 - Desempaqueta DataTree/Goo/singleton; preserva listas multi-item."""
+    if v is None:
+        return None
+    if hasattr(v, "Branch") and hasattr(v, "PathCount"):
         try:
-            return json.loads(s)
-        except Exception:
-            return None
+            from Grasshopper.Kernel.Data import GH_Path
+            path = GH_Path(0, 0)
+            branch = v.Branch(path)
+            if branch and branch.Count == 1:
+                return _desempaquetar(branch[0])
+            vals = []
+            try:
+                for i in range(v.PathCount):
+                    b = v.get_Branch(i)
+                    if b:
+                        for x in b:
+                            vals.append(x)
+            except Exception:
+                pass
+            vals = [x for x in vals if x is not None]
+            if len(vals) == 1:
+                return _desempaquetar(vals[0])
+            if vals:
+                return vals
+        except:
+            pass
+    if hasattr(v, "Value"):
+        return _desempaquetar(v.Value)
+    if isinstance(v, (list, tuple)):
+        if len(v) == 1:
+            return _desempaquetar(v[0])
+        return v
+    return v
 
-    # Debug: listar globales disponibles
+def _hojas(v, out, prof=0):
+    """v02.2 - Recolecta recursivamente los elementos hoja de listas/tuplas."""
+    if prof > 6:
+        return
+    if isinstance(v, (list, tuple)):
+        for x in v:
+            _hojas(x, out, prof + 1)
+    else:
+        out.append(v)
+
+def _s_texto(v):
+    """v02.2 - Texto seguro (sin BOM ni espacios extremos)."""
     try:
-        gh_globals = [k for k in globals().keys() if not k.startswith('_') and k not in ['json', 'io', 'os', 'sys', '_cargar_json', '_resolver', '_pisos_de_uso', 'analizar_accesos', '_reporte_txt', 'main', '_es_gh', '_unwrap', '_parse_json_input', 'USOS_PUBLICOS', '_normalizar', '_categoria', 'layout_json_raw', 'matriz_json_raw', 'layout_crudo', 'matriz_crudo', 'alt_name', 'alt_val']]
+        s = str(v)
+    except Exception:
+        return ""
+    s = s.replace(u"\uFEFF", u"")
+    return s.strip()
+
+def _intenta_parse(s):
+    """v02.2 - Parsea texto como JSON o lo carga desde ruta .json."""
+    if not s:
+        return None
+    if s.endswith(".json") and os.path.exists(s):
+        d = _cargar_json(s)
+        return d if d else None
+    try:
+        return json.loads(s)
+    except Exception:
+        return None
+
+def _candidatos_texto(s):
+    """v02.2 - Variantes de un texto: completo y JSON embebido entre {..} / [..]."""
+    if not s:
+        return []
+    cands = [s]
+    a = s.find(u"{")
+    b = s.rfind(u"}")
+    if a >= 0 and b > a:
+        cands.append(s[a:b + 1])
+    a2 = s.find(u"[")
+    b2 = s.rfind(u"]")
+    if a2 >= 0 and b2 > a2:
+        cands.append(s[a2:b2 + 1])
+    return cands
+
+def _parse_json_input(v):
+    """v02.2 - Parsea entrada JSON: dict/list ya parseado, string JSON, ruta,
+    listas anidadas (se unen) o JSON embebido."""
+    v = _desempaquetar(v)
+    if v is None:
+        return None
+    if isinstance(v, dict):
+        return v
+    if isinstance(v, (list, tuple)):
+        hojas = []
+        _hojas(v, hojas)
+        for h in hojas:
+            if isinstance(h, dict):
+                return h
+        s = u"".join([_s_texto(h) for h in hojas if h is not None])
+        for cand in _candidatos_texto(s):
+            r = _intenta_parse(cand)
+            if r is not None:
+                return r
+        return None
+    s = _s_texto(v)
+    for cand in _candidatos_texto(s):
+        r = _intenta_parse(cand)
+        if r is not None:
+            return r
+    return None
+
+def _es_layout(d):
+    """v02.2 - Heuristica: dict que parece layout_espacial."""
+    if not isinstance(d, dict):
+        return False
+    for k in ("reparto_vertical", "niveles", "poblacion_estimada"):
+        if k in d:
+            return True
+    return False
+
+def _es_matriz(d):
+    """v02.2 - Heuristica: dict que parece matriz de adyacencias."""
+    if not isinstance(d, dict):
+        return False
+    return ("matriz" in d) or ("usos" in d and "escala" in d)
+
+def _vista_previa(v):
+    """v02.2 - Resumen corto de un valor para diagnostico."""
+    t = type(v).__name__
+    if v is None:
+        return t + ":None"
+    s = _s_texto(v)
+    if not s:
+        try:
+            s = repr(v)
+        except Exception:
+            s = ""
+    if not s:
+        s = "(vacio)"
+    return t + ":" + s[:60]
+
+def _buscar_json(claves, validador, g):
+    """v02.2 - Prueba nombres conocidos/relacionados y valida el contenido.
+    Devuelve (json, fuente, intentos)."""
+    intentos = []
+    nombres = list(claves)
+    try:
+        for k in list(g.keys()):
+            kl = str(k).lower()
+            for c in claves:
+                if c in kl and k not in nombres:
+                    nombres.append(k)
+    except Exception:
+        pass
+    vistos = []
+    for n in nombres:
+        if n in vistos:
+            continue
+        vistos.append(n)
+        try:
+            val = g.get(n)
+        except Exception:
+            continue
+        if val is None:
+            intentos.append(n + " -> None")
+            continue
+        d = _parse_json_input(val)
+        if d is None:
+            intentos.append(n + " -> " + _vista_previa(val))
+            continue
+        if validador(d):
+            return d, n, intentos
+        claves_d = ", ".join(list(d.keys())[:6]) if isinstance(d, dict) else type(d).__name__
+        intentos.append(n + " -> json sin campos esperados (" + claves_d + ")")
+    return None, "", intentos
+
+def _raiz_casos():
+    """v02.2 - Localiza src/fase-3-masa/casos (archivo / entorno / cwd)."""
+    raices = []
+    try:
+        base = os.path.dirname(os.path.abspath(__file__))
+        raices.append(os.path.join(base, "casos"))
+    except Exception:
+        pass
+    try:
+        env_root = os.environ.get("DISENO_PARAMETRICO_ROOT", "")
+        if env_root:
+            raices.append(os.path.join(env_root, "src", "fase-3-masa", "casos"))
+    except Exception:
+        pass
+    p = os.getcwd()
+    for _i in range(6):
+        raices.append(os.path.join(p, "src", "fase-3-masa", "casos"))
+        np_ = os.path.dirname(p)
+        if np_ == p:
+            break
+        p = np_
+    for r in raices:
+        try:
+            if r and os.path.isdir(r):
+                return r
+        except Exception:
+            pass
+    return ""
+
+def _json_desde_disco(nombre):
+    """v02.2 - Busca <casos>/<cualquiera>/<nombre> y devuelve el mas reciente."""
+    casos = _raiz_casos()
+    if not casos:
+        return None, ""
+    mejor = None
+    try:
+        for sub in os.listdir(casos):
+            ruta = os.path.join(casos, sub, nombre)
+            if os.path.isfile(ruta):
+                try:
+                    m = os.path.getmtime(ruta)
+                except Exception:
+                    m = 0
+                if mejor is None or m > mejor[0]:
+                    mejor = (m, ruta)
+    except Exception:
+        pass
+    if mejor is None:
+        return None, ""
+    d = _cargar_json(mejor[1])
+    if d:
+        return d, mejor[1]
+    return None, ""
+
+def _layout_desde_disco():
+    return _json_desde_disco("layout_espacial.json")
+
+def _matriz_desde_disco():
+    return _json_desde_disco("matriz_adyacencias.json")
+
+if _es_gh:
+    # v02.2: diagnostico de entradas + validacion de contenido
+    try:
+        gh_globals = [k for k in globals().keys() if not k.startswith('_') and k not in ['json', 'io', 'os', 'sys', '_cargar_json', '_resolver', '_pisos_de_uso', 'analizar_accesos', '_reporte_txt', 'main', '_es_gh', '_desempaquetar', '_parse_json_input', '_hojas', '_s_texto', '_intenta_parse', '_candidatos_texto', '_es_layout', '_es_matriz', '_vista_previa', '_buscar_json', '_raiz_casos', '_json_desde_disco', '_layout_desde_disco', '_matriz_desde_disco', 'USOS_PUBLICOS', '_normalizar', '_categoria']]
     except:
         gh_globals = []
 
-    # Intentar múltiples nombres posibles para layout
-    layout = _parse_json_input(layout_crudo) or _parse_json_input(layout_json_raw)
-    tried_layout_names = ["layout_espacial_json", "layout_json"]
+    layout, fuente_layout, intentos_layout = _buscar_json(
+        ["layout_espacial_json", "layout_json", "layoutespacial", "layout_espacial"],
+        _es_layout, globals())
     if not layout:
-        # Fallback: intentar nombres alternativos
-        for alt_name in ["layoutEspacialJson", "layout_espacial", "LayoutEspacialJson", "layout-espacial-json"]:
-            tried_layout_names.append(alt_name)
-            alt_val = globals().get(alt_name)
-            if alt_val is not None:
-                layout = _parse_json_input(alt_val)
-                if layout:
-                    break
-
-    # Si aún no hay layout, buscar en todas las globales
+        for k, v in list(globals().items()):
+            if v is None or k in ('__name__',):
+                continue
+            d = _parse_json_input(v)
+            if isinstance(d, dict) and _es_layout(d):
+                layout = d
+                fuente_layout = k + " (contenido)"
+                break
     if not layout:
-        for k, v in globals().items():
-            kl = k.lower()
-            if ('layout' in kl or 'espacial' in kl) and v is not None:
-                tried_layout_names.append(k)
-                layout = _parse_json_input(v)
-                if layout:
-                    break
+        layout, _ruta_lay = _layout_desde_disco()
+        if layout:
+            fuente_layout = "disco: " + _ruta_lay
 
-    # Intentar múltiples nombres para matriz
-    matriz = _parse_json_input(matriz_crudo) or _parse_json_input(matriz_json_raw)
-    tried_matriz_names = ["matriz_adyacencias_json", "matriz_json"]
+    matriz, fuente_matriz, intentos_matriz = _buscar_json(
+        ["matriz_adyacencias_json", "matriz_json", "matrizadyacencias", "matriz_adyacencias"],
+        _es_matriz, globals())
     if not matriz:
-        for alt_name in ["matrizAdyacenciasJson", "matriz_adyacencias", "MatrizAdyacenciasJson", "matriz-adyacencias-json"]:
-            tried_matriz_names.append(alt_name)
-            alt_val = globals().get(alt_name)
-            if alt_val is not None:
-                matriz = _parse_json_input(alt_val)
-                if matriz:
-                    break
-
+        for k, v in list(globals().items()):
+            if v is None or k in ('__name__',):
+                continue
+            d = _parse_json_input(v)
+            if isinstance(d, dict) and _es_matriz(d):
+                matriz = d
+                fuente_matriz = k + " (contenido)"
+                break
     if not matriz:
-        for k, v in globals().items():
-            kl = k.lower()
-            if ('matriz' in kl or 'adyacen' in kl) and v is not None:
-                tried_matriz_names.append(k)
-                matriz = _parse_json_input(v)
-                if matriz:
-                    break
+        matriz, _ruta_mat = _matriz_desde_disco()
+        if matriz:
+            fuente_matriz = "disco: " + _ruta_mat
 
     if not layout:
         accesos_json = ""
-        mensaje = "ACCESOS v2.0 | ERROR: sin layout_espacial.json. Globales: {} | Layout probados: {} | Matriz probados: {}".format(
-            ", ".join(sorted(gh_globals)[:15]), ", ".join(tried_layout_names), ", ".join(tried_matriz_names))
+        mensaje = ("ACCESOS v2.0 | ERROR: sin layout_espacial.json. | layout probados: {} | "
+                   "matriz probados: {} | globales: {}").format(
+            "; ".join(intentos_layout[:8]) or "(ninguno)",
+            "; ".join(intentos_matriz[:6]) or "(ninguno)",
+            ", ".join(sorted(gh_globals)[:18]))
     else:
         if not matriz:
             matriz = {"usos": list(layout.get("reparto_vertical", {}).keys()),
-                      "matriz": {}}
+                  "matriz": {}}
         resultado = analizar_accesos(layout, matriz)
         accesos_json = json.dumps(resultado, indent=2, ensure_ascii=False)
         r = resultado["resumen"]
-        mensaje = ("ACCESOS v2.0 | OK | {} usos ({} publicos / {} privados) | "
-                   "{} accesos | {} pares incompatibles").format(
-            r["total_usos"], r["usos_publicos"], r["usos_privados"],
-            r["total_accesos"], r["pares_incompatibles"])
-else:
-    # MODO CLI: ejecutar main()
+        _src_txt = fuente_layout if fuente_layout else "cableado"
+        mensaje = ("ACCESOS v2.0 | OK | {} usos ({} publicos / {} privados) | " +
+               "{} accesos | {} pares incompatibles | layout: {}").format(
+        r["total_usos"], r["usos_publicos"], r["usos_privados"],
+        r["total_accesos"], r["pares_incompatibles"], _src_txt)
+elif __name__ == "__main__":
+    # MODO CLI: ejecutar main() (solo ejecucion directa; importable desde tests)
     main()

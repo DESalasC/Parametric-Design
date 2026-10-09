@@ -176,7 +176,7 @@ def test_gh_real_variable_no_import():
     )
     out = _salidas(ns)
     assert "ERROR" not in out["mensaje"], out["mensaje"]
-    assert out["mensaje"].startswith("F3 v03.4")
+    assert out["mensaje"].startswith("F3 v03.5")
     _validar_barras_json(out["barras_json"])
 
 
@@ -225,7 +225,7 @@ def test_gh_presupuesto_cableado():
         "n_barras_objetivo": "2,3",
     })
     out = _salidas(ns)
-    assert out["mensaje"].startswith("F3 v03.4")
+    assert out["mensaje"].startswith("F3 v03.5")
     assert "ERROR" not in out["mensaje"]
     data, alt = _validar_barras_json(out["barras_json"])
     assert data["chip"] == "AAA0030JKOE"

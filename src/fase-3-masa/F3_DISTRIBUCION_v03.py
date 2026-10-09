@@ -17,6 +17,10 @@ RESUMEN:
   APROBADOS (ocupacion_aprobada_m2, gfa_aprobado_m2, envelope_aprobado_por_piso).
 
 HISTORIAL DE VERSIONES:
+  v03.5 (2026-10-09): Se publica layout_espacial_json (salida #7 del componente):
+    - Lee casos/<chip>/layout_espacial.json (o el mas reciente de casos/) y
+      lo emite como salida GH para los consumidores F3 (UNIDADES/ACCESOS);
+      el mensaje indica la ruta usada. Sin archivo -> salida vacia, sin error.
   v03.4 (2026-10-05, 4.ª iteración): FIX json.dumps en IronPython.
     - Bug del runtime IronPython 2.7 (json/encoder.py → py_encode_basestring_ascii):
       con strings unicode no-ASCII, json.dumps(ensure_ascii=True) lanza
@@ -125,6 +129,7 @@ SALIDAS del componente:
   gfa_real_m2              Number   → Panel (opcional)
   floor_h_usado            Number   → Panel (opcional)
   n_barras_usado           Integer  → Panel (opcional)
+  layout_espacial_json     Text      Consumidores F3 (UNIDADES/ACCESOS) - casos/<chip>/layout_espacial.json
 
 CLI (pipeline / pruebas):
   --caso / --chip                 ID caso (A, B, B_SALUD, C) o CHIP
@@ -332,6 +337,10 @@ def _escribir_texto(ruta, texto):
     ruta_t = _texto_seguro(ruta)
     if not isinstance(texto, bytes):
         texto = _texto_seguro(texto).encode("utf-8")
+    # Crear directorio si no existe
+    dir_path = os.path.dirname(ruta_t)
+    if dir_path and not os.path.exists(dir_path):
+        os.makedirs(dir_path)
     with open(ruta_t, "wb") as f:
         f.write(texto)
 
@@ -455,6 +464,44 @@ def buscar_resultados(chip):
     for n in candidatos:
         if _tiene_mixto(os.path.join(resultados_dir, n)): return n
     return candidatos[0]
+
+
+def _leer_layout_casos(chip):
+    """v03.5 - Lee casos/<chip>/layout_espacial.json (o el mas reciente)."""
+    if not OUT or not os.path.isdir(OUT):
+        return u"", u""
+    chip_t = _texto_seguro(chip) if chip else u""
+    if chip_t:
+        ruta = os.path.join(OUT, chip_t, u"layout_espacial.json")
+        if os.path.isfile(ruta):
+            try:
+                with open(ruta, "rb") as f:
+                    return _decodificar_cascada(f.read(), ruta), ruta
+            except Exception:
+                pass
+    candidatos = []
+    try:
+        for nombre in os.listdir(OUT):
+            ruta = os.path.join(OUT, nombre, u"layout_espacial.json")
+            if os.path.isfile(ruta):
+                candidatos.append(ruta)
+    except Exception:
+        pass
+    mejor = None
+    for ruta in candidatos:
+        try:
+            m = os.path.getmtime(ruta)
+        except Exception:
+            m = 0
+        if mejor is None or m > mejor[0]:
+            mejor = (m, ruta)
+    if mejor is None:
+        return u"", u""
+    try:
+        with open(mejor[1], "rb") as f:
+            return _decodificar_cascada(f.read(), mejor[1]), mejor[1]
+    except Exception:
+        return u"", u""
 
 
 def _cargar_programa(resultados_file, escenario, gfa=None, lote_m2=None, huella_m2=None):
@@ -820,6 +867,7 @@ ocupacion_total_m2 = 0.0
 gfa_real_m2 = 0.0
 floor_h_usado = 0.0
 n_barras_usado = 0
+layout_espacial_json = ""
 
 if _EN_GH:
     _paso = u"inicio"
@@ -906,7 +954,7 @@ if _EN_GH:
         _paso = u"publicar salidas: json"
         barras_json = _json_dumps_ascii(_salida)
         _paso = u"publicar salidas: mensaje"
-        mensaje = u"F3 v03.4 | " + _gh_str(_salida.get("mensaje", ""))
+        mensaje = u"F3 v03.5 | " + _gh_str(_salida.get("mensaje", ""))
         if _derivado:
             mensaje += u" | presupuesto derivado = lote {:.1f} m2 x IO {:.2f} (con margen)".format(
                 _lote_m2, _io_max)
@@ -925,6 +973,19 @@ if _EN_GH:
                 mensaje += u" | escrito: " + _output_json
             except Exception as _e_out:
                 mensaje += u" | aviso escritura {}: {}".format(_output_json, _gh_str(_e_out))
+
+        _paso = u"publicar salidas: layout"
+        _lay_txt = u""
+        _lay_ruta = u""
+        try:
+            _lay_txt, _lay_ruta = _leer_layout_casos(_chip)
+        except Exception:
+            _lay_txt, _lay_ruta = u"", u""
+        layout_espacial_json = _lay_txt
+        if _lay_txt:
+            mensaje += u" | layout: " + _texto_seguro(_lay_ruta)
+        else:
+            mensaje += u" | layout: no encontrado en casos/"
     except Exception as _e_gh:
         _detalle = u""
         try:
@@ -936,7 +997,7 @@ if _EN_GH:
         except Exception:
             pass
         barras_json = ""
-        mensaje = u"F3 v03.4 | ERROR en [{}]: {}{}".format(_paso, _gh_str(_e_gh), _detalle)
+        mensaje = u"F3 v03.5 | ERROR en [{}]: {}{}".format(_paso, _gh_str(_e_gh), _detalle)
 
 
 # ============================================================================
@@ -1046,7 +1107,7 @@ except Exception:
 
 # Diagnóstico: en Rhino/.NET pero sin ghenv disponible en el script.
 if (_ES_IRON or _ES_CLR) and not _EN_GH and not mensaje:
-    mensaje = (u"F3 v03.4 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
+    mensaje = (u"F3 v03.5 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
                u"está disponible en el script; revisar el componente")
 
 if _ES_MAIN and not _EN_GH and not _ES_IRON and not _ES_CLR:

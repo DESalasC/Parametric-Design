@@ -11,6 +11,12 @@ GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
 
 HISTORIAL DE VERSIONES:
+  v09.2 (2026-10-09): Salidas GH correctas para F3 (fix IronPython.Runtime.List):
+    1. barras_huellas ([piso][barra][puntos]) se convierte a curvas reales
+       (PolylineCurve) antes de publicar; ya no se propagan listas crudas.
+    2. envelope_por_piso y envelope_aprobado_por_piso se publican como arbol
+       POR PISO (ghpythonlib.treehelpers) con respaldo de lista-de-listas.
+    3. envelope_curve = primera curva del piso base (PolylineCurve valida).
   v09.1 (2026-10-08): Cambio menor (v09.0 -> v09.1) — FIXES CRÍTICOS:
     1. Bug fix: reinicialización incorrecta de `pisos_finales = 0` y `altura_total = 0.0`
        en líneas de inicialización de outputs (borraba cálculo previo correcto).
@@ -756,6 +762,8 @@ else: retiro_lateral = 0.0
 # --- Variables locales para outputs (evita asignaciones múltiples en GH) ---
 _env_curve = None
 _env_por_piso = []
+_env_pp_nested = []
+_env_apro_nested = []
 _retiros_por_piso = ""
 _ocupacion_real = 0.0
 _gfa_total = 0.0
@@ -779,6 +787,61 @@ presupuesto_ocupacion_m2 = area_lote * io_maximo
 # --- 1. Patios ---
 patios_list = [p for p in safe_list(patio_raw) if p is not None]
 patio_area_total = sum(area_curve(p) for p in patios_list)
+
+def _huella_a_curva(item):
+    """v09.2 - Convierte una huella serializada ([[x,y],...]) a PolylineCurve.
+    Si ya es una curva (o None) la devuelve tal cual (idempotente)."""
+    if item is None:
+        return None
+    if not isinstance(item, (list, tuple)):
+        return item
+    pts = []
+    for p in item:
+        try:
+            if isinstance(p, (list, tuple)) and len(p) >= 2:
+                pts.append(rg.Point3d(float(p[0]), float(p[1]), 0.0))
+            elif hasattr(p, "X"):
+                pts.append(p)
+        except Exception:
+            return None
+    if len(pts) < 2:
+        return None
+    return _curva_desde_puntos(pts)
+
+def _huellas_a_pisos(barras_huellas):
+    """v09.2 - [piso][barra][puntos] a [piso][curvas] (PolylineCurve)."""
+    pisos = []
+    if not barras_huellas:
+        return pisos
+    for e in barras_huellas:
+        items = e if isinstance(e, (list, tuple)) else [e]
+        cs = []
+        for ee in items:
+            cc = _huella_a_curva(ee)
+            if cc is not None:
+                cs.append(cc)
+        if cs:
+            pisos.append(cs)
+    return pisos
+
+def _aplanar_pisos(pisos):
+    """v09.2 - Aplana [piso][curvas] a lista simple de curvas."""
+    out = []
+    for cs in pisos:
+        for c in cs:
+            out.append(c)
+    return out
+
+def _publicar_por_piso(pisos):
+    """v09.2 - Publica [piso][curvas] como DataTree GH (treehelpers) con
+    respaldo de lista-de-listas fuera de Grasshopper (tests/CLI)."""
+    if not pisos:
+        return []
+    try:
+        import ghpythonlib.treehelpers as _th
+        return _th.list_to_tree(pisos)
+    except Exception:
+        return pisos
 
 def envelope_final(huella):
     if huella is None: return None, 0.0
@@ -868,16 +931,10 @@ if barras_ocupacion is not None and barras_huellas is not None:
         # Budget failed: still need to set local vars from barras for output
         _ocupacion_real = barras_ocupacion
         _gfa_total = barras_gfa
-        _env_por_piso = []
-        if barras_huellas:
-            for e in barras_huellas:
-                if isinstance(e, list):
-                    for ee in e:
-                        if ee is not None:
-                            _env_por_piso.append(ee)
-                elif e is not None:
-                    _env_por_piso.append(e)
-        _env_curve = _env_por_piso[0] if _env_por_piso else None
+        # v09.2: convertir huellas JSON a curvas y conservar agrupacion por piso
+        _env_pp_nested = _huellas_a_pisos(barras_huellas)
+        _env_por_piso = _aplanar_pisos(_env_pp_nested)
+        _env_curve = _env_pp_nested[0][0] if (_env_pp_nested and _env_pp_nested[0]) else None
         altura_total = barras_altura if barras_altura else pisos_finales * (barras_floor_h if barras_floor_h else floor_h)
         if barras_floor_h and barras_floor_h > 0 and altura_total > 0:
             pisos_finales = int(round(altura_total / barras_floor_h))
@@ -890,17 +947,10 @@ if barras_ocupacion is not None and barras_huellas is not None:
         bloqueos = [b for b in bloqueos if "regimen/alturas/empates" not in b and "intervalos no verificables" not in b]
         _ocupacion_real = barras_ocupacion
         _gfa_total = barras_gfa
-        # v09.1 fix: aplanar barras_huellas (puede ser lista de listas) a lista simple de Curve
-        _env_por_piso = []
-        if barras_huellas:
-            for e in barras_huellas:
-                if isinstance(e, list):
-                    for ee in e:
-                        if ee is not None:
-                            _env_por_piso.append(ee)
-                elif e is not None:
-                    _env_por_piso.append(e)
-        _env_curve = _env_por_piso[0] if _env_por_piso else None
+        # v09.2: convertir huellas JSON a curvas y conservar agrupacion por piso
+        _env_pp_nested = _huellas_a_pisos(barras_huellas)
+        _env_por_piso = _aplanar_pisos(_env_pp_nested)
+        _env_curve = _env_pp_nested[0][0] if (_env_pp_nested and _env_pp_nested[0]) else None
         altura_total = barras_altura if barras_altura else pisos_finales * (barras_floor_h if barras_floor_h else floor_h)
         # Actualizar pisos_finales coherente con altura_total (modo APROBADO)
         if barras_floor_h and barras_floor_h > 0 and altura_total > 0:
@@ -915,6 +965,7 @@ else:
 if not _modo_aprobado:
     _huellas_por_piso = []
     _areas_por_piso = []
+    _pp_nested = []
     if lot_polygon is not None and vertices_lote:
         for nv in range(1, pisos_finales + 1):
             if intervalos:
@@ -942,19 +993,27 @@ if not _modo_aprobado:
                 subs = _subsegmentos_piso(nv,lados,vertices_lote,retiros_base,vecinos_por_lado,altura_vecinos_m,empate_lateral_min,nsr_coef,pisos_finales,floor_h,voladizo_frontal,empate_activo)
             try:
                 envs, area = _recortar_regiones_locales(lot_polygon,subs,patios_list,_area_signada_puntos(vertices_lote)>0)
-                # v09.1 fix: aplanar a lista simple de Curve para GH (evita IronPython.Runtime.List)
+                # v09.2: normalizar piezas del piso y conservar agrupacion por piso
+                _cs_piso = []
                 if envs:
                     for e in envs:
-                        if e is not None:
-                            _huellas_por_piso.append(e)
+                        _ce = _huella_a_curva(e)
+                        if _ce is not None:
+                            _cs_piso.append(_ce)
+                _pp_nested.append(_cs_piso if _cs_piso else None)
+                if _cs_piso:
+                    for _c3 in _cs_piso:
+                        _huellas_por_piso.append(_c3)
                 else:
                     _huellas_por_piso.append(None)
                 _areas_por_piso.append(area)
             except Exception as exc:
                 _huellas_por_piso.append(None); _areas_por_piso.append(0.0)
+                _pp_nested.append(None)
                 bloqueos.append('piso {} recorte no verificable: {}'.format(nv,str(exc)))
     _recortes_intervalos_json = json.dumps(diag_recortes,ensure_ascii=True)
-    # v09.1 fix: envelope_por_piso ya es lista plana de Curve (no lista de listas)
+    # v09.2: arbol por piso + lista plana interna
+    _env_pp_nested = _pp_nested
     _env_por_piso = _huellas_por_piso
     if _env_por_piso:
         # buscar primera curva no-None para envelope_curve
@@ -979,25 +1038,17 @@ if not _modo_aprobado:
     _valido = not bloqueos
 
 # --- SALIDAS APROBADAS (v09) ---
-if barras_ocupacion is not None and valido:
+if barras_ocupacion is not None and _valido:
     ocupacion_aprobada_m2 = barras_ocupacion
     gfa_aprobado_m2 = barras_gfa
-    # v09.1 fix: aplanar a lista simple de Curve
-    envelope_aprobado_por_piso = []
-    if barras_huellas:
-        for e in barras_huellas:
-            if isinstance(e, list):
-                for ee in e:
-                    if ee is not None:
-                        envelope_aprobado_por_piso.append(ee)
-            elif e is not None:
-                envelope_aprobado_por_piso.append(e)
+    # v09.2: huellas aprobadas por piso (conversion a curvas)
+    _env_apro_nested = _huellas_a_pisos(barras_huellas)
     # io_real para mensaje en modo APROBADO
     io_real = barras_ocupacion / area_lote if area_lote > 0 else 0.0
 else:
     ocupacion_aprobada_m2 = 0.0
     gfa_aprobado_m2 = 0.0
-    envelope_aprobado_por_piso = []
+    _env_apro_nested = []
     # Asegurar io_real definido para mensaje NO VALIDADO
     if barras_ocupacion is not None:
         io_real = barras_ocupacion / area_lote if area_lote > 0 else 0.0
@@ -1122,7 +1173,8 @@ if lot_polygon is not None and vertices_lote:
 
 # v09.1 fix: Asignación ÚNICA de salidas finales (evita IronPython.Runtime.List por asignaciones múltiples)
 envelope_curve = _env_curve
-envelope_por_piso = _env_por_piso
+envelope_por_piso = _publicar_por_piso(_env_pp_nested)
+envelope_aprobado_por_piso = _publicar_por_piso(_env_apro_nested)
 gfa_total = _gfa_total
 ocupacion_real = _ocupacion_real
 ic_maximo = io_maximo  # alias para compatibilidad

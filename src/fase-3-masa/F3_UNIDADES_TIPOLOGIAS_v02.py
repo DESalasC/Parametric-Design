@@ -41,6 +41,13 @@ SALIDAS:
 ================================================================================
 
 HISTORIAL DE VERSIONES:
+  v02.2 (2026-10-09): Blindaje GH/CLI:
+    1. Precision segura: argumentos de {:.1f}/{:.2f} pasan por float()
+       (IronPython rechaza precision sobre enteros).
+    2. Mensaje de error con cola de traceback (linea exacta del fallo).
+    3. Respaldo de layout desde disco (casos/<chip>/) si el cableado no
+       lo entrega; el mensaje indica la fuente usada.
+    4. main() solo corre con __name__ == "__main__" (tests importan sin CLI).
   v02.1 (2026-10-08): Cambio menor — FIXES para compatibilidad GH:
     1. Fix `_pj()`: ahora acepta dict/list ya parseados (no solo string/archivo).
     2. Fix `_gh()`: fallback automático de `lote_frente_m`/`lote_fondo_m` desde
@@ -105,10 +112,20 @@ def bbox(pts): xs=[p[0] for p in pts]; ys=[p[1] for p in pts]; return min(xs),mi
 # I/O
 # ============================================================
 def load_json(p):
+    """v02.2 - JSON en binario + cascada utf-8-sig/cp1252/latin-1 (IronPython-safe)."""
     if not p or not os.path.exists(p): return {}
     try:
-        with open(p,"r",encoding="utf-8") as f: return json.load(f)
-    except: return {}
+        with open(p, "rb") as f:
+            raw = f.read()
+    except Exception:
+        return {}
+    for enc in ("utf-8-sig", "cp1252", "latin-1"):
+        try:
+            data = json.loads(raw.decode(enc))
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            continue
+    return {}
 
 def resolve(caso):
     base=os.path.dirname(os.path.abspath(__file__))
@@ -171,7 +188,7 @@ def distribuir_piso(nivel, nucleo, uso, tip, area_neta, lote_frente, lote_fondo,
         n_fila_obj = max(1, n_und_obj // len(filas))
         ancho_ideal = area_und / prof
         n_caben = max(1, int(frente_util / ancho_ideal))
-        n_final = min(n_fila_obj, n_caben)
+        n_final = int(min(n_fila_obj, n_caben))
         ancho_real = frente_util / n_final
         
         for i in range(n_final):
@@ -232,9 +249,9 @@ def calc_parqueaderos(layout, f2_mix, cota_via, lote_frente, lote_fondo, consoli
     cap_niv = max(1, int(a_lote*0.8/a_und))
     
     if consolidar:
-        n_niv = math.ceil(total / cap_niv)
+        n_niv = int(math.ceil(total / cap_niv))
     else:
-        n_niv = math.ceil(total / cap_niv)
+        n_niv = int(math.ceil(total / cap_niv))
     
     parqs = []
     for i in range(n_niv):
@@ -347,12 +364,12 @@ def prevalidacion(unds, circs, parqs, objetivos, asign, lote_frente, lote_fondo,
     lines.append("="*80)
     lines.append("F3 - PRE-VALIDACION UNIDADES TIPOLOGICAS (REVISION OPERADOR)")
     lines.append("="*80)
-    lines.append("\nLOTE: {:.1f} x {:.1f} m = {:.1f} m2".format(lote_frente, lote_fondo, lote_frente*lote_fondo))
-    lines.append("COTA VIA: {:.1f} m -> Parqueaderos en sotano (z<0)".format(cota_via))
+    lines.append("\nLOTE: {:.1f} x {:.1f} m = {:.1f} m2".format(float(lote_frente), float(lote_fondo), float(lote_frente)*float(lote_fondo)))
+    lines.append("COTA VIA: {:.1f} m -> Parqueaderos en sotano (z<0)".format(float(cota_via)))
     lines.append("\nRESTRICCIONES APLICADAS:")
     lines.append("  [OK] Comercio SOLO en fachada publica (lado +Y, frente a via)")
     lines.append("  [OK] Vivienda en fachada + patio (ventilacion cruzada)")
-    lines.append("  [OK] Pasillos >= {:.1f}m (NSR-10 K)".format(ANCHO_PASILLO_PREF))
+    lines.append("  [OK] Pasillos >= {:.1f}m (NSR-10 K)".format(float(ANCHO_PASILLO_PREF)))
     lines.append("  [OK] Profundidad max: Viv fachada {}m, Viv 2 fach {}m, Com {}m".format(
         PROF_MAX_VIV_FACHADA, PROF_MAX_VIV_2FACHADAS, PROF_MAX_LOCAL))
     lines.append("  [OK] Parqueaderos consolidados en sotano unico (no consume ocupacion lote)")
@@ -371,19 +388,19 @@ def prevalidacion(unds, circs, parqs, objetivos, asign, lote_frente, lote_fondo,
         a_tot = sum(u["area_m2"] for u in gen)
         pisos = sorted(set(u["piso_inicio"] for u in gen))
         lines.append("{:<25} {:>8} {:>10} {:>10} {:>11.1f} m2  {}".format(
-            tip['nombre'], obj, asig, len(gen), a_tot, pisos))
+            tip['nombre'], obj, asig, len(gen), float(a_tot), pisos))
     
     duplexs = [u for u in unds if u.get("es_duplex") and u.get("duplex_con_piso") is not None]
     if duplexs:
         lines.append("\nDUPLEX/LOFT ({} pares):".format(len(duplexs)))
         for u in duplexs:
             lines.append("  {}: Pisos {}-{}, {:.1f} m2, lado {}".format(
-                u['id'], u['piso_inicio'], u['piso_fin'], u['area_m2'], u['lado']))
+                u['id'], u['piso_inicio'], u['piso_fin'], float(u['area_m2']), u['lado']))
     
     tot_p = sum(p["capacidad"] for p in parqs)
     lines.append("\nPARQUEADEROS: {} puestos en {} nivel(es) sotano".format(tot_p, len(parqs)))
     for p in parqs:
-        lines.append("  {}: {} pts, {:.1f} m2, z={:.1f}m".format(p['nombre'], p['capacidad'], p['area_m2'], p['z_base_m']))
+        lines.append("  {}: {} pts, {:.1f} m2, z={:.1f}m".format(p['nombre'], p['capacidad'], float(p['area_m2']), float(p['z_base_m'])))
     
     lines.append("\nVERIFICACIONES NORMATIVAS:")
     com_patio = [u for u in unds if USO_LAYOUT_A_OBJETIVO.get(u["uso"])=="Local fachada" and u["lado"]=="patio"]
@@ -392,13 +409,13 @@ def prevalidacion(unds, circs, parqs, objetivos, asign, lote_frente, lote_fondo,
     lines.append("  Unidades sin ventilacion natural: {} {}".format(len(sin_vent), "[ALERTA]" if sin_vent else "[OK]"))
     for c in circs:
         if c["ancho_m"] < ANCHO_PASILLO_MIN:
-            lines.append("  Pasillo P{} {:.2f}m < {:.1f}m [ALERTA]".format(c['piso'], c['ancho_m'], ANCHO_PASILLO_MIN))
+            lines.append("  Pasillo P{} {:.2f}m < {:.1f}m [ALERTA]".format(c['piso'], float(c['ancho_m']), float(ANCHO_PASILLO_MIN)))
     for u in unds:
         obj_key = USO_LAYOUT_A_OBJETIVO.get(u["uso"])
         if obj_key and obj_key in TIPOLOGIAS_BASE:
             min_a = TIPOLOGIAS_BASE[obj_key]["min_area"]
             if u["area_m2"] < min_a:
-                lines.append("  {} area {:.1f} < min {:.1f} [ALERTA]".format(u['id'], u['area_m2'], min_a))
+                lines.append("  {} area {:.1f} < min {:.1f} [ALERTA]".format(u['id'], float(u['area_m2']), float(min_a)))
     
     estado = "LISTO PARA GENERAR" if not com_patio and not sin_vent else "REQUIERE AJUSTES"
     lines.append("\n>>> ESTADO: {}".format(estado))
@@ -487,6 +504,69 @@ def _pj(v):
     try: return json.loads(s)
     except: return None
 
+def _raiz_casos():
+    """v02.2 - Localiza src/fase-3-masa/casos (archivo / entorno / cwd)."""
+    raices = []
+    try:
+        base = os.path.dirname(os.path.abspath(__file__))
+        raices.append(os.path.join(base, "casos"))
+    except Exception:
+        pass
+    try:
+        env_root = os.environ.get("DISENO_PARAMETRICO_ROOT", "")
+        if env_root:
+            raices.append(os.path.join(env_root, "src", "fase-3-masa", "casos"))
+    except Exception:
+        pass
+    p = os.getcwd()
+    for _i in range(6):
+        raices.append(os.path.join(p, "src", "fase-3-masa", "casos"))
+        np_ = os.path.dirname(p)
+        if np_ == p:
+            break
+        p = np_
+    for r in raices:
+        try:
+            if r and os.path.isdir(r):
+                return r
+        except Exception:
+            pass
+    return ""
+
+def _layout_de_disco(chip):
+    """v02.2 - Respaldo: layout_espacial.json desde casos/<chip>/ o el mas reciente."""
+    casos = _raiz_casos()
+    if not casos:
+        return None, ""
+    candidatos = []
+    if chip:
+        ruta = os.path.join(casos, str(chip), "layout_espacial.json")
+        if os.path.isfile(ruta):
+            datos_chip = load_json(ruta)
+            if datos_chip and isinstance(datos_chip, dict) and (datos_chip.get("reparto_vertical") or datos_chip.get("niveles")):
+                return datos_chip, ruta
+    try:
+        for nombre in os.listdir(casos):
+            ruta = os.path.join(casos, nombre, "layout_espacial.json")
+            if os.path.isfile(ruta):
+                candidatos.append(ruta)
+    except Exception:
+        pass
+    mejor = None
+    for ruta in candidatos:
+        try:
+            m = os.path.getmtime(ruta)
+        except Exception:
+            m = 0
+        if mejor is None or m > mejor[0]:
+            mejor = (m, ruta)
+    if mejor is None:
+        return None, ""
+    datos = load_json(mejor[1])
+    if datos and isinstance(datos, dict) and (datos.get("reparto_vertical") or datos.get("niveles")):
+        return datos, mejor[1]
+    return None, ""
+
 def _gh():
     # Debug: listar todas las globales disponibles para diagnosticar nombres de entradas
     try:
@@ -501,23 +581,34 @@ def _gh():
         tried_names.append(layout_name)
         val = globals().get(layout_name)
         if val is not None:
-            lay = _pj(_u(val))
-            if lay:
+            cand = _pj(_u(val))
+            if isinstance(cand, dict) and (cand.get("reparto_vertical") or cand.get("niveles")):
+                lay = cand
                 break
 
     # Si aún no hay layout, intentar buscar en todas las globales que contengan "layout" o "espacial"
     if not lay:
+        # v02.2: buscar por nombre con validacion de contenido (evita falsos positivos)
         for k, v in globals().items():
             kl = k.lower()
+            if k.startswith('_') or k in ('USO_LAYOUT_A_OBJETIVO',):
+                continue
             if ('layout' in kl or 'espacial' in kl) and v is not None:
                 tried_names.append(k)
-                lay = _pj(_u(v))
-                if lay:
+                cand = _pj(_u(v))
+                if isinstance(cand, dict) and (cand.get("reparto_vertical") or cand.get("niveles")):
+                    lay = cand
                     break
 
     f2=_pj(_u(globals().get("f2_resultados_json")))
     cota=float(_u(globals().get("cota_via_m",0)) or 0)
     chip=_u(globals().get("chip")) or "chip"
+    _layout_fuente = ""
+    if not lay:
+        # v02.2: respaldo - layout desde disco si el cableado no lo entrego
+        lay, _lay_ruta = _layout_de_disco(chip)
+        if lay:
+            _layout_fuente = _lay_ruta
     ang=math.radians(float(_u(globals().get("angulo_fachada_deg",0)) or 0))
     lf=float(_u(globals().get("lote_frente_m",0)) or 0)
     lfo=float(_u(globals().get("lote_fondo_m",0)) or 0)
@@ -542,15 +633,18 @@ def _gh():
     vol,et,pi=to_volum(u,c,p)
     tp=sum(x["capacidad"] for x in p)
     prev=prevalidacion(u,c,p,objs,asign,lf,lfo,cota)
+    _msg_final = "UNIDADES v2.0 | {} | {} base + {} duplex | {} circ | {} parq ({} sotano)".format(
+        "VALIDACION" if val else "OK",
+        len([x for x in u if not x.get('unidad_alto_id')]),
+        len([x for x in u if x.get('es_duplex') and x.get('duplex_con_piso')]),
+        len(c), tp, len(p))
+    if _layout_fuente:
+        _msg_final += " | layout: " + _layout_fuente
     return (json.dumps({"unidades":u},ensure_ascii=False),
             json.dumps({"parqueaderos":p},ensure_ascii=False),
             json.dumps({"circulaciones":c},ensure_ascii=False),
             vol,et,pi,
-            "UNIDADES v2.0 | {} | {} base + {} duplex | {} circ | {} parq ({} sotano)".format(
-                "VALIDACION" if val else "OK",
-                len([x for x in u if not x.get('unidad_alto_id')]),
-                len([x for x in u if x.get('es_duplex') and x.get('duplex_con_piso')]),
-                len(c), tp, len(p)))
+            _msg_final)
 
 # ------------------------------------------------------------------ Detección modo GH vs CLI
 # En GH: ghenv existe, o hay entradas inyectadas (f2_resultados_json, layout_espacial_json, etc.)
@@ -587,9 +681,18 @@ if _es_gh:
     except Exception as e:
         mensaje = "UNIDADES v2.0 | ERROR: {}".format(e)
         try:
+            import traceback as _tb_uni
+            _tb_txt = _tb_uni.format_exc()
+            _tb_lineas = _tb_txt.strip().splitlines()
+            if _tb_lineas:
+                mensaje += " | tb: " + _tb_lineas[-1][:160]
+        except Exception:
+            pass
+        try:
             ghenv.Component.Message = mensaje  # noqa: F821
         except Exception:
             pass
-else:
-    # MODO CLI: ejecutar main()
+elif __name__ == "__main__":
+    # MODO CLI (solo ejecucion directa; importable desde tests)
     main()
+
