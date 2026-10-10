@@ -1022,7 +1022,7 @@ if not _modo_aprobado:
                 _env_curve = c
                 break
     _ocupacion_real = _areas_por_piso[0] if _areas_por_piso else 0.0
-    _gfa_total = sum(_areas_por_piso)
+    _gfa_total = float(sum(_areas_por_piso))
     # Validación IO potencial
     if io_user > 0: io_maximo = io_user
     elif tratamiento == "Consolidacion": io_maximo = 0.70
@@ -1109,11 +1109,11 @@ if _msg_valido:
                "Escalonados: {} pisos | Voladizo frontal {:.2f}m | Vecinos: {} lados, {} vecinos | "
                "Empate 1.9.c: {} | Patios: {:.1f}m2 | Tipo:{} | Antejardin {:.1f}m (via {:.1f}m) | "
                "Lat {:.1f}m | Post {:.1f}m{}").format(
-        modo, area_lote, _msg_ocupacion, io_maximo, presupuesto_ocupacion_m2,
-        msg_ic, pisos_extra, altura_total,
-        pisos_finales, msg_gfa, len(escalonados),
-        voladizo_frontal, len(vecinos_por_lado), total_vecinos, empate_txt,
-        patio_area_total, tipologia, antejardin, ancho_via_m, retiro_lateral, retiro_posterior,
+        modo, float(area_lote), float(_msg_ocupacion), float(io_maximo), float(presupuesto_ocupacion_m2),
+        float(msg_ic), pisos_extra, float(altura_total),
+        pisos_finales, float(msg_gfa), len(escalonados),
+        float(voladizo_frontal), len(vecinos_por_lado), total_vecinos, empate_txt,
+        float(patio_area_total), tipologia, float(antejardin), float(ancho_via_m), float(retiro_lateral), float(retiro_posterior),
         " (empate)" if empate_posterior else "")
 else:
     mensaje = ("NORMATIVA v09.1 | NO VALIDADO | Lote {:.2f} m2 | Ocup {:.2f} m2 | IO real {:.4f} / max {:.4f} | Presupuesto {:.2f} m2 | {} pisos | Alt {:.2f} m | GFA {:.2f} m2 | {}").format(

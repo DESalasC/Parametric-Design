@@ -50,10 +50,10 @@
             <chunk name="Projection">
               <items count="2">
                 <item name="Target" type_name="gh_drawing_point" type_code="30">
-                  <X>-3225</X>
-                  <Y>-5762</Y>
+                  <X>-2806</X>
+                  <Y>-2250</Y>
                 </item>
-                <item name="Zoom" type_name="gh_single" type_code="5">1</item>
+                <item name="Zoom" type_name="gh_single" type_code="5">0.52200663</item>
               </items>
             </chunk>
             <chunk name="Views">
@@ -2798,7 +2798,7 @@ if not _modo_aprobado:
                 _env_curve = c
                 break
     _ocupacion_real = _areas_por_piso[0] if _areas_por_piso else 0.0
-    _gfa_total = sum(_areas_por_piso)
+    _gfa_total = float(sum(_areas_por_piso))
     # Validación IO potencial
     if io_user &gt; 0: io_maximo = io_user
     elif tratamiento == "Consolidacion": io_maximo = 0.70
@@ -2885,11 +2885,11 @@ if _msg_valido:
                "Escalonados: {} pisos | Voladizo frontal {:.2f}m | Vecinos: {} lados, {} vecinos | "
                "Empate 1.9.c: {} | Patios: {:.1f}m2 | Tipo:{} | Antejardin {:.1f}m (via {:.1f}m) | "
                "Lat {:.1f}m | Post {:.1f}m{}").format(
-        modo, area_lote, _msg_ocupacion, io_maximo, presupuesto_ocupacion_m2,
-        msg_ic, pisos_extra, altura_total,
-        pisos_finales, msg_gfa, len(escalonados),
-        voladizo_frontal, len(vecinos_por_lado), total_vecinos, empate_txt,
-        patio_area_total, tipologia, antejardin, ancho_via_m, retiro_lateral, retiro_posterior,
+        modo, float(area_lote), float(_msg_ocupacion), float(io_maximo), float(presupuesto_ocupacion_m2),
+        float(msg_ic), pisos_extra, float(altura_total),
+        pisos_finales, float(msg_gfa), len(escalonados),
+        float(voladizo_frontal), len(vecinos_por_lado), total_vecinos, empate_txt,
+        float(patio_area_total), tipologia, float(antejardin), float(ancho_via_m), float(retiro_lateral), float(retiro_posterior),
         " (empate)" if empate_posterior else "")
 else:
     mensaje = ("NORMATIVA v09.1 | NO VALIDADO | Lote {:.2f} m2 | Ocup {:.2f} m2 | IO real {:.4f} / max {:.4f} | Presupuesto {:.2f} m2 | {} pisos | Alt {:.2f} m | GFA {:.2f} m2 | {}").format(
@@ -2966,6 +2966,12 @@ Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
 HISTORIAL DE VERSIONES:
+  v09.2 (2026-10-09): Salidas GH correctas para F3 (fix IronPython.Runtime.List):
+1. barras_huellas ([piso][barra][puntos]) se convierte a curvas reales
+(PolylineCurve) antes de publicar; ya no se propagan listas crudas.
+2. envelope_por_piso y envelope_aprobado_por_piso se publican como arbol
+POR PISO (ghpythonlib.treehelpers) con respaldo de lista-de-listas.
+3. envelope_curve = primera curva del piso base (PolylineCurve valida).
   v09.1 (2026-10-08): Cambio menor (v09.0 -&gt; v09.1) — FIXES CRÍTICOS:
 1. Bug fix: reinicialización incorrecta de `pisos_finales = 0` y `altura_total = 0.0`
 en líneas de inicialización de outputs (borraba cálculo previo correcto).
@@ -3092,13 +3098,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                       <items count="2">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>5403</X>
-                          <Y>4540</Y>
+                          <Y>4570</Y>
                           <W>308</W>
                           <H>484</H>
                         </item>
                         <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                           <X>5542</X>
-                          <Y>4782</Y>
+                          <Y>4812</Y>
                         </item>
                       </items>
                     </chunk>
@@ -3170,13 +3176,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4542</Y>
+                                  <Y>4572</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4552</Y>
+                                  <Y>4582</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3201,13 +3207,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4562</Y>
+                                  <Y>4592</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4572</Y>
+                                  <Y>4602</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3232,13 +3238,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4582</Y>
+                                  <Y>4612</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4592</Y>
+                                  <Y>4622</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3263,13 +3269,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4602</Y>
+                                  <Y>4632</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4612</Y>
+                                  <Y>4642</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3295,13 +3301,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4622</Y>
+                                  <Y>4652</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4632</Y>
+                                  <Y>4662</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3326,13 +3332,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4642</Y>
+                                  <Y>4672</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4652</Y>
+                                  <Y>4682</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3357,13 +3363,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4662</Y>
+                                  <Y>4692</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4672</Y>
+                                  <Y>4702</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3388,13 +3394,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4682</Y>
+                                  <Y>4712</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4692</Y>
+                                  <Y>4722</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3419,13 +3425,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4702</Y>
+                                  <Y>4732</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4712</Y>
+                                  <Y>4742</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3450,13 +3456,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4722</Y>
+                                  <Y>4752</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4732</Y>
+                                  <Y>4762</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3481,13 +3487,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4742</Y>
+                                  <Y>4772</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4752</Y>
+                                  <Y>4782</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3512,13 +3518,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4762</Y>
+                                  <Y>4792</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4772</Y>
+                                  <Y>4802</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3543,13 +3549,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4782</Y>
+                                  <Y>4812</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4792</Y>
+                                  <Y>4822</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3574,13 +3580,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4802</Y>
+                                  <Y>4832</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4812</Y>
+                                  <Y>4842</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3605,13 +3611,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4822</Y>
+                                  <Y>4852</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4832</Y>
+                                  <Y>4862</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3636,13 +3642,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4842</Y>
+                                  <Y>4872</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4852</Y>
+                                  <Y>4882</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3666,13 +3672,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4862</Y>
+                                  <Y>4892</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4872</Y>
+                                  <Y>4902</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3696,13 +3702,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4882</Y>
+                                  <Y>4912</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4892</Y>
+                                  <Y>4922</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3726,13 +3732,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4902</Y>
+                                  <Y>4932</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4912</Y>
+                                  <Y>4942</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3756,13 +3762,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4922</Y>
+                                  <Y>4952</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4932</Y>
+                                  <Y>4962</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3786,13 +3792,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4942</Y>
+                                  <Y>4972</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4952</Y>
+                                  <Y>4982</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3817,13 +3823,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4962</Y>
+                                  <Y>4992</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4972</Y>
+                                  <Y>5002</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3848,13 +3854,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>4982</Y>
+                                  <Y>5012</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>4992</Y>
+                                  <Y>5022</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3879,13 +3885,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5405</X>
-                                  <Y>5002</Y>
+                                  <Y>5032</Y>
                                   <W>122</W>
                                   <H>20</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5467.5</X>
-                                  <Y>5012</Y>
+                                  <Y>5042</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3905,13 +3911,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4542</Y>
+                                  <Y>4572</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4554.631</Y>
+                                  <Y>4584.6313</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3931,13 +3937,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4567</Y>
+                                  <Y>4597</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4579.895</Y>
+                                  <Y>4609.8945</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3957,13 +3963,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4592</Y>
+                                  <Y>4622</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4605.158</Y>
+                                  <Y>4635.1577</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -3983,13 +3989,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4617</Y>
+                                  <Y>4647</Y>
                                   <W>152</W>
                                   <H>26</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4630.421</Y>
+                                  <Y>4660.421</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4009,13 +4015,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4643</Y>
+                                  <Y>4673</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4655.684</Y>
+                                  <Y>4685.684</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4035,13 +4041,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4668</Y>
+                                  <Y>4698</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4680.947</Y>
+                                  <Y>4710.9473</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4061,13 +4067,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4693</Y>
+                                  <Y>4723</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4706.21</Y>
+                                  <Y>4736.2104</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4087,13 +4093,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4718</Y>
+                                  <Y>4748</Y>
                                   <W>152</W>
                                   <H>26</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4731.474</Y>
+                                  <Y>4761.4736</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4113,13 +4119,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4744</Y>
+                                  <Y>4774</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4756.737</Y>
+                                  <Y>4786.737</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4139,13 +4145,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4769</Y>
+                                  <Y>4799</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4782</Y>
+                                  <Y>4812</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4165,13 +4171,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4794</Y>
+                                  <Y>4824</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4807.263</Y>
+                                  <Y>4837.263</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4191,13 +4197,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4819</Y>
+                                  <Y>4849</Y>
                                   <W>152</W>
                                   <H>26</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4832.526</Y>
+                                  <Y>4862.526</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4217,13 +4223,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4845</Y>
+                                  <Y>4875</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4857.789</Y>
+                                  <Y>4887.789</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4243,13 +4249,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4870</Y>
+                                  <Y>4900</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4883.052</Y>
+                                  <Y>4913.0522</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4269,13 +4275,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4895</Y>
+                                  <Y>4925</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4908.315</Y>
+                                  <Y>4938.3154</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4295,13 +4301,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4920</Y>
+                                  <Y>4950</Y>
                                   <W>152</W>
                                   <H>26</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4933.579</Y>
+                                  <Y>4963.5786</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4321,13 +4327,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4946</Y>
+                                  <Y>4976</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4958.842</Y>
+                                  <Y>4988.842</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4347,13 +4353,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4971</Y>
+                                  <Y>5001</Y>
                                   <W>152</W>
                                   <H>25</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>4984.105</Y>
+                                  <Y>5014.105</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -4373,13 +4379,13 @@ lote_fondo_m (Number)            - [v09.1] Dimensión de fondo del lote (perp. a
                               <items count="2">
                                 <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                                   <X>5557</X>
-                                  <Y>4996</Y>
+                                  <Y>5026</Y>
                                   <W>152</W>
                                   <H>26</H>
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5633</X>
-                                  <Y>5009.368</Y>
+                                  <Y>5039.368</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -5559,7 +5565,7 @@ SALIDAS:
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5836.5</X>
-                                  <Y>2768.667</Y>
+                                  <Y>2768.6667</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -5611,7 +5617,7 @@ SALIDAS:
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5836.5</X>
-                                  <Y>2911.333</Y>
+                                  <Y>2911.3335</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -7303,7 +7309,7 @@ a la recta del frente.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5343</X>
-                                  <Y>3231.3</Y>
+                                  <Y>3231.2998</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -7336,7 +7342,7 @@ a la recta del frente.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5343</X>
-                                  <Y>3253.1</Y>
+                                  <Y>3253.0999</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -7460,7 +7466,7 @@ a la recta del frente.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5343</X>
-                                  <Y>3340.3</Y>
+                                  <Y>3340.2998</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -7491,7 +7497,7 @@ a la recta del frente.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5343</X>
-                                  <Y>3362.1</Y>
+                                  <Y>3362.0999</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -7517,7 +7523,7 @@ a la recta del frente.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5511</X>
-                                  <Y>3170.572</Y>
+                                  <Y>3170.5715</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -7543,7 +7549,7 @@ a la recta del frente.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5511</X>
-                                  <Y>3201.714</Y>
+                                  <Y>3201.7144</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -7569,7 +7575,7 @@ a la recta del frente.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5511</X>
-                                  <Y>3232.857</Y>
+                                  <Y>3232.8572</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -7673,7 +7679,7 @@ a la recta del frente.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5511</X>
-                                  <Y>3357.429</Y>
+                                  <Y>3357.4287</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -7838,7 +7844,7 @@ a la recta del frente.
                     <item name="Description" type_name="gh_string" type_code="10">A panel for custom notes and text values</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">28b87fd9-301d-4d71-b78b-b054159df54a</item>
                     <item name="Name" type_name="gh_string" type_code="10">Panel</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#81-Panel</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#82-Panel</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="ScrollRatio" type_name="gh_double" type_code="6">0</item>
                     <item name="Source" index="0" type_name="gh_guid" type_code="9">1164b99f-f386-4322-83ea-270ddb7dcfde</item>
@@ -8759,7 +8765,7 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>6567.807</X>
                           <Y>3787.106</Y>
-                          <W>152</W>
+                          <W>108</W>
                           <H>20</H>
                         </item>
                         <item name="IsAscendingSort" type_name="gh_bool" type_code="1">true</item>
@@ -8803,7 +8809,7 @@ FALSE = the component does not communicate with Archicad</item>
                           <X>6567.807</X>
                           <Y>3709.772</Y>
                           <W>129</W>
-                          <H>20.00049</H>
+                          <H>20.000488</H>
                         </item>
                         <item name="IsAscendingSort" type_name="gh_bool" type_code="1">true</item>
                         <item name="Version" type_name="gh_version" type_code="80">
@@ -9052,7 +9058,7 @@ FALSE = the component does not communicate with Archicad</item>
                           <X>6567.807</X>
                           <Y>3748.439</Y>
                           <W>101</W>
-                          <H>19.99902</H>
+                          <H>19.999023</H>
                         </item>
                       </items>
                     </chunk>
@@ -9085,7 +9091,7 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>6567.807</X>
                           <Y>3671.106</Y>
-                          <W>195</W>
+                          <W>148</W>
                           <H>20</H>
                         </item>
                       </items>
@@ -9656,8 +9662,8 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>6588.856</X>
                           <Y>3364.987</Y>
-                          <W>152</W>
-                          <H>20.00024</H>
+                          <W>108</W>
+                          <H>20.000244</H>
                         </item>
                         <item name="IsAscendingSort" type_name="gh_bool" type_code="1">true</item>
                         <item name="Version" type_name="gh_version" type_code="80">
@@ -9949,7 +9955,7 @@ FALSE = the component does not communicate with Archicad</item>
                           <X>6588.856</X>
                           <Y>3326.32</Y>
                           <W>101</W>
-                          <H>19.99902</H>
+                          <H>19.999023</H>
                         </item>
                       </items>
                     </chunk>
@@ -9982,8 +9988,8 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>6588.856</X>
                           <Y>3248.987</Y>
-                          <W>195</W>
-                          <H>19.99976</H>
+                          <W>148</W>
+                          <H>19.999756</H>
                         </item>
                       </items>
                     </chunk>
@@ -10092,7 +10098,7 @@ FALSE = the component does not communicate with Archicad</item>
                     <item name="Description" type_name="gh_string" type_code="10">Merge a bunch of data streams</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">f14aed47-9d88-4b2c-9ca0-7a42204505a3</item>
                     <item name="Name" type_name="gh_string" type_code="10">Merge</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#84-Merge</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#85-Merge</item>
                   </items>
                   <chunks count="2">
                     <chunk name="Attributes">
@@ -10545,8 +10551,8 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>6574.959</X>
                           <Y>4194.041</Y>
-                          <W>152</W>
-                          <H>20.00098</H>
+                          <W>108</W>
+                          <H>20.000977</H>
                         </item>
                         <item name="IsAscendingSort" type_name="gh_bool" type_code="1">true</item>
                         <item name="Version" type_name="gh_version" type_code="80">
@@ -10589,7 +10595,7 @@ FALSE = the component does not communicate with Archicad</item>
                           <X>6574.959</X>
                           <Y>4116.708</Y>
                           <W>129</W>
-                          <H>19.99902</H>
+                          <H>19.999023</H>
                         </item>
                         <item name="IsAscendingSort" type_name="gh_bool" type_code="1">true</item>
                         <item name="Version" type_name="gh_version" type_code="80">
@@ -10871,7 +10877,7 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>6574.959</X>
                           <Y>4078.041</Y>
-                          <W>195</W>
+                          <W>148</W>
                           <H>20</H>
                         </item>
                       </items>
@@ -11613,7 +11619,7 @@ NOTA: IronPython 2.7 — sin f-strings, usar .format(). Escritura con io.open().
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5235.5</X>
-                                  <Y>1510.333</Y>
+                                  <Y>1510.3334</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -11675,7 +11681,7 @@ NOTA: IronPython 2.7 — sin f-strings, usar .format(). Escritura con io.open().
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>5235.5</X>
-                                  <Y>1643.667</Y>
+                                  <Y>1643.6667</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -13035,7 +13041,7 @@ UNIDADES: metros (regla #11).
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>1126</X>
-                                  <Y>2953.938</Y>
+                                  <Y>2953.9375</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -13061,7 +13067,7 @@ UNIDADES: metros (regla #11).
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>1126</X>
-                                  <Y>2985.813</Y>
+                                  <Y>2985.8125</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -13087,7 +13093,7 @@ UNIDADES: metros (regla #11).
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>1126</X>
-                                  <Y>3017.688</Y>
+                                  <Y>3017.6875</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -13113,7 +13119,7 @@ UNIDADES: metros (regla #11).
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>1126</X>
-                                  <Y>3049.563</Y>
+                                  <Y>3049.5625</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -13139,7 +13145,7 @@ UNIDADES: metros (regla #11).
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>1126</X>
-                                  <Y>3081.438</Y>
+                                  <Y>3081.4375</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -13165,7 +13171,7 @@ UNIDADES: metros (regla #11).
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>1126</X>
-                                  <Y>3113.313</Y>
+                                  <Y>3113.3125</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -13191,7 +13197,7 @@ UNIDADES: metros (regla #11).
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>1126</X>
-                                  <Y>3145.188</Y>
+                                  <Y>3145.1875</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -13217,7 +13223,7 @@ UNIDADES: metros (regla #11).
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>1126</X>
-                                  <Y>3177.063</Y>
+                                  <Y>3177.0625</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -15732,7 +15738,7 @@ Comercial, Oficinas, Mixto, Institucional).
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>8283</X>
-                                  <Y>4732.083</Y>
+                                  <Y>4732.0835</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -15810,7 +15816,7 @@ Comercial, Oficinas, Mixto, Institucional).
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>8283</X>
-                                  <Y>4840.583</Y>
+                                  <Y>4840.5835</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -17430,17 +17436,17 @@ SALIDAS (actualizadas):
                     <chunk name="Attributes">
                       <items count="5">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
-                          <X>5310</X>
-                          <Y>5089</Y>
+                          <X>5427</X>
+                          <Y>5076</Y>
                           <W>160</W>
-                          <H>38</H>
+                          <H>81</H>
                         </item>
                         <item name="MarginLeft" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginRight" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginTop" type_name="gh_int32" type_code="3">0</item>
                         <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
-                          <X>5310.171</X>
-                          <Y>5089.792</Y>
+                          <X>5427.818</X>
+                          <Y>5076.613</Y>
                         </item>
                       </items>
                     </chunk>
@@ -18442,7 +18448,7 @@ SALIDAS (actualizadas):
                     <item name="Description" type_name="gh_string" type_code="10">Contains a collection of generic curves</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">bcc3ada7-773e-4c7f-81b7-bc9996c57149</item>
                     <item name="Name" type_name="gh_string" type_code="10">Curve</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#78-Curve</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#79-Curve</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="Source" index="0" type_name="gh_guid" type_code="9">267eaecc-557b-4336-a976-21f4a751efed</item>
                     <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
@@ -18477,7 +18483,7 @@ SALIDAS (actualizadas):
                     <item name="Description" type_name="gh_string" type_code="10">Contains a collection of generic curves</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">904b6c1d-25c3-43ca-9764-c890793a79fe</item>
                     <item name="Name" type_name="gh_string" type_code="10">Curve</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#76-Curve</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#77-Curve</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="Source" index="0" type_name="gh_guid" type_code="9">ebb20caa-158a-4e94-a4be-40e9e030cf83</item>
                     <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
@@ -18512,7 +18518,7 @@ SALIDAS (actualizadas):
                     <item name="Description" type_name="gh_string" type_code="10">Contains a collection of generic curves</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">3f88648e-3885-41eb-9fd0-ef923dfa34af</item>
                     <item name="Name" type_name="gh_string" type_code="10">Curve</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#77-Curve</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#78-Curve</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="Source" index="0" type_name="gh_guid" type_code="9">f2cd77e4-f7c1-4845-9def-85a9d94be25b</item>
                     <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
@@ -22340,7 +22346,7 @@ FALSE = the component does not communicate with Archicad</item>
                             </item>
                             <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                               <X>1491.5</X>
-                              <Y>2859.833</Y>
+                              <Y>2859.8333</Y>
                             </item>
                           </items>
                         </chunk>
@@ -22414,7 +22420,7 @@ FALSE = the component does not communicate with Archicad</item>
                             </item>
                             <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                               <X>1491.5</X>
-                              <Y>2939.167</Y>
+                              <Y>2939.1665</Y>
                             </item>
                           </items>
                         </chunk>
@@ -25108,7 +25114,7 @@ FALSE = the component does not communicate with Archicad</item>
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
                           <X>4752.397</X>
                           <Y>675.5916</Y>
-                          <W>195</W>
+                          <W>148</W>
                           <H>20</H>
                         </item>
                       </items>
@@ -25186,7 +25192,7 @@ FALSE = the component does not communicate with Archicad</item>
                           <X>4420.499</X>
                           <Y>753.9467</Y>
                           <W>101</W>
-                          <H>19.99976</H>
+                          <H>19.999756</H>
                         </item>
                       </items>
                     </chunk>
@@ -25727,9 +25733,9 @@ FALSE = the component does not communicate with Archicad</item>
                     <chunk name="Attributes">
                       <items count="2">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
-                          <X>3618</X>
+                          <X>3616</X>
                           <Y>469</Y>
-                          <W>70</W>
+                          <W>74</W>
                           <H>16</H>
                         </item>
                         <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
@@ -27243,9 +27249,9 @@ Error message for each item (empty when the element was created successfully).</
                     <chunk name="Attributes">
                       <items count="2">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
-                          <X>3756</X>
+                          <X>3754</X>
                           <Y>3370</Y>
-                          <W>70</W>
+                          <W>74</W>
                           <H>16</H>
                         </item>
                         <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
@@ -27419,7 +27425,7 @@ Error message for each item (empty when the element was created successfully).</
                             </item>
                             <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                               <X>5439.5</X>
-                              <Y>2439.833</Y>
+                              <Y>2439.8333</Y>
                             </item>
                           </items>
                         </chunk>
@@ -27471,7 +27477,7 @@ Error message for each item (empty when the element was created successfully).</
                             </item>
                             <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                               <X>5439.5</X>
-                              <Y>2575.167</Y>
+                              <Y>2575.1665</Y>
                             </item>
                           </items>
                         </chunk>
@@ -29372,6 +29378,10 @@ RESUMEN:
   F1_ETAPA2_NORMATIVA_v09.py (entrada barras_json) para emitir los productos
   APROBADOS (ocupacion_aprobada_m2, gfa_aprobado_m2, envelope_aprobado_por_piso).
 HISTORIAL DE VERSIONES:
+  v03.5 (2026-10-09): Se publica layout_espacial_json (salida #7 del componente):
+- Lee casos/&lt;chip&gt;/layout_espacial.json (o el mas reciente de casos/) y
+lo emite como salida GH para los consumidores F3 (UNIDADES/ACCESOS);
+el mensaje indica la ruta usada. Sin archivo -&gt; salida vacia, sin error.
   v03.4 (2026-10-05, 4.ª iteración): FIX json.dumps en IronPython.
 - Bug del runtime IronPython 2.7 (json/encoder.py → py_encode_basestring_ascii):
 con strings unicode no-ASCII, json.dumps(ensure_ascii=True) lanza
@@ -29474,6 +29484,7 @@ SALIDAS del componente:
   gfa_real_m2              Number   → Panel (opcional)
   floor_h_usado            Number   → Panel (opcional)
   n_barras_usado           Integer  → Panel (opcional)
+  layout_espacial_json     Text      Consumidores F3 (UNIDADES/ACCESOS) - casos/&lt;chip&gt;/layout_espacial.json
 CLI (pipeline / pruebas):
   --caso / --chip                 ID caso (A, B, B_SALUD, C) o CHIP
   --presupuesto-ocupacion         Presupuesto ocupación [m²] (desde NORMATIVA v09)
@@ -29502,7 +29513,7 @@ CLI (pipeline / pruebas):
                     <item name="IsAdvancedMode" type_name="gh_bool" type_code="1">false</item>
                     <item name="MarshalOutGuids" type_name="gh_bool" type_code="1">true</item>
                     <item name="Name" type_name="gh_string" type_code="10">GhPython Script</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#75-F3_DISTRIBUCION_v03.py</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#76-F3_DISTRIBUCION_v03.py</item>
                   </items>
                   <chunks count="2">
                     <chunk name="Attributes">
@@ -30943,6 +30954,13 @@ SALIDAS:
   (GH) volumenes_por_uso, usos_etiquetas, usos_pisos -&gt; F3_VOLUM_GENERADOR
 ================================================================================
 HISTORIAL DE VERSIONES:
+  v02.2 (2026-10-09): Blindaje GH/CLI:
+1. Precision segura: argumentos de {:.1f}/{:.2f} pasan por float()
+(IronPython rechaza precision sobre enteros).
+2. Mensaje de error con cola de traceback (linea exacta del fallo).
+3. Respaldo de layout desde disco (casos/&lt;chip&gt;/) si el cableado no
+lo entrega; el mensaje indica la fuente usada.
+4. main() solo corre con __name__ == "__main__" (tests importan sin CLI).
   v02.1 (2026-10-08): Cambio menor — FIXES para compatibilidad GH:
 1. Fix `_pj()`: ahora acepta dict/list ya parseados (no solo string/archivo).
 2. Fix `_gh()`: fallback automático de `lote_frente_m`/`lote_fondo_m` desde
@@ -31043,7 +31061,7 @@ huella del layout si no vienen de F1.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>3247.5</X>
-                                  <Y>5977.545</Y>
+                                  <Y>5977.5454</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -31136,7 +31154,7 @@ huella del layout si no vienen de F1.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>3247.5</X>
-                                  <Y>6064.818</Y>
+                                  <Y>6064.8184</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -31258,7 +31276,7 @@ huella del layout si no vienen de F1.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>3247.5</X>
-                                  <Y>6181.182</Y>
+                                  <Y>6181.1816</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -31288,7 +31306,7 @@ huella del layout si no vienen de F1.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>3247.5</X>
-                                  <Y>6210.272</Y>
+                                  <Y>6210.2725</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -31348,7 +31366,7 @@ huella del layout si no vienen de F1.
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>3247.5</X>
-                                  <Y>6268.455</Y>
+                                  <Y>6268.4546</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -33384,7 +33402,7 @@ respaldo con verificacion de volumen
                     <item name="IsAdvancedMode" type_name="gh_bool" type_code="1">false</item>
                     <item name="MarshalOutGuids" type_name="gh_bool" type_code="1">true</item>
                     <item name="Name" type_name="gh_string" type_code="10">GhPython Script</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#74-F3_VOLUM_GENERADOR_v08.py</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#75-F3_VOLUM_GENERADOR_v08.py</item>
                   </items>
                   <chunks count="2">
                     <chunk name="Attributes">
@@ -33456,7 +33474,7 @@ respaldo con verificacion de volumen
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>2576</X>
-                                  <Y>6193.556</Y>
+                                  <Y>6193.5557</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -33610,7 +33628,7 @@ respaldo con verificacion de volumen
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>2576</X>
-                                  <Y>6349.111</Y>
+                                  <Y>6349.1113</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -33673,7 +33691,7 @@ respaldo con verificacion de volumen
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>2576</X>
-                                  <Y>6411.333</Y>
+                                  <Y>6411.3335</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -33704,7 +33722,7 @@ respaldo con verificacion de volumen
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>2576</X>
-                                  <Y>6442.444</Y>
+                                  <Y>6442.4443</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -34590,7 +34608,7 @@ FUNCIONES INTERNAS:
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>2940</X>
-                                  <Y>6448.3</Y>
+                                  <Y>6448.3003</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -34746,7 +34764,7 @@ FUNCIONES INTERNAS:
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>2940</X>
-                                  <Y>6569.3</Y>
+                                  <Y>6569.3003</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -34865,7 +34883,7 @@ FUNCIONES INTERNAS:
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>3055</X>
-                                  <Y>6432.167</Y>
+                                  <Y>6432.1665</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -34944,7 +34962,7 @@ FUNCIONES INTERNAS:
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>3055</X>
-                                  <Y>6553.167</Y>
+                                  <Y>6553.1665</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -35654,6 +35672,15 @@ USO CLI:
   python F3_ACCESOS_INTEGRADOR_v02.py --caso A
   python F3_ACCESOS_INTEGRADOR_v02.py --layout &lt;layout.json&gt; --matriz &lt;matriz.json&gt;
 HISTORIAL DE VERSIONES:
+  v02.2 (2026-10-09): Robustez de entradas + diagnostico:
+1. Parser JSON multi-forma: dict/list/string/ruta, listas anidadas y
+JSON embebido; valida que el contenido sea layout/matriz real.
+2. Si el cableado entrega otro JSON (p.ej. unidades_json) el mensaje
+lo indica en lugar de dar un error opaco.
+3. Respaldo desde disco: casos/*/layout_espacial.json y
+matriz_adyacencias.json (chip si existe) cuando el cableado no
+entrega datos validos.
+4. main() solo con __name__ == "__main__" (importable desde tests).
   v02.1 (2026-10-08): Cambio menor — FIX para lectura de entradas GH:
 1. Nueva función `_parse_json_input()`: acepta dict/list ya parseados,
 string JSON, o ruta a archivo .json (resuelve error "sin layout_espacial.json").
@@ -35732,7 +35759,7 @@ string JSON, o ruta a archivo .json (resuelve error "sin layout_espacial.json").
                                 </item>
                                 <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
                                   <X>3366.5</X>
-                                  <Y>6482.833</Y>
+                                  <Y>6482.8335</Y>
                                 </item>
                               </items>
                             </chunk>
@@ -37277,7 +37304,7 @@ a = mensaje</item>
                     <item name="Description" type_name="gh_string" type_code="10">Join a collection of text fragments into one</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">8bb53d04-fd9d-4913-8f71-17bec5845638</item>
                     <item name="Name" type_name="gh_string" type_code="10">Text Join</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#79-Text Join</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#80-Text Join</item>
                   </items>
                   <chunks count="4">
                     <chunk name="Attributes">
@@ -37557,7 +37584,7 @@ a = mensaje</item>
                     <item name="Description" type_name="gh_string" type_code="10">Merge a bunch of data streams</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">6c5ba3b4-f736-4d6c-8a27-b3982adfbe53</item>
                     <item name="Name" type_name="gh_string" type_code="10">Merge</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#80-Merge</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#81-Merge</item>
                   </items>
                   <chunks count="2">
                     <chunk name="Attributes">
@@ -37829,7 +37856,7 @@ a = mensaje</item>
                     <item name="Description" type_name="gh_string" type_code="10">A panel for custom notes and text values</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">5fe99180-4ef7-4a27-b2b4-7309dd83d812</item>
                     <item name="Name" type_name="gh_string" type_code="10">Panel</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#82-Panel</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#83-Panel</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="ScrollRatio" type_name="gh_double" type_code="6">0</item>
                     <item name="Source" index="0" type_name="gh_guid" type_code="9">60c0aefd-b75c-406b-8062-fcdda1f3d599</item>
@@ -37893,8 +37920,8 @@ a = mensaje</item>
                     <chunk name="Attributes">
                       <items count="5">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
-                          <X>5977</X>
-                          <Y>4381</Y>
+                          <X>5951</X>
+                          <Y>4431</Y>
                           <W>321</W>
                           <H>209</H>
                         </item>
@@ -37902,8 +37929,8 @@ a = mensaje</item>
                         <item name="MarginRight" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginTop" type_name="gh_int32" type_code="3">0</item>
                         <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
-                          <X>5977.791</X>
-                          <Y>4381.445</Y>
+                          <X>5951.4937</X>
+                          <Y>4431.272</Y>
                         </item>
                       </items>
                     </chunk>
@@ -37935,7 +37962,7 @@ a = mensaje</item>
                     <item name="Description" type_name="gh_string" type_code="10">A panel for custom notes and text values</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">61d0c4e5-ea2a-46a3-ab18-21b1bb9de70a</item>
                     <item name="Name" type_name="gh_string" type_code="10">Panel</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#97-Panel</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#98-Panel</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="ScrollRatio" type_name="gh_double" type_code="6">0</item>
                     <item name="Source" index="0" type_name="gh_guid" type_code="9">e3c744e2-6e16-431e-9f11-585d9dc7b6c7</item>
@@ -37946,16 +37973,16 @@ a = mensaje</item>
                     <chunk name="Attributes">
                       <items count="5">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
-                          <X>3603</X>
+                          <X>3604</X>
                           <Y>6198</Y>
-                          <W>208</W>
+                          <W>300</W>
                           <H>100</H>
                         </item>
                         <item name="MarginLeft" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginRight" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginTop" type_name="gh_int32" type_code="3">0</item>
                         <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
-                          <X>3603.941</X>
+                          <X>3604.356</X>
                           <Y>6198.961</Y>
                         </item>
                       </items>
@@ -37988,7 +38015,7 @@ a = mensaje</item>
                     <item name="Description" type_name="gh_string" type_code="10">A panel for custom notes and text values</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">a1c435d3-ee7e-416f-96bb-82f435afbc96</item>
                     <item name="Name" type_name="gh_string" type_code="10">Panel</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#98-Panel</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#99-Panel</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="ScrollRatio" type_name="gh_double" type_code="6">0</item>
                     <item name="Source" index="0" type_name="gh_guid" type_code="9">07dc3598-fdf7-4762-a687-5d3a4a71210c</item>
@@ -38050,16 +38077,21 @@ a = mensaje</item>
                   </items>
                   <chunks count="2">
                     <chunk name="Attributes">
-                      <items count="4">
+                      <items count="6">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
-                          <X>5803</X>
-                          <Y>4302</Y>
+                          <X>5812</X>
+                          <Y>4336</Y>
                           <W>327</W>
                           <H>124</H>
                         </item>
                         <item name="MarginLeft" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginRight" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginTop" type_name="gh_int32" type_code="3">0</item>
+                        <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
+                          <X>5812.6885</X>
+                          <Y>4336.602</Y>
+                        </item>
+                        <item name="Selected" type_name="gh_bool" type_code="1">true</item>
                       </items>
                     </chunk>
                     <chunk name="PanelProperties">
@@ -38101,17 +38133,17 @@ a = mensaje</item>
                     <chunk name="Attributes">
                       <items count="5">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
-                          <X>3602</X>
-                          <Y>5965</Y>
-                          <W>160</W>
-                          <H>100</H>
+                          <X>3603</X>
+                          <Y>5907</Y>
+                          <W>300</W>
+                          <H>131</H>
                         </item>
                         <item name="MarginLeft" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginRight" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginTop" type_name="gh_int32" type_code="3">0</item>
                         <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
-                          <X>3602.941</X>
-                          <Y>5965.176</Y>
+                          <X>3603.7642</X>
+                          <Y>5907.6904</Y>
                         </item>
                       </items>
                     </chunk>
@@ -38143,7 +38175,7 @@ a = mensaje</item>
                     <item name="Description" type_name="gh_string" type_code="10">A panel for custom notes and text values</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">75a2e5ab-b2f0-4563-8013-545833bd6b5a</item>
                     <item name="Name" type_name="gh_string" type_code="10">Panel</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#99-Panel</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#97-Panel</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="ScrollRatio" type_name="gh_double" type_code="6">0</item>
                     <item name="Source" index="0" type_name="gh_guid" type_code="9">5439fe72-d9e7-4307-bbdc-7d5f7a664ab9</item>
@@ -38154,17 +38186,17 @@ a = mensaje</item>
                     <chunk name="Attributes">
                       <items count="5">
                         <item name="Bounds" type_name="gh_drawing_rectanglef" type_code="35">
-                          <X>3598</X>
-                          <Y>6079</Y>
-                          <W>160</W>
-                          <H>100</H>
+                          <X>3602</X>
+                          <Y>6040</Y>
+                          <W>301</W>
+                          <H>148</H>
                         </item>
                         <item name="MarginLeft" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginRight" type_name="gh_int32" type_code="3">0</item>
                         <item name="MarginTop" type_name="gh_int32" type_code="3">0</item>
                         <item name="Pivot" type_name="gh_drawing_pointf" type_code="31">
-                          <X>3598.24</X>
-                          <Y>6079.105</Y>
+                          <X>3602.448</X>
+                          <Y>6040.417</Y>
                         </item>
                       </items>
                     </chunk>
@@ -38249,7 +38281,7 @@ a = mensaje</item>
                     <item name="Description" type_name="gh_string" type_code="10">A panel for custom notes and text values</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">3c58edf4-f463-43d5-995d-c033e34e16cb</item>
                     <item name="Name" type_name="gh_string" type_code="10">Panel</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#83-Panel</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#84-Panel</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="ScrollRatio" type_name="gh_double" type_code="6">0</item>
                     <item name="Source" index="0" type_name="gh_guid" type_code="9">35b13a06-542a-4f60-88a3-39a56ed56bf5</item>
@@ -38302,7 +38334,7 @@ a = mensaje</item>
                     <item name="Description" type_name="gh_string" type_code="10">A panel for custom notes and text values</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">bd2ac736-15e3-4060-9b6b-46789821dedc</item>
                     <item name="Name" type_name="gh_string" type_code="10">Panel</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#85-Panel</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#74-Panel</item>
                     <item name="Optional" type_name="gh_bool" type_code="1">false</item>
                     <item name="ScrollRatio" type_name="gh_double" type_code="6">0</item>
                     <item name="Source" index="0" type_name="gh_guid" type_code="9">2f5b4ab4-e543-46c7-8270-0cd5f842331f</item>
@@ -43601,7 +43633,7 @@ a = mensaje</item>
     <chunk name="Thumbnail">
       <items count="1">
         <item name="Thumbnail" type_name="gh_drawing_bitmap" type_code="37">
-          <bitmap length="12838">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</bitmap>
+          <bitmap length="9821">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</bitmap>
         </item>
       </items>
     </chunk>
