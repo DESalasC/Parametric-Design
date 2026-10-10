@@ -813,4 +813,4 @@ base = {"schema":"base_normativa_predio_v1", "area_lote_m2":area_lote,
         "retiro_frontal_m":antejardin,"retiro_posterior_m":retiro_posterior,
         "retiro_lateral_m":retiro_lateral,"warnings":warnings,"bloqueos":bloqueos}
 base_json=json.dumps(base,ensure_ascii=True)
-mensaje="BASE #164 | {:.1f} m2 | IO {:.2f} | presupuesto {:.1f} m2 | {} pisos | frente {:.2f} m | sin retorno F3".format(area_lote,io_maximo,presupuesto_ocupacion_m2,int(pisos_propuestos),L)
+mensaje="BASE v10 | {:.1f} m2 | IO {:.2f} | presupuesto {:.1f} m2 | {} pisos | frente {:.2f} m | sin retorno F3".format(area_lote,io_maximo,presupuesto_ocupacion_m2,int(pisos_propuestos),L)
