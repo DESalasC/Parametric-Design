@@ -156,7 +156,6 @@ def generar_xml_layers(layers):
 # ==============================================================================
 
 json_text_raw = globals().get("json_text", None)
-json_path_raw = globals().get("json_path", None)
 output_path_raw = globals().get("output_path", None)
 execute_raw = globals().get("execute", None)
 
@@ -193,34 +192,12 @@ except:
 
 # --- Procesar capas ---
 layers = []
-# Fuente alternativa: archivo JSON de capas (si json_text viene vacio).
-_json_path = ""
-try:
-    if isinstance(json_path_raw, list):
-        _json_path = str(json_path_raw[0]) if json_path_raw else ""
-    elif json_path_raw is not None:
-        _json_path = str(json_path_raw)
-except:
-    _json_path = ""
-_json_path = (_json_path or "").replace('\r', '').replace('\n', '').strip()
 json_text_limpio = json_text.strip().strip("'\"")
 if json_text_limpio:
     try:
         data = json.loads(json_text_limpio)
         if isinstance(data, list):
             layers = data
-    except:
-        layers = []
-elif _json_path and os.path.exists(_json_path):
-    try:
-        with open(_json_path, 'rb') as f:
-            _raw = f.read()
-        try:
-            _capa = json.loads(_raw.decode('utf-8'))
-        except Exception:
-            _capa = json.loads(_raw.decode('latin-1'))
-        if isinstance(_capa, list):
-            layers = _capa
     except:
         layers = []
 

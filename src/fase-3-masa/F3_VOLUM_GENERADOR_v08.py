@@ -1,58 +1,27 @@
 """
 ================================================================================
-F3_VOLUM_GENERADOR_v08.py - Masa con nucleo EXCLUIDO y circulacion/servicios
+F3_VOLUM_GENERADOR_v08.py — v08.0.2 (genérica v08) - Masa con nucleo EXCLUIDO y circulacion/servicios
 separados (geometria para elementos nativos de ArchiCAD via Live Connection)
 Proyecto: DisenoParametrico / Fase 3
 GH Python Script para Grasshopper (componente "Script", IronPython 2.7)
 ================================================================================
 
-SUBVERSIONES INTERNAS (politica: solo se documentan las 1-2 sub-versiones
-  inmediatamente anteriores; el historial completo vive en el archivo v07
-  archivado en _legacy):
+SUBVERSIONES INTERNAS (politica del proyecto: se conservan las ultimas tres;
+  historial completo en el Vault Obsidian; v07 archivado en _legacy):
+
+  v08.0.2 (2026-10-11, noche 2): "Implantacion" usa `huella_xy_por_piso[fi]`
+         cuando existe (escalonamiento lateral 1/5 sobre empate, F3 v03.8).
+  v08.0.1 (2026-10-11, canvas v13.2): bloque "Implantacion dinamica" (F1) con
+         cierre defensivo de huella_xy (compatible con huellas abiertas o
+         cerradas; el generador F3_DISTRIBUCION v03.6.1 la emite cerrada).
 
   v08.0: salidas nuevas `circulacion_pisos`, `servicios_pisos`, `losas_pisos`
          y `nucleo_pisos` (numero de piso por geometria, paralelas 1:1 a sus
          respectivas salidas de geometria), para alimentar F3_MORPH_ATRIBUTOS
          y asignar el Story en ArchiCAD sin adivinar el piso.
 
-  v07.25 (previa): salida `usos_pisos` (piso por volumen en volumenes_por_uso).
-  v07.24 (previa): salidas `volumenes_por_uso` + `usos_etiquetas` (paralelas).
-cambios mayores (contrato de entradas/salidas o algoritmo central); las
-iteraciones internas se registran como subversiones v07.x en este encabezado
-(el mensaje del componente reporta la subversion en curso).
 
-v07 (2026-08-16): correcciones solicitadas por el operador:
-  1. PERIMETRO = envelope_por_piso de F1_ETAPA2_NORMATIVA_v07 (curva POR PISO:
-     ocupacion escalonada + voladizos en pisos superiores; fallback a
-     envelope_curve para compatibilidad v06). El componente recibe SIEMPRE la
-     lista de curvas del NORMATIVA (o la curva unica como respaldo).
-  2. EXCLUSION REAL del nucleo: la losa se perfora con el BLOQUE COMPLETO
-     del nucleo (nucleo.bloque del programa-areas.json: 5,4x9,0 m = 48,6 m2
-     en el caso A), UBICADO POR BARRIDO 3x3 (paso 0,75 m) alrededor del
-     centroide de cada piso (el centroide de una L concava puede caer en el
-     codo y partir la interseccion; el barrido ubica el bloque donde cabe
-     completo, >=95% del area - posicion indicativa del layout, la
-     definitiva es del diseno arquitectonico). El hueco se construye SIN
-     booleanos: la diferencia de curvas devuelve el contorno EXTERIOR + los
-     AGUJEROS como curvas separadas (representacion de Rhino de una region
-     con hueco); la losa sale de CreatePlanarBreps([exterior] + agujeros)
-     y el volumen principal es la EXTRUSION de esa losa con hueco
-     (verificacion de area tol 2%); boolean 3D (verificacion de volumen
-     tol 3%) solo como respaldo. Los SOLIDOS del nucleo
-     (circulacion + servicios, 39,8 m2) se generan aparte y rellenan parte
-     del hueco; el aire interior del bloque (8,8 m2) queda vacio (circulacion
-     interna del nucleo). Regla: NUNCA se entrega geometria intersectante - si
-     la exclusion falla, ese piso se omite y el mensaje lo reporta (huecos
-     excluidos n/N + detalle por piso).
-  3. CIRCULACION VERTICAL (escaleras + ascensores) SEPARADA de SERVICIOS y
-     areas tecnicas (ductos/basuras/cuarto tecnico): salidas independientes
-     volumenes_circulacion y volumenes_servicios, con la disposicion real de
-     nucleo.disposicion del programa-areas.json (F3_DISTRIBUCION_v01).
-  4. DESTINO = ArchiCAD: las salidas de geometria se cablean a los componentes
-     de la Live Connection (AC_*) que crean MORPHS NATIVOS de ArchiCAD - no se
-     hornea en Rhino. Los elementos viajan a ArchiCAD y pueden volver
-     modificados por decisiones del operador (GetElements) o por sugerencias de
-     Ladybug (F4) y Wallacei (optimizacion) dentro de Grasshopper.
+(El detalle de v07 y anteriores vive en el Vault Obsidian / archivo v07 en _legacy.)
 
 Normativa aplicable: NSR-10 Titulo K (escaleras de evacuacion), C.2.3
 (ocupacion); POT Decreto 555/2021 (ocupacion del envelope F1).
@@ -618,12 +587,12 @@ def _resolver_json(ruta):
     del basename bajo src/fase-3-masa. Devuelve ruta existente o ''."""
     if not ruta:
         return ""
-    if os.path.exists(ruta):
+    if os.path.isfile(ruta):
         return ruta
     base_proyecto = r"D:\Work\PROJECTS\DiseñoParametrico"
     for cand in (os.path.join(base_proyecto, ruta),
                  os.path.join(base_proyecto, "src", "fase-3-masa", ruta)):
-        if os.path.exists(cand):
+        if os.path.isfile(cand):
             return cand
     nombre = os.path.basename(ruta)
     for raiz, _, archivos in os.walk(os.path.join(base_proyecto, "src", "fase-3-masa", "casos")):
@@ -748,6 +717,8 @@ zonas_perimetros = []      # List of List[Point3d] - 2D perimeters of zones
 zonas_pisos = []           # List[int] - floor number for each zone
 zonas_atributos = []       # List[str] - JSON attributes for each zone
 zonas_alturas = []         # List[float] - height of each zone
+zonas_nombres = []
+zonas_centroides = []
 mensaje = ""
 
 if not env_por_piso and not env_fb:
@@ -1415,9 +1386,19 @@ else:
                             }
 
                             # Agregar datos a las listas de salida
-                            zonas_perimetros.append(puntos_perimetro)
+                            # Zone.Polygon accepts planar geometry, not nested point lists.
+                            curva_ac = curva_zona.DuplicateCurve()
+                            curva_ac.Translate(rg.Vector3d(0.0, 0.0, z - curva_ac.GetBoundingBox(True).Min.Z))
+                            if not curva_ac.IsClosed or not curva_ac.IsPlanar(0.01):
+                                raise ValueError("P{}: perimetro abierto/no plano".format(piso_num))
+                            ap_ac = rg.AreaMassProperties.Compute(curva_ac)
+                            if ap_ac is None:
+                                raise ValueError("P{}: zona sin area".format(piso_num))
+                            zonas_perimetros.append(curva_ac)
                             zonas_pisos.append(piso_num)
-                            zonas_alturas.append(zona_altura_centro)
+                            zonas_alturas.append(h_piso)
+                            zonas_nombres.append(uso_nombre or "Zona")
+                            zonas_centroides.append(ap_ac.Centroid)
                             zonas_atributos.append(py_json.dumps(atributos, ensure_ascii=False))
 
                         # Incrementar altura acumulada para el siguiente piso
@@ -1428,8 +1409,70 @@ else:
                     zonas_pisos = []
                     zonas_atributos = []
                     zonas_alturas = []
+                    zonas_nombres = []
+                    zonas_centroides = []
+                    mensaje += " | ERROR ZONAS: {}".format(str(e))
 
-                
+                mensaje += " | ZONAS: {}".format(len(zonas_perimetros))
     except Exception as e:
         mensaje = "VOLUM v08.0 | ERROR: {}".format(str(e))
 
+
+
+
+# Implantacion dinamica: prevalece la propuesta F3 sobre el JSON fijo de programa.
+_barras_in = globals().get("barras_implantadas_json")
+if _barras_in:
+    from Grasshopper import DataTree
+    from Grasshopper.Kernel.Data import GH_Path
+    _bd = json.loads(str(unwrap(_barras_in)))
+    _alt = next((a for a in _bd.get("alternativas",[]) if a.get("id")==_bd.get("recomendada")),None)
+    # Clear legacy results: never keep geometry from another proposal.
+    volumenes_principales=[];volumenes_por_uso=[];losas=[]
+    volumenes_circulacion=[];volumenes_servicios=[];volumenes_nucleo=[]
+    zonas_perimetros=DataTree[object]();zonas_centroides=DataTree[object]()
+    zonas_nombres=DataTree[object]();zonas_pisos=DataTree[object]()
+    zonas_alturas=DataTree[object]();zonas_atributos=DataTree[object]()
+    usos_etiquetas=DataTree[object]();usos_pisos=DataTree[object]()
+    etiquetas=[];circulacion_pisos=[];servicios_pisos=[];nucleo_pisos=[];losas_pisos=[]
+    if not _alt:
+        mensaje="IMPLANTACION: no hay alternativa factible. Sin zonas exportables."
+    else:
+        _lay_raw=globals().get("layout_usos_json")
+        _lay=json.loads(str(unwrap(_lay_raw))) if _lay_raw else {}
+        _niv=_lay.get("niveles",[])
+        _count=0
+        for bi,block in enumerate(_alt.get("bloques",[])):
+            for fi in range(int(block["pisos"])):
+                z=float(block["cota_arranque_m"])+fi*float(block["floor_h"])
+                h=float(block["floor_h"])
+                _hxp = block.get("huella_xy_por_piso") or []
+                xy = _hxp[fi] if fi < len(_hxp) else block["huella_xy"]
+                # Current stage publishes gross block zones: core subtraction not certified.
+                usos = _niv[fi].get("usos",[]) if fi<len(_niv) else []
+                nombre=" / ".join(usos) if usos else "Uso por definir"
+                pts=[rg.Point3d(float(q[0]),float(q[1]),z) for q in xy]
+                if len(pts)>=3 and pts[0].DistanceTo(pts[-1])>1e-9:
+                    pts.append(rg.Point3d(pts[0]))  # cierre defensivo (polilinea cerrada)
+                crv=rg.PolylineCurve(pts)
+                ap=rg.AreaMassProperties.Compute(crv)
+                if ap is None or len(pts)<3 or (not crv.IsClosed):
+                    raise ValueError("Huella invalida "+block["id"])
+                path=GH_Path(bi,fi)
+                zonas_perimetros.Add(crv,path)
+                zonas_centroides.Add(ap.Centroid,path)
+                zonas_nombres.Add(block["id"]+" · "+nombre,path)
+                zonas_pisos.Add(block["id"]+"-P"+str(fi+1),path)
+                zonas_alturas.Add(h,path)
+                usos_etiquetas.Add(nombre,path);usos_pisos.Add(fi+1,path)
+                zonas_atributos.Add(json.dumps({"bloque":block["id"],"piso":fi+1,"z_base_m":z,"altura_m":h,"area_bruta_m2":ap.Area,"uso":nombre,"estado":"preliminar; sin descuento de nucleo"},ensure_ascii=True),path)
+                perfil0=crv.DuplicateCurve()
+                perfil0.Translate(rg.Vector3d(0,0,-z))
+                vol=_extruir(perfil0,h,z)
+                if vol is not None:
+                    volumenes_principales.append(vol);volumenes_por_uso.append(vol)
+                lb=rg.Brep.CreatePlanarBreps(crv,0.001)
+                if lb:
+                    losas.extend(list(lb));losas_pisos.append(fi+1)
+                _count+=1
+        mensaje="IMPLANTACION F3 | {} | {} bloques | {} zonas | cota terreno + piso x entrepiso | areas BRUTAS; nucleos/accesos pendientes".format(_alt["id"],len(_alt["bloques"]),_count)

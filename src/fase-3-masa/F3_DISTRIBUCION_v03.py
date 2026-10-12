@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
-F3_DISTRIBUCION_v03.py — Distribuidor de barras por crujía con presupuesto IO
+F3_DISTRIBUCION_v03.py — v03.8 (genérica v03) — Distribuidor de barras por crujía con presupuesto IO
 Proyecto: DisenoParametrico / Fase 3
 GH Python Script para Grasshopper (IronPython 2.7 compatible) + CLI
 ================================================================================
@@ -16,71 +16,27 @@ RESUMEN:
   F1_ETAPA2_NORMATIVA_v09.py (entrada barras_json) para emitir los productos
   APROBADOS (ocupacion_aprobada_m2, gfa_aprobado_m2, envelope_aprobado_por_piso).
 
-HISTORIAL DE VERSIONES:
-  v03.5 (2026-10-09): Se publica layout_espacial_json (salida #7 del componente):
-    - Lee casos/<chip>/layout_espacial.json (o el mas reciente de casos/) y
-      lo emite como salida GH para los consumidores F3 (UNIDADES/ACCESOS);
-      el mensaje indica la ruta usada. Sin archivo -> salida vacia, sin error.
-  v03.4 (2026-10-05, 4.ª iteración): FIX json.dumps en IronPython.
-    - Bug del runtime IronPython 2.7 (json/encoder.py → py_encode_basestring_ascii):
-      con strings unicode no-ASCII, json.dumps(ensure_ascii=True) lanza
-      "'unknown' codec can't decode byte 0x..". Se añade _json_dumps_ascii():
-      intento estándar → bytes UTF-8 → serializador ASCII manual (nunca depende
-      del codec). Reproducido y verificado con IronPython 2.7.12 local.
-  v03.3 (2026-10-05, 3.ª iteración): FIX lectura de archivos en GHPython.
-    - Lectura JSON con el PATRÓN CANÓNICO del proyecto (lección 2026-09-17):
-      open(rb) + decodificación explícita utf-8-sig → cp1252 → latin-1 +
-      json.loads. (En IronPython, io.open/codecs.open intentan decodificar con
-      el codec por defecto "unknown" y fallan con "'unknown' codec can't
-      decode byte 0x.." en contenido no-ASCII; las escrituras también van a binario.)
-    - Normalización de texto: _texto_seguro() (bytes → unicode por cascada)
-      aplicada a rutas, variable de entorno y entradas; literales con tilde de
-      las rutas activas como u"..."; prints silenciados dentro de GH.
-    - Diagnóstico: si algo falla, el mensaje indica el PASO
-      (p.ej. "ERROR en [leer resultados F2]") + cola del traceback.
-  v03.2 (2026-10-05, misma jornada): FIX detección de entorno GH (canvas vivo).
-    - En GHPython (Rhino 8) `import ghenv` FALLA: `ghenv` (y `ghdoc`) se
-      inyectan como VARIABLES del script; la detección ahora usa
-      `"ghenv"/"ghdoc" in globals()` con fallback de import. Antes, `_EN_GH`
-      quedaba False y main() corría dentro de Grasshopper (SystemExit de
-      argparse). Si hay .NET/Rhino pero ghenv no aparece, se emite un aviso.
-    - Guard CLI reforzado: main() solo corre si __name__ == "__main__" Y el
-      entorno NO es IronPython Y no hay `clr` (.NET) — nunca dentro de Rhino.
-    - barras_json (salida GH) y los JSON de CLI con ensure_ascii=True
-      (convención ASCII-safe del proyecto; evita errores de codificación al
-      pasar el string entre componentes).
-  v03.1 (2026-10-05): Corregido para uso vivo en canvas v13.1.
-    - FIX IronPython 2.7: eliminada anotación de tipo Python 3 en
-      normalizar_uso() ("def normalizar_uso(uso: str) -> str:" provocaba
-      SyntaxErrorException "unexpected token ':'" en el componente GHPython).
-    - SECCIÓN GRASSHOPPER completa: el script ahora también funciona DENTRO
-      del componente del canvas (lee entradas, calcula y publica las 7
-      salidas GH: barras_json, mensaje, alternativa_recomendada,
-      ocupacion_total_m2, gfa_real_m2, floor_h_usado, n_barras_usado).
-    - Lectura defensiva de entradas GH (tolerante a None / listas / guiones
-      en nombres) + fallback por índice de parámetro (ghenv).
-    - Si presupuesto_ocupacion_m2 está vacío, se DERIVA = lote_m2 × io_max
-      con un margen de seguridad (0,1% / mín. 0,25 m²) para que la
-      validación APROBADA de NORMATIVA v09 no falle por centésimas; el
-      mensaje lo indica. Para coincidencia exacta, escribir el valor del
-      Panel presupuesto_ocupacion_m2 de NORMATIVA v09.
-    - Raíz del proyecto robusta: archivo (CLI) → variable de entorno
-      DISENO_PARAMETRICO_ROOT (canvas) → validación con carpeta src/.
-    - Cableado documentado en este encabezado (tipo + acceso + origen/destino).
-  v03.0 (2026-10-03): Cambio mayor (v02 -> v03) — contrato entradas/salidas.
-    - Nuevas entradas: presupuesto_ocupacion_m2, n_barras_objetivo,
-      entrepiso_adaptativo, prioridad_ajuste.
-    - Nueva salida: barras_json (schema f3_barras_salida_v01) con
-      alternativas, recomendada, ocupación total, GFA real, floor_h usado.
-    - Lógica iteradora: para cada n_barras, prueba floor_h en [3.05, 3.80],
-      ajusta profundidad para caber en presupuesto; valida separaciones por
-      altura (POT 1.9.b/c + NSR-10 A.6.5), patios según nº volúmenes
-      (1 vol: Anexo 5 §1.12.b; >=2 vol: separaciones = "patios" en IO), accesos.
-    - Homogeneizado: versión interna = nombre archivo (v03.x).
-  v02.2 (2026-09-29): tipo crujia doble|unica, posicion nucleo, orientacion
-    referida al predio, niveles auto, ancho minimo por programa.
-  v02.1: --usos filtra/renormaliza mix; --bloques N + separacion/desnivel.
-  v02.0: acople seccion 2 -> modelado (usos + bloques multivolumen).
+HISTORIAL DE VERSIONES (se conservan las últimas tres; anteriores en el Vault):
+  v03.8 (2026-10-11, noche 2): ESCALONAMIENTO LATERAL vs vecino (norma 1/5):
+    `sep_lateral_json` = {"lado":"xmax"|"xmin", "h_vecino_m":6.0,
+    "min_retiro_m":0.0, "nsr_coef":0.02}. Retiro por piso: r=0 si z_piso
+    <= h_vecino; si no r = max(0.2*(z-h_vecino), min_retiro_m, nsr_coef*z).
+    Se agrega `huella_xy_por_piso` por bloque (huella_xy queda = piso base).
+    Mensajes v03.8.
+  v03.7 (2026-10-11, noche): Ajustes del operador —
+    (a) ANCLAJE A FRENTES: las franjas se anclan al frente y al fondo del area
+        util; el remanente se reparte uniformemente en las separaciones entre
+        bloques (sin fondo libre; sin antejardines en frentes publicos);
+    (b) PISOS POR BLOQUE: `pisos_por_bloque` ("4,4,6") o `limites_pisos_json`
+        (bandas desde el frente con `max_pisos` + redistribucion del sobrante
+        al ultimo bloque). GFA = suma(area x pisos); aviso de retiros.
+  v03.6 (2026-10-11): F1 — crujia unica con cap de profundidad (crujia_max_m,
+    def. 10 m; tope 12), n auto-ajustado (hasta 5) y validaciones de ANCHO
+    COMPLETO (sin reduccion centrada: elimina huecos laterales; P3/P4).
+    Recorte de franjas en Python puro (Sutherland-Hodgman) y cota de arranque
+    tolerante (topografia opcional; cota fija con 'cota_arranque_m'). Mensaje v03.6.
+    Incl. v03.6.1: huella_xy CERRADA (contrato con "Implantacion" de F3_VOLUM #114).
+  v03.5 y anteriores (v03.0–v03.5, v02.x): historial completo en el Vault Obsidian (actas/lecciones) y _legacy.
 
 REGLAS DE PATIOS/SEPARACIONES (aprobadas operador 2026-10-03):
   - 1 VOLUMEN: patio normativo Anexo 5 §1.12.b (H/3, min 9 m², 3 ml lado).
@@ -269,6 +225,12 @@ CRUJIA_PROF_REF_M = 9.0     # profundidad referencia unidad
 ANCHO_NUCLEO_FALLBACK_M = 6.4
 SEPARACION_MIN_BASE = 6.0    # Anexo 5 §1.10.b
 NSR10_COEF       = 0.02      # A.6.5 2% h
+
+# v03.6: cap de profundidad de plataforma (crujía única) y límites de ajuste
+CRUJIA_MAX_M_DEF = 10.0      # cap por defecto (skills: crujía única 6-9 m + circulación)
+CRUJIA_MAX_M_TOPE = 12.0     # tope duro configurable
+CRUJIA_MIN_M = 6.0           # profundidad mínima utilizable
+N_BARRAS_MAX = 5             # máximo de franjas al auto-subir n
 
 # v03.1: margen de seguridad al DERIVAR el presupuesto (solo si la entrada
 # presupuesto_ocupacion_m2 no está disponible): absorbe la diferencia entre
@@ -554,86 +516,465 @@ def leer_programa_chip(chip, escenario="D_MIXTO"):
 # ============================================================================
 # GENERADOR DE BARRAS (NÚCLEO v03)
 # ============================================================================
+def _clip_rect(pol, x0, y0, x1, y1):
+    """v03.6: recorte de poligono (lista de (x,y)) contra rectangulo CONVEXO
+    con Sutherland-Hodgman en Python puro (sin Rhino). Devuelve lista de
+    puntos o [] si no hay interseccion."""
+    def _recorte(poly, dentro, inter):
+        out = []
+        m = len(poly)
+        if m == 0:
+            return out
+        for i in range(m):
+            a = poly[i]
+            b = poly[(i + 1) % m]
+            da = dentro(a)
+            db = dentro(b)
+            if da and db:
+                out.append(b)
+            elif da and not db:
+                out.append(inter(a, b))
+            elif (not da) and db:
+                out.append(inter(a, b))
+                out.append(b)
+        return out
+
+    def _ix(a, b, xc):
+        t = (xc - a[0]) / (b[0] - a[0]) if abs(b[0] - a[0]) > 1e-12 else 0.0
+        return (xc, a[1] + t * (b[1] - a[1]))
+
+    def _iy(a, b, yc):
+        t = (yc - a[1]) / (b[1] - a[1]) if abs(b[1] - a[1]) > 1e-12 else 0.0
+        return (a[0] + t * (b[0] - a[0]), yc)
+
+    poly = [(float(p[0]), float(p[1])) for p in pol]
+    poly = _recorte(poly, lambda p: p[0] >= x0, lambda a, b: _ix(a, b, x0))
+    poly = _recorte(poly, lambda p: p[0] <= x1, lambda a, b: _ix(a, b, x1))
+    poly = _recorte(poly, lambda p: p[1] >= y0, lambda a, b: _iy(a, b, y0))
+    poly = _recorte(poly, lambda p: p[1] <= y1, lambda a, b: _iy(a, b, y1))
+    limpio = []
+    for p in poly:
+        if not limpio or abs(p[0] - limpio[-1][0]) > 1e-9 or abs(p[1] - limpio[-1][1]) > 1e-9:
+            limpio.append(p)
+    if len(limpio) >= 2 and abs(limpio[0][0] - limpio[-1][0]) < 1e-9 and abs(limpio[0][1] - limpio[-1][1]) < 1e-9:
+        limpio.pop()
+    if len(limpio) < 3:
+        return []
+    return limpio
+
+
+def _area_pts(pts):
+    s = 0.0
+    n = len(pts)
+    for i in range(n):
+        p = pts[i]
+        q = pts[(i + 1) % n]
+        s += p[0] * q[1] - q[0] * p[1]
+    return abs(s) / 2.0
+
+
+def _x_extent_en_y(pol, yq):
+    """Extension en X del poligono a la altura yq (validacion de alcance)."""
+    xs = []
+    n = len(pol)
+    for i in range(n):
+        a = pol[i]
+        b = pol[(i + 1) % n]
+        if abs(a[1] - yq) <= 1e-9:
+            xs.append(a[0])
+        if (a[1] - yq) * (b[1] - yq) < 0.0:
+            t = (yq - a[1]) / (b[1] - a[1])
+            xs.append(a[0] + t * (b[0] - a[0]))
+    if not xs:
+        return None
+    return (min(xs), max(xs))
+
+
 def generar_barras_para_n(lote_m2, presupuesto_m2, n_barras, floor_h, separacion_min,
                           programa, crujia_tipo="unica", nucleo_pos="centro"):
-    """
-    Intenta generar n_barras de crujía única que quepan en presupuesto_m2.
-    Retorna dict con métricas o None si no cabe.
-    """
-    # Área objetivo por barra (aprox)
-    area_por_barra = presupuesto_m2 / n_barras
-    # Profundidad inicial basada en CRUJIA_PROF_REF_M
-    profundidad = CRUJIA_PROF_REF_M
-    # Ancho por barra = area_por_barra / profundidad
-    ancho_barra = area_por_barra / profundidad
-    # Ancho total = n_barras * ancho_barra + (n_barras - 1) * separacion
-    ancho_total = n_barras * ancho_barra + (n_barras - 1) * separacion_min
-    # Verificar que cabe en el frente del lote (aprox sqrt(lote_m2))
-    frente_estimado = math.sqrt(lote_m2) * 0.8  # factor forma
-    if ancho_total > frente_estimado:
-        # Reducir profundidad hasta que quepa
-        profundidad = max(6.0, area_por_barra / (frente_estimado / n_barras - separacion_min))
-        ancho_barra = area_por_barra / profundidad
-        ancho_total = n_barras * ancho_barra + (n_barras - 1) * separacion_min
-        if ancho_total > frente_estimado:
-            return None  # No cabe ni reduciendo profundidad
-    # Separación real aplicada
-    sep_real = separacion_min
-    # Altura total
-    altura_total = 5 * floor_h  # 5 pisos fijos por ahora
-    # Validar separación por altura
-    sep_requerida = max(SEPARACION_MIN_BASE, 0.2 * altura_total, NSR10_COEF * altura_total)
-    if sep_real < sep_requerida:
-        sep_real = sep_requerida
-        # Recalcular ancho_total
-        ancho_total = n_barras * ancho_barra + (n_barras - 1) * sep_real
-        if ancho_total > frente_estimado:
+    """v03.6: franjas de crujia unica a ANCHO COMPLETO (sin reduccion centrada),
+    con cap de profundidad `crujia_max_m` (def. 10 m) y n auto-ajustado.
+    Recorte en Python puro; cota de arranque tolerante (topografia opcional)."""
+    base_raw = globals().get("base_normativa_json")
+    if not base_raw:
+        raise ValueError(u"Conectar base_normativa_json (F1_ETAPA2_NORMATIVA_v10.base_json): "
+                         u"no se permiten dimensiones ni pisos fijos")
+    base = json.loads(_gh_str(base_raw))
+
+    pisos = int(base["pisos_limite"])
+    floor_h = float(base["floor_h"])
+    sep = max(float(separacion_min), SEPARACION_MIN_BASE, 0.2 * pisos * floor_h)
+
+    crujia_max = _gh_num(globals().get("crujia_max_m"), None)
+    if not crujia_max or crujia_max <= 0:
+        crujia_max = CRUJIA_MAX_M_DEF
+    crujia_max = min(max(float(crujia_max), CRUJIA_MIN_M), CRUJIA_MAX_M_TOPE)
+
+    avisos = []
+    n_pedido = max(1, int(round(n_barras)))
+
+    pol = base["poligono_local"]
+    xmin0 = min(p[0] for p in pol); xmax0 = max(p[0] for p in pol)
+    ymin0 = min(p[1] for p in pol); ymax0 = max(p[1] for p in pol)
+    ymin = ymin0 + float(base["retiro_frontal_m"])
+    ymax = ymax0 - float(base["retiro_posterior_m"])
+    xmin = xmin0 + float(base["retiro_lateral_m"])
+    xmax = xmax0 - float(base["retiro_lateral_m"])
+    if xmax <= xmin or ymax <= ymin:
+        return None
+    W = xmax - xmin
+    Y = ymax - ymin
+    limite = min(float(presupuesto_m2), float(base["presupuesto_ocupacion_m2"]))
+    if float(base["retiro_frontal_m"]) > 1e-9 or float(base["retiro_posterior_m"]) > 1e-9:
+        avisos.append(u"retiros frente/fondo > 0 en base: revisar 'sin antejardin' en frentes publicos")
+
+    # --- n: subir hasta que la profundidad de llenado <= crujia_max ---
+    def _d_fill(k):
+        return (Y - (k - 1) * sep) / k
+
+    n = n_pedido
+    while n < N_BARRAS_MAX and _d_fill(n) > crujia_max + 1e-9:
+        n += 1
+    if n != n_pedido:
+        avisos.append(u"n {} -> {} (profundidad>cap {:.1f} m)".format(n_pedido, n, crujia_max))
+    d_hi = min(crujia_max, _d_fill(n))
+    if d_hi < CRUJIA_MIN_M:
+        avisos.append(u"no cabe con ancho completo (Y {:.1f} m, n {} <= {})".format(Y, n, N_BARRAS_MAX))
+        return None
+
+    def _construir(d):
+        # v03.7: anclaje a frente y fondo; separacion uniforme g = (Y - n*d)/(n-1)
+        g = (Y - n * d) / (n - 1.0) if n > 1 else 0.0
+        if n > 1 and g < sep - 1e-9:
             return None
-    # Ocupación real
-    ocupacion_real = n_barras * (ancho_barra * profundidad)
-    # GFA real
-    gfa_real = ocupacion_real * 5  # 5 pisos
-    # Huellas por piso (simplificadas como rectángulos)
+        cs = []
+        for b in range(n):
+            y0 = ymin + b * (d + g)
+            y1 = y0 + d
+            if y1 > ymax + 1e-9:
+                return None
+            pts = _clip_rect(pol, xmin, y0, xmax, y1)
+            if pts:
+                cs.append((b + 1, y0, y1, pts))
+            else:
+                avisos.append(u"franja {} vacia (fuera del lote)".format(b + 1))
+        if not cs:
+            return None
+        if n == 1:
+            avisos.append(u"n=1: sin separaciones; revisar fondo util")
+        return cs
+
+    d_target = limite / (W * n)
+    d_used = min(d_hi, max(d_target, 0.0))
+    if d_used < CRUJIA_MIN_M:
+        d_used = CRUJIA_MIN_M
+    cs = _construir(d_used)
+    if cs is None:
+        return None
+    occ = 0.0
+    for _b, _y0, _y1, _p in cs:
+        occ += _area_pts(_p)
+    if occ > limite:
+        lo = CRUJIA_MIN_M
+        hi = d_used
+        cs_lo = _construir(lo)
+        if cs_lo is None:
+            return None
+        occ_lo = 0.0
+        for _b, _y0, _y1, _p in cs_lo:
+            occ_lo += _area_pts(_p)
+        if occ_lo > limite:
+            avisos.append(u"ancho completo excede presupuesto a profundidad minima (occ {:.1f} > {:.1f})".format(occ_lo, limite))
+            return None
+        for _it in range(30):
+            mid = (lo + hi) / 2.0
+            t = _construir(mid)
+            if t is not None:
+                _acc = 0.0
+                for _b, _y0, _y1, _p in t:
+                    _acc += _area_pts(_p)
+                if _acc <= limite:
+                    lo = mid
+                    cs = t
+                else:
+                    hi = mid
+            else:
+                hi = mid
+        d_used = lo
+        cs = _construir(d_used)
+        occ = 0.0
+        for _b, _y0, _y1, _p in cs:
+            occ += _area_pts(_p)
+
+    if occ < limite * 0.98:
+        avisos.append(u"margen {:.1f} m2 (cap de crujia/frente: no se consume todo el presupuesto)".format(limite - occ))
+
+    g_final = (Y - n * d_used) / (n - 1.0) if n > 1 else 0.0
+    if n > 1 and g_final > sep + 0.5:
+        avisos.append(u"separaciones entre bloques ajustadas a {:.2f} m (anclaje frente/fondo)".format(g_final))
+    anclaje_ok = True
+    if cs:
+        if abs(cs[0][1] - ymin) > 1e-6:
+            anclaje_ok = False
+        if abs(cs[-1][2] - ymax) > 1e-6:
+            anclaje_ok = False
+    if not anclaje_ok:
+        avisos.append(u"anclaje a frentes incompleto (revisar)")
+
+    # --- marco -> canvas y cota de arranque (topografia opcional) ---
+    marco = base["marco"]
+    ox = marco["origen"][0]; oy = marco["origen"][1]
+    ux = marco["x"][0]; uy = marco["x"][1]
+    vx = marco["y"][0]; vy = marco["y"][1]
+
+    def _mundo(p):
+        return (ox + p[0] * ux + p[1] * vx, oy + p[0] * uy + p[1] * vy)
+
+    rg = None
+    rs = None
+    try:
+        import Rhino.Geometry as rg
+    except Exception:
+        rg = None
+    try:
+        import rhinoscriptsyntax as rs
+    except Exception:
+        rs = None
+    mesh = globals().get("topo_mesh")
+    if hasattr(mesh, "Value"):
+        mesh = mesh.Value
+    mesh_ok = False
+    bbox = None
+    if mesh is not None and rg is not None:
+        try:
+            if rs is not None and not isinstance(mesh, rg.Mesh):
+                mesh = rs.coercemesh(mesh)
+            bbox = mesh.GetBoundingBox(True)
+            mesh_ok = True
+        except Exception:
+            mesh_ok = False
+    if not mesh_ok:
+        avisos.append(u"sin topografia utilizable: cota de arranque provisional (z0=0 o cota fija)")
+
+    z_fija = _gh_num(globals().get("cota_arranque_m"), None)
+
+    def _terreno(cx, cy):
+        if z_fija is not None:
+            return float(z_fija)
+        if not mesh_ok:
+            return None
+        try:
+            ray = rg.Ray3d(rg.Point3d(cx, cy, bbox.Max.Z + 100.0), rg.Vector3d(0.0, 0.0, -1.0))
+            t = rg.Intersect.Intersection.MeshRay(mesh, ray)
+            if t < 0:
+                return None
+            return ray.PointAt(t).Z
+        except Exception:
+            return None
+
+    # --- bloques (ancho completo; alcance validado por banda) ---
+    bloques = []
+    alcance = []
+    for (b, y0, y1, pts) in cs:
+        pts_m = [_mundo(p) for p in pts]
+        xs = [p[0] for p in pts_m]
+        ys = [p[1] for p in pts_m]
+        cx = sum(xs) / len(xs)
+        cy = sum(ys) / len(ys)
+        z0 = _terreno(cx, cy)
+        if z0 is None:
+            z0 = 0.0
+            avisos.append(u"B{}-R1: sin cota de terreno (z0=0 provisional)".format(b))
+        bx0 = min(xs); bx1 = max(xs)
+        ext = _x_extent_en_y(pol, (y0 + y1) / 2.0)
+        al_izq = al_der = None
+        if ext is not None:
+            ref_izq = max(ext[0], xmin0 + float(base["retiro_lateral_m"]))
+            ref_der = min(ext[1], xmax0 - float(base["retiro_lateral_m"]))
+            al_izq = (bx0 <= ref_izq + 0.02)
+            al_der = (bx1 >= ref_der - 0.02)
+            if not (al_izq and al_der):
+                avisos.append(u"B{}: no alcanza borde {} (revisar lote/bordes)".format(
+                    b, "izquierdo" if not al_izq else "derecho"))
+        _pts_r = []
+        for p in pts_m:
+            q = [round(p[0], 4), round(p[1], 4)]
+            if not _pts_r or q != _pts_r[-1]:
+                _pts_r.append(q)
+        if len(_pts_r) >= 3:
+            _pts_r.append(list(_pts_r[0]))  # cierre explicito (polilinea del contrato)
+        else:
+            avisos.append(u"B{}-R1: huella degenerada ({} pts)".format(b, len(_pts_r)))
+        alcance.append({"id": "B%d" % b, "izq": al_izq, "der": al_der,
+                        "x_min": round(bx0, 3), "x_max": round(bx1, 3)})
+        bloques.append({
+            "id": "B{}-R1".format(b),
+            "huella_xy": _pts_r,
+            "cota_arranque_m": round(float(z0), 3),
+            "criterio_arranque": u"terreno en centroide (o cota fija); plataforma horizontal preliminar",
+            "area_m2": round(_area_pts(pts), 2),
+            "pisos": pisos,
+            "floor_h": floor_h,
+        })
+
+    # v03.7: pisos por bloque (override directo o bandas con redistribucion)
+    pisos_bloques = [pisos] * len(bloques)
+    _ppb = globals().get("pisos_por_bloque")
+    _lim = globals().get("limites_pisos_json")
+    if _ppb:
+        _vals = _gh_ints(_ppb, None) or []
+        if len(_vals) == len(bloques):
+            pisos_bloques = [max(1, int(v)) for v in _vals]
+        else:
+            avisos.append(u"pisos_por_bloque: {} valores != {} bloques (ignorado)".format(len(_vals), len(bloques)))
+    elif _lim:
+        try:
+            _L = json.loads(_gh_str(_lim))
+            _bandas = _L.get("bandas", [])
+            _caps = []
+            for (b, y0, y1, _p) in cs:
+                _dist = y0 - ymin
+                _cap = None
+                for _bd in _bandas:
+                    _d0 = float(_bd.get("desde_m", 0.0))
+                    _d1 = float(_bd.get("hasta_m", 1e9))
+                    if (_d0 - 1e-9) <= _dist <= (_d1 + 1e-9):
+                        _mp = int(_bd.get("max_pisos", pisos))
+                        _cap = _mp if _cap is None else min(_cap, _mp)
+                _caps.append(_cap if _cap is not None else pisos)
+            pisos_bloques = [min(pisos, c) for c in _caps]
+            _rem = sum(pisos - p for p in pisos_bloques)
+            if _rem > 0 and bool(_L.get("redistribuir_ultimo", True)):
+                pisos_bloques[-1] += _rem
+                avisos.append(u"redistribucion: +{} pisos al ultimo bloque (B{})".format(_rem, len(bloques)))
+        except Exception as _e_lim:
+            avisos.append(u"limites_pisos_json invalido: {}".format(_gh_str(_e_lim)))
+    for _k in range(len(bloques)):
+        bloques[_k]["pisos"] = pisos_bloques[_k]
+
+    # v03.8: escalonamiento lateral (1/5 sobre empate) si hay sep_lateral_json
+    sep_lat = None
+    _sl_raw = globals().get("sep_lateral_json")
+    if _sl_raw:
+        try:
+            sep_lat = json.loads(_gh_str(_sl_raw))
+        except Exception as _e_sl:
+            avisos.append(u"sep_lateral_json invalido: {}".format(_gh_str(_e_sl)))
+    if sep_lat:
+        _lado = _gh_str(sep_lat.get("lado", "xmax")).strip().lower()
+        if _lado not in ("xmin", "xmax"):
+            _lado = "xmax"
+        _hv = float(sep_lat.get("h_vecino_m", 6.0))
+        _rmin = float(sep_lat.get("min_retiro_m", 0.0))
+        _nsr = float(sep_lat.get("nsr_coef", 0.02))
+        _resumen = []
+        for _k in range(len(bloques)):
+            _pisos_k = int(pisos_bloques[_k])
+            _rows = []
+            _ret = []
+            _ys = [p[1] for p in bloques[_k]["huella_xy"]]
+            _y0b = min(_ys); _y1b = max(_ys)
+            for f in range(_pisos_k):
+                _zf = (f + 1) * floor_h
+                if _zf <= _hv + 1e-9:
+                    _r = 0.0
+                else:
+                    _r = max(0.2 * (_zf - _hv), _rmin, _nsr * _zf)
+                _r = round(_r, 3)
+                _ret.append(_r)
+                if _r <= 1e-9:
+                    _rows.append([list(p) for p in bloques[_k]["huella_xy"]])
+                else:
+                    _x0 = xmin + (_r if _lado == "xmin" else 0.0)
+                    _x1 = xmax - (_r if _lado == "xmax" else 0.0)
+                    _poly = _clip_rect(pol, _x0, _y0b, _x1, _y1b)
+                    _pm = [_mundo(p) for p in _poly]
+                    _rr = []
+                    for p in _pm:
+                        q = [round(p[0], 4), round(p[1], 4)]
+                        if not _rr or q != _rr[-1]:
+                            _rr.append(q)
+                    if len(_rr) >= 3:
+                        _rr.append(list(_rr[0]))
+                    _rows.append(_rr)
+            bloques[_k]["huella_xy_por_piso"] = _rows
+            bloques[_k]["retiros_por_piso_m"] = _ret
+            _resumen = _ret
+        if _resumen:
+            avisos.append(u"escalonamiento lateral ({}): retiros por piso {}".format(
+                _lado, u", ".join(u"{:.2f}".format(r) for r in _resumen)))
+
+    # GFA real con pisos por bloque
+    gfa_total = 0.0
+    for _k in range(len(bloques)):
+        gfa_total += float(bloques[_k]["area_m2"]) * float(pisos_bloques[_k])
+    altura_max_m = 0.0
+    for _k in range(len(bloques)):
+        if pisos_bloques[_k] * floor_h > altura_max_m:
+            altura_max_m = pisos_bloques[_k] * floor_h
+
     huellas = []
-    for p in range(5):
-        piso_huellas = []
-        x_inicio = (frente_estimado - ancho_total) / 2
-        for i in range(n_barras):
-            x0 = x_inicio + i * (ancho_barra + sep_real)
-            # Coordenadas simplificadas (en sistema local lote)
-            piso_huellas.append([[x0, 0], [x0 + ancho_barra, 0], [x0 + ancho_barra, profundidad], [x0, profundidad], [x0, 0]])
-        huellas.append(piso_huellas)
+    for _k in range(len(bloques)):
+        _blk = bloques[_k]
+        for f in range(int(pisos_bloques[_k])):
+            huellas.append([[p[0], p[1], _blk["cota_arranque_m"] + f * floor_h]
+                            for p in _blk["huella_xy"]])
+    _area_rows = []
+    for _k in range(len(bloques)):
+        for _f in range(int(pisos_bloques[_k])):
+            _area_rows.append([bloques[_k]["area_m2"]])
+
     return {
-        "n_barras": n_barras,
-        "profundidad_m": round(profundidad, 2),
-        "ancho_barra_m": round(ancho_barra, 2),
-        "separacion_m": round(sep_real, 2),
-        "ancho_total_m": round(ancho_total, 2),
-        "ocupacion_total_m2": round(ocupacion_real, 2),
-        "gfa_real_m2": round(gfa_real, 2),
-        "altura_total_m": round(altura_total, 2),
+        "n_barras": n,
+        "n_pedido": n_pedido,
+        "profundidad_m": round(d_used, 2),
+        "ancho_barra_m": round(W, 2),
+        "separacion_m": round(g_final, 2),
+        "separacion_min_m": round(sep, 2),
+        "ancho_total_m": round(W, 2),
+        "ocupacion_total_m2": round(occ, 2),
+        "gfa_real_m2": round(gfa_total, 2),
+        "altura_total_m": round(altura_max_m, 2),
+        "altura_max_m": round(altura_max_m, 2),
         "floor_h": floor_h,
+        "pisos": pisos,
+        "pisos_por_bloque": list(pisos_bloques),
+        "crujia_max_m": round(crujia_max, 2),
+        "anclaje_frentes": anclaje_ok,
         "huellas_por_piso": huellas,
-        "areas_por_piso": [[round(ancho_barra * profundidad, 2)] * n_barras] * 5,
+        "areas_por_piso": _area_rows,
+        "bloques": bloques,
+        "marco": marco,
+        "alcance_lados": alcance,
+        "avisos": avisos,
         "separaciones_validas": True,
-        "patio_tipo": "separacion_entre_volumenes" if n_barras >= 2 else "patio_normativo",
-        "accesos_ok": True,
+        "patio_tipo": "separacion_entre_volumenes",
+        "accesos_ok": None,
+        "estado": u"v03.8: anclaje a frentes, separaciones ajustadas, pisos por bloque, escalonamiento 1/5; pendiente accesos/nucleo/normativa",
     }
 
 
 def iterar_barras(lote_m2, presupuesto_m2, n_barras_lista, separacion_min, programa,
                   crujia_tipo="unica", nucleo_pos="centro"):
-    """Itera n_barras y floor_h (3.05, 3.80) según prioridad D3."""
+    """v03.6: itera n_barras (el generador auto-ajusta n y floor_h viene de
+    base_normativa_json); elimina duplicados de alternativas equivalentes."""
+    _floor_h = float(json.loads(_gh_str(globals()["base_normativa_json"]))["floor_h"])
     resultados = []
+    vistos = set()
     for n_barras in n_barras_lista:
-        for floor_h in [ALTURA_PISO_BASE, ALTURA_PISO_ALT]:
-            res = generar_barras_para_n(lote_m2, presupuesto_m2, n_barras, floor_h,
-                                         separacion_min, programa, crujia_tipo, nucleo_pos)
-            if res:
-                res["id"] = "ALT-{}{}-{:.0f}".format(n_barras, "B" if crujia_tipo=="unica" else "D", floor_h*100)
-                resultados.append(res)
-    # Ordenar: menor ocupación (más margen) primero
-    resultados.sort(key=lambda r: r["ocupacion_total_m2"])
+        res = generar_barras_para_n(lote_m2, presupuesto_m2, n_barras, _floor_h,
+                                     separacion_min, programa, crujia_tipo, nucleo_pos)
+        if res:
+            key = (res["n_barras"], round(res["floor_h"], 2), round(res["ocupacion_total_m2"], 2))
+            if key in vistos:
+                continue
+            vistos.add(key)
+            res["id"] = "ALT-{}{}-{:.0f}".format(res["n_barras"],
+                                                 "B" if crujia_tipo == "unica" else "D",
+                                                 res["floor_h"] * 100)
+            resultados.append(res)
+    # Ordenar: mayor GFA primero; a igual, menor n
+    resultados.sort(key=lambda r: (-r["gfa_real_m2"], r["n_barras"]))
     return resultados
 
 
@@ -644,17 +985,21 @@ def build_barras_json(chip, alternativas, lote_m2, presupuesto_m2, io_max):
             "chip": chip,
             "alternativas": [],
             "recomendada": None,
-            "mensaje": "NINGUNA ALTERNATIVA CABE EN PRESUPUESTO ({:.1f} m2)".format(presupuesto_m2)
+            "mensaje": "NINGUNA ALTERNATIVA CABE EN PRESUPUESTO ({:.1f} m2) - revisar cap de crujia/n/frente".format(presupuesto_m2)
         }
     rec = alternativas[0]
+    _avisos = rec.get("avisos", [])
+    _txt_av = (u" | avisos: " + u"; ".join(_avisos)) if _avisos else u""
+    _pisos_txt = u"/".join(str(p) for p in rec.get("pisos_por_bloque", [rec.get("pisos", 0)]))
     return {
         "schema": "f3_barras_salida_v01",
         "chip": chip,
         "alternativas": alternativas,
         "recomendada": rec["id"],
-        "mensaje": u"{} barras crujía única {:.1f} m prof., sep. {:.1f} m; ocupación {:.1f} m² (margen {:.1f} m²); entrepiso {:.2f} m".format(
-            rec["n_barras"], rec["profundidad_m"], rec["separacion_m"],
-            rec["ocupacion_total_m2"], presupuesto_m2 - rec["ocupacion_total_m2"], rec["floor_h"])
+        "mensaje": u"{} barras crujía única {:.1f} m prof. (cap {:.1f} m), sep. {:.1f} m; ocupación {:.1f} m² (margen {:.1f} m²); entrepiso {:.2f} m; pisos {}{}".format(
+            rec["n_barras"], rec["profundidad_m"], rec.get("crujia_max_m", CRUJIA_MAX_M_DEF),
+            rec["separacion_m"], rec["ocupacion_total_m2"],
+            presupuesto_m2 - rec["ocupacion_total_m2"], rec["floor_h"], _pisos_txt, _txt_av)
     }
 
 
@@ -883,9 +1228,9 @@ if _EN_GH:
             _io_max = OCUPACION_POT
 
         _n_barras = _gh_ints(
-            _gh_leer(3, ["n_barras_objetivo", "n_barras", "n-barras"]), [2, 3])
+            _gh_leer(3, ["n_barras_objetivo", "n_barras", "n-barras"]), [2, 3, 4])
         if not _n_barras:
-            _n_barras = [2, 3]
+            _n_barras = [2, 3, 4]
 
         # Entradas informativas en v03 (documentadas en el encabezado):
         _entrepiso_adap = _gh_bool(
@@ -916,7 +1261,12 @@ if _EN_GH:
 
         _paso = u"leer resultados F2"
         _prog = leer_programa_chip(_chip, "D_MIXTO")
-        _lote_m2 = _prog.get("lote_m2")
+
+        _paso = u"leer base normativa"
+        _base_txt = _gh_str(globals().get("base_normativa_json") or "")
+        if not _base_txt:
+            raise ValueError(u"base_normativa_json vacío: cablear la salida base_json de F1_ETAPA2_NORMATIVA_v10 (#199)")
+        _lote_m2 = json.loads(_base_txt)["area_lote_m2"]
         if not _lote_m2:
             raise ValueError(u"lote_m2 no disponible para el chip " + _chip)
 
@@ -947,6 +1297,9 @@ if _EN_GH:
         _sep_real = _sep if (_sep and _sep > 0) else SEPARACION_MIN_BASE
 
         _paso = u"generar barras"
+        _crujia_max_in = _gh_num(_gh_leer(11, ["crujia_max_m", "crujia-max-m"]), None)
+        if _crujia_max_in:
+            globals()["crujia_max_m"] = _crujia_max_in
         _alternativas = iterar_barras(
             _lote_m2, _presupuesto, _n_barras, _sep_real, _prog, _crujia, _nucleo)
         _salida = build_barras_json(_chip, _alternativas, _lote_m2, _presupuesto, _io_max)
@@ -954,7 +1307,7 @@ if _EN_GH:
         _paso = u"publicar salidas: json"
         barras_json = _json_dumps_ascii(_salida)
         _paso = u"publicar salidas: mensaje"
-        mensaje = u"F3 v03.5 | " + _gh_str(_salida.get("mensaje", ""))
+        mensaje = u"F3 v03.8 | " + _gh_str(_salida.get("mensaje", ""))
         if _derivado:
             mensaje += u" | presupuesto derivado = lote {:.1f} m2 x IO {:.2f} (con margen)".format(
                 _lote_m2, _io_max)
@@ -997,7 +1350,7 @@ if _EN_GH:
         except Exception:
             pass
         barras_json = ""
-        mensaje = u"F3 v03.5 | ERROR en [{}]: {}{}".format(_paso, _gh_str(_e_gh), _detalle)
+        mensaje = u"F3 v03.8 | ERROR en [{}]: {}{}".format(_paso, _gh_str(_e_gh), _detalle)
 
 
 # ============================================================================
@@ -1020,6 +1373,11 @@ def main():
     parser.add_argument("--bloques-crujia", choices=["unica","doble"], default="unica")
     parser.add_argument("--bloques-nucleo", choices=["centro","extremo"], default="centro")
     parser.add_argument("--output-json", help="Ruta salida JSON (default stdout)")
+    parser.add_argument("--base-normativa-json", help="Ruta o contenido JSON base_normativa_predio_v1 (v10)")
+    parser.add_argument("--crujia-max-m", type=float, default=CRUJIA_MAX_M_DEF,
+                        help="Cap de profundidad de crujia unica [m] (rango 9-12; default 10)")
+    parser.add_argument("--pisos-por-bloque", help="Pisos por bloque (ej. '4,4,6')")
+    parser.add_argument("--limites-pisos-json", help='Bandas desde el frente (ej. {\"bandas\":[{\"hasta_m\":15,\"max_pisos\":4}]})')
     args = parser.parse_args()
 
     if not args.caso and not args.chip:
@@ -1033,6 +1391,30 @@ def main():
         prog = leer_programa_chip(args.chip)
         chip = args.chip
         lote_m2 = prog.get("lote_m2") or CASOS.get("B", {}).get("lote_m2", 946.45)
+
+    # v03.6: base normativa y crujia_max para el generador (CLI)
+    _g = globals()
+    if args.base_normativa_json:
+        _btxt = args.base_normativa_json
+        if os.path.isfile(_btxt):
+            try:
+                _fh = io.open(_btxt, "rb")
+                _raw = _fh.read()
+                _fh.close()
+                try:
+                    _btxt = _raw.decode("utf-8")
+                except Exception:
+                    _btxt = _raw.decode("latin-1")
+            except Exception:
+                pass
+        _g["base_normativa_json"] = _btxt
+    if not _g.get("base_normativa_json"):
+        parser.error("el generador v03.6 requiere --base-normativa-json (F1_ETAPA2_NORMATIVA_v10.base_json); no usa dimensiones ni pisos fijos")
+    _g["crujia_max_m"] = args.crujia_max_m
+    if args.pisos_por_bloque:
+        _g["pisos_por_bloque"] = args.pisos_por_bloque
+    if args.limites_pisos_json:
+        _g["limites_pisos_json"] = args.limites_pisos_json
 
     # Filtrar usos si se especifican
     if args.usos:
@@ -1055,6 +1437,7 @@ def main():
     print("Entrepiso adaptativo:", args.entrepiso_adaptativo)
     print("Prioridad:", args.prioridad_ajuste)
     print("Separación mínima:", separacion_min, "m")
+    print("Crujía máxima (cap):", args.crujia_max_m, "m")
 
     alternativas = iterar_barras(lote_m2, args.presupuesto_ocupacion, n_barras_lista,
                                   separacion_min, prog, args.bloques_crujia, args.bloques_nucleo)
@@ -1065,9 +1448,10 @@ def main():
     else:
         print("Alternativas generadas: {}".format(len(alternativas)))
         for a in alternativas:
-            print("  {}: {} barras, prof={:.1f}m, sep={:.1f}m, occ={:.1f}m2, GFA={:.1f}m2, floor_h={:.2f}m".format(
+            print("  {}: {} barras, prof={:.1f}m, sep={:.1f}m, occ={:.1f}m2, GFA={:.1f}m2, floor_h={:.2f}m | avisos: {}".format(
                 a["id"], a["n_barras"], a["profundidad_m"], a["separacion_m"],
-                a["ocupacion_total_m2"], a["gfa_real_m2"], a["floor_h"]))
+                a["ocupacion_total_m2"], a["gfa_real_m2"], a["floor_h"],
+                "; ".join(a.get("avisos", [])) or "-"))
         salida = build_barras_json(chip, alternativas, lote_m2, args.presupuesto_ocupacion, args.io_max)
         print("RECOMENDADA:", salida["recomendada"])
 
@@ -1107,7 +1491,7 @@ except Exception:
 
 # Diagnóstico: en Rhino/.NET pero sin ghenv disponible en el script.
 if (_ES_IRON or _ES_CLR) and not _EN_GH and not mensaje:
-    mensaje = (u"F3 v03.5 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
+    mensaje = (u"F3 v03.8 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
                u"está disponible en el script; revisar el componente")
 
 if _ES_MAIN and not _EN_GH and not _ES_IRON and not _ES_CLR:

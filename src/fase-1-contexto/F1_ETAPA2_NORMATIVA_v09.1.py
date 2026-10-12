@@ -799,7 +799,7 @@ def _huella_a_curva(item):
     for p in item:
         try:
             if isinstance(p, (list, tuple)) and len(p) >= 2:
-                pts.append(rg.Point3d(float(p[0]), float(p[1]), 0.0))
+                pts.append(rg.Point3d(float(p[0]), float(p[1]), float(p[2]) if len(p)>2 else 0.0))
             elif hasattr(p, "X"):
                 pts.append(p)
         except Exception:
