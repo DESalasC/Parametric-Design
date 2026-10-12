@@ -1,6 +1,6 @@
 """
 ================================================================================
-F3_VOLUM_GENERADOR_v08.py — v08.0.2 (genérica v08) - Masa con nucleo EXCLUIDO y circulacion/servicios
+F3_VOLUM_GENERADOR_v08.py — v08.1 (genérica v08) - Masa con nucleo EXCLUIDO y circulacion/servicios
 separados (geometria para elementos nativos de ArchiCAD via Live Connection)
 Proyecto: DisenoParametrico / Fase 3
 GH Python Script para Grasshopper (componente "Script", IronPython 2.7)
@@ -9,19 +9,25 @@ GH Python Script para Grasshopper (componente "Script", IronPython 2.7)
 SUBVERSIONES INTERNAS (politica del proyecto: se conservan las ultimas tres;
   historial completo en el Vault Obsidian; v07 archivado en _legacy):
 
+  v08.1 (2026-10-12): ZONAS BEP + STORIES (solo zonas; morphs reservados
+         exclusivamente al contexto/vecinos - ADR-023).
+         (a) Zonas con nomenclatura BEP/ISO 19650:
+             Number = [NIVEL]-[ZONA]-[CATEGORIA]-[CONSECUTIVO] (GF-Z1-COM-001);
+             Name descriptivo; categoria desde diccionario del proyecto
+             (CATEGORIAS_BEP). Aplica a la ruta clasica y a la implantacion.
+         (b) El mensaje de "Implantacion" publica las COTAS DE ARRANQUE reales
+             de los bloques ("cotas B1..Bn") y el resumen del plan de stories.
+         (c) Plan de stories exportable por flag (data/fase-3-masa/
+             stories-export-flag.json {"exportar": true}) -> escribe
+             casos/<chip>/cotas-arranque.json + niveles_deseados.json
+             (snap de plataformas a la grilla del entrepiso) y apaga el flag.
   v08.0.2 (2026-10-11, noche 2): "Implantacion" usa `huella_xy_por_piso[fi]`
          cuando existe (escalonamiento lateral 1/5 sobre empate, F3 v03.8).
   v08.0.1 (2026-10-11, canvas v13.2): bloque "Implantacion dinamica" (F1) con
          cierre defensivo de huella_xy (compatible con huellas abiertas o
          cerradas; el generador F3_DISTRIBUCION v03.6.1 la emite cerrada).
 
-  v08.0: salidas nuevas `circulacion_pisos`, `servicios_pisos`, `losas_pisos`
-         y `nucleo_pisos` (numero de piso por geometria, paralelas 1:1 a sus
-         respectivas salidas de geometria), para alimentar F3_MORPH_ATRIBUTOS
-         y asignar el Story en ArchiCAD sin adivinar el piso.
-
-
-(El detalle de v07 y anteriores vive en el Vault Obsidian / archivo v07 en _legacy.)
+(El detalle de v08.0, v07 y anteriores vive en el Vault Obsidian / _legacy.)
 
 Normativa aplicable: NSR-10 Titulo K (escaleras de evacuacion), C.2.3
 (ocupacion); POT Decreto 555/2021 (ocupacion del envelope F1).
@@ -80,9 +86,20 @@ SALIDAS:
   SALIDAS ZONA (cuando salida_zona=True):
   zonas_perimetros        (List of List of Point3d) - Perimetros 2D de zonas por uso
                                                       (lista de listas de puntos, una lista por zona)
-  zonas_pisos             (List of int)             - Numero de piso de cada zona (paralelo 1:1)
-  zonas_atributos         (List of String)          - Atributos de zona en formato JSON (uso, area, etc.)
+  zonas_pisos             (List of String)          - v08.1 BEP: Number tecnico
+                                                      [NIVEL]-[ZONA]-[CATEGORIA]-[CONSECUTIVO]
+                                                      (ej. GF-Z1-COM-001; antes: B1-R1-P2)
+  zonas_nombres           (List of String)          - v08.1 BEP: Name descriptivo
+                                                      (ej. Local comercial · Bloque 1 · Piso 2)
+  zonas_atributos         (List of String)          - Atributos JSON de zona (uso, area; v08.1
+                                                      agrega number/name/nivel/zona/categoria)
   zonas_alturas           (List of float)           - Altura de cada zona (acumulada desde Z=0)
+
+  STORIES (v08.1): con el flag data/fase-3-masa/stories-export-flag.json
+  {"exportar": true} se escriben casos/<chip>/cotas-arranque.json y
+  niveles_deseados.json (niveles para ArchiCAD > Configuracion de pisos;
+  elevaciones = marco canvas; snap a la grilla del entrepiso) y el flag
+  vuelve a false. El mensaje publica SIEMPRE las cotas de arranque reales.
 
 SALIDAS MESH (para el componente Morph de la Live Connection de ArchiCAD,
 que requiere Rhino.Geometry.Mesh, no Brep):
@@ -599,6 +616,204 @@ def _resolver_json(ruta):
         if nombre in archivos:
             return os.path.join(raiz, nombre)
     return ""
+
+
+# ---------------------------------------------------------------------------
+# v08.1 - Zonas BEP (ISO 19650) + plan de stories (cotas reales -> niveles)
+# ---------------------------------------------------------------------------
+# Diccionario de categorias BEP del proyecto (propuesta 2026-10-12; se
+# amplia solo via catalogo con el operador). Claves normalizadas (minusculas
+# sin acentos). Ampliaciones de esta iteracion: OFI / INS / GER.
+CATEGORIAS_BEP = {
+    "vivienda": "VIV",
+    "local comercial": "COM",
+    "comercio": "COM",
+    "consultorios": "CON",
+    "oficinas": "OFI",
+    "institucional salud": "INS",
+    "hogar geriatrico": "GER",
+    "circulacion": "CIR",
+    "circulacion vertical": "CIR",
+    "servicios": "SER",
+    "servicios tecnicos": "SER",
+    "cuarto tecnico": "SER",
+    "parqueo": "PAR",
+    "exterior": "EXT",
+    "acceso": "ACC",
+    "tecnico": "TEC",
+}
+CATEGORIA_FALLBACK = "ZZ"
+
+
+def _raiz_proyecto():
+    """Raiz del proyecto (env DISENO_PARAMETRICO_ROOT -> ruta historica)."""
+    try:
+        r = os.environ.get("DISENO_PARAMETRICO_ROOT", "")
+        if r and os.path.isdir(r):
+            return r
+    except Exception:
+        pass
+    return r"D:\Work\PROJECTS\DiseñoParametrico"
+
+
+def _norm_texto_bep(s):
+    """Normaliza texto para lookup del catalogo (minusculas, sin acentos)."""
+    if s is None:
+        return ""
+    t = s
+    if not hasattr(t, "lower"):
+        try:
+            t = str(t)
+        except Exception:
+            return ""
+    t = t.strip().lower()
+    for a, b in ((u"\u00e1", "a"), (u"\u00e9", "e"), (u"\u00ed", "i"),
+                 (u"\u00f3", "o"), (u"\u00fa", "u"), (u"\u00f1", "n"),
+                 (u"\u00c1", "a"), (u"\u00c9", "e"), (u"\u00cd", "i"),
+                 (u"\u00d3", "o"), (u"\u00da", "u"), (u"\u00d1", "n")):
+        t = t.replace(a, b)
+    return t
+
+
+def _categoria_bep(usos):
+    """Codigo BEP de la primera categoria reconocida en la lista de usos."""
+    for u in (usos or []):
+        c = CATEGORIAS_BEP.get(_norm_texto_bep(u))
+        if c:
+            return c
+    return CATEGORIA_FALLBACK
+
+
+def _nivel_bep(piso_1based):
+    """Codigo de nivel BEP: piso 1 = GF; siguientes = L01, L02, ..."""
+    try:
+        n = int(round(float(piso_1based)))
+    except Exception:
+        n = 1
+    if n <= 1:
+        return "GF"
+    return "L%02d" % (n - 1)
+
+
+def _plan_stories(bloques, floor_h, snap=True, con_tapa=False):
+    """Plan de niveles (stories) desde las cotas de arranque reales.
+
+    bloques: [{"id", "cota_arranque_m", "pisos"}] (cotas en marco canvas).
+    Grilla = base + j*floor_h; base = menor cota; snap = redondeo de cada
+    plataforma a la grilla (corte/relleno). Devuelve dict serializable.
+    """
+    if not bloques:
+        return None
+    try:
+        h = float(floor_h)
+    except Exception:
+        h = 0.0
+    if h <= 0.0:
+        h = 3.0
+    cotas = []
+    for b in bloques:
+        try:
+            cotas.append(float(b.get("cota_arranque_m", 0.0)))
+        except Exception:
+            cotas.append(0.0)
+    base = min(cotas)
+    detalle = []
+    max_j = 0
+    for i, b in enumerate(bloques):
+        c = cotas[i]
+        try:
+            p = int(b.get("pisos", 0) or 0)
+        except Exception:
+            p = 0
+        if snap:
+            o = int(round((c - base) / h))
+            ajuste = round(base + o * h - c, 3)
+        else:
+            o = 0
+            ajuste = 0.0
+        detalle.append({
+            "id": str(b.get("id", "B%d" % (i + 1))),
+            "cota_arranque_m": round(c, 3),
+            "cota_snap_m": round(base + o * h, 3),
+            "offset_niveles": int(o),
+            "ajuste_m": ajuste,
+            "pisos": p,
+        })
+        if o + p > max_j:
+            max_j = o + p
+    stories = []
+    for j in range(int(max_j)):
+        d = {
+            "name": ("GF" if j == 0 else "L%02d" % j),
+            "elevation": round(base + j * h, 3),
+            "elevacion_relativa_m": round(j * h, 3),
+        }
+        d["descripcion"] = "Planta baja (acceso)" if j == 0 else ("Nivel %d" % j)
+        stories.append(d)
+    if con_tapa:
+        j = int(max_j)
+        stories.append({
+            "name": "RF",
+            "elevation": round(base + j * h, 3),
+            "elevacion_relativa_m": round(j * h, 3),
+            "descripcion": "Cubierta (opcional)",
+        })
+    return {
+        "floor_h_m": round(h, 3),
+        "base_z_m": round(base, 3),
+        "snap": bool(snap),
+        "stories": stories,
+        "bloques": detalle,
+        "avisos": [
+            "base = menor cota de bloque; nivel de acceso definitivo "
+            "(fetch v8 / NORMATIVA v10) puede desplazar la base",
+            "elevaciones en marco canvas (misma referencia que zonas/LC)",
+        ],
+    }
+
+
+def _stories_ascii(obj):
+    """Convierte recursivamente a ASCII (fallback bug IronPython json/unicode)."""
+    if isinstance(obj, dict):
+        return dict([(_stories_ascii(k), _stories_ascii(v)) for k, v in obj.items()])
+    if isinstance(obj, (list, tuple)):
+        return [_stories_ascii(v) for v in obj]
+    if isinstance(obj, bool) or obj is None:
+        return obj
+    if isinstance(obj, (int, float)):
+        return obj
+    try:
+        t = obj
+        if not hasattr(t, "encode"):
+            t = str(obj)
+        try:
+            return t.encode("ascii").decode("ascii")
+        except Exception:
+            return t.encode("ascii", "replace").decode("ascii")
+    except Exception:
+        return ""
+
+
+def _stories_json_dumps(obj):
+    """dumps JSON ASCII (indent=2); fallback ante bug IronPython unicode."""
+    try:
+        return json.dumps(obj, ensure_ascii=True, indent=2)
+    except Exception:
+        return json.dumps(_stories_ascii(obj), ensure_ascii=True, indent=2)
+
+
+def _escribir_json_stories(ruta, obj):
+    """Escribe JSON UTF-8 (crea carpetas). Devuelve la ruta escrita."""
+    d = os.path.dirname(ruta)
+    if d and not os.path.isdir(d):
+        os.makedirs(d)
+    txt = _stories_json_dumps(obj)
+    f = open(ruta, "wb")
+    try:
+        f.write(txt.encode("utf-8"))
+    finally:
+        f.close()
+    return ruta
 
 
 env_por_piso_raw = globals().get("envelope_por_piso", None)   # v07+ preferida
@@ -1270,6 +1485,7 @@ else:
                 # Re-procesar piso por piso para obtener perímetros 2D precisos de cada zona
                 try:
                     altura_acumulada = 0.0  # Altura acumulada desde Z=0
+                    _cont_bep = {}          # v08.1 - consecutivos BEP nivel|zona|categoria
 
                     for piso_idx, piso_data in enumerate(programa):
                         z = float(piso_data.get("altura_z", 0.0) or 0.0)
@@ -1394,10 +1610,25 @@ else:
                             ap_ac = rg.AreaMassProperties.Compute(curva_ac)
                             if ap_ac is None:
                                 raise ValueError("P{}: zona sin area".format(piso_num))
+                            # v08.1 - nomenclatura BEP (Number/Name + categoria)
+                            _nivel_c = _nivel_bep(piso_num)
+                            _zona_c = "Z1"
+                            _cat_c = _categoria_bep([uso_nombre])
+                            _key_c = _nivel_c + "|" + _zona_c + "|" + _cat_c
+                            _cons_c = _cont_bep.get(_key_c, 0) + 1
+                            _cont_bep[_key_c] = _cons_c
+                            _number_c = "%s-%s-%s-%03d" % (_nivel_c, _zona_c, _cat_c, _cons_c)
+                            _name_c = (uso_nombre or "Zona") + u" \u00b7 Nivel " + str(piso_num)
+                            atributos["number"] = _number_c
+                            atributos["name"] = _name_c
+                            atributos["nivel"] = _nivel_c
+                            atributos["zona"] = _zona_c
+                            atributos["categoria"] = _cat_c
+                            atributos["consecutivo"] = _cons_c
                             zonas_perimetros.append(curva_ac)
-                            zonas_pisos.append(piso_num)
+                            zonas_pisos.append(_number_c)
                             zonas_alturas.append(h_piso)
-                            zonas_nombres.append(uso_nombre or "Zona")
+                            zonas_nombres.append(_name_c)
                             zonas_centroides.append(ap_ac.Centroid)
                             zonas_atributos.append(py_json.dumps(atributos, ensure_ascii=False))
 
@@ -1442,7 +1673,12 @@ if _barras_in:
         _lay=json.loads(str(unwrap(_lay_raw))) if _lay_raw else {}
         _niv=_lay.get("niveles",[])
         _count=0
+        _bloques_det=[]              # v08.1 - cotas reales por bloque (plan de stories)
+        _cont_bep={}                 # v08.1 - consecutivos por nivel|zona|categoria
         for bi,block in enumerate(_alt.get("bloques",[])):
+            _bloques_det.append({"id":str(block["id"]),
+                                 "cota_arranque_m":float(block["cota_arranque_m"]),
+                                 "pisos":int(block["pisos"])})
             for fi in range(int(block["pisos"])):
                 z=float(block["cota_arranque_m"])+fi*float(block["floor_h"])
                 h=float(block["floor_h"])
@@ -1458,14 +1694,23 @@ if _barras_in:
                 ap=rg.AreaMassProperties.Compute(crv)
                 if ap is None or len(pts)<3 or (not crv.IsClosed):
                     raise ValueError("Huella invalida "+block["id"])
+                # v08.1 - nomenclatura BEP (Number tecnico + Name descriptivo)
+                _nivel_c=_nivel_bep(fi+1)
+                _zona_c="Z%d" % (bi+1)
+                _cat_c=_categoria_bep(usos)
+                _key_c=_nivel_c+"|"+_zona_c+"|"+_cat_c
+                _cons_c=_cont_bep.get(_key_c,0)+1
+                _cont_bep[_key_c]=_cons_c
+                _number_c="%s-%s-%s-%03d" % (_nivel_c,_zona_c,_cat_c,_cons_c)
+                _name_c=nombre+u" \u00b7 Bloque "+str(bi+1)+u" \u00b7 Piso "+str(fi+1)
                 path=GH_Path(bi,fi)
                 zonas_perimetros.Add(crv,path)
                 zonas_centroides.Add(ap.Centroid,path)
-                zonas_nombres.Add(block["id"]+" · "+nombre,path)
-                zonas_pisos.Add(block["id"]+"-P"+str(fi+1),path)
+                zonas_nombres.Add(_name_c,path)
+                zonas_pisos.Add(_number_c,path)
                 zonas_alturas.Add(h,path)
                 usos_etiquetas.Add(nombre,path);usos_pisos.Add(fi+1,path)
-                zonas_atributos.Add(json.dumps({"bloque":block["id"],"piso":fi+1,"z_base_m":z,"altura_m":h,"area_bruta_m2":ap.Area,"uso":nombre,"estado":"preliminar; sin descuento de nucleo"},ensure_ascii=True),path)
+                zonas_atributos.Add(json.dumps({"bloque":block["id"],"piso":fi+1,"z_base_m":z,"altura_m":h,"area_bruta_m2":ap.Area,"uso":nombre,"usos":usos,"number":_number_c,"name":_name_c,"nivel":_nivel_c,"zona":_zona_c,"categoria":_cat_c,"consecutivo":_cons_c,"estado":"preliminar; sin descuento de nucleo"},ensure_ascii=True),path)
                 perfil0=crv.DuplicateCurve()
                 perfil0.Translate(rg.Vector3d(0,0,-z))
                 vol=_extruir(perfil0,h,z)
@@ -1475,4 +1720,55 @@ if _barras_in:
                 if lb:
                     losas.extend(list(lb));losas_pisos.append(fi+1)
                 _count+=1
-        mensaje="IMPLANTACION F3 | {} | {} bloques | {} zonas | cota terreno + piso x entrepiso | areas BRUTAS; nucleos/accesos pendientes".format(_alt["id"],len(_alt["bloques"]),_count)
+        # v08.1 - cotas reales + plan de stories + export por flag
+        _fh_st=3.0
+        if _alt.get("bloques"):
+            try:
+                _fh_st=float(_alt["bloques"][0].get("floor_h",3.0) or 3.0)
+            except Exception:
+                _fh_st=3.0
+        _plan=_plan_stories(_bloques_det,_fh_st,snap=True,con_tapa=False)
+        _cotas_txt=u" / ".join(u"{:.2f}".format(d["cota_arranque_m"]) for d in _bloques_det) or u"-"
+        _st_txt=u""
+        if _plan and _plan["stories"]:
+            _aj=0.0
+            for _d in _plan["bloques"]:
+                if abs(_d["ajuste_m"])>_aj:
+                    _aj=abs(_d["ajuste_m"])
+            _st_txt=u" | stories: {} niveles ({}-{}, snap ajuste max {:.2f} m)".format(len(_plan["stories"]),_plan["stories"][0]["name"],_plan["stories"][-1]["name"],_aj)
+        _exp_txt=u""
+        try:
+            _raiz=_raiz_proyecto()
+            _chip_bd=str(_bd.get("chip") or "").strip()
+            if _raiz and _chip_bd:
+                _flag=os.path.join(_raiz,"data","fase-3-masa","stories-export-flag.json")
+                _flag_on=False
+                if os.path.isfile(_flag):
+                    try:
+                        _ff=open(_flag,"rb");_raw=_ff.read();_ff.close()
+                        try:
+                            _raw=_raw.decode("utf-8")
+                        except Exception:
+                            _raw=_raw.decode("latin-1")
+                        _flag_on=bool(json.loads(_raw).get("exportar"))
+                    except Exception:
+                        _flag_on=False
+                if _flag_on and _plan:
+                    import datetime as _dtm
+                    _ts=_dtm.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    _dir_casos=os.path.join(_raiz,"src","fase-3-masa","casos",_chip_bd)
+                    _cot_p={"schema":"f3_cotas_arranque_v01","chip":_chip_bd,"generado":_ts,
+                            "unidades":"m (marco canvas: misma referencia de zonas/LC)",
+                            "floor_h_m":_fh_st,"bloques":_bloques_det,"stories_plan":_plan}
+                    _niv_p={"schema":"f3_niveles_deseados_v01","chip":_chip_bd,"generado":_ts,
+                            "nota":"Stories ArchiCAD (Story Settings). elevation = marco canvas; elevacion_relativa_m = acumulado desde la base.",
+                            "floor_h_m":_plan["floor_h_m"],"base_z_m":_plan["base_z_m"],
+                            "snap":_plan["snap"],"stories":_plan["stories"],
+                            "bloques":_plan["bloques"],"avisos":_plan["avisos"]}
+                    _escribir_json_stories(os.path.join(_dir_casos,"cotas-arranque.json"),_cot_p)
+                    _escribir_json_stories(os.path.join(_dir_casos,"niveles_deseados.json"),_niv_p)
+                    _escribir_json_stories(_flag,{"exportar":False,"chip":_chip_bd,"ts":_ts})
+                    _exp_txt=u" | niveles: casos/{}/niveles_deseados.json".format(_chip_bd)
+        except Exception as _e_exp:
+            _exp_txt=u" | aviso export stories: "+str(_e_exp)[:80]
+        mensaje="IMPLANTACION F3 | {} | {} bloques | {} zonas | cotas B1..B{}: {} m{} | cota terreno + piso x entrepiso | areas BRUTAS; nucleos/accesos pendientes{}".format(_alt["id"],len(_alt["bloques"]),_count,len(_bloques_det),_cotas_txt,_st_txt,_exp_txt)

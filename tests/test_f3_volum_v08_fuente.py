@@ -70,3 +70,19 @@ def test_ironpython_27_compatible():
     assert not src.lstrip().startswith("#!")
     assert "def _caja_curva(cx, cy, ancho, largo):" in src
     assert "def _recortar_huecos(env_crv, cajas, area_losa, hueco_m2):" in src
+
+
+def test_zonas_bep_y_stories_v081():
+    """v08.1: nomenclatura BEP + cotas en mensaje + export de stories."""
+    src = _fuente()
+    for marcador in ("v08.1", "CATEGORIAS_BEP", "CATEGORIA_FALLBACK",
+                     "def _categoria_bep", "def _nivel_bep", "def _plan_stories",
+                     "def _escribir_json_stories", "def _raiz_proyecto",
+                     "stories-export-flag.json", "niveles_deseados.json",
+                     "cotas B1..B{}", "cotas-arranque.json"):
+        assert marcador in src, marcador
+    # la numeracion vieja de zonas quedo reemplazada por la BEP
+    assert 'block["id"]+" \u00b7 "' not in src
+    assert '"-P"+str(fi+1)' not in src
+    # nota de decision: morphs fuera de F3 (solo contexto/vecinos)
+    assert "ADR-023" in src

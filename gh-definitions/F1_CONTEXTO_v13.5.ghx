@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <Archive name="Root">
   <!--Grasshopper archive-->
   <!--Grasshopper and GH_IO.dll are copyrighted by Robert McNeel & Associates-->
@@ -155,10 +155,10 @@
               <items count="6">
                 <item name="AssemblyFullName" type_name="gh_string" type_code="10">GhPython, Version=8.35.26251.13001, Culture=neutral, PublicKeyToken=null</item>
                 <item name="AssemblyVersion" type_name="gh_string" type_code="10">8.35.26251.13001</item>
-                <item name="Author" type_name="gh_string" type_code="10"></item>
+                <item name="Author" type_name="gh_string" type_code="10" />
                 <item name="Id" type_name="gh_guid" type_code="9">00000000-0000-0000-0000-000000000000</item>
-                <item name="Name" type_name="gh_string" type_code="10"></item>
-                <item name="Version" type_name="gh_string" type_code="10"></item>
+                <item name="Name" type_name="gh_string" type_code="10" />
+                <item name="Version" type_name="gh_string" type_code="10" />
               </items>
             </chunk>
             <chunk name="Library" index="6">
@@ -178,7 +178,7 @@
                 <item name="Author" type_name="gh_string" type_code="10">Marc Syp</item>
                 <item name="Id" type_name="gh_guid" type_code="9">9bde5adf-1aa6-414c-a1d4-8832edea1934</item>
                 <item name="Name" type_name="gh_string" type_code="10">Bifocals</item>
-                <item name="Version" type_name="gh_string" type_code="10"></item>
+                <item name="Version" type_name="gh_string" type_code="10" />
               </items>
             </chunk>
             <chunk name="Library" index="8">
@@ -27502,7 +27502,7 @@ The coordinates of the polylines.</item>
                     <item name="CodeInput" type_name="gh_string" type_code="10"># -*- coding: utf-8 -*-
 """
 ================================================================================
-F3_DISTRIBUCION_v03.8.py — Distribuidor de barras por crujía con presupuesto IO
+F3_DISTRIBUCION_v03.py — v03.8 (genérica v03) — Distribuidor de barras por crujía con presupuesto IO
 Proyecto: DisenoParametrico / Fase 3
 GH Python Script para Grasshopper (IronPython 2.7 compatible) + CLI
 ================================================================================
@@ -27517,7 +27517,7 @@ RESUMEN:
   F1_ETAPA2_NORMATIVA_v09.py (entrada barras_json) para emitir los productos
   APROBADOS (ocupacion_aprobada_m2, gfa_aprobado_m2, envelope_aprobado_por_piso).
 
-HISTORIAL DE VERSIONES:
+HISTORIAL DE VERSIONES (se conservan las últimas tres; anteriores en el Vault):
   v03.8 (2026-10-11, noche 2): ESCALONAMIENTO LATERAL vs vecino (norma 1/5):
     `sep_lateral_json` = {"lado":"xmax"|"xmin", "h_vecino_m":6.0,
     "min_retiro_m":0.0, "nsr_coef":0.02}. Retiro por piso: r=0 si z_piso
@@ -27536,72 +27536,8 @@ HISTORIAL DE VERSIONES:
     COMPLETO (sin reduccion centrada: elimina huecos laterales; P3/P4).
     Recorte de franjas en Python puro (Sutherland-Hodgman) y cota de arranque
     tolerante (topografia opcional; cota fija con 'cota_arranque_m'). Mensaje v03.6.
-    v03.6.1 (2026-10-11): huella_xy se publica CERRADA (primer punto repetido)
-    — contrato con el bloque "Implantacion" de F3_VOLUM_GENERADOR (#114).
-  v03.5 (2026-10-09): Se publica layout_espacial_json (salida #7 del componente):
-    - Lee casos/&lt;chip&gt;/layout_espacial.json (o el mas reciente de casos/) y
-      lo emite como salida GH para los consumidores F3 (UNIDADES/ACCESOS);
-      el mensaje indica la ruta usada. Sin archivo -&gt; salida vacia, sin error.
-  v03.4 (2026-10-05, 4.ª iteración): FIX json.dumps en IronPython.
-    - Bug del runtime IronPython 2.7 (json/encoder.py → py_encode_basestring_ascii):
-      con strings unicode no-ASCII, json.dumps(ensure_ascii=True) lanza
-      "'unknown' codec can't decode byte 0x..". Se añade _json_dumps_ascii():
-      intento estándar → bytes UTF-8 → serializador ASCII manual (nunca depende
-      del codec). Reproducido y verificado con IronPython 2.7.12 local.
-  v03.3 (2026-10-05, 3.ª iteración): FIX lectura de archivos en GHPython.
-    - Lectura JSON con el PATRÓN CANÓNICO del proyecto (lección 2026-09-17):
-      open(rb) + decodificación explícita utf-8-sig → cp1252 → latin-1 +
-      json.loads. (En IronPython, io.open/codecs.open intentan decodificar con
-      el codec por defecto "unknown" y fallan con "'unknown' codec can't
-      decode byte 0x.." en contenido no-ASCII; las escrituras también van a binario.)
-    - Normalización de texto: _texto_seguro() (bytes → unicode por cascada)
-      aplicada a rutas, variable de entorno y entradas; literales con tilde de
-      las rutas activas como u"..."; prints silenciados dentro de GH.
-    - Diagnóstico: si algo falla, el mensaje indica el PASO
-      (p.ej. "ERROR en [leer resultados F2]") + cola del traceback.
-  v03.2 (2026-10-05, misma jornada): FIX detección de entorno GH (canvas vivo).
-    - En GHPython (Rhino 8) `import ghenv` FALLA: `ghenv` (y `ghdoc`) se
-      inyectan como VARIABLES del script; la detección ahora usa
-      `"ghenv"/"ghdoc" in globals()` con fallback de import. Antes, `_EN_GH`
-      quedaba False y main() corría dentro de Grasshopper (SystemExit de
-      argparse). Si hay .NET/Rhino pero ghenv no aparece, se emite un aviso.
-    - Guard CLI reforzado: main() solo corre si __name__ == "__main__" Y el
-      entorno NO es IronPython Y no hay `clr` (.NET) — nunca dentro de Rhino.
-    - barras_json (salida GH) y los JSON de CLI con ensure_ascii=True
-      (convención ASCII-safe del proyecto; evita errores de codificación al
-      pasar el string entre componentes).
-  v03.1 (2026-10-05): Corregido para uso vivo en canvas v13.1.
-    - FIX IronPython 2.7: eliminada anotación de tipo Python 3 en
-      normalizar_uso() ("def normalizar_uso(uso: str) -&gt; str:" provocaba
-      SyntaxErrorException "unexpected token ':'" en el componente GHPython).
-    - SECCIÓN GRASSHOPPER completa: el script ahora también funciona DENTRO
-      del componente del canvas (lee entradas, calcula y publica las 7
-      salidas GH: barras_json, mensaje, alternativa_recomendada,
-      ocupacion_total_m2, gfa_real_m2, floor_h_usado, n_barras_usado).
-    - Lectura defensiva de entradas GH (tolerante a None / listas / guiones
-      en nombres) + fallback por índice de parámetro (ghenv).
-    - Si presupuesto_ocupacion_m2 está vacío, se DERIVA = lote_m2 × io_max
-      con un margen de seguridad (0,1% / mín. 0,25 m²) para que la
-      validación APROBADA de NORMATIVA v09 no falle por centésimas; el
-      mensaje lo indica. Para coincidencia exacta, escribir el valor del
-      Panel presupuesto_ocupacion_m2 de NORMATIVA v09.
-    - Raíz del proyecto robusta: archivo (CLI) → variable de entorno
-      DISENO_PARAMETRICO_ROOT (canvas) → validación con carpeta src/.
-    - Cableado documentado en este encabezado (tipo + acceso + origen/destino).
-  v03.0 (2026-10-03): Cambio mayor (v02 -&gt; v03) — contrato entradas/salidas.
-    - Nuevas entradas: presupuesto_ocupacion_m2, n_barras_objetivo,
-      entrepiso_adaptativo, prioridad_ajuste.
-    - Nueva salida: barras_json (schema f3_barras_salida_v01) con
-      alternativas, recomendada, ocupación total, GFA real, floor_h usado.
-    - Lógica iteradora: para cada n_barras, prueba floor_h en [3.05, 3.80],
-      ajusta profundidad para caber en presupuesto; valida separaciones por
-      altura (POT 1.9.b/c + NSR-10 A.6.5), patios según nº volúmenes
-      (1 vol: Anexo 5 §1.12.b; &gt;=2 vol: separaciones = "patios" en IO), accesos.
-    - Homogeneizado: versión interna = nombre archivo (v03.x).
-  v02.2 (2026-09-29): tipo crujia doble|unica, posicion nucleo, orientacion
-    referida al predio, niveles auto, ancho minimo por programa.
-  v02.1: --usos filtra/renormaliza mix; --bloques N + separacion/desnivel.
-  v02.0: acople seccion 2 -&gt; modelado (usos + bloques multivolumen).
+    Incl. v03.6.1: huella_xy CERRADA (contrato con "Implantacion" de F3_VOLUM #114).
+  v03.5 y anteriores (v03.0–v03.5, v02.x): historial completo en el Vault Obsidian (actas/lecciones) y _legacy.
 
 REGLAS DE PATIOS/SEPARACIONES (aprobadas operador 2026-10-03):
   - 1 VOLUMEN: patio normativo Anexo 5 §1.12.b (H/3, min 9 m², 3 ml lado).
@@ -31682,65 +31618,34 @@ huella del layout si no vienen de F1.
                   <items count="12">
                     <item name="CodeInput" type_name="gh_string" type_code="10">"""
 ================================================================================
-F3_VOLUM_GENERADOR_v08.py - Masa con nucleo EXCLUIDO y circulacion/servicios
+F3_VOLUM_GENERADOR_v08.py — v08.1 (genérica v08) - Masa con nucleo EXCLUIDO y circulacion/servicios
 separados (geometria para elementos nativos de ArchiCAD via Live Connection)
 Proyecto: DisenoParametrico / Fase 3
 GH Python Script para Grasshopper (componente "Script", IronPython 2.7)
 ================================================================================
 
-SUBVERSIONES INTERNAS (politica: solo se documentan las 1-2 sub-versiones
-  inmediatamente anteriores; el historial completo vive en el archivo v07
-  archivado en _legacy):
+SUBVERSIONES INTERNAS (politica del proyecto: se conservan las ultimas tres;
+  historial completo en el Vault Obsidian; v07 archivado en _legacy):
 
+  v08.1 (2026-10-12): ZONAS BEP + STORIES (solo zonas; morphs reservados
+         exclusivamente al contexto/vecinos - ADR-023).
+         (a) Zonas con nomenclatura BEP/ISO 19650:
+             Number = [NIVEL]-[ZONA]-[CATEGORIA]-[CONSECUTIVO] (GF-Z1-COM-001);
+             Name descriptivo; categoria desde diccionario del proyecto
+             (CATEGORIAS_BEP). Aplica a la ruta clasica y a la implantacion.
+         (b) El mensaje de "Implantacion" publica las COTAS DE ARRANQUE reales
+             de los bloques ("cotas B1..Bn") y el resumen del plan de stories.
+         (c) Plan de stories exportable por flag (data/fase-3-masa/
+             stories-export-flag.json {"exportar": true}) -&gt; escribe
+             casos/&lt;chip&gt;/cotas-arranque.json + niveles_deseados.json
+             (snap de plataformas a la grilla del entrepiso) y apaga el flag.
+  v08.0.2 (2026-10-11, noche 2): "Implantacion" usa `huella_xy_por_piso[fi]`
+         cuando existe (escalonamiento lateral 1/5 sobre empate, F3 v03.8).
   v08.0.1 (2026-10-11, canvas v13.2): bloque "Implantacion dinamica" (F1) con
          cierre defensivo de huella_xy (compatible con huellas abiertas o
          cerradas; el generador F3_DISTRIBUCION v03.6.1 la emite cerrada).
-  v08.0.2 (2026-10-11, noche 2): "Implantacion" usa `huella_xy_por_piso[fi]`
-         cuando existe (escalonamiento lateral 1/5 sobre empate, F3 v03.8).
 
-  v08.0: salidas nuevas `circulacion_pisos`, `servicios_pisos`, `losas_pisos`
-         y `nucleo_pisos` (numero de piso por geometria, paralelas 1:1 a sus
-         respectivas salidas de geometria), para alimentar F3_MORPH_ATRIBUTOS
-         y asignar el Story en ArchiCAD sin adivinar el piso.
-
-  v07.25 (previa): salida `usos_pisos` (piso por volumen en volumenes_por_uso).
-  v07.24 (previa): salidas `volumenes_por_uso` + `usos_etiquetas` (paralelas).
-cambios mayores (contrato de entradas/salidas o algoritmo central); las
-iteraciones internas se registran como subversiones v07.x en este encabezado
-(el mensaje del componente reporta la subversion en curso).
-
-v07 (2026-08-16): correcciones solicitadas por el operador:
-  1. PERIMETRO = envelope_por_piso de F1_ETAPA2_NORMATIVA_v07 (curva POR PISO:
-     ocupacion escalonada + voladizos en pisos superiores; fallback a
-     envelope_curve para compatibilidad v06). El componente recibe SIEMPRE la
-     lista de curvas del NORMATIVA (o la curva unica como respaldo).
-  2. EXCLUSION REAL del nucleo: la losa se perfora con el BLOQUE COMPLETO
-     del nucleo (nucleo.bloque del programa-areas.json: 5,4x9,0 m = 48,6 m2
-     en el caso A), UBICADO POR BARRIDO 3x3 (paso 0,75 m) alrededor del
-     centroide de cada piso (el centroide de una L concava puede caer en el
-     codo y partir la interseccion; el barrido ubica el bloque donde cabe
-     completo, &gt;=95% del area - posicion indicativa del layout, la
-     definitiva es del diseno arquitectonico). El hueco se construye SIN
-     booleanos: la diferencia de curvas devuelve el contorno EXTERIOR + los
-     AGUJEROS como curvas separadas (representacion de Rhino de una region
-     con hueco); la losa sale de CreatePlanarBreps([exterior] + agujeros)
-     y el volumen principal es la EXTRUSION de esa losa con hueco
-     (verificacion de area tol 2%); boolean 3D (verificacion de volumen
-     tol 3%) solo como respaldo. Los SOLIDOS del nucleo
-     (circulacion + servicios, 39,8 m2) se generan aparte y rellenan parte
-     del hueco; el aire interior del bloque (8,8 m2) queda vacio (circulacion
-     interna del nucleo). Regla: NUNCA se entrega geometria intersectante - si
-     la exclusion falla, ese piso se omite y el mensaje lo reporta (huecos
-     excluidos n/N + detalle por piso).
-  3. CIRCULACION VERTICAL (escaleras + ascensores) SEPARADA de SERVICIOS y
-     areas tecnicas (ductos/basuras/cuarto tecnico): salidas independientes
-     volumenes_circulacion y volumenes_servicios, con la disposicion real de
-     nucleo.disposicion del programa-areas.json (F3_DISTRIBUCION_v01).
-  4. DESTINO = ArchiCAD: las salidas de geometria se cablean a los componentes
-     de la Live Connection (AC_*) que crean MORPHS NATIVOS de ArchiCAD - no se
-     hornea en Rhino. Los elementos viajan a ArchiCAD y pueden volver
-     modificados por decisiones del operador (GetElements) o por sugerencias de
-     Ladybug (F4) y Wallacei (optimizacion) dentro de Grasshopper.
+(El detalle de v08.0, v07 y anteriores vive en el Vault Obsidian / _legacy.)
 
 Normativa aplicable: NSR-10 Titulo K (escaleras de evacuacion), C.2.3
 (ocupacion); POT Decreto 555/2021 (ocupacion del envelope F1).
@@ -31799,9 +31704,20 @@ SALIDAS:
   SALIDAS ZONA (cuando salida_zona=True):
   zonas_perimetros        (List of List of Point3d) - Perimetros 2D de zonas por uso
                                                       (lista de listas de puntos, una lista por zona)
-  zonas_pisos             (List of int)             - Numero de piso de cada zona (paralelo 1:1)
-  zonas_atributos         (List of String)          - Atributos de zona en formato JSON (uso, area, etc.)
+  zonas_pisos             (List of String)          - v08.1 BEP: Number tecnico
+                                                      [NIVEL]-[ZONA]-[CATEGORIA]-[CONSECUTIVO]
+                                                      (ej. GF-Z1-COM-001; antes: B1-R1-P2)
+  zonas_nombres           (List of String)          - v08.1 BEP: Name descriptivo
+                                                      (ej. Local comercial · Bloque 1 · Piso 2)
+  zonas_atributos         (List of String)          - Atributos JSON de zona (uso, area; v08.1
+                                                      agrega number/name/nivel/zona/categoria)
   zonas_alturas           (List of float)           - Altura de cada zona (acumulada desde Z=0)
+
+  STORIES (v08.1): con el flag data/fase-3-masa/stories-export-flag.json
+  {"exportar": true} se escriben casos/&lt;chip&gt;/cotas-arranque.json y
+  niveles_deseados.json (niveles para ArchiCAD &gt; Configuracion de pisos;
+  elevaciones = marco canvas; snap a la grilla del entrepiso) y el flag
+  vuelve a false. El mensaje publica SIEMPRE las cotas de arranque reales.
 
 SALIDAS MESH (para el componente Morph de la Live Connection de ArchiCAD,
 que requiere Rhino.Geometry.Mesh, no Brep):
@@ -32318,6 +32234,204 @@ def _resolver_json(ruta):
         if nombre in archivos:
             return os.path.join(raiz, nombre)
     return ""
+
+
+# ---------------------------------------------------------------------------
+# v08.1 - Zonas BEP (ISO 19650) + plan de stories (cotas reales -&gt; niveles)
+# ---------------------------------------------------------------------------
+# Diccionario de categorias BEP del proyecto (propuesta 2026-10-12; se
+# amplia solo via catalogo con el operador). Claves normalizadas (minusculas
+# sin acentos). Ampliaciones de esta iteracion: OFI / INS / GER.
+CATEGORIAS_BEP = {
+    "vivienda": "VIV",
+    "local comercial": "COM",
+    "comercio": "COM",
+    "consultorios": "CON",
+    "oficinas": "OFI",
+    "institucional salud": "INS",
+    "hogar geriatrico": "GER",
+    "circulacion": "CIR",
+    "circulacion vertical": "CIR",
+    "servicios": "SER",
+    "servicios tecnicos": "SER",
+    "cuarto tecnico": "SER",
+    "parqueo": "PAR",
+    "exterior": "EXT",
+    "acceso": "ACC",
+    "tecnico": "TEC",
+}
+CATEGORIA_FALLBACK = "ZZ"
+
+
+def _raiz_proyecto():
+    """Raiz del proyecto (env DISENO_PARAMETRICO_ROOT -&gt; ruta historica)."""
+    try:
+        r = os.environ.get("DISENO_PARAMETRICO_ROOT", "")
+        if r and os.path.isdir(r):
+            return r
+    except Exception:
+        pass
+    return r"D:\Work\PROJECTS\DiseñoParametrico"
+
+
+def _norm_texto_bep(s):
+    """Normaliza texto para lookup del catalogo (minusculas, sin acentos)."""
+    if s is None:
+        return ""
+    t = s
+    if not hasattr(t, "lower"):
+        try:
+            t = str(t)
+        except Exception:
+            return ""
+    t = t.strip().lower()
+    for a, b in ((u"\u00e1", "a"), (u"\u00e9", "e"), (u"\u00ed", "i"),
+                 (u"\u00f3", "o"), (u"\u00fa", "u"), (u"\u00f1", "n"),
+                 (u"\u00c1", "a"), (u"\u00c9", "e"), (u"\u00cd", "i"),
+                 (u"\u00d3", "o"), (u"\u00da", "u"), (u"\u00d1", "n")):
+        t = t.replace(a, b)
+    return t
+
+
+def _categoria_bep(usos):
+    """Codigo BEP de la primera categoria reconocida en la lista de usos."""
+    for u in (usos or []):
+        c = CATEGORIAS_BEP.get(_norm_texto_bep(u))
+        if c:
+            return c
+    return CATEGORIA_FALLBACK
+
+
+def _nivel_bep(piso_1based):
+    """Codigo de nivel BEP: piso 1 = GF; siguientes = L01, L02, ..."""
+    try:
+        n = int(round(float(piso_1based)))
+    except Exception:
+        n = 1
+    if n &lt;= 1:
+        return "GF"
+    return "L%02d" % (n - 1)
+
+
+def _plan_stories(bloques, floor_h, snap=True, con_tapa=False):
+    """Plan de niveles (stories) desde las cotas de arranque reales.
+
+    bloques: [{"id", "cota_arranque_m", "pisos"}] (cotas en marco canvas).
+    Grilla = base + j*floor_h; base = menor cota; snap = redondeo de cada
+    plataforma a la grilla (corte/relleno). Devuelve dict serializable.
+    """
+    if not bloques:
+        return None
+    try:
+        h = float(floor_h)
+    except Exception:
+        h = 0.0
+    if h &lt;= 0.0:
+        h = 3.0
+    cotas = []
+    for b in bloques:
+        try:
+            cotas.append(float(b.get("cota_arranque_m", 0.0)))
+        except Exception:
+            cotas.append(0.0)
+    base = min(cotas)
+    detalle = []
+    max_j = 0
+    for i, b in enumerate(bloques):
+        c = cotas[i]
+        try:
+            p = int(b.get("pisos", 0) or 0)
+        except Exception:
+            p = 0
+        if snap:
+            o = int(round((c - base) / h))
+            ajuste = round(base + o * h - c, 3)
+        else:
+            o = 0
+            ajuste = 0.0
+        detalle.append({
+            "id": str(b.get("id", "B%d" % (i + 1))),
+            "cota_arranque_m": round(c, 3),
+            "cota_snap_m": round(base + o * h, 3),
+            "offset_niveles": int(o),
+            "ajuste_m": ajuste,
+            "pisos": p,
+        })
+        if o + p &gt; max_j:
+            max_j = o + p
+    stories = []
+    for j in range(int(max_j)):
+        d = {
+            "name": ("GF" if j == 0 else "L%02d" % j),
+            "elevation": round(base + j * h, 3),
+            "elevacion_relativa_m": round(j * h, 3),
+        }
+        d["descripcion"] = "Planta baja (acceso)" if j == 0 else ("Nivel %d" % j)
+        stories.append(d)
+    if con_tapa:
+        j = int(max_j)
+        stories.append({
+            "name": "RF",
+            "elevation": round(base + j * h, 3),
+            "elevacion_relativa_m": round(j * h, 3),
+            "descripcion": "Cubierta (opcional)",
+        })
+    return {
+        "floor_h_m": round(h, 3),
+        "base_z_m": round(base, 3),
+        "snap": bool(snap),
+        "stories": stories,
+        "bloques": detalle,
+        "avisos": [
+            "base = menor cota de bloque; nivel de acceso definitivo "
+            "(fetch v8 / NORMATIVA v10) puede desplazar la base",
+            "elevaciones en marco canvas (misma referencia que zonas/LC)",
+        ],
+    }
+
+
+def _stories_ascii(obj):
+    """Convierte recursivamente a ASCII (fallback bug IronPython json/unicode)."""
+    if isinstance(obj, dict):
+        return dict([(_stories_ascii(k), _stories_ascii(v)) for k, v in obj.items()])
+    if isinstance(obj, (list, tuple)):
+        return [_stories_ascii(v) for v in obj]
+    if isinstance(obj, bool) or obj is None:
+        return obj
+    if isinstance(obj, (int, float)):
+        return obj
+    try:
+        t = obj
+        if not hasattr(t, "encode"):
+            t = str(obj)
+        try:
+            return t.encode("ascii").decode("ascii")
+        except Exception:
+            return t.encode("ascii", "replace").decode("ascii")
+    except Exception:
+        return ""
+
+
+def _stories_json_dumps(obj):
+    """dumps JSON ASCII (indent=2); fallback ante bug IronPython unicode."""
+    try:
+        return json.dumps(obj, ensure_ascii=True, indent=2)
+    except Exception:
+        return json.dumps(_stories_ascii(obj), ensure_ascii=True, indent=2)
+
+
+def _escribir_json_stories(ruta, obj):
+    """Escribe JSON UTF-8 (crea carpetas). Devuelve la ruta escrita."""
+    d = os.path.dirname(ruta)
+    if d and not os.path.isdir(d):
+        os.makedirs(d)
+    txt = _stories_json_dumps(obj)
+    f = open(ruta, "wb")
+    try:
+        f.write(txt.encode("utf-8"))
+    finally:
+        f.close()
+    return ruta
 
 
 env_por_piso_raw = globals().get("envelope_por_piso", None)   # v07+ preferida
@@ -32989,6 +33103,7 @@ else:
                 # Re-procesar piso por piso para obtener perímetros 2D precisos de cada zona
                 try:
                     altura_acumulada = 0.0  # Altura acumulada desde Z=0
+                    _cont_bep = {}          # v08.1 - consecutivos BEP nivel|zona|categoria
 
                     for piso_idx, piso_data in enumerate(programa):
                         z = float(piso_data.get("altura_z", 0.0) or 0.0)
@@ -33113,10 +33228,25 @@ else:
                             ap_ac = rg.AreaMassProperties.Compute(curva_ac)
                             if ap_ac is None:
                                 raise ValueError("P{}: zona sin area".format(piso_num))
+                            # v08.1 - nomenclatura BEP (Number/Name + categoria)
+                            _nivel_c = _nivel_bep(piso_num)
+                            _zona_c = "Z1"
+                            _cat_c = _categoria_bep([uso_nombre])
+                            _key_c = _nivel_c + "|" + _zona_c + "|" + _cat_c
+                            _cons_c = _cont_bep.get(_key_c, 0) + 1
+                            _cont_bep[_key_c] = _cons_c
+                            _number_c = "%s-%s-%s-%03d" % (_nivel_c, _zona_c, _cat_c, _cons_c)
+                            _name_c = (uso_nombre or "Zona") + u" \u00b7 Nivel " + str(piso_num)
+                            atributos["number"] = _number_c
+                            atributos["name"] = _name_c
+                            atributos["nivel"] = _nivel_c
+                            atributos["zona"] = _zona_c
+                            atributos["categoria"] = _cat_c
+                            atributos["consecutivo"] = _cons_c
                             zonas_perimetros.append(curva_ac)
-                            zonas_pisos.append(piso_num)
+                            zonas_pisos.append(_number_c)
                             zonas_alturas.append(h_piso)
-                            zonas_nombres.append(uso_nombre or "Zona")
+                            zonas_nombres.append(_name_c)
                             zonas_centroides.append(ap_ac.Centroid)
                             zonas_atributos.append(py_json.dumps(atributos, ensure_ascii=False))
 
@@ -33161,7 +33291,12 @@ if _barras_in:
         _lay=json.loads(str(unwrap(_lay_raw))) if _lay_raw else {}
         _niv=_lay.get("niveles",[])
         _count=0
+        _bloques_det=[]              # v08.1 - cotas reales por bloque (plan de stories)
+        _cont_bep={}                 # v08.1 - consecutivos por nivel|zona|categoria
         for bi,block in enumerate(_alt.get("bloques",[])):
+            _bloques_det.append({"id":str(block["id"]),
+                                 "cota_arranque_m":float(block["cota_arranque_m"]),
+                                 "pisos":int(block["pisos"])})
             for fi in range(int(block["pisos"])):
                 z=float(block["cota_arranque_m"])+fi*float(block["floor_h"])
                 h=float(block["floor_h"])
@@ -33177,14 +33312,23 @@ if _barras_in:
                 ap=rg.AreaMassProperties.Compute(crv)
                 if ap is None or len(pts)&lt;3 or (not crv.IsClosed):
                     raise ValueError("Huella invalida "+block["id"])
+                # v08.1 - nomenclatura BEP (Number tecnico + Name descriptivo)
+                _nivel_c=_nivel_bep(fi+1)
+                _zona_c="Z%d" % (bi+1)
+                _cat_c=_categoria_bep(usos)
+                _key_c=_nivel_c+"|"+_zona_c+"|"+_cat_c
+                _cons_c=_cont_bep.get(_key_c,0)+1
+                _cont_bep[_key_c]=_cons_c
+                _number_c="%s-%s-%s-%03d" % (_nivel_c,_zona_c,_cat_c,_cons_c)
+                _name_c=nombre+u" \u00b7 Bloque "+str(bi+1)+u" \u00b7 Piso "+str(fi+1)
                 path=GH_Path(bi,fi)
                 zonas_perimetros.Add(crv,path)
                 zonas_centroides.Add(ap.Centroid,path)
-                zonas_nombres.Add(block["id"]+" · "+nombre,path)
-                zonas_pisos.Add(block["id"]+"-P"+str(fi+1),path)
+                zonas_nombres.Add(_name_c,path)
+                zonas_pisos.Add(_number_c,path)
                 zonas_alturas.Add(h,path)
                 usos_etiquetas.Add(nombre,path);usos_pisos.Add(fi+1,path)
-                zonas_atributos.Add(json.dumps({"bloque":block["id"],"piso":fi+1,"z_base_m":z,"altura_m":h,"area_bruta_m2":ap.Area,"uso":nombre,"estado":"preliminar; sin descuento de nucleo"},ensure_ascii=True),path)
+                zonas_atributos.Add(json.dumps({"bloque":block["id"],"piso":fi+1,"z_base_m":z,"altura_m":h,"area_bruta_m2":ap.Area,"uso":nombre,"usos":usos,"number":_number_c,"name":_name_c,"nivel":_nivel_c,"zona":_zona_c,"categoria":_cat_c,"consecutivo":_cons_c,"estado":"preliminar; sin descuento de nucleo"},ensure_ascii=True),path)
                 perfil0=crv.DuplicateCurve()
                 perfil0.Translate(rg.Vector3d(0,0,-z))
                 vol=_extruir(perfil0,h,z)
@@ -33194,7 +33338,58 @@ if _barras_in:
                 if lb:
                     losas.extend(list(lb));losas_pisos.append(fi+1)
                 _count+=1
-        mensaje="IMPLANTACION F3 | {} | {} bloques | {} zonas | cota terreno + piso x entrepiso | areas BRUTAS; nucleos/accesos pendientes".format(_alt["id"],len(_alt["bloques"]),_count)
+        # v08.1 - cotas reales + plan de stories + export por flag
+        _fh_st=3.0
+        if _alt.get("bloques"):
+            try:
+                _fh_st=float(_alt["bloques"][0].get("floor_h",3.0) or 3.0)
+            except Exception:
+                _fh_st=3.0
+        _plan=_plan_stories(_bloques_det,_fh_st,snap=True,con_tapa=False)
+        _cotas_txt=u" / ".join(u"{:.2f}".format(d["cota_arranque_m"]) for d in _bloques_det) or u"-"
+        _st_txt=u""
+        if _plan and _plan["stories"]:
+            _aj=0.0
+            for _d in _plan["bloques"]:
+                if abs(_d["ajuste_m"])&gt;_aj:
+                    _aj=abs(_d["ajuste_m"])
+            _st_txt=u" | stories: {} niveles ({}-{}, snap ajuste max {:.2f} m)".format(len(_plan["stories"]),_plan["stories"][0]["name"],_plan["stories"][-1]["name"],_aj)
+        _exp_txt=u""
+        try:
+            _raiz=_raiz_proyecto()
+            _chip_bd=str(_bd.get("chip") or "").strip()
+            if _raiz and _chip_bd:
+                _flag=os.path.join(_raiz,"data","fase-3-masa","stories-export-flag.json")
+                _flag_on=False
+                if os.path.isfile(_flag):
+                    try:
+                        _ff=open(_flag,"rb");_raw=_ff.read();_ff.close()
+                        try:
+                            _raw=_raw.decode("utf-8")
+                        except Exception:
+                            _raw=_raw.decode("latin-1")
+                        _flag_on=bool(json.loads(_raw).get("exportar"))
+                    except Exception:
+                        _flag_on=False
+                if _flag_on and _plan:
+                    import datetime as _dtm
+                    _ts=_dtm.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    _dir_casos=os.path.join(_raiz,"src","fase-3-masa","casos",_chip_bd)
+                    _cot_p={"schema":"f3_cotas_arranque_v01","chip":_chip_bd,"generado":_ts,
+                            "unidades":"m (marco canvas: misma referencia de zonas/LC)",
+                            "floor_h_m":_fh_st,"bloques":_bloques_det,"stories_plan":_plan}
+                    _niv_p={"schema":"f3_niveles_deseados_v01","chip":_chip_bd,"generado":_ts,
+                            "nota":"Stories ArchiCAD (Story Settings). elevation = marco canvas; elevacion_relativa_m = acumulado desde la base.",
+                            "floor_h_m":_plan["floor_h_m"],"base_z_m":_plan["base_z_m"],
+                            "snap":_plan["snap"],"stories":_plan["stories"],
+                            "bloques":_plan["bloques"],"avisos":_plan["avisos"]}
+                    _escribir_json_stories(os.path.join(_dir_casos,"cotas-arranque.json"),_cot_p)
+                    _escribir_json_stories(os.path.join(_dir_casos,"niveles_deseados.json"),_niv_p)
+                    _escribir_json_stories(_flag,{"exportar":False,"chip":_chip_bd,"ts":_ts})
+                    _exp_txt=u" | niveles: casos/{}/niveles_deseados.json".format(_chip_bd)
+        except Exception as _e_exp:
+            _exp_txt=u" | aviso export stories: "+str(_e_exp)[:80]
+        mensaje="IMPLANTACION F3 | {} | {} bloques | {} zonas | cotas B1..B{}: {} m{} | cota terreno + piso x entrepiso | areas BRUTAS; nucleos/accesos pendientes{}".format(_alt["id"],len(_alt["bloques"]),_count,len(_bloques_det),_cotas_txt,_st_txt,_exp_txt)
 </item>
                     <item name="Description" type_name="gh_string" type_code="10">================================================================================
 F3_VOLUM_GENERADOR_v08.py - Masa con nucleo EXCLUIDO y circulacion/servicios
@@ -33339,7 +33534,7 @@ respaldo con verificacion de volumen
                     <item name="IsAdvancedMode" type_name="gh_bool" type_code="1">false</item>
                     <item name="MarshalOutGuids" type_name="gh_bool" type_code="1">true</item>
                     <item name="Name" type_name="gh_string" type_code="10">GhPython Script</item>
-                    <item name="NickName" type_name="gh_string" type_code="10">#198-F3_VOLUM_GENERADOR_v08.py</item>
+                    <item name="NickName" type_name="gh_string" type_code="10">#198-F3_VOLUM_GENERADOR_v08.1.py</item>
                   </items>
                   <chunks count="2">
                     <chunk name="Attributes">
@@ -39703,7 +39898,7 @@ FALSE = the component does not communicate with Archicad</item>
                     <item name="ID_Count" type_name="gh_int32" type_code="3">1</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">c51b3e5c-d0e7-4cd4-97c6-1153940d7608</item>
                     <item name="Name" type_name="gh_string" type_code="10">Group</item>
-                    <item name="NickName" type_name="gh_string" type_code="10"></item>
+                    <item name="NickName" type_name="gh_string" type_code="10" />
                   </items>
                   <chunks count="1">
                     <chunk name="Attributes" />
@@ -40314,7 +40509,7 @@ FALSE = the component does not communicate with Archicad</item>
                     <item name="ID_Count" type_name="gh_int32" type_code="3">1</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">4444cede-7b3a-4bdc-ac22-644cf5ab24d8</item>
                     <item name="Name" type_name="gh_string" type_code="10">Group</item>
-                    <item name="NickName" type_name="gh_string" type_code="10"></item>
+                    <item name="NickName" type_name="gh_string" type_code="10" />
                   </items>
                   <chunks count="1">
                     <chunk name="Attributes" />
@@ -40402,7 +40597,7 @@ FALSE = the component does not communicate with Archicad</item>
               <chunks count="1">
                 <chunk name="Container">
                   <items count="14">
-                    <item name="Description" type_name="gh_string" type_code="10"></item>
+                    <item name="Description" type_name="gh_string" type_code="10" />
                     <item name="GraftStandardOutputLines" type_name="gh_bool" type_code="1">true</item>
                     <item name="InstanceGuid" type_name="gh_guid" type_code="9">dcca63ed-f231-4d9d-ad06-6b5cfa34ed1c</item>
                     <item name="MarshGuids" type_name="gh_bool" type_code="1">true</item>
@@ -40411,7 +40606,7 @@ FALSE = the component does not communicate with Archicad</item>
                     <item name="Name" type_name="gh_string" type_code="10">Python 3 Script</item>
                     <item name="NickName" type_name="gh_string" type_code="10">#141-Python 3 Script</item>
                     <item name="ScriptComponentVersion" type_name="gh_int32" type_code="3">3</item>
-                    <item name="Tooltip" type_name="gh_string" type_code="10"></item>
+                    <item name="Tooltip" type_name="gh_string" type_code="10" />
                     <item name="UsingLibraryInputParam" type_name="gh_bool" type_code="1">false</item>
                     <item name="UsingScriptInputParam" type_name="gh_bool" type_code="1">false</item>
                     <item name="UsingScriptOutputParam" type_name="gh_bool" type_code="1">false</item>
@@ -40478,7 +40673,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">2287adb8-8d96-4ed4-a12c-914434fff84c</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40517,7 +40712,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">1164b99f-f386-4322-83ea-270ddb7dcfde</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40556,7 +40751,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">c09872c2-4406-4e1c-92c7-e65068e12056</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40595,7 +40790,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">0d0cfd98-43fc-49f1-b97b-71e2de29ff4b</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40635,7 +40830,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">682c18d1-29e9-484c-af68-972c367af124</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40674,7 +40869,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">d2bbbe59-0e4c-4e4c-979b-3945ce82b179</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40713,7 +40908,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">ec7336a7-df91-47ba-89a7-42750c8473c3</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40752,7 +40947,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">b9248064-ac9f-4fdc-995b-5a81c1b937a7</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40791,7 +40986,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">f4f06e09-bd63-48c9-aacf-ebb1a18798f2</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40830,7 +41025,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">c8d88565-ae8d-4127-aea2-80cad521e413</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40869,7 +41064,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">fb742b15-3bde-4c9c-87bc-d7c26fc84df3</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40908,7 +41103,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">c16825c6-468b-42ab-8d89-5bb3a3e6b000</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40947,7 +41142,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">aa101248-4f97-41cb-b4cb-e64c44676e8b</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -40986,7 +41181,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">f79d0c8a-a639-40d2-9488-797dcc4ebade</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41025,7 +41220,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">2134c72c-86b1-44ff-b1dc-5cbc480c8e14</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41064,7 +41259,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">934649b8-f30e-4e0d-9946-44b39a418994</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41102,7 +41297,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ScriptParameterVersion" type_name="gh_int32" type_code="3">2</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41140,7 +41335,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ScriptParameterVersion" type_name="gh_int32" type_code="3">2</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41178,7 +41373,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ScriptParameterVersion" type_name="gh_int32" type_code="3">2</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41216,7 +41411,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ScriptParameterVersion" type_name="gh_int32" type_code="3">2</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41254,7 +41449,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ScriptParameterVersion" type_name="gh_int32" type_code="3">2</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41293,7 +41488,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">eda71746-c5a8-4b99-aa50-07c1dc5afe3d</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41332,7 +41527,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="Source" index="0" type_name="gh_guid" type_code="9">dc9c2e53-9427-480d-8c47-e0694a6c0454</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">1</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41396,7 +41591,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ScriptParameterVersion" type_name="gh_int32" type_code="3">2</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41434,7 +41629,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ScriptParameterVersion" type_name="gh_int32" type_code="3">2</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">
@@ -41472,7 +41667,7 @@ FALSE = the component does not communicate with Archicad</item>
                             <item name="ScriptParameterVersion" type_name="gh_int32" type_code="3">2</item>
                             <item name="ShowTypeHints" type_name="gh_bool" type_code="1">true</item>
                             <item name="SourceCount" type_name="gh_int32" type_code="3">0</item>
-                            <item name="ToolTip" type_name="gh_string" type_code="10"></item>
+                            <item name="ToolTip" type_name="gh_string" type_code="10" />
                             <item name="TypeHintID" type_name="gh_guid" type_code="9">1c282eeb-dd16-439f-94e4-7d92b542fe8b</item>
                           </items>
                           <chunks count="2">

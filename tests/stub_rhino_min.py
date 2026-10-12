@@ -171,6 +171,25 @@ class PolylineCurve(object):
     def ToNurbsCurve(self):
         return self
 
+    def DuplicateCurve(self):
+        return PolylineCurve(self)
+
+    def Translate(self, v):
+        for p in self._pts:
+            p.X += v.X
+            p.Y += v.Y
+            p.Z += v.Z
+        return True
+
+    def GetBoundingBox(self, exact=False):
+        xs = [p.X for p in self._pts]
+        ys = [p.Y for p in self._pts]
+        zs = [p.Z for p in self._pts]
+        bb = type('BBox', (object,), {})()
+        bb.Min = Point3d(min(xs), min(ys), min(zs))
+        bb.Max = Point3d(max(xs), max(ys), max(zs))
+        return bb
+
     @property
     def IsClosed(self):
         if len(self._pts) < 2:
@@ -292,8 +311,12 @@ class AreaMassProperties(object):
                 p2 = pts[(i + 1) % n]
                 area += p1.X * p2.Y - p2.X * p1.Y
             area = abs(area) / 2.0
+            cx = sum(p.X for p in pts) / float(n)
+            cy = sum(p.Y for p in pts) / float(n)
+            cz = sum(p.Z for p in pts) / float(n)
             class Props:
                 Area = area
+                Centroid = Point3d(cx, cy, cz)
             return Props()
         elif hasattr(obj, '_breps'):
             # Brep list
@@ -330,6 +353,8 @@ class Brep(object):
     def CreatePlanarBreps(curves, tol):
         if not curves:
             return None
+        if not isinstance(curves, (list, tuple)):
+            curves = [curves]
         # Wrap each curve in a Brep
         breps = []
         for c in curves:
