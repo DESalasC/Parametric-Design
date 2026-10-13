@@ -1630,7 +1630,7 @@ else:
                             zonas_alturas.append(h_piso)
                             zonas_nombres.append(_name_c)
                             zonas_centroides.append(ap_ac.Centroid)
-                            zonas_atributos.append(py_json.dumps(atributos, ensure_ascii=False))
+                            zonas_atributos.append(_safe_json_dumps(atributos))
 
                         # Incrementar altura acumulada para el siguiente piso
                         altura_acumulada += h_piso
@@ -1710,7 +1710,7 @@ if _barras_in:
                 zonas_pisos.Add(_number_c,path)
                 zonas_alturas.Add(h,path)
                 usos_etiquetas.Add(nombre,path);usos_pisos.Add(fi+1,path)
-                zonas_atributos.Add(json.dumps({"bloque":block["id"],"piso":fi+1,"z_base_m":z,"altura_m":h,"area_bruta_m2":ap.Area,"uso":nombre,"usos":usos,"number":_number_c,"name":_name_c,"nivel":_nivel_c,"zona":_zona_c,"categoria":_cat_c,"consecutivo":_cons_c,"estado":"preliminar; sin descuento de nucleo"},ensure_ascii=True),path)
+                zonas_atributos.Add(_safe_json_dumps({"bloque":block["id"],"piso":fi+1,"z_base_m":z,"altura_m":h,"area_bruta_m2":ap.Area,"uso":nombre,"usos":usos,"number":_number_c,"name":_name_c,"nivel":_nivel_c,"zona":_zona_c,"categoria":_cat_c,"consecutivo":_cons_c,"estado":"preliminar; sin descuento de nucleo"}),path)
                 perfil0=crv.DuplicateCurve()
                 perfil0.Translate(rg.Vector3d(0,0,-z))
                 vol=_extruir(perfil0,h,z)

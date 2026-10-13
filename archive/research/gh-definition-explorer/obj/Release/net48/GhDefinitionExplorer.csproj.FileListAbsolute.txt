@@ -1,6 +1,0 @@
-C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\obj\Release\net48\GhDefinitionExplorer.csproj.AssemblyReference.cache
-C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\obj\Release\net48\GhDefinitionExplorer.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\obj\Release\net48\GhDefinitionExplorer.AssemblyInfoInputs.cache
-C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\obj\Release\net48\GhDefinitionExplorer.AssemblyInfo.cs
-C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\obj\Release\net48\GhDefinitionExplorer.csproj.CoreCompileInputs.cache
-C:\Users\Dario Salas\proyectos\DiseñoParametrico_sistema\GhDefinitionExplorer\obj\Release\net48\GhDefinitionExplorer.sourcelink.json
