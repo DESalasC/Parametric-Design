@@ -21,6 +21,8 @@ SUBVERSIONES INTERNAS (politica del proyecto: se conservan las ultimas tres;
              stories-export-flag.json {"exportar": true}) -> escribe
              casos/<chip>/cotas-arranque.json + niveles_deseados.json
              (snap de plataformas a la grilla del entrepiso) y apaga el flag.
+         (d) Corrección de codificación JSON en atributos de zonas para evitar
+             DecoderFallbackException en IronPython 2.7.
   v08.0.2 (2026-10-11, noche 2): "Implantacion" usa `huella_xy_por_piso[fi]`
          cuando existe (escalonamiento lateral 1/5 sobre empate, F3 v03.8).
   v08.0.1 (2026-10-11, canvas v13.2): bloque "Implantacion dinamica" (F1) con
@@ -800,6 +802,14 @@ def _stories_json_dumps(obj):
         return json.dumps(obj, ensure_ascii=True, indent=2)
     except Exception:
         return json.dumps(_stories_ascii(obj), ensure_ascii=True, indent=2)
+
+
+def _safe_json_dumps(obj):
+    """dumps JSON compact; fallback ante bug IronPython unicode."""
+    try:
+        return json.dumps(obj, ensure_ascii=True)
+    except Exception:
+        return json.dumps(_stories_ascii(obj), ensure_ascii=True)
 
 
 def _escribir_json_stories(ruta, obj):

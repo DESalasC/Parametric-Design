@@ -1,0 +1,97 @@
+{
+  "chip": "AAA0030JKOE", 
+  "generado": "2026-10-12 23:18:32", 
+  "base_z_m": -11.565, 
+  "stories": [
+    {
+      "descripcion": "Planta baja (acceso)", 
+      "elevation": -11.565, 
+      "elevacion_relativa_m": 0.0, 
+      "name": "GF"
+    }, 
+    {
+      "descripcion": "Nivel 1", 
+      "elevation": -8.5150000000000006, 
+      "elevacion_relativa_m": 3.0499999999999998, 
+      "name": "L01"
+    }, 
+    {
+      "descripcion": "Nivel 2", 
+      "elevation": -5.4649999999999999, 
+      "elevacion_relativa_m": 6.0999999999999996, 
+      "name": "L02"
+    }, 
+    {
+      "descripcion": "Nivel 3", 
+      "elevation": -2.415, 
+      "elevacion_relativa_m": 9.1500000000000004, 
+      "name": "L03"
+    }, 
+    {
+      "descripcion": "Nivel 4", 
+      "elevation": 0.63500000000000001, 
+      "elevacion_relativa_m": 12.199999999999999, 
+      "name": "L04"
+    }, 
+    {
+      "descripcion": "Nivel 5", 
+      "elevation": 3.6850000000000001, 
+      "elevacion_relativa_m": 15.25, 
+      "name": "L05"
+    }, 
+    {
+      "descripcion": "Nivel 6", 
+      "elevation": 6.7350000000000003, 
+      "elevacion_relativa_m": 18.300000000000001, 
+      "name": "L06"
+    }, 
+    {
+      "descripcion": "Nivel 7", 
+      "elevation": 9.7850000000000001, 
+      "elevacion_relativa_m": 21.350000000000001, 
+      "name": "L07"
+    }
+  ], 
+  "avisos": [
+    "base = menor cota de bloque; nivel de acceso definitivo (fetch v8 / NORMATIVA v10) puede desplazar la base", 
+    "elevaciones en marco canvas (misma referencia que zonas/LC)"
+  ], 
+  "nota": "Stories ArchiCAD (Story Settings). elevation = marco canvas; elevacion_relativa_m = acumulado desde la base.", 
+  "floor_h_m": 3.0499999999999998, 
+  "schema": "f3_niveles_deseados_v01", 
+  "snap": true, 
+  "bloques": [
+    {
+      "cota_arranque_m": -11.565, 
+      "cota_snap_m": -11.565, 
+      "pisos": 5, 
+      "offset_niveles": 0, 
+      "id": "B1-R1", 
+      "ajuste_m": 0.0
+    }, 
+    {
+      "cota_arranque_m": -8.2089999999999996, 
+      "cota_snap_m": -8.5150000000000006, 
+      "pisos": 5, 
+      "offset_niveles": 1, 
+      "id": "B2-R1", 
+      "ajuste_m": -0.30599999999999999
+    }, 
+    {
+      "cota_arranque_m": -5.2789999999999999, 
+      "cota_snap_m": -5.4649999999999999, 
+      "pisos": 5, 
+      "offset_niveles": 2, 
+      "id": "B3-R1", 
+      "ajuste_m": -0.186
+    }, 
+    {
+      "cota_arranque_m": -2.5699999999999998, 
+      "cota_snap_m": -2.415, 
+      "pisos": 5, 
+      "offset_niveles": 3, 
+      "id": "B4-R1", 
+      "ajuste_m": 0.155
+    }
+  ]
+}
