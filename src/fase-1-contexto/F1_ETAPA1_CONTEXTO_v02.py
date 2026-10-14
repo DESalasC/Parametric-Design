@@ -14,6 +14,26 @@ PROPOSITO:
   (vias, andenes, zonas verdes, predios vecinos) en los layers creados,
   y se construyen los Morphs de volumetrias vecinas.
 
+CAMBIOS v02.3 (2026-10-13):
+  - Z_BASE CORRECTO (Mínimo Z válido del terreno): prioridad min_z válido malla
+    terreno (punto más bajo lote) -> promedio vecinos N/S -> ancla SE -> 0.0.
+  - Geometría en LOCAL Z: todas las salidas (lote, vecinos, vías, EP, topografía)
+    usan Z_local = Z_absoluto - Z_base. SE corner = (0,0,0). Terreno empieza en ~0.
+  - Coherencia total con F1_CONTEXTO50_BUILD v01.3 y F3_VOLUM_GENERADOR v08.1.
+
+CAMBIOS v02.2 (2026-10-13):
+  - Se corrigió el origen Z (dz) para tomar el punto más bajo de la malla de terreno
+    (min_z) cuando está disponible. Si existen vecinos al norte y al sur del lote,
+    se toma la media de sus cotas Z promedio (más cercana en cada dirección) para
+    definir dz, asegurando mejor alineación con el contexto urbano. Se mantiene dx, dy
+    del vértice SE del lote.
+
+CAMBIOS v02.1 (2026-10-13):
+  - Se corrigió el origen Z (dz) para tomar el punto más bajo de la malla de terreno
+    (min_z) cuando está disponible, asegurando que el sistema de coordenadas locales
+    tenga Z=0 en el terreno y evitando valores negativos. Se mantuvo dx, dy del
+    vértice SE del lote.
+
 CAMBIOS v02 (2026-08-15):
   GARANTIA DEL LAYER DEL LOTE: el layer "00-00-10_Lote_proyecto" queda
   asegurado en layers_json con merge defensivo (si faltara en la lista
@@ -83,7 +103,7 @@ def to_float_safe(val, default=0.0):
 
 
 def polyline_from_coords(coords, dx, dy, dz):
-    """Convierte [[x,y,z],...] en PolylineCurve con offset."""
+    """Convierte [[x,y,z],...] en PolylineCurve con offset. Z ya en local (Z_abs - dz)."""
     if not coords or len(coords) < 3:
         return None
     poly = rg.Polyline()
@@ -95,7 +115,7 @@ def polyline_from_coords(coords, dx, dy, dz):
 
 
 def build_terrain_mesh(mesh_points, dx, dy, dz):
-    """Malla de terreno por interpolacion IDW sobre grilla ~5m."""
+    """Malla de terreno por interpolacion IDW sobre grilla ~5m. Z ya en local."""
     if not mesh_points or len(mesh_points) < 3:
         return None
 
@@ -229,6 +249,22 @@ else:
         # Uso principal:
         data = leer_json_seguro(json_path)
 
+        # --- TOPOGRAFIA ---
+        topo = data.get("topografia", {})
+        mesh_points = topo.get("malla_terreno", [])
+
+        # Compute min_z from mesh_points if available (ignore near-zero values)
+        if mesh_points:
+            mesh_zs = [p["z_local"] for p in mesh_points]
+            # Filter out near-zero values (likely invalid/placeholder points)
+            valid_zs = [z for z in mesh_zs if abs(z) > 0.001]
+            if valid_zs:
+                min_z = min(valid_zs)
+            else:
+                min_z = 0.0
+        else:
+            min_z = 0.0
+
         # --- Anclaje: vertice SE del lote (min Y, max X) ---
         lote_verts = data.get("lote_objetivo", {}).get("vertices_3d_local", [])
         if lote_verts and len(lote_verts) >= 3:
@@ -236,9 +272,61 @@ else:
             for v in lote_verts:
                 if v[1] < anchor[1] - 0.01 or (abs(v[1] - anchor[1]) < 0.01 and v[0] > anchor[0]):
                     anchor = v
-            dx, dy, dz = anchor[0], anchor[1], anchor[2]
+            dx, dy = anchor[0], anchor[1]
+            lot_y = anchor[1]
+            # Anchor Z is the REAL terrain elevation at SE corner (from MDT)
+            anchor_z = anchor[2]
         else:
-            dx, dy, dz = 0.0, 0.0, 0.0
+            dx, dy = 0.0, 0.0
+            lot_y = 0.0
+            anchor_z = None
+
+        # --- CALCULO DE Z DESDE VECINOS NORTE/SUR ---
+        vecinos_z_norte = None
+        vecinos_z_sur = None
+        veclist = data.get("vecinos", [])
+        if veclist and lot_y is not None:
+            norte_candidates = []  # (distance, z)
+            sur_candidates = []    # (distance, z)
+            for vecino in veclist:
+                v_verts = vecino.get("vertices_3d_local", [])
+                if v_verts and len(v_verts) >= 3:
+                    v_y_sum = sum(v[1] for v in v_verts)
+                    v_z_sum = sum(v[2] for v in v_verts)
+                    v_count = len(v_verts)
+                    v_y_avg = v_y_sum / v_count
+                    v_z_avg = v_z_sum / v_count
+                    
+                    # Only consider neighbors with valid Z (not 0.0)
+                    if abs(v_z_avg) > 0.001:
+                        if v_y_avg > lot_y:  # norte
+                            dist = v_y_avg - lot_y
+                            norte_candidates.append((dist, v_z_avg))
+                        elif v_y_avg < lot_y:  # sur
+                            dist = lot_y - v_y_avg
+                            sur_candidates.append((dist, v_z_avg))
+            
+            # Take closest in each direction
+            if norte_candidates:
+                norte_candidates.sort(key=lambda x: x[0])
+                vecinos_z_norte = norte_candidates[0][1]
+            if sur_candidates:
+                sur_candidates.sort(key=lambda x: x[0])
+                vecinos_z_sur = sur_candidates[0][1]
+
+        # Determine dz = Z_base: priority order
+        # 1. Valid terrain mesh min_z (lowest point of lot terrain) - PRIMARY
+        # 2. Neighbor average if both available and valid (urban alignment fallback)
+        # 3. SE corner anchor Z (real MDT at lot corner) - fallback
+        # 4. 0.0 as last resort
+        if min_z is not None and min_z > 0.0:
+            dz = min_z
+        elif vecinos_z_norte is not None and vecinos_z_sur is not None:
+            dz = (vecinos_z_norte + vecinos_z_sur) / 2.0
+        elif anchor_z is not None:
+            dz = anchor_z
+        else:
+            dz = 0.0
 
         meta = data.get("metadata", {})
         origen_sirgas = meta.get("origen_sirgas", {})
@@ -274,9 +362,7 @@ else:
             if crv:
                 espacios_publicos.append(crv)
 
-        # --- TOPOGRAFIA ---
-        topo = data.get("topografia", {})
-        mesh_points = topo.get("malla_terreno", [])
+        # --- TOPOGRAFIA (continued) ---
         topo_mesh = build_terrain_mesh(mesh_points, dx, dy, dz) if mesh_points else None
 
         # --- NORMATIVA ---

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
-F1_CONTEXTO50_BUILD_v01.2.py — Construcción de volumetrías vecinas en Rhino / GH
+F1_CONTEXTO50_BUILD_v01.3.py — Construcción de volumetrías vecinas en Rhino / GH
 Proyecto: DisenoParametrico / Fase 1
 Componente GHPython (componente "Script" clásico, IronPython 2.7) para el canvas
 ArchiCAD–Grasshopper (Live Connection).
@@ -18,6 +18,14 @@ PROPOSITO:
 
   REGLA DE ORO (AGENTS.md): el volumen coincide en PERÍMETRO con la huella;
   la extrusión usa EXACTAMENTE la misma polilínea cerrada publicada.
+
+CAMBIOS v01.3 (2026-10-13):
+  1. Z_BASE CORRECTO (Mínimo Z válido del terreno): `compute_dz_from_stage1_context()`
+     ahora usa prioridad: min_z válido malla terreno (punto más bajo lote) ->
+     promedio vecinos N/S -> ancla SE -> 0.0. El `desplazamiento_z` resultante
+     es Z_base (~0.03m), NO la cota SE (14.52m).
+  2. Coherencia total: `desplazamiento_z` = Z_base para que terreno, vecinos
+     y volúmenes compartan MISMO sistema local (SE = 0,0,0; Z local = Z_abs - Z_base).
 
 CAMBIOS v01.2 (2026-10-08):
   1. Versionado correcto: subversión v<major>.<minor> (antes v01b).
@@ -82,6 +90,7 @@ Inputs:
 Outputs:
   volumenes (Brep[]) · huellas (Curve[]) · alturas (m[]) · pisos (int[])
   ids (String[]) · capa (String) · mensaje (String) · out (impreso)
+  desplazamiento_z (Number) — Z_base para alinear con F3_VOLUM_GENERADOR (z_origin)
 
 COMPATIBILIDAD: IronPython 2.7 (sin f-strings, sin pathlib, sin type hints).
 UNIDADES: metros (regla #11).
@@ -345,6 +354,107 @@ def cargar_lote_objetivo(json_path, data_c50):
         return None, "lote no cargado: {0}".format(str(e))
 
 
+def compute_dz_from_stage1_context(json_path, data_c50):
+    """Compute the Z-origin (dz) = Z_base (lowest valid terrain point of the lot).
+    Priority: valid mesh min_z -> neighbor avg -> SE anchor Z -> 0.0
+    This Z_base becomes the local Z=0 for lot, terrain, neighbors, and volumes.
+    """
+    try:
+        # Get directory and build path to stage1 context file
+        carpeta = os.path.dirname(json_path or "")
+        ruta_ctx1 = os.path.join(carpeta, "CHIP-contexto.json")  # CTX1_HERMANO
+        
+        # Read and parse the stage1 context file
+        if not os.path.isfile(ruta_ctx1):
+            return 0.0  # fallback to no shift if file not found
+            
+        data_ctx1 = leer_json(ruta_ctx1)
+        
+        # --- TOPOGRAFIA (from stage1 context) ---
+        topo = data_ctx1.get("topografia", {})
+        mesh_points = topo.get("malla_terreno", [])
+        
+        # Compute min_z from mesh_points if available (ignore near-zero values)
+        if mesh_points:
+            mesh_zs = [p["z_local"] for p in mesh_points]
+            # Filter out near-zero values (likely invalid/placeholder points)
+            valid_zs = [z for z in mesh_zs if abs(z) > 0.001]
+            if valid_zs:
+                min_z = min(valid_zs)
+            else:
+                min_z = None
+        else:
+            min_z = None
+        
+        # --- Anclaje: vertice SE del lote (min Y, max X) ---
+        lote_verts = data_ctx1.get("lote_objetivo", {}).get("vertices_3d_local", [])
+        anchor_z = None
+        if lote_verts and len(lote_verts) >= 3:
+            anchor = lote_verts[0]
+            for v in lote_verts:
+                if v[1] < anchor[1] - 0.01 or (abs(v[1] - anchor[1]) < 0.01 and v[0] > anchor[0]):
+                    anchor = v
+            dx, dy = anchor[0], anchor[1]
+            lot_y = anchor[1]
+            # Anchor Z is the REAL terrain elevation at SE corner (from MDT)
+            anchor_z = anchor[2]
+        else:
+            dx, dy = 0.0, 0.0
+            lot_y = 0.0
+        
+        # --- CALCULO DE Z DESDE VECINOS NORTE/SUR (from stage1 context) ---
+        vecinos_z_norte = None
+        vecinos_z_sur = None
+        veclist = data_ctx1.get("vecinos", [])
+        if veclist and lot_y is not None:
+            norte_candidates = []  # (distance, z)
+            sur_candidates = []    # (distance, z)
+            for vecino in veclist:
+                v_verts = vecino.get("vertices_3d_local", [])
+                if v_verts and len(v_verts) >= 3:
+                    v_y_sum = sum(v[1] for v in v_verts)
+                    v_z_sum = sum(v[2] for v in v_verts)
+                    v_count = len(v_verts)
+                    v_y_avg = v_y_sum / v_count
+                    v_z_avg = v_z_sum / v_count
+                    
+                    # Only consider neighbors with valid Z (not 0.0)
+                    if abs(v_z_avg) > 0.001:
+                        if v_y_avg > lot_y:  # norte
+                            dist = v_y_avg - lot_y
+                            norte_candidates.append((dist, v_z_avg))
+                        elif v_y_avg < lot_y:  # sur
+                            dist = lot_y - v_y_avg
+                            sur_candidates.append((dist, v_z_avg))
+            
+            # Take closest in each direction
+            if norte_candidates:
+                norte_candidates.sort(key=lambda x: x[0])
+                vecinos_z_norte = norte_candidates[0][1]
+            if sur_candidates:
+                sur_candidates.sort(key=lambda x: x[0])
+                vecinos_z_sur = sur_candidates[0][1]
+        
+        # Determine dz = Z_base: priority order
+        # 1. Valid terrain mesh min_z (lowest point of lot terrain) - PRIMARY
+        # 2. Neighbor average if both available and valid (urban alignment fallback)
+        # 3. SE corner anchor Z (real MDT at lot corner) - fallback
+        # 4. 0.0 as last resort
+        if min_z is not None:
+            dz = min_z
+        elif vecinos_z_norte is not None and vecinos_z_sur is not None:
+            dz = (vecinos_z_norte + vecinos_z_sur) / 2.0
+        elif anchor_z is not None:
+            dz = anchor_z
+        else:
+            dz = 0.0
+            
+        return dz
+    except Exception:
+        # If anything goes wrong, return 0.0 to maintain current behavior
+        return 0.0
+
+
 def _es_horario(pts):
     """True si el anillo (x, y) esta en sentido horario (area con signo < 0)."""
     s = 0.0
@@ -447,6 +557,7 @@ pisos = []
 ids = []
 capa = LAYER_VECINOS
 mensaje = ""
+desplazamiento_z = 0.0
 
 if not in_json_path:
     mensaje = "CONTEXTO50_BUILD | ALERTA: input 'json_path' no conectado."
@@ -484,6 +595,9 @@ else:
         zbs = []
 
         lote_local, nota_lote = cargar_lote_objetivo(in_json_path, data)
+        
+        # Calcular el desplazamiento Z desde el contexto de etapa 1 (mismo que F1_ETAPA1_CONTEXTO_v02.py)
+        desplazamiento_z = compute_dz_from_stage1_context(in_json_path, data)
 
         for idx, ed in enumerate(edificios):
             ed_id = ""
@@ -520,7 +634,10 @@ else:
                 if es_fallback:
                     n_fallback += 1
 
-                crv = construir_huella(pts, z_base)
+                # Apply the stage1 context Z displacement to align with F1_ETAPA1_CONTEXTO_v02.py
+                z_base_ajustado = z_base - desplazamiento_z
+
+                crv = construir_huella(pts, z_base_ajustado)
                 if crv is None:
                     descartados.append(ed_id or "(sin id)")
                     n_skip += 1
@@ -536,7 +653,7 @@ else:
                 huellas.append(crv)          # misma curva de la extrusión
                 alturas.append(altura)        # metros (regla #11)
                 pisos.append(p)
-                zbs.append(z_base)
+                zbs.append(z_base_ajustado)  # Store adjusted z_base for reporting
                 ids.append(ed_id)
             except Exception as e_ed:
                 n_skip += 1
@@ -610,7 +727,7 @@ else:
             "Descartados {4} | Alturas {5:.1f}-{6:.1f}m | Fallbacks {7}"
         ).format(chip, radio_m, len(volumenes), n_total, n_skip, a_min, a_max, n_fallback)
         if any(zb != 0.0 for zb in zbs):
-            mensaje += " | z_base {0:.1f}-{1:.1f}m ({2} con cota)".format(
+            mensaje += " | z_base (ajustado) {0:.1f}-{1:.1f}m ({2} con cota)".format(
                 min(zbs), max(zbs), len(zbs))
         if detalle_edificios:
             mensaje += " | Detalle: " + "; ".join(detalle_edificios)
@@ -620,6 +737,7 @@ else:
             mensaje += " | lote: " + nota_lote
         if descartados:
             mensaje += " | {0}".format("; ".join(descartados[:5]))
+        mensaje += " | Desplazamiento Z aplicado: {0:.3f}m (desde contexto etapa 1)".format(desplazamiento_z)
         mensaje += aviso_unidades + nota_bake + nota_export
 
     except Exception as e_main:

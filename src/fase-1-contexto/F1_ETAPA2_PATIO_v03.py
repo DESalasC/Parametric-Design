@@ -6,6 +6,16 @@ Proyecto: DisenoParametrico / Fase 1
 GH Python Script para Grasshopper (IronPython 2.7 compatible)
 ================================================================================
 
+v03.4 (2026-10-13): REGLA MULTI CONFIRMADA POR EL OPERADOR (2026-10-13):
+    - En predios resueltos con >=2 volumenes NO se generan patios
+      independientes (se retira la "regla v1" de esquinas interiores de
+      v03.0-v03.3): rigen las separaciones entre volumenes (computan en IO).
+    - El patio normativo (Anexo 5 1.12.b: H/3, >=9 m2, >=3 ml de lado)
+      queda reservado al caso de UN solo volumen/bloque constructivo.
+    - Modo AUTO con n>=2 inferido -> 0 patios (mensaje explicativo);
+      modo MULTI forzado -> 0 patios; UNICO (n=1) intacto (v02.5).
+    - Export F1.5: bloque patio con regla v03.4 y count 0 en multi.
+
 v03.3 (2026-10-03): Actualizacion documentacion y mensajes segun reglas
   aprobadas operador (2026-10-03):
     - 1 VOLUMEN -> patio normativo Anexo 5 §1.12.b (H/3, >=9 m2, >=3 ml lado).
@@ -82,10 +92,10 @@ ALGORITMO BASE (v02.x):
   cambios mayores (contrato de entradas/salidas o algoritmo central); las
   iteraciones internas se registran como subversiones v03.x en este encabezado.
 
-REGLAS DE PATIOS / SEPARACIONES (aprobadas operador 2026-10-03):
+REGLAS DE PATIOS / SEPARACIONES (aprobadas operador 2026-10-03; confirmadas 2026-10-13):
   - 1 VOLUMEN: patio normativo Anexo 5 §1.12.b (cuadrado H/3, min 9 m², 3 ml lado).
-  - >=2 VOLÚMENES: separaciones entre volúmenes = "patios" que COMPUTAN EN IO
-    (no patios independientes por volumen).
+  - >=2 VOLÚMENES: NO se generan patios independientes (regla v1 retirada
+    2026-10-13); rigen las separaciones entre volúmenes, que COMPUTAN EN IO.
   - Sin voladizos internos entre volúmenes.
   - Separación mínima entre cuerpos = max(6.0 m, 0.2 * altura_promedio,
     NSR-10 A.6.5 2% * h_piso si >3 pisos).
@@ -276,7 +286,7 @@ def _exportar_diagnostico(sides_data, patios_export, mensaje_final, modo, n_vol)
     data = {
         "schema": "lados_patio_diagnostico_v01",
         "chip": chip,
-        "generado_por": "F1_ETAPA2_PATIO_v03.3",
+        "generado_por": "F1_ETAPA2_PATIO_v03.4",
         "generado_en": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "solicitud": flag,
         "sides": {
@@ -562,6 +572,7 @@ except:
     altura_max = 11.4
 
 patios_curves = []
+aceptados = []  # v03.4: definido en ambos modos (diagnostico de IO y contadores)
 patio_count = 0
 patios_export = []
 mensaje = ""
@@ -569,7 +580,7 @@ mensaje = ""
 # Las variables patios_curves, patio_count, mensaje ya están arriba
 
 if sides_data is None or len(lot_vertices) < 3:
-    mensaje = "PATIO v03.3 | ERROR: vertices={} sides={}".format(
+    mensaje = "PATIO v03.4 | ERROR: vertices={} sides={}".format(
         len(lot_vertices), "OK" if sides_data else "FALTA")
 else:
     try:
@@ -586,7 +597,7 @@ else:
         if vertice_n is None and modo != "unico":
             vertice_n = 0  # prioridad convencional; AUTO sigue probando todas
         if vertice_n is None:
-            mensaje = "PATIO v03.3 | ERROR: modo unico requiere vertice_n valido"
+            mensaje = "PATIO v03.4 | ERROR: modo unico requiere vertice_n valido"
         else:
             # Tamano base del patio segun altura (reglamentacion POT)
             # Anexo 5 1.12.b segun ficha del proyecto: cuadrado H/3, min 3m.
@@ -700,7 +711,7 @@ else:
                         "claridad_m": round(claridad, 4),
                     }]
                     modo_anclaje = "puntos_mejorados" if candidatos else "fallback_V_N"
-                    mensaje = ("PATIO v03.3 | modo unico (forzado) | V_N=V{} | Verts {}->{} | Lados: {} | "
+                    mensaje = ("PATIO v03.4 | modo unico (forzado) | V_N=V{} | Verts {}->{} | Lados: {} | "
                                "Patio {:.2f}x{:.2f} m (area {:.2f} m2; claridad {:.2f} m) | "
                                "Generados: 1 | Modo: {}").format(
                         idx_usado, n_vertices_brutos, n, ", ".join(cats),
@@ -708,14 +719,15 @@ else:
                     if descartes:
                         mensaje += " | Descartes: " + "; ".join(descartes[:3])
                 else:
-                    mensaje = ("PATIO v03.3 | modo unico (forzado) | V_N=V{} | Verts {}->{} | Lados: {} | "
+                    mensaje = ("PATIO v03.4 | modo unico (forzado) | V_N=V{} | Verts {}->{} | Lados: {} | "
                                "Generados: 0 | Motivo: {}").format(
                         vertice_n, n_vertices_brutos, n, ", ".join(cats),
                         "; ".join(descartes) if descartes else "sin candidatos de esquina")
-                    mensaje += (" | Sugerencia: dejar n_volumenes en 0 (AUTO) permite "
-                                "anclar en otra esquina interior")
+                    mensaje += (" | Sugerencia: n_volumenes=0 (AUTO) para inferir; si el "
+                                "lote es multivolumen rigen las separaciones (sin patios); "
+                                "en lote de un solo volumen AUTO puede anclar en otra esquina")
             else:
-                # ---------------- Motor v03.1: AUTO / MULTI (regla v1) ----------------
+                # -------- Motor AUTO / MULTI (v03.4: multi => separaciones, sin patios) --------
                 cats = [l.get("clasificacion", "?") for l in lados]
                 elegibles = []
                 for idx in range(n):
@@ -797,9 +809,10 @@ else:
                 if capacidad < 1:
                     capacidad = 1
 
+                # v03.4 (2026-10-13): con >=2 volumenes NO se generan patios
+                # independientes: rigen las separaciones entre volumenes.
                 if modo == "auto":
                     n_vol = min(n_validos, capacidad)
-                    aceptados = aceptados[:n_vol]
                     nota = ""
                     if n_validos > capacidad:
                         nota = " | Nota: limitado por capacidad del lote"
@@ -807,9 +820,13 @@ else:
                         nota = " | Nota: menos esquinas validas que capacidad"
                     if mejorado_usado:
                         nota += " | Ancla V_N: punto mejorado"
+                    if n_vol >= 2:
+                        aceptados = []
+                    else:
+                        aceptados = aceptados[:n_vol]
                 else:
                     n_vol = n_vol_sel
-                    aceptados = aceptados[:n_vol]
+                    aceptados = []
                     nota = ""
 
                 patios_curves = [a[0] for a in aceptados]
@@ -833,31 +850,45 @@ else:
                     areas = ", ".join("{:.2f}".format(p["area_m2"]) for p in patios_export)
                     clars = ", ".join("{:.2f}".format(p["claridad_m"]) for p in patios_export)
                     if modo == "auto":
-                        cabecera = ("PATIO v03.3 | modo AUTO | n_volumenes inferido: {} "
+                        cabecera = ("PATIO v03.4 | modo AUTO | n_volumenes inferido: {} "
                                     "(esquinas validas: {} | capacidad: {} @ {:.0f} m2)").format(
                             n_vol, n_validos, capacidad, A_REF_VOL_M2)
                     else:
-                        cabecera = "PATIO v03.3 | modo MULTI (n_volumenes={})".format(n_vol)
+                        cabecera = "PATIO v03.4 | modo MULTI (n_volumenes={})".format(n_vol)
                     mensaje = (cabecera + " | Verts {}->{} | Lados: {} | "
                                "Generados: {}/{} | Anclas: {} | Areas: {} m2 | Claridades: {} m | "
                                "Modo: esquinas_interiores_v1").format(
                         n_vertices_brutos, n, ", ".join(cats),
                         patio_count, n_vol, anclas, areas, clars)
                     mensaje += nota
-                    mensaje += " | v03.3: conteo de patios NO equivale a cuerpos; altura usada {:.2f} m".format(altura_max)
+                    mensaje += " | v03.4: conteo de patios NO equivale a cuerpos; altura usada {:.2f} m".format(altura_max)
                     if patio_count < n_vol:
                         mensaje += " | Nota: menos patios que el objetivo (revisar esquinas)"
                     if descartes:
                         mensaje += " | Descartes: " + "; ".join(descartes[:3])
                 else:
-                    if modo == "auto":
-                        cabecera = ("PATIO v03.3 | modo AUTO | n_volumenes inferido: 0 "
-                                    "(esquinas validas: 0 | capacidad: {})").format(capacidad)
+                    if n_vol >= 2:
+                        # v03.4: multi => separaciones (sin patios independientes)
+                        if modo == "auto":
+                            cabecera = ("PATIO v03.4 | modo AUTO | n_volumenes inferido: {} "
+                                        "(esquinas validas: {} | capacidad: {})").format(
+                                n_vol, n_validos, capacidad)
+                        else:
+                            cabecera = "PATIO v03.4 | modo MULTI (n_volumenes={})".format(n_vol)
+                        mensaje = (cabecera + " | Verts {}->{} | Lados: {} | Generados: 0 | "
+                                   "Regla v03.4 (2026-10-13): con >=2 volumenes rigen las "
+                                   "separaciones entre volumenes (computan en IO); sin patios "
+                                   "independientes{}").format(
+                            n_vertices_brutos, n, ", ".join(cats), nota)
                     else:
-                        cabecera = "PATIO v03.3 | modo MULTI (n_volumenes={})".format(n_vol)
-                    mensaje = (cabecera + " | Verts {}->{} | Lados: {} | Generados: 0 | Motivo: {}").format(
-                        n_vertices_brutos, n, ", ".join(cats),
-                        "; ".join(descartes[:4]) if descartes else "sin esquinas interiores elegibles")
+                        if modo == "auto":
+                            cabecera = ("PATIO v03.4 | modo AUTO | n_volumenes inferido: 0 "
+                                        "(esquinas validas: 0 | capacidad: {})").format(capacidad)
+                        else:
+                            cabecera = "PATIO v03.4 | modo MULTI (n_volumenes={})".format(n_vol)
+                        mensaje = (cabecera + " | Verts {}->{} | Lados: {} | Generados: 0 | Motivo: {}").format(
+                            n_vertices_brutos, n, ", ".join(cats),
+                            "; ".join(descartes[:4]) if descartes else "sin esquinas interiores elegibles")
 
             # Advertencia si IO excede el máximo (regla aprobada 2026-10-03)
             # El patio no es la herramienta de reducción de IO; la reducción
@@ -876,4 +907,4 @@ else:
                 mensaje += " | Lados export aviso: {}".format(str(_e_exp))
 
     except Exception as e:
-        mensaje = "PATIO v03.3 | ERROR: {}".format(str(e))
+        mensaje = "PATIO v03.4 | ERROR: {}".format(str(e))

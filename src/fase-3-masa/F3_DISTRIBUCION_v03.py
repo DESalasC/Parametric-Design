@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
-F3_DISTRIBUCION_v03.py — v03.8 (genérica v03) — Distribuidor de barras por crujía con presupuesto IO
+F3_DISTRIBUCION_v03.py — v03.9 (genérica v03) — Distribuidor de barras por crujía con presupuesto IO
 Proyecto: DisenoParametrico / Fase 3
 GH Python Script para Grasshopper (IronPython 2.7 compatible) + CLI
 ================================================================================
@@ -17,6 +17,12 @@ RESUMEN:
   APROBADOS (ocupacion_aprobada_m2, gfa_aprobado_m2, envelope_aprobado_por_piso).
 
 HISTORIAL DE VERSIONES (se conservan las últimas tres; anteriores en el Vault):
+  v03.9 (2026-10-13): FIX de marcos en el ESCALONAMIENTO LATERAL: el recorte por
+    piso usaba el poligono del lote (marco LOCAL) con el rango Y de la huella en
+    marco CANVAS (mezcla de marcos) => los pisos 2..n quedaban desplazados (solo
+    el piso base en su sitio). Ahora recorta el poligono de la FRANJA en marco
+    local (cs[_k]) con su banda Y local; respaldo con aviso si queda degenerado.
+    Mensajes v03.9.
   v03.8 (2026-10-11, noche 2): ESCALONAMIENTO LATERAL vs vecino (norma 1/5):
     `sep_lateral_json` = {"lado":"xmax"|"xmin", "h_vecino_m":6.0,
     "min_retiro_m":0.0, "nsr_coef":0.02}. Retiro por piso: r=0 si z_piso
@@ -30,18 +36,13 @@ HISTORIAL DE VERSIONES (se conservan las últimas tres; anteriores en el Vault):
     (b) PISOS POR BLOQUE: `pisos_por_bloque` ("4,4,6") o `limites_pisos_json`
         (bandas desde el frente con `max_pisos` + redistribucion del sobrante
         al ultimo bloque). GFA = suma(area x pisos); aviso de retiros.
-  v03.6 (2026-10-11): F1 — crujia unica con cap de profundidad (crujia_max_m,
-    def. 10 m; tope 12), n auto-ajustado (hasta 5) y validaciones de ANCHO
-    COMPLETO (sin reduccion centrada: elimina huecos laterales; P3/P4).
-    Recorte de franjas en Python puro (Sutherland-Hodgman) y cota de arranque
-    tolerante (topografia opcional; cota fija con 'cota_arranque_m'). Mensaje v03.6.
-    Incl. v03.6.1: huella_xy CERRADA (contrato con "Implantacion" de F3_VOLUM #114).
-  v03.5 y anteriores (v03.0–v03.5, v02.x): historial completo en el Vault Obsidian (actas/lecciones) y _legacy.
+  v03.6 y anteriores (v03.0-v03.6.1): historial completo en el Vault Obsidian y
+    _legacy. Contrato vigente: huella_xy CERRADA (v03.6.1, "Implantacion" F3_VOLUM).
 
-REGLAS DE PATIOS/SEPARACIONES (aprobadas operador 2026-10-03):
+REGLAS DE PATIOS/SEPARACIONES (aprobadas operador 2026-10-03; confirmadas 2026-10-13):
   - 1 VOLUMEN: patio normativo Anexo 5 §1.12.b (H/3, min 9 m², 3 ml lado).
-  - >=2 VOLÚMENES: separaciones entre volúmenes actúan como "patios"
-    y COMPUTAN EN IO (no patios independientes por volumen).
+  - >=2 VOLÚMENES: NO se generan patios independientes; las separaciones entre
+    volúmenes rigen y COMPUTAN EN IO.
   - Sin voladizos internos entre volúmenes.
   - Separación mínima entre cuerpos = max(6.0 m, 0.2 * altura_promedio,
     NSR-10 A.6.5 2% * h_piso si >3 pisos).
@@ -852,7 +853,7 @@ def generar_barras_para_n(lote_m2, presupuesto_m2, n_barras, floor_h, separacion
     for _k in range(len(bloques)):
         bloques[_k]["pisos"] = pisos_bloques[_k]
 
-    # v03.8: escalonamiento lateral (1/5 sobre empate) si hay sep_lateral_json
+    # v03.9: escalonamiento lateral (1/5 sobre empate) si hay sep_lateral_json (marco local)
     sep_lat = None
     _sl_raw = globals().get("sep_lateral_json")
     if _sl_raw:
@@ -872,8 +873,11 @@ def generar_barras_para_n(lote_m2, presupuesto_m2, n_barras, floor_h, separacion
             _pisos_k = int(pisos_bloques[_k])
             _rows = []
             _ret = []
-            _ys = [p[1] for p in bloques[_k]["huella_xy"]]
-            _y0b = min(_ys); _y1b = max(_ys)
+            # v03.9 FIX: poligono de la FRANJA en marco LOCAL y su banda Y local
+            # (v03.8 tomaba el Y de la huella en marco CANVAS: pisos 2+ desplazados)
+            _banda = cs[_k]
+            _y0b = _banda[1]; _y1b = _banda[2]
+            _poly_local = _banda[3]
             for f in range(_pisos_k):
                 _zf = (f + 1) * floor_h
                 if _zf <= _hv + 1e-9:
@@ -887,7 +891,7 @@ def generar_barras_para_n(lote_m2, presupuesto_m2, n_barras, floor_h, separacion
                 else:
                     _x0 = xmin + (_r if _lado == "xmin" else 0.0)
                     _x1 = xmax - (_r if _lado == "xmax" else 0.0)
-                    _poly = _clip_rect(pol, _x0, _y0b, _x1, _y1b)
+                    _poly = _clip_rect(_poly_local, _x0, _y0b, _x1, _y1b)
                     _pm = [_mundo(p) for p in _poly]
                     _rr = []
                     for p in _pm:
@@ -896,6 +900,9 @@ def generar_barras_para_n(lote_m2, presupuesto_m2, n_barras, floor_h, separacion
                             _rr.append(q)
                     if len(_rr) >= 3:
                         _rr.append(list(_rr[0]))
+                    else:
+                        _rr = [list(p) for p in bloques[_k]["huella_xy"]]
+                        avisos.append(u"B{}: escalonamiento piso {} sin recorte valido; huella base usada".format(_k + 1, f + 1))
                     _rows.append(_rr)
             bloques[_k]["huella_xy_por_piso"] = _rows
             bloques[_k]["retiros_por_piso_m"] = _ret
@@ -950,7 +957,7 @@ def generar_barras_para_n(lote_m2, presupuesto_m2, n_barras, floor_h, separacion
         "separaciones_validas": True,
         "patio_tipo": "separacion_entre_volumenes",
         "accesos_ok": None,
-        "estado": u"v03.8: anclaje a frentes, separaciones ajustadas, pisos por bloque, escalonamiento 1/5; pendiente accesos/nucleo/normativa",
+        "estado": u"v03.9: anclaje a frentes, separaciones ajustadas, pisos por bloque, escalonamiento 1/5 (marco local corregido); pendiente accesos/nucleo/normativa",
     }
 
 
@@ -1307,7 +1314,7 @@ if _EN_GH:
         _paso = u"publicar salidas: json"
         barras_json = _json_dumps_ascii(_salida)
         _paso = u"publicar salidas: mensaje"
-        mensaje = u"F3 v03.8 | " + _gh_str(_salida.get("mensaje", ""))
+        mensaje = u"F3 v03.9 | " + _gh_str(_salida.get("mensaje", ""))
         if _derivado:
             mensaje += u" | presupuesto derivado = lote {:.1f} m2 x IO {:.2f} (con margen)".format(
                 _lote_m2, _io_max)
@@ -1350,7 +1357,7 @@ if _EN_GH:
         except Exception:
             pass
         barras_json = ""
-        mensaje = u"F3 v03.8 | ERROR en [{}]: {}{}".format(_paso, _gh_str(_e_gh), _detalle)
+        mensaje = u"F3 v03.9 | ERROR en [{}]: {}{}".format(_paso, _gh_str(_e_gh), _detalle)
 
 
 # ============================================================================
@@ -1491,7 +1498,7 @@ except Exception:
 
 # Diagnóstico: en Rhino/.NET pero sin ghenv disponible en el script.
 if (_ES_IRON or _ES_CLR) and not _EN_GH and not mensaje:
-    mensaje = (u"F3 v03.8 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
+    mensaje = (u"F3 v03.9 | aviso: entorno Rhino/.NET detectado pero 'ghenv' no "
                u"está disponible en el script; revisar el componente")
 
 if _ES_MAIN and not _EN_GH and not _ES_IRON and not _ES_CLR:

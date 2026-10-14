@@ -210,7 +210,7 @@ def test_gh_real_variable_no_import():
                            nombre="__main__")
     out = _salidas(ns)
     assert "ERROR" not in out["mensaje"], out["mensaje"]
-    assert out["mensaje"].startswith("F3 v03.8")
+    assert out["mensaje"].startswith("F3 v03.9")
     _validar_barras_json(out["barras_json"])
 
 
@@ -259,7 +259,7 @@ def test_gh_presupuesto_cableado():
     ns = _ejecutar_como_gh(_vars_b(presupuesto_ocupacion_m2=662.44,
                                    n_barras_objetivo="2,3"))
     out = _salidas(ns)
-    assert out["mensaje"].startswith("F3 v03.8")
+    assert out["mensaje"].startswith("F3 v03.9")
     assert "ERROR" not in out["mensaje"]
     data, alt = _validar_barras_json(out["barras_json"])
     assert data["chip"] == "AAA0030JKOE"
@@ -379,7 +379,7 @@ def test_v038_escalonamiento_lateral_1_5():
                                    sep_lateral_json=sep))
     out = _salidas(ns)
     assert "ERROR" not in out["mensaje"], out["mensaje"]
-    assert out["mensaje"].startswith("F3 v03.8")
+    assert out["mensaje"].startswith("F3 v03.9")
     data, alt = _validar_barras_json(out["barras_json"])
     blk = alt["bloques"][0]
     ret = blk["retiros_por_piso_m"]
@@ -389,3 +389,46 @@ def test_v038_escalonamiento_lateral_1_5():
     assert abs(max(xs0) - 25.0) < 1e-6
     assert abs(max(xs2) - 24.4) < 1e-6
     assert any("escalonamiento" in a for a in alt["avisos"])
+
+
+def test_v039_escalonamiento_marco_rotado_sin_desplazamiento():
+    """v03.9: con marco rotado+trasladado, los pisos escalonados quedan DENTRO
+    de la banda del bloque (misma zona XY) — el bug v03.8 los desplazaba."""
+    import math
+    a = math.radians(30.0)
+    base = json.loads(_base_fixture(presupuesto=662.44))
+    base["marco"] = {"origen": [100.0, 200.0],
+                     "x": [math.cos(a), math.sin(a)],
+                     "y": [-math.sin(a), math.cos(a)]}
+    sep = json.dumps({"lado": "xmax", "h_vecino_m": 6.0,
+                      "min_retiro_m": 0.0, "nsr_coef": 0.02})
+    ns = _ejecutar_como_gh(_vars_b(
+        base_normativa_json=json.dumps(base, ensure_ascii=True),
+        sep_lateral_json=sep))
+    out = _salidas(ns)
+    assert "ERROR" not in out["mensaje"], out["mensaje"]
+    data, alt = _validar_barras_json(out["barras_json"])
+    blk = alt["bloques"][0]
+    h0 = blk["huella_xy_por_piso"][0]   # piso base (sin retiro)
+    h2 = blk["huella_xy_por_piso"][2]   # piso con retiro 0.6 m (floor_h=3)
+    assert len(h0) >= 3 and len(h2) >= 3, u"huella vacia/invalida (bug de marcos)"
+
+    def _shoelace(pts):
+        s = 0.0
+        m = len(pts)
+        for i in range(m):
+            x1, y1 = pts[i][0], pts[i][1]
+            x2, y2 = pts[(i + 1) % m][0], pts[(i + 1) % m][1]
+            s += x1 * y2 - x2 * y1
+        return abs(s) / 2.0
+
+    def _centroide(pts):
+        n = len(pts)
+        return (sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n)
+
+    a0 = _shoelace(h0); a2 = _shoelace(h2)
+    c0 = _centroide(h0); c2 = _centroide(h2)
+    dist = math.hypot(c2[0] - c0[0], c2[1] - c0[1])
+    assert dist < 2.0, "escalonamiento desplazado {:.1f} m (bug de marcos)".format(dist)
+    assert a2 < a0, "el piso escalonado debe reducir su area"
+    assert (a0 - a2) < 0.35 * a0

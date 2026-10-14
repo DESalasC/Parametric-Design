@@ -64,3 +64,20 @@ def test_cli_plan_escribe_json(tmp_path):
     assert datos["base_z_m"] == 1.0
     assert [s["name"] for s in datos["stories"]] == ["GF", "L01", "L02"]
     assert datos["stories"][2]["elevation"] == 7.0
+
+
+def test_cli_plan_hoja_operador(tmp_path):
+    """v02.1: --plan --hoja genera la hoja del operador (tabla + pasos)."""
+    out = os.path.join(str(tmp_path), "niveles_deseados.json")
+    r = subprocess.run(
+        [sys.executable, SS, "--plan", "--cotas", "0.2,3.35", "--pisos", "5",
+         "--floor-h", "3.05", "--out", out, "--hoja"],
+        cwd=BASE, capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+    hoja = os.path.join(str(tmp_path), "niveles_operador.txt")
+    assert os.path.isfile(hoja)
+    txt = io.open(hoja, "r", encoding="utf-8").read()
+    assert "GF" in txt and "L05" in txt
+    assert "Configuracion de pisos" in txt
+    assert "F3_StorySync_v02.py --check" in txt
+    assert "NIVELES PARA ARCHICAD" in txt

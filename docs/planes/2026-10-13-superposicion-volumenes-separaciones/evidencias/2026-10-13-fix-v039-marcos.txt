@@ -1,0 +1,25 @@
+# FIX v03.9 — Bug de marcos en el escalonamiento lateral (F3_DISTRIBUCION) — 2026-10-13
+
+## Reporte del operador (13:27)
+En la previsualización de Rhino: «solamente el primer nivel de los volúmenes de una crujía está en el nivel correspondiente» (pisos superiores no correspondían).
+
+## Causa raíz
+En `F3_DISTRIBUCION_v03.py` (bloque de **escalonamiento lateral**, agregado en v03.8):
+- el recorte por piso usaba el **polígono del lote en marco LOCAL** (`pol`, `xmin/xmax` locales),
+- pero el rango **Y se tomaba de la huella en marco CANVAS** (`huella_xy`, ya transformada por `_mundo`);
+- ⇒ **mezcla de marcos**. Resultado: el **piso base (f=0)** quedaba correcto; los **pisos 2..n** salían **desplazados** (~10–20 m, según el marco) **o vacíos** (con marco rotado: vacío directo).
+
+Esto explica: (a) «solo el primer nivel en su sitio» en la preview; (b) plataformas P1 alineadas y pisos superiores dispersos en AC; (c) la lectura de «volúmenes mezclados».
+
+## Fix (v03.9, aplicado en src)
+- El recorte usa el **polígono de la franja en marco local** (`cs[_k]`) y su **banda Y local**.
+- Respaldo con aviso si el recorte queda degenerado (`B#: escalonamiento piso N sin recorte valido; huella base usada`).
+
+## Evidencia de pruebas
+- Nuevo test de regresión: `tests/test_f3_distribucion_v03_gh.py::test_v039_escalonamiento_marco_rotado_sin_desplazamiento` (marco **rotado 30° + traslación**).
+  - **Antes del fix:** huella del piso escalonado **vacía** → fallaba.
+  - **Después:** centroide a **< 2 m** del piso base (esperado ~0,3 m por el retiro) y área reducida coherente con el retiro (0,6 m a 1/5).
+- Resultado: **22/22** en el archivo · suite global **367 ✅ / 7 ✗** (7 stale conocidos, ninguno de este cambio).
+
+## Pendiente
+- Re-embebido en canvas: **#200 → v03.9** (junto a **#198** fix (d) y **#78** PATIO v03.4) → regenerar `.gh` → recarga del operador → **corrida limpia** (D3-F2).

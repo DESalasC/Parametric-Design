@@ -1,0 +1,65 @@
+# F3_StorySync - salidas del 2026-10-13
+
+## --list (AC vivo)
+Stories en ArchiCAD (3):
+  N0 Ground Floor  cota=0.000 m
+  N1 Story  cota=3.000 m
+  N2 Story  cota=6.000 m
+
+## --check (faltantes)
+Stories en ArchiCAD (3):
+  N0 Ground Floor  cota=0.000 m
+  N1 Story  cota=3.000 m
+  N2 Story  cota=6.000 m
+
+Mapeo piso -> story:
+
+Niveles FALTANTES (crear en ArchiCAD / Tapir):
+  GF @ -11.565 m
+  L01 @ -8.515 m
+  L02 @ -5.465 m
+  L03 @ -2.415 m
+  L04 @ 0.635 m
+  L05 @ 3.685 m
+  L06 @ 6.735 m
+  L07 @ 9.785 m
+
+## niveles_operador.txt (hoja generada)
+NIVELES PARA ARCHICAD - crear ANTES de re-generar las ZONAS (chip AAA0030JKOE)
+==========================================================================
+Grilla: base = -11.565 m | entrepiso = 3.050 m | marco canvas
+(la misma referencia con la que la Live Connection envia zonas y volumenes)
+
+  NOMBRE      ELEVACION (m)      RELATIVA (m)
+  --------    -------------      ------------
+  GF               -11.565          +0.000
+  L01               -8.515          +3.050
+  L02               -5.465          +6.100
+  L03               -2.415          +9.150
+  L04               +0.635         +12.200
+  L05               +3.685         +15.250
+  L06               +6.735         +18.300
+  L07               +9.785         +21.350
+
+PASOS (ArchiCAD 29 - Test 07):
+  1) Documento > Preferencias del proyecto > Configuracion de pisos...
+     (EN: Options > Project Preferences > Stories...)
+  2) Ajustar los 3 niveles existentes (nombre + cota):
+       'Ground Floor' -> GF   @ -11.565
+       'Story'        -> L01  @  -8.515
+       'Story'        -> L02  @  -5.465
+  3) Insertar 5 niveles NUEVOS arriba (boton Insertar / '+') y fijar cota:
+       L03 @ -2.415 | L04 @ +0.635 | L05 @ +3.685 | L06 @ +6.735 | L07 @ +9.785
+  4) Aceptar. Verificar con ArchiCAD abierto:
+       .venv\Scripts\python.exe src\interfases-archicad\F3_StorySync_v02.py --check --chip AAA0030JKOE
+     -> debe decir: 'Todos los niveles deseados existen y estan alineados.'
+
+NOTAS:
+  - La API/LC de ArchiCAD 29 NO crea niveles (solo lectura): este paso es manual-asistido.
+  - Crear los niveles ANTES de volver a generar/pushear las zonas (las zonas quedan por nivel).
+  - Mantener el orden ascendente; si ArchiCAD ajusta alguna cota al insertar, volver a fijarla.
+
+AVISOS DEL PLAN:
+  - base = menor cota de bloque; nivel de acceso definitivo (fetch v8 / NORMATIVA v10) puede desplazar la base
+  - elevaciones en marco canvas (misma referencia que zonas/LC)
+

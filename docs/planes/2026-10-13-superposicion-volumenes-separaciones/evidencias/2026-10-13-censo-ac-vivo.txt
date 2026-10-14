@@ -1,0 +1,44 @@
+# Censo en vivo de ArchiCAD — 2026-10-13 (~12:30, Test 07.pln abierto)
+# Lecturas SOLO LECTURA vía API JSON ac29 (paquete `archicad` del venv del proyecto).
+# Comandos: F0_CENSO_ELEMENTOS_v01.py / _tmp-zonas-propiedades.py / F3_StorySync_v02.py --list
+
+## Stories (3) — plan vigente requiere 8 (GF..L07)
+N0 Ground Floor  cota=0.000 m
+N1 Story         cota=3.000 m
+N2 Story         cota=6.000 m
+
+## Conteo por tipo de elemento
+Morph       : 71        (contexto/vecinos; bboxes en 2026-10-13-censo-morphs-ac.csv)
+Zone        : 16        (detalle abajo)
+Mesh        : 1         (terreno)
+Slab        : 0    Object: 0   Wall: 0   Column: 0   Beam: 0
+Shell: 0    Roof: 0    Stair: 0   CurtainWall: 0   Door: 0   Window: 0
+
+## Selección en curso: 16 Zone (el operador tenía seleccionadas todas las zonas)
+
+## Zonas (16) — nomenclatura BEP v08.1
+idx | Number           | Name                                    | Area m2  | X[min,max]          | Y[min,max]        | Z[base,top]
+Z00 | GF-Z1-COM-001    | Local comercial · Bloque 1 · Piso 1     | 106.32   | [-42.08,-27.22]     | [25.60,41.61]     | [-11.46,-8.41]
+Z01 | L01-Z1-COM-001   | Local comercial · Bloque 1 · Piso 2     | 287.75   | [-21.15,2.67]       | [5.69,29.45]      | [-8.41,-5.37]
+Z02 | L02-Z1-VIV-001   | Vivienda · Bloque 1 · Piso 3            | 287.75   | [-21.15,2.67]       | [5.69,29.45]      | [-5.37,-2.31]
+Z03 | L03-Z1-VIV-001   | Vivienda · Bloque 1 · Piso 4            | 287.75   | [-21.15,2.67]       | [5.69,29.45]      | [-2.31,0.73]
+Z04 | L04-Z1-VIV-001   | Vivienda · Bloque 1 · Piso 5            | 287.75   | [-21.15,2.67]       | [5.69,29.45]      | [0.73,3.79]
+Z05 | GF-Z2-COM-001    | Local comercial · Bloque 2 · Piso 1     | 105.07   | [-31.35,-16.60]     | [18.03,33.90]     | [-8.11,-5.06]
+Z06 | L01-Z2-COM-001   | Local comercial · Bloque 2 · Piso 2     | 267.32   | [-27.34,-3.46]      | [10.14,31.01]     | [-5.06,-2.01]
+Z07 | L02-Z2-VIV-001   | Vivienda · Bloque 2 · Piso 3            | 267.32   | [-27.34,-3.46]      | [10.14,31.01]     | [-2.01,1.04]
+Z08 | L03-Z2-VIV-001   | Vivienda · Bloque 2 · Piso 4            | 267.32   | [-27.34,-3.46]      | [10.14,31.01]     | [1.04,4.09]
+Z09 | L04-Z2-VIV-001   | Vivienda · Bloque 2 · Piso 5            | 267.32   | [-27.34,-3.46]      | [10.14,31.01]     | [4.09,7.14]
+Z10 | GF-Z3-COM-001    | Local comercial · Bloque 3 · Piso 1     | 153.67   | [-20.63,-1.73]      | [10.45,31.75]     | [-5.18,-2.13]
+Z11 | L01-Z3-COM-001   | Local comercial · Bloque 3 · Piso 2     | 340.59   | [-33.53,-5.17]      | [11.39,35.46]     | [-2.13,0.92]
+Z12 | L02-Z3-VIV-001   | Vivienda · Bloque 3 · Piso 3            | 340.59   | [-33.53,-5.17]      | [11.39,35.46]     | [0.92,3.97]
+Z13 | L03-Z3-VIV-001   | Vivienda · Bloque 3 · Piso 4            | 340.59   | [-33.53,-5.17]      | [11.39,35.46]     | [3.97,7.02]
+Z14 | L04-Z3-VIV-001   | Vivienda · Bloque 3 · Piso 5            | 340.59   | [-33.53,-5.17]      | [11.39,35.46]     | [7.02,10.07]
+Z15 | GF-Z4-COM-001    | Local comercial · Bloque 4 · Piso 1     | 152.42   | [-9.90,8.89]        | [2.88,24.03]      | [-2.47,0.58]
+
+## Observaciones
+- Faltan las zonas P2–P5 del Bloque 4 (la corrida declaró "4 bloques | 20 zonas"; hay 16).
+- Las plataformas P1 de cada bloque no están apiladas con sus pisos superiores (offsets grandes):
+  p.ej. Bloque 1 P1 en X[-42,-27] vs P2–P5 en X[-21,+3] → lectura visual "mezclada" en AC/preview.
+- Todas las zonas tienen Layer = "Model Unit - Zone" y Stamp Name = "Zone Stamp 02"; Category vacía.
+- Morphs: 71 (contexto); en la ventana del lote intersectan 13 candidatos a revisar (ver CSV; p.ej. i=35).
+- Nota: cotas BBox con +0.10 m respecto a `cotas-arranque.json` (marco/origen BBox de zona — verificar en F2).

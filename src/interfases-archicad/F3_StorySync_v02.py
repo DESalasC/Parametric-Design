@@ -11,6 +11,11 @@ Nuevo en v02 (2026-10-12):
   --check  Compara el archivo de niveles deseados con los Stories existentes
            en ArchiCAD (LECTURA; paquete `archicad`, import perezoso).
   --list   Lista los Stories de ArchiCAD.
+  --hoja   (v02.1, 2026-10-13) Genera la HOJA DEL OPERADOR: tabla de niveles
+           lista para crear en ArchiCAD (Configuracion de pisos) + pasos +
+           comandos de verificacion. Escribe casos/<chip>/niveles_operador.txt
+           (o junto al --json indicado). Combinable con --plan, o standalone
+           con --json/--chip (lee niveles_deseados.json existente).
 
 El algoritmo del plan es el MISMO del canvas (F3_VOLUM v08.1, `_plan_stories`):
   - grilla de niveles = base + j*floor_h ; base = menor cota de bloque
@@ -237,6 +242,7 @@ def _leer_deseadas(ruta):
 def _parse(args):
     opts = {
         "plan": False, "check": False, "listar": False, "tapa": False,
+        "hoja": False,
         "chip": None, "cotas": None, "pisos": None, "floor_h": 3.05,
         "json": None, "out": None, "puerto": None,
     }
@@ -250,6 +256,8 @@ def _parse(args):
             opts["check"] = True
         elif a == "--list":
             opts["listar"] = True
+        elif a == "--hoja":
+            opts["hoja"] = True
         elif a == "--tapa":
             opts["tapa"] = True
         elif a == "--chip":
@@ -307,6 +315,86 @@ def _bloques_de_cotas(cotas_txt, pisos_txt, n_def=5):
     return bloques
 
 
+def _escribir_texto(ruta, texto):
+    """Escritura UTF-8 con CRLF (amigable para Notepad/operador)."""
+    d = os.path.dirname(ruta)
+    if d and not os.path.isdir(d):
+        os.makedirs(d)
+    f = io.open(ruta, "w", encoding="utf-8", newline="\r\n")
+    try:
+        f.write(texto)
+    finally:
+        f.close()
+
+
+def _texto_hoja(chip, stories, floor_h=None, base=None, avisos=None):
+    """Hoja del operador (v02.1): tabla de niveles + pasos para ArchiCAD.
+
+    La lista se genera automaticamente; el operador SOLO crea los niveles en
+    ArchiCAD (Documento > Preferencias del proyecto > Configuracion de pisos),
+    antes de volver a generar/pushear las zonas.
+    """
+    L = []
+    L.append("NIVELES PARA ARCHICAD - crear ANTES de re-generar las ZONAS (chip {})".format(chip))
+    L.append("=" * 74)
+    if floor_h is not None and base is not None:
+        L.append("Grilla: base = {:+.3f} m | entrepiso = {:.3f} m | marco canvas".format(base, floor_h))
+        L.append("(la misma referencia con la que la Live Connection envia zonas y volumenes)")
+    L.append("")
+    L.append("  NOMBRE      ELEVACION (m)      RELATIVA (m)")
+    L.append("  --------    -------------      ------------")
+    for s in stories:
+        L.append("  {:<10}  {:>+12.3f}      {:>+10.3f}".format(
+            str(s.get("name", "?")), float(s.get("elevation", 0.0)),
+            float(s.get("elevacion_relativa_m", 0.0))))
+    L.append("")
+    L.append("PASOS (ArchiCAD 29 - Test 07):")
+    L.append("  1) Documento > Preferencias del proyecto > Configuracion de pisos...")
+    L.append("     (EN: Options > Project Preferences > Stories...)")
+    L.append("  2) Ajustar los 3 niveles existentes (nombre + cota):")
+    L.append("       'Ground Floor' -> GF   @ -11.565")
+    L.append("       'Story'        -> L01  @  -8.515")
+    L.append("       'Story'        -> L02  @  -5.465")
+    L.append("  3) Insertar 5 niveles NUEVOS arriba (boton Insertar / '+') y fijar cota:")
+    L.append("       L03 @ -2.415 | L04 @ +0.635 | L05 @ +3.685 | L06 @ +6.735 | L07 @ +9.785")
+    L.append("  4) Aceptar. Verificar con ArchiCAD abierto:")
+    L.append("       .venv\\Scripts\\python.exe src\\interfases-archicad\\F3_StorySync_v02.py --check --chip {}".format(chip))
+    L.append("     -> debe decir: 'Todos los niveles deseados existen y estan alineados.'")
+    L.append("")
+    L.append("NOTAS:")
+    L.append("  - La API/LC de ArchiCAD 29 NO crea niveles (solo lectura): este paso es manual-asistido.")
+    L.append("  - Crear los niveles ANTES de volver a generar/pushear las zonas (las zonas quedan por nivel).")
+    L.append("  - Mantener el orden ascendente; si ArchiCAD ajusta alguna cota al insertar, volver a fijarla.")
+    if avisos:
+        L.append("")
+        L.append("AVISOS DEL PLAN:")
+        for a in avisos:
+            L.append("  - " + str(a))
+    return "\n".join(L) + "\n"
+
+
+def _cmd_hoja(opts):
+    """--hoja standalone: lee niveles_deseados.json (--json o --chip) y escribe la hoja."""
+    ruta = opts["json"]
+    if not ruta and opts["chip"]:
+        ruta = os.path.join(_raiz_proyecto(), "src", "fase-3-masa", "casos",
+                            opts["chip"], "niveles_deseados.json")
+    if not ruta or not os.path.isfile(ruta):
+        print("--hoja requiere --json <ruta> o --chip con niveles_deseados.json existente "
+              "(o usa --plan --hoja).")
+        return 1
+    datos = json.loads(io.open(ruta, "r", encoding="utf-8").read())
+    stories = datos.get("stories", [])
+    chip = opts["chip"] or datos.get("chip", "CLI")
+    texto = _texto_hoja(chip, stories, floor_h=datos.get("floor_h_m"),
+                        base=datos.get("base_z_m"), avisos=datos.get("avisos"))
+    ruta_hoja = opts["out"] or os.path.join(os.path.dirname(ruta), "niveles_operador.txt")
+    _escribir_texto(ruta_hoja, texto)
+    print(texto)
+    print("Hoja del operador escrita: {}".format(ruta_hoja))
+    return 0
+
+
 def _cmd_plan(opts):
     if opts["cotas"]:
         bloques = _bloques_de_cotas(opts["cotas"], opts["pisos"])
@@ -361,6 +449,15 @@ def _cmd_plan(opts):
     for s in plan["stories"]:
         print("    {} @ {:.3f} m".format(s["name"], s["elevation"]))
     print("Escrito: {}".format(ruta_out))
+    if opts.get("hoja"):
+        ruta_hoja = os.path.join(os.path.dirname(ruta_out), "niveles_operador.txt")
+        texto = _texto_hoja(opts["chip"] or "CLI", plan["stories"],
+                            floor_h=plan["floor_h_m"], base=plan["base_z_m"],
+                            avisos=plan["avisos"])
+        _escribir_texto(ruta_hoja, texto)
+        print("")
+        print(texto)
+        print("Hoja del operador escrita: {}".format(ruta_hoja))
     return 0
 
 
@@ -408,9 +505,11 @@ def main(argv=None):
         return _cmd_plan(opts)
     if opts["check"]:
         return _cmd_check(opts)
+    if opts["hoja"]:
+        return _cmd_hoja(opts)
     if opts["listar"] or not any((opts["plan"], opts["check"], opts["json"])):
         return _cmd_list(opts)
-    print("Uso: --list | --plan --chip X | --plan --cotas \"...\" | --check --json niveles_deseados.json")
+    print("Uso: --list | --plan --chip X | --plan --cotas \"...\" | --check --json niveles_deseados.json | --hoja --chip X")
     return 0
 
 

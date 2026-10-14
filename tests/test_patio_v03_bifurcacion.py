@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test conductual de F1_ETAPA2_PATIO_v03 (BIFURCACION + AUTO v03.1).
+"""Test conductual de F1_ETAPA2_PATIO_v03/v03.4 (BIFURCACION: UNICO vs MULTI; multi => separaciones).
 
 Ejecuta el componente REAL de Grasshopper en CPython con el stub minimo de
 Rhino.Geometry (tests/stub_rhino_min.py), sin abrir Rhino.
@@ -29,19 +29,24 @@ sys.path.insert(0, TESTS_DIR)
 
 
 def _instalar_stub():
-    mod = sys.modules.get("Rhino.Geometry")
-    if mod is not None and getattr(mod, "__stub_min__", False):
-        return mod
     import stub_rhino_min as stub
-    rhino_mod = types.ModuleType("Rhino")
-    geo_mod = types.ModuleType("Rhino.Geometry")
-    for k in ("Point3d", "Vector3d", "Polyline", "PolylineCurve", "Line"):
-        setattr(geo_mod, k, getattr(stub, k))
+    rhino_mod = sys.modules.get("Rhino")
+    geo_mod = sys.modules.get("Rhino.Geometry")
+    if rhino_mod is None:
+        rhino_mod = types.ModuleType("Rhino")
+        sys.modules["Rhino"] = rhino_mod
+    if geo_mod is None:
+        geo_mod = types.ModuleType("Rhino.Geometry")
+        sys.modules["Rhino.Geometry"] = geo_mod
+    # Idempotente y COMPLETO: otro modulo de tests puede haber instalado un
+    # subconjunto (p.ej. sin Curve/Brep): completar lo que falte.
+    for k in ("Point3d", "Vector3d", "Polyline", "PolylineCurve", "Line",
+              "Curve", "Brep", "AreaMassProperties"):
+        if not hasattr(geo_mod, k):
+            setattr(geo_mod, k, getattr(stub, k))
     geo_mod.Intersect = stub.Intersect
     geo_mod.__stub_min__ = True
     rhino_mod.Geometry = geo_mod
-    sys.modules["Rhino"] = rhino_mod
-    sys.modules["Rhino.Geometry"] = geo_mod
     return geo_mod
 
 
@@ -103,19 +108,21 @@ PENT_ASIM = [(0, 0), (2.5, 0), (18, 2), (20, 18), (0, 15)]
 
 
 # --------------------------------------------------------------------------
-# 1) modo AUTO (default v03.1)
+# 1) modo AUTO (default; v03.4: n>=2 => sin patios)
 # --------------------------------------------------------------------------
 def test_auto_default_pentagono_un_patio():
     # lote pequeno (~101 m2): capacidad 1 -> un solo patio; mensaje AUTO
     g = _correr_patio_v03(PENTAGONO, json.dumps(_sides_todos_laterales(5)))
     assert g.get("patio_count") == 1
     msg = str(g.get("mensaje"))
-    assert "PATIO v03.1" in msg and "modo AUTO" in msg and "inferido: 1" in msg
+    assert "PATIO v03.4" in msg and "modo AUTO" in msg and "inferido: 1" in msg
     area, claridad, pts = _metricas_patio(g["patios_curves"][0])
     assert area >= 9.0 - 1e-6
     assert claridad >= 3.0 - 1e-6
     l1 = math.hypot(pts[1].X - pts[0].X, pts[1].Y - pts[0].Y)
-    assert abs(l1 - 3.0 / math.sin(math.radians(60.0))) < 1e-3
+    # v03.2+: lado = max(base*(sin+cos)/sin, 3/sin, sqrt(9/sin)); esquina de 60 grados
+    esperado = 3.8 * (math.sin(math.radians(60.0)) + math.cos(math.radians(60.0))) / math.sin(math.radians(60.0))
+    assert abs(l1 - esperado) < 1e-2
 
 
 def test_auto_none_explicito_equivale_auto():
@@ -124,16 +131,13 @@ def test_auto_none_explicito_equivale_auto():
 
 
 def test_auto_capacidad_limita():
-    # 30x30 = 900 m2 -> capacidad 3; 4 esquinas validas -> se limita a 3
+    # 30x30 = 900 m2 -> capacidad 3; 4 esquinas validas -> infiere 3 (v03.4: >=2 => sin patios)
     g = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)))
-    assert g.get("patio_count") == 3
+    assert g.get("patio_count") == 0
     msg = str(g.get("mensaje"))
     assert "inferido: 3" in msg
     assert "limitado por capacidad" in msg
-    for crv in g["patios_curves"]:
-        area, claridad, pts = _metricas_patio(crv)
-        assert area >= 9.0 - 1e-6
-        assert claridad >= 3.0 - 1e-6
+    assert "separaciones" in msg
 
 
 def test_auto_lote_pequeno_capacidad_uno():
@@ -163,36 +167,27 @@ def test_unico_forzado_vn_no_cabe_motivo():
 
 
 # --------------------------------------------------------------------------
-# 3) modo MULTI forzado
+# 3) modo MULTI forzado (v03.4: sin patios; separaciones)
 # --------------------------------------------------------------------------
-def test_multi_forzado_2_patios_sin_solape():
+def test_multi_forzado_sin_patios_independientes():
+    # v03.4: modo MULTI -> 0 patios; rigen las separaciones entre volumenes.
     g = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)), n_volumenes=2)
-    assert g.get("patio_count") == 2
+    assert g.get("patio_count") == 0
     msg = str(g.get("mensaje"))
-    assert "modo MULTI" in msg and "Generados: 2/2" in msg
-    for crv in g["patios_curves"]:
-        area, claridad, pts = _metricas_patio(crv)
-        assert area >= 9.0 - 1e-6
-        assert claridad >= 3.0 - 1e-6
-    p0 = _metricas_patio(g["patios_curves"][0])[2]
-    p1 = _metricas_patio(g["patios_curves"][1])[2]
-    assert not _solapan(p0, p1)
+    assert "modo MULTI" in msg and "Generados: 0" in msg and "separaciones" in msg
 
 
-def test_multi_forzado_tope_por_esquinas():
+def test_multi_forzado_n_alto_sin_patios():
     g = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)), n_volumenes=9)
-    assert g.get("patio_count") == 4
-    assert "Generados: 4/9" in str(g.get("mensaje"))
+    assert g.get("patio_count") == 0
+    assert "modo MULTI" in str(g.get("mensaje"))
 
 
-def test_multi_forzado_solape_rechaza_y_continua():
-    g = _correr_patio_v03(RECT_4X20, json.dumps(_sides_todos_laterales(4)), n_volumenes=2)
-    assert g.get("patio_count") == 2
-    msg = str(g.get("mensaje"))
-    assert "solapa" in msg
-    p0 = _metricas_patio(g["patios_curves"][0])[2]
-    p1 = _metricas_patio(g["patios_curves"][1])[2]
-    assert not _solapan(p0, p1)
+def test_auto_multivolumen_sin_patios():
+    # v03.4: AUTO con n inferido >=2 -> sin patios (separaciones).
+    g = _correr_patio_v03(CUADRADO_30, json.dumps(_sides_todos_laterales(4)))
+    assert g.get("patio_count") == 0
+    assert "separaciones" in str(g.get("mensaje"))
 
 
 def test_multi_forzado_sin_esquinas_elegibles():
@@ -261,7 +256,7 @@ def _solapan(pa, pb):
 
 
 if __name__ == "__main__":
-    print("=== TESTS PATIO v03.1 (AUTO + BIFURCACION) ===")
+    print("=== TESTS PATIO v03.4 (UNICO + MULTI: separaciones) ===")
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     passed = 0
     failed = 0
