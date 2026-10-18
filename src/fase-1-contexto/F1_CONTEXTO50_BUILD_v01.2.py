@@ -355,27 +355,56 @@ def cargar_lote_objetivo(json_path, data_c50):
 
 
 def compute_dz_from_stage1_context(in_json_path, data):
-    """Calcula el desplazamiento Z (Z_base) desde el contexto de etapa 1.
-
-    El contexto50 (<CHIP>-contexto50.json) tiene z_base_m = z_MDT - z_ref,
-    con z_ref = origen_sirgas.z + ancla_canvas_local.z. Un edificio al nivel
-    del lote queda en z_base_m = -ancla_canvas_local.z (ej. -14.518).
-    Para que el lote quede en z=0, el desplazamiento debe ser -ancla_z,
-    asi z_base_ajustado = z_base - (-ancla_z) = z_base + ancla_z ~ 0.
-
-    No se lee CHIP-contexto.json (etapa 1) porque tiene cotas absolutas del MDT.
+    """Offset entre contexto50 (Z_abs-z_ref) y mesh de ETAPA1 (Z_abs-Z_base).
+    Se reproduce la seleccion de Z_base de F1_ETAPA1_CONTEXTO_v02.
+    No se fuerza el terreno inclinado ni el vertice SE a Z=0.
     """
-    try:
-        ancla_z = None
-        if isinstance(data, dict):
-            meta = data.get("metadata", {}) or {}
-            ancla = meta.get("ancla_canvas_local", {}) or {}
-            ancla_z = to_float(ancla.get("z"), None)
-        if ancla_z is not None:
-            return -ancla_z
-        return 0.0
-    except Exception:
-        return 0.0
+    meta = data.get("metadata", {}) or {}
+    origen = meta.get("origen_sirgas", {}) or {}
+    ancla_z = to_float((meta.get("ancla_canvas_local", {}) or {}).get("z"), 0.0)
+    origen_z = to_float(origen.get("z"), 0.0)
+    ref = to_float((meta.get("z_base_fuente", {}) or {}).get("z_ref_m"),
+                   origen_z + ancla_z)
+    chip_actual = meta.get("chip", "")
+    stage_path = os.path.join(os.path.dirname(in_json_path), chip_actual + "-contexto.json")
+    stage = leer_json(stage_path)  # No asumir otro origen si el contexto falta.
+    stage_meta = stage.get("metadata", {}) or {}
+    stage_origen_z = to_float((stage_meta.get("origen_sirgas", {}) or {}).get("z"), 0.0)
+    pts = (stage.get("topografia", {}) or {}).get("malla_terreno", []) or []
+    valid_z = [to_float(p.get("z_local"), 0.0) for p in pts]
+    valid_z = [z for z in valid_z if abs(z) > 0.001]
+    min_z = min(valid_z) if valid_z else 0.0
+    verts = (stage.get("lote_objetivo", {}) or {}).get("vertices_3d_local", []) or []
+    anchor = None
+    if len(verts) >= 3:
+        anchor = verts[0]
+        for v in verts:
+            if v[1] < anchor[1] - 0.01 or (abs(v[1] - anchor[1]) < 0.01 and v[0] > anchor[0]):
+                anchor = v
+    norte, sur = [], []
+    lot_y = anchor[1] if anchor is not None else 0.0
+    for vecino in stage.get("vecinos", []) or []:
+        vv = vecino.get("vertices_3d_local", []) or []
+        if len(vv) < 3:
+            continue
+        vy = sum(v[1] for v in vv) / len(vv)
+        vz = sum(v[2] for v in vv) / len(vv)
+        if abs(vz) > 0.001:
+            if vy > lot_y:
+                norte.append((vy-lot_y, vz))
+            elif vy < lot_y:
+                sur.append((lot_y-vy, vz))
+    if min_z > 0.0:
+        base = min_z
+    elif norte and sur:
+        base = sorted(norte)[0][1] / 2.0 + sorted(sur)[0][1] / 2.0
+    elif anchor is not None:
+        base = anchor[2]
+    else:
+        base = 0.0
+    # z_ajustado = z_base_m - offset = Z_abs - (origen_stage_z + base).
+    return stage_origen_z + base - ref
+
 
 
 def _es_horario(pts):
