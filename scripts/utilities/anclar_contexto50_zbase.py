@@ -8,15 +8,21 @@ reutilizando las funciones del fetch v7.
 
 Marco: los vertices del contexto50 estan en el marco LOCAL del canvas. La
 traslacion a SIRGAS (ESRI:102233) sale de metadata.traslacion_aplicada (o de
-origen_sirgas + ancla_canvas_local). La muestra es puntual en el centroide de la
-huella (tolerancia documentada +-0.5 m).
+origen_sirgas + ancla_canvas_local). La cota se escribe EN EL MARCO DEL CANVAS:
+z_local = z_MDT - z_ref, con z_ref = origen_sirgas.z + ancla_canvas_local.z
+(asi el vertice-ancla del lote queda en z=0, igual que las curvas y la malla).
 
-La cota se escribe EN EL MARCO DEL CANVAS: z_local = z_MDT - z_ref, con
-z_ref = origen_sirgas.z + ancla_canvas_local.z (asi el vertice-ancla del lote
-queda en z=0, igual que las curvas y la malla del canvas).
+Modos de muestreo (--muestreo):
+  huella     (default, decision operador 2026-10-25): centroide + 4 extremos de
+             la huella (min x, max x, min y, max y). `z_base_m` = MINIMO de las
+             cotas validas: el volumen apoya en el punto mas bajo de su huella y
+             no flota en el borde de aguas abajo. Se guardan tambien
+             `z_base_centroide_m`, `z_base_min_m` y `z_base_max_m`.
+  centroide  comportamiento historico: una sola consulta por edificio.
 
 Uso:
   python anclar_contexto50_zbase.py --chip AAA0030JKOE [--dry-run] [--limite N]
+  python anclar_contexto50_zbase.py --chip AAA0030JKOE --muestreo centroide
 
 Escribe (con backup .bak-zbase-<ts>):
   data/pot-cache/<CHIP>-contexto50.json
@@ -75,7 +81,14 @@ def z_ref_datum(meta):
         return 0.0
 
 
-def centroide_anillo(ring):
+def anillo(e):
+    """Anillo exterior del edificio (sin el vertice de cierre)."""
+    ring = None
+    anillos = e.get("anillos")
+    if isinstance(anillos, list) and anillos:
+        ring = anillos[0]
+    if ring is None:
+        ring = e.get("vertices")
     pts = []
     for p in (ring or []):
         try:
@@ -84,15 +97,64 @@ def centroide_anillo(ring):
             pass
     if len(pts) >= 2 and abs(pts[0][0] - pts[-1][0]) < 1e-9 and abs(pts[0][1] - pts[-1][1]) < 1e-9:
         pts.pop()
+    return pts
+
+
+def centroide_anillo(ring):
+    pts = ring or []
     if not pts:
         return None
     n = len(pts)
     return sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n
 
 
+def puntos_huella(ring, tol=0.5):
+    """Centroide + extremos (min x, max x, min y, max y) deduplicados a `tol` m."""
+    c = centroide_anillo(ring)
+    if c is None:
+        return []
+    cand = [c]
+    if ring:
+        cand.append(min(ring, key=lambda p: p[0]))
+        cand.append(max(ring, key=lambda p: p[0]))
+        cand.append(min(ring, key=lambda p: p[1]))
+        cand.append(max(ring, key=lambda p: p[1]))
+    out = []
+    for p in cand:
+        if all((p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 >= tol * tol for q in out):
+            out.append(p)
+    return out
+
+
+def consultar_puntos(puntos, fetch, crs, pausa=0.05, reintentos=2):
+    """Consulta el MDT punto a punto con reintentos. Devuelve lista de z o None."""
+    from pyproj import Transformer
+
+    tr = Transformer.from_crs(crs, fetch.CRS_METRIC, always_xy=True)
+    zs = []
+    t0 = time.time()
+    for k, (x, y) in enumerate(puntos):
+        xm, ym = tr.transform(x, y)
+        z = None
+        for intento in range(reintentos + 1):
+            z = fetch.get_elevation_from_api(xm, ym)
+            if z is not None:
+                break
+            time.sleep(0.4 * (intento + 1))
+        zs.append(z)
+        if pausa:
+            time.sleep(pausa)
+        if (k + 1) % 50 == 0:
+            print("  %d/%d puntos (%.1f s)" % (k + 1, len(puntos), time.time() - t0))
+    return zs
+
+
 def main():
     ap = argparse.ArgumentParser(description="Agrega z_base_m (MDT) a <CHIP>-contexto50.json")
     ap.add_argument("--chip", required=True)
+    ap.add_argument("--muestreo", choices=("huella", "centroide"), default="huella",
+                    help="huella = min de centroide+extremos (default); centroide = historico")
+    ap.add_argument("--pausa", type=float, default=0.05, help="pausa entre consultas (s)")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--limite", type=int, default=0, help="Solo los primeros N edificios (pruebas)")
     args = ap.parse_args()
@@ -113,57 +175,95 @@ def main():
         return 2
 
     trabajo = edificios[:args.limite] if args.limite else edificios
-    puntos = []
-    idx_con_punto = []
-    for i, e in enumerate(trabajo):
-        if not isinstance(e, dict):
-            continue
-        ring = None
-        anillos = e.get("anillos")
-        if isinstance(anillos, list) and anillos:
-            ring = anillos[0]
-        if ring is None:
-            ring = e.get("vertices")
-        c = centroide_anillo(ring)
-        if c is None:
-            continue
-        puntos.append((c[0] + tx, c[1] + ty))
-        idx_con_punto.append(i)
-
-    if not puntos:
-        print("[ERROR] Sin centroides utilizables")
-        return 2
-
     fetch = cargar_fetch_v7()
-    print("Consultando MDT para {0} edificios...".format(len(puntos)))
-    zs = fetch.extract_elevations_online(puntos, points_crs=crs)
 
     n_ok = n_fail = 0
-    for k, i in enumerate(idx_con_punto):
-        z = zs[k] if k < len(zs) else None
-        if z is None:
-            n_fail += 1
-            continue
-        trabajo[i]["z_base_m"] = round(float(z) - z_ref, 2)
-        n_ok += 1
+    n_puntos_total = 0
+    t0 = time.time()
+
+    if args.muestreo == "centroide":
+        puntos = []
+        idx = []
+        for i, e in enumerate(trabajo):
+            c = centroide_anillo(anillo(e))
+            if c is None:
+                continue
+            puntos.append((c[0] + tx, c[1] + ty))
+            idx.append(i)
+        print("Consultando MDT (centroide) para {0} edificios...".format(len(puntos)))
+        zs = consultar_puntos(puntos, fetch, crs, pausa=args.pausa)
+        n_puntos_total = len(puntos)
+        for k, i in enumerate(idx):
+            z = zs[k] if k < len(zs) else None
+            if z is None:
+                n_fail += 1
+                continue
+            trabajo[i]["z_base_m"] = round(float(z) - z_ref, 2)
+            trabajo[i]["z_base_centroide_m"] = trabajo[i]["z_base_m"]
+            trabajo[i]["z_base_min_m"] = trabajo[i]["z_base_m"]
+            trabajo[i]["z_base_max_m"] = trabajo[i]["z_base_m"]
+            trabajo[i]["z_base_n_puntos"] = 1
+            trabajo[i]["z_base_metodo"] = "centroide"
+            n_ok += 1
+        metodo = "MDT puntual (REST Catastro) en centroide de huella; reutiliza fetch-urban-context-v7"
+    else:
+        grupos = []
+        planos = []
+        for i, e in enumerate(trabajo):
+            pts = puntos_huella(anillo(e))
+            if not pts:
+                continue
+            grupos.append({"i": i, "pts": pts})
+            for (x, y) in pts:
+                planos.append((x + tx, y + ty))
+        print("Consultando MDT (huella) para {0} edificios / {1} puntos...".format(len(grupos), len(planos)))
+        zs = consultar_puntos(planos, fetch, crs, pausa=args.pausa)
+        n_puntos_total = len(planos)
+        k = 0
+        for g in grupos:
+            vals = zs[k:k + len(g["pts"])]
+            k += len(g["pts"])
+            validos = [float(z) for z in vals if z is not None]
+            if not validos:
+                n_fail += 1
+                continue
+            z_min = min(validos)
+            z_max = max(validos)
+            # el centroide es el primer punto del grupo
+            z_c = float(vals[0]) if vals and vals[0] is not None else z_min
+            e = trabajo[g["i"]]
+            e["z_base_m"] = round(z_min - z_ref, 2)
+            e["z_base_centroide_m"] = round(z_c - z_ref, 2)
+            e["z_base_min_m"] = round(z_min - z_ref, 2)
+            e["z_base_max_m"] = round(z_max - z_ref, 2)
+            e["z_base_n_puntos"] = len(validos)
+            e["z_base_metodo"] = "min de centroide+extremos de huella"
+            n_ok += 1
+        metodo = ("MDT (REST Catastro) por huella: centroide + extremos (min/max x,y); "
+                  "z_base_m = minimo de las cotas validas")
 
     meta["z_base_fuente"] = {
-        "metodo": "MDT puntual (REST Catastro) en centroide de huella; reutiliza fetch-urban-context-v7",
+        "metodo": metodo,
         "fecha": time.strftime("%Y-%m-%d %H:%M"),
         "n_ok": n_ok,
         "n_fallidos": n_fail,
+        "n_puntos": n_puntos_total,
+        "pausa_s": args.pausa,
         "z_ref_m": round(z_ref, 3),
         "nota": ("z_base_m en el marco del canvas (z_local = z_MDT - z_ref; z_ref = "
-                 "origen_sirgas.z + ancla.z; ancla del lote = 0). Muestra puntual; "
-                 "tolerancia +-0.5 m. Sin z_base_m los volumenes se extruyen desde z=0."),
+                 "origen_sirgas.z + ancla.z; ancla del lote = 0). Modo huella: base = "
+                 "punto mas bajo de la huella (no flota en el borde de aguas abajo); "
+                 "z_base_centroide_m se conserva para diagnostico."),
     }
     if args.limite:
         meta["z_base_fuente"]["limite"] = args.limite
     d["metadata"] = meta
 
+    print("resultado: {0} ok, {1} fallidos, {2} puntos, {3:.1f} s".format(
+        n_ok, n_fail, n_puntos_total, time.time() - t0))
     if args.dry_run:
-        print("[dry-run] n_ok={0} n_fallidos={1} (no se escribe)".format(n_ok, n_fail))
-        return 0
+        print("[dry-run] no se escribe")
+        return 0 if n_fail == 0 else 1
 
     escribir(ruta, d)
     print("escrito:", ruta)
@@ -174,7 +274,7 @@ def main():
             escribir(act, d)
             print("escrito:", act)
     print("OK | z_base: {0} edificios con cota, {1} fallidos".format(n_ok, n_fail))
-    return 0
+    return 0 if n_fail == 0 else 1
 
 
 if __name__ == "__main__":

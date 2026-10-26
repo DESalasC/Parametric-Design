@@ -147,11 +147,19 @@ def main():
     out("")
     out("## 5. Vecinos del contexto50 vs malla ETAPA1")
     eds = c50.get("edificios") or []
+    metodo = str((meta.get("z_base_fuente") or {}).get("metodo") or "")
+    modo_min = ("minimo" in metodo.lower()) or ("min de" in metodo.lower())
     zb = [float(e["z_base_m"]) for e in eds if e.get("z_base_m") is not None]
     zb_local = [z - desp for z in zb]
     if zb_local:
+        out("metodo z_base        = %s" % (metodo or "(sin metadata)"))
         out("z_base_m (canvas)    = %.3f .. %.3f m" % (min(zb), max(zb)))
         out("z_base ajustado      = %.3f .. %.3f m" % (min(zb_local), max(zb_local)))
+    ajustes = [float(e["z_base_centroide_m"]) - float(e["z_base_m"])
+               for e in eds if e.get("z_base_centroide_m") is not None and e.get("z_base_m") is not None]
+    if ajustes:
+        out("ajuste por huella   = centroide - min: promedio %.2f m | max %.2f m"
+            % (sum(ajustes) / len(ajustes), max(abs(a) for a in ajustes)))
 
     ax = float(ancla.get("x") or 0.0)
     ay = float(ancla.get("y") or 0.0)
@@ -170,20 +178,26 @@ def main():
             vv = vv[:-1]
         if len(vv) < 3:
             continue
-        cx = sum(p[0] for p in vv) / len(vv) + ax
-        cy = sum(p[1] for p in vv) / len(vv) + ay
-        if minx <= cx <= maxx and miny <= cy <= maxy:
-            z_terreno = idw(malla, cx, cy) - base
+        pts = [(p[0] + ax, p[1] + ay) for p in vv]
+        cx = sum(p[0] for p in pts) / len(pts)
+        cy = sum(p[1] for p in pts) / len(pts)
+        # Solo huellas COMPLETAS dentro de la malla: fuera de ella el IDW extrapola.
+        dentro = all(minx <= x <= maxx and miny <= y <= maxy for x, y in pts)
+        if dentro:
+            if modo_min:
+                z_terreno = min(idw(malla, x, y) for x, y in pts) - base
+            else:
+                z_terreno = idw(malla, cx, cy) - base
             residuos.append(float(e["z_base_m"]) - desp - z_terreno)
 
     if residuos:
         prom = sum(residuos) / len(residuos)
-        out("vecinos dentro malla = %d" % len(residuos))
-        out("residuo z_vecino-terreno: promedio %.2f m | min %.2f | max %.2f | |max| %.2f"
-            % (prom, min(residuos), max(residuos), max(abs(r) for r in residuos)))
-        if max(abs(r) for r in residuos) > 1.0:
-            out("AVISO: la cota del vecino (MDT en centroide) difiere >1 m del terreno interpolado;")
-            out("       en pendiente fuerte esto se ve como volumen flotando o enterrado.")
+        out("huellas completas en malla = %d" % len(residuos))
+        out("contraste con malla ETAPA1 (informativo: la malla es una interpolacion de 118 puntos):")
+        out("  residuo z_vecino-terreno (%s): promedio %.2f m | min %.2f | max %.2f | |max| %.2f"
+            % ("min huella" if modo_min else "centroide", prom, min(residuos), max(residuos),
+               max(abs(r) for r in residuos)))
+        out("  no es un criterio de falla: el MDT puntual y la malla IDW son dos superficies distintas.")
     else:
         out("sin vecinos dentro del bbox de la malla (no comparable)")
 

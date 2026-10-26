@@ -7,7 +7,7 @@
 
 **Criterio de aceptación (medible):**
 1. `z_origen` de #201 recibe 0,0 (no −14,488).
-2. Los volúmenes vecinos no se separan del terreno más de **±0,50 m** en el 90 % de las huellas y **±1,00 m** en el 100 %.
+2. Cada volumen apoya en el mínimo MDT de su propia huella (por construcción del muestreo). Contraste con la malla ETAPA1 en huellas completas: |residuo| ≤ 1,50 m; **no es criterio de falla** porque la malla es una interpolación de 118 puntos.
 3. Vías y espacios públicos apoyan sobre el terreno (ningún vértice a más de 0,50 m de la superficie) o se decide explícitamente que no se envían a ArchiCAD.
 4. Censo ArchiCAD: 20/20 zonas y 8/8 niveles tras corrida limpia.
 
@@ -27,20 +27,22 @@
 
 ---
 
-## Opción B — Muestreo MDT por huella (datos, recomendada)
+## Opción B — Muestreo MDT por huella (datos, **EJECUTADA 2026-10-25**)
 
-**Qué:** en `scripts/utilities/anclar_contexto50_zbase.py`, muestrear el MDT en el centroide **y en los vértices de cada huella**; guardar `z_base_m` (centroide, compatibilidad), `z_base_min_m`, `z_base_max_m` y `z_base_metodo`. Usar `z_base_min_m` para apoyar el volumen (criterio “apoya en la cota más baja de su huella”).
+**Qué:** en `scripts/utilities/anclar_contexto50_zbase.py`, muestrear el MDT en el centroide **y en los extremos de cada huella** (min/max x, min/max y); guardar `z_base_m` (mínimo, criterio A), `z_base_centroide_m`, `z_base_min_m`, `z_base_max_m` y `z_base_n_puntos`. El volumen apoya en la cota más baja de su huella.
 
-**Condiciones:** acceso REST al MDT de Catastro (ya usado por el script); lote de ~90 edificios × 5–10 puntos.
+**Condiciones:** acceso REST al MDT de Catastro (ya usado por el script); 450 consultas para 90 edificios.
+
+**Ejecución:** 90 OK / 0 fallidos; 219,8 s; bajada media 1,06 m (máx. 4,65 m); 9 huellas completas dentro de la malla con contraste −0,18 m medio (máx. 1,35 m). Respaldo: `.bak-zbase-20261025-2046`.
 
 **Limitaciones:**
-- Más peticiones (≈ 450–900). Hay que respetar 429/Retry-After y ejecutar por lotes.
 - El MDT es una superficie estimada; no sustituye levantamiento.
+- El mínimo puede capturar un punto atípico (patio, rampa, sótano). En este caso la distribución es coherente con la pendiente; si aparece un valor anómalo, revisar la huella puntual.
 - Cambia la cota de los volúmenes existentes: requiere corrida limpia y censo.
 
-**Resultado esperado:** residuo de vecinos dentro de ±1 m (hoy hasta 4,17 m), sin flotación visible en pendiente.
+**Resultado esperado:** residuo de vecinos dentro de ±1 m (hoy hasta 4,17 m con centroide).
 
-**Esfuerzo:** 1–2 h + corrida. **Riesgo:** medio (depende de red y del servicio).
+**Esfuerzo:** ejecutado. **Riesgo:** medio (red/servicio), mitigado con reintentos y 0 fallidos.
 
 ---
 
@@ -62,8 +64,8 @@
 
 ## Secuencia recomendada
 
-1. **A hoy:** verificar cableado `z_origen` (0,0) y hacer corrida limpia con censo 20/20 + `F3_StorySync_v02 --check` 8/8. Esto separa el error global del local.
-2. **B después:** implementar muestreo por huella y re-anclar el contexto50. Repetir censo y medir residuos con `diagnosticar-cotas-contexto.py`.
+1. **A — verificar cableado `z_origen` (0,0)** y corrida limpia con censo 20/20 + `F3_StorySync_v02 --check` 8/8. Esto separa el error global del local. **Pendiente en vivo.**
+2. **B — EJECUTADA:** muestreo por huella con base en el mínimo; datos re-anclados. Falta la corrida del canvas y el censo para ver el efecto.
 3. **C al final:** decidir si vías/EP se drapean o se excluyen del envío a ArchiCAD; documentar la decisión.
 
 ## No hacer

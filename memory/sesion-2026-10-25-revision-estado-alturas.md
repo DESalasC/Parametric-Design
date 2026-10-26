@@ -41,11 +41,23 @@ entre contexto y lote.
 - Secuencia de corrección de alturas: A (cableado `z_origen`) → B (muestreo MDT por huella) →
   C (drape o exclusión de vías/EP).
 
-## Pendientes
+## Ejecución 2026-10-25 20:46 — criterio A (punto más bajo)
+
+- `anclar_contexto50_zbase.py` modificado: muestreo **centroide + 4 extremos** por huella;
+  `z_base_m` = mínimo; se guardan `z_base_centroide_m`, `z_base_min_m`, `z_base_max_m`,
+  `z_base_n_puntos` y `z_base_metodo`.
+- Corrida REST: **450 puntos, 90 OK, 0 fallidos, 219,8 s**.
+- Bajada media **1,06 m**, máxima **4,65 m**; 89/90 registros cambiaron; 9 con >2 m.
+- `z_base` nuevo −21,150…−0,060 m (canvas) → −6,662…14,428 m (local).
+- Contraste con malla ETAPA1 en 9 huellas completas: promedio −0,18 m, máximo 1,35 m.
+- Respaldo: `AAA0030JKOE-contexto50.json.bak-zbase-20261025-2046` (el JSON no está versionado).
+- Sin re-embebido: el canvas lee `z_base_m` en la próxima corrida.
+- Dato: 90 registros / 45 IDs únicos.
+
+## Pendientes actualizados
 
 1. Verificar en GH que `z_origin` de #201 ← `z_origen` (0,0).
-2. Corrida limpia + censo 20/20.
+2. Corrida limpia del canvas con la base nueva + censo 20/20.
 3. `F3_StorySync_v02 --check` → 8/8.
-4. Implementar muestreo MDT por huella (opción B) y medir residuos.
-5. Decidir drape vs exclusión de vías/EP (opción C).
-6. Documentar las acciones de rendimiento.
+4. Decidir drape vs exclusión de vías/EP (opción C).
+5. Documentar las acciones de rendimiento.

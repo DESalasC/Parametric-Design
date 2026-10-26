@@ -129,3 +129,34 @@
 - Salida completa: `docs/planes/2026-10-25-diagnostico-alturas-contexto/evidencia/cotas-AAA0030JKOE-2026-10-25.md`
 - Suite: **367 pasan, 7 fallan** (las 7 fallas stale ya conocidas: `test_esquina_fuente`, `test_lados_v06_fuente` ×2, `test_morph_atributos_fuente`, `test_normativa_v09_fuente`, `test_orquestador` ×2).
 - Paridad: `scripts/utilities/verificar-paridad-canvas-src.py` → 7/7.
+
+---
+
+## 7. Actualización 2026-10-25 — criterio A ejecutado
+
+**Decisión del operador:** el volumen apoya en el **punto más bajo de su huella**.
+
+**Ejecutado:**
+- `anclar_contexto50_zbase.py` ahora muestrea **centroide + 4 extremos** (min/max x, min/max y) por huella y guarda `z_base_m` = mínimo de las cotas válidas, más `z_base_centroide_m`, `z_base_min_m`, `z_base_max_m` y `z_base_n_puntos`.
+- Corrida REST: **90 edificios, 450 puntos, 90 OK, 0 fallidos, 219,8 s**.
+- Respaldo previo: `data/pot-cache/AAA0030JKOE-contexto50.json.bak-zbase-20261025-2046` (el JSON de datos no está versionado en git).
+
+**Resultados:**
+
+| Métrica | Valor |
+|---|---|
+| Bajada de la base (centroide → mínimo) | promedio **1,06 m**, máxima **4,65 m** |
+| Registros modificados | 89 de 90 (> 0,01 m) |
+| Con bajada > 2 m | 9 |
+| Con bajada > 3 m | 2 |
+| `z_base_m` nuevo | −21,150 … −0,060 m (canvas) |
+| `z_base` ajustado | −6,662 … 14,428 m (local) |
+| Contraste con malla (9 huellas completas dentro) | promedio **−0,18 m**, máximo **1,35 m** |
+
+La bajada media de 1,06 m es coherente con la pendiente: una huella de ~9 m de ancho en 26 % tiene ±1,17 m entre centro y borde.
+
+**Efecto en el canvas:** ninguno a nivel de código. `F1_CONTEXTO50_BUILD` lee `z_base_m`; la próxima corrida del canvas ya usa la base nueva, sin re-embebido.
+
+**Observación de datos:** los 90 registros tienen solo **45 IDs catastrales únicos** (30 IDs repetidos). Son unidades/pisos del mismo edificio con registros separados; no afecta el muestreo (cada huella se consultó por separado), pero conviene no usar `id` como clave única en procesos de deduplicación.
+
+**Evidencia:** `.../evidencia/cotas-AAA0030JKOE-2026-10-25-post-min.md`.
