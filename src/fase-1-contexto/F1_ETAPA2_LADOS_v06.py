@@ -926,9 +926,9 @@ else:
         # Reconstruir poligono simplificado
         poly = rg.Polyline()
         for v in lot_vertices:
-            poly.Add(v.X, v.Y, v.Z)
+            poly.Add(v.X, v.Y, 0.0)  # Perfil normativo XY; conservar Z en vertices originales.
         if not poly.IsClosed and n >= 3:
-            poly.Add(lot_vertices[0].X, lot_vertices[0].Y, lot_vertices[0].Z)
+            poly.Add(lot_vertices[0].X, lot_vertices[0].Y, 0.0)
         lot_simplificado = rg.PolylineCurve(poly)
 
         # PASO 1: distancia de cada vertice a las vias (para fallback y diagnostico)

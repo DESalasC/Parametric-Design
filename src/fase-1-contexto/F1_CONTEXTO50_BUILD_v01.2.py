@@ -19,6 +19,11 @@ PROPOSITO:
   REGLA DE ORO (AGENTS.md): el volumen coincide en PERÍMETRO con la huella;
   la extrusión usa EXACTAMENTE la misma polilínea cerrada publicada.
 
+CORRECCION Z (2026-10-18):
+  Contexto50 convertido al mismo datum del mesh de ETAPA1 leyendo el JSON
+  hermano del mismo CHIP. z_origen=0 para entradas locales de F3.
+  desplazamiento_z conserva el offset realmente restado a z_base_m.
+
 CAMBIOS v01.3 (2026-10-13):
   1. Z_BASE CORRECTO (Mínimo Z válido del terreno): `compute_dz_from_stage1_context()`
      ahora usa prioridad: min_z válido malla terreno (punto más bajo lote) ->
@@ -702,7 +707,7 @@ else:
 # `z_origen`      = alias de desplazamiento_z (mismo valor, nombre alternativo)
 # `z_base_promedio` = promedio de z_base_ajustado de todos los edificios vecinos
 try:
-    z_origen = desplazamiento_z
+    z_origen = 0.0  # F3 recibe geometria/programa ya en marco local; no restar otra vez.
     desplazamiento_z_out = desplazamiento_z
     if zbs:
         z_base_promedio = sum(zbs) / len(zbs)

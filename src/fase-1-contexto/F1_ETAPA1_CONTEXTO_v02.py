@@ -176,7 +176,7 @@ def garantizar_layer_lote(layers):
     """
     LOTE = {"nombre": "00-00-10_Lote_proyecto", "color": 1, "visible": True}
     for layer in layers:
-        nombre = str(layer.get("nombre", "")).strip()
+        nombre = unicode(layer.get("nombre", "")).strip()
         if nombre == LOTE["nombre"]:
             return layers, True
     layers.insert(0, dict(LOTE))
@@ -185,10 +185,11 @@ def garantizar_layer_lote(layers):
 
 # ==============================================================================
 # MAIN
+# 2026-10-18: conservar Unicode en rutas y textos catastrales (IronPython).
 # ==============================================================================
 
 json_path_raw = globals().get("json_path", None)
-json_path = str(unwrap(json_path_raw)).strip("[]'\" ") if json_path_raw else ""
+json_path = unicode(unwrap(json_path_raw)).strip("[]'\" ") if json_path_raw else ""
 
 # Inicializar salidas
 lot_curve = None
@@ -231,17 +232,17 @@ else:
         # Función para leer JSON soportando rutas y contenidos con tildes y eñes en IronPython
         def leer_json_seguro(ruta):
             """Lee archivos JSON soportando rutas y contenidos con tildes y eñes en IronPython."""
-            if not ruta or not System.IO.File.Exists(str(ruta)):
+            if not ruta or not System.IO.File.Exists(unicode(ruta)):
                 raise Exception("El archivo no existe en la ruta especificada: {}".format(ruta))
 
             # 1. Intento con UTF-8
             try:
-                contenido = System.IO.File.ReadAllText(str(ruta), System.Text.Encoding.UTF8)
+                contenido = System.IO.File.ReadAllText(unicode(ruta), System.Text.Encoding.UTF8)
                 return json.loads(contenido)
             except Exception as e_utf8:
                 # 2. Fallback a codificación por defecto de Windows (CP1252 / Latin-1)
                 try:
-                    contenido = System.IO.File.ReadAllText(str(ruta), System.Text.Encoding.Default)
+                    contenido = System.IO.File.ReadAllText(unicode(ruta), System.Text.Encoding.Default)
                     return json.loads(contenido)
                 except Exception as e_default:
                     raise Exception("Error al decodificar el archivo: {} | {}".format(e_utf8, e_default))
@@ -368,10 +369,10 @@ else:
         # --- NORMATIVA ---
         pd = data.get("pot_data", {})
         altura_max_pot = to_float_safe(pd.get("altura_maxima_m"), 11.4)
-        tratamiento = str(pd.get("tratamiento", "Consolidacion"))
-        rango_edificabilidad = str(pd.get("rango_edificabilidad", "3"))
-        sector_normativo = str(pd.get("sector_normativo", ""))
-        upz = str(pd.get("upz", "N/A"))
+        tratamiento = unicode(pd.get("tratamiento", "Consolidacion"))
+        rango_edificabilidad = unicode(pd.get("rango_edificabilidad", "3"))
+        sector_normativo = unicode(pd.get("sector_normativo", ""))
+        upz = unicode(pd.get("upz", "N/A"))
         io_normativo = to_float_safe(pd.get("io_maximo"), 0.70)
 
         # --- REGLAMENTACION JSON (para NORMATIVA_v05) ---
@@ -381,7 +382,7 @@ else:
                   for v in data.get("vias_oficiales", [])]
         anchos = [a for a in anchos if a > 0]
         ancho_via_oficial_m = min(anchos) if anchos else 0.0
-        tipologia_oficial = str(pd.get("tipologia", "") or "").strip()
+        tipologia_oficial = unicode(pd.get("tipologia", "") or "").strip()
         antejardin_oficial = to_float_safe(pd.get("antejardin_m"), 0.0)
         reglamentacion_json = json.dumps({
             "pot_data": {
@@ -395,11 +396,11 @@ else:
                 "ancho_via_m": ancho_via_oficial_m,
                 "antejardin_m": antejardin_oficial,
             }
-        })
+        }, ensure_ascii=False)
 
         # --- LAYERS JSON (para Tapir) — v02: garantizar layer del lote ---
         LAYERS_ARCHICAD, layer_lote_ok = garantizar_layer_lote(LAYERS_ARCHICAD)
-        layers_json = json.dumps(LAYERS_ARCHICAD)
+        layers_json = json.dumps(LAYERS_ARCHICAD, ensure_ascii=False)
 
         chip = meta.get("chip", "DESCONOCIDO")
         mensaje = "ETAPA1 v02 | CHIP: {} | Area: {:.1f}m2 | Vecinos: {} | Vias: {} | EP: {} | Origen: ({:.1f}, {:.1f}) | Lote_layer: {} | Reg: ancho_via={} tipologia={}".format(
@@ -410,4 +411,4 @@ else:
             tipologia_oficial or "sin dato")
 
     except Exception as e:
-        mensaje = "ETAPA1 | ERROR al leer JSON: {}".format(str(e))
+        mensaje = "ETAPA1 | ERROR al leer JSON: {}".format(unicode(e))
