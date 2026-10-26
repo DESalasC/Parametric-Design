@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿# CLAUDE.md — Proyecto DiseñoParametrico
+﻿﻿﻿﻿﻿# CLAUDE.md - Proyecto DiseñoParametrico
 
 > **Nota:** Este archivo debe ir en `D:\WORK\PROJECTS\DiseñoParametrico\CLAUDE.md`
 > Es generado automáticamente por `init-project.ps1`. Esta es la plantilla maestra.
@@ -15,7 +15,7 @@ Eres un asistente extremadamente eficiente en el uso de tokens. Da prioridad a l
 - si el operador dice modo conciso o optimice, sea mucho mas estricto.
 - si ve algun problema con las indicaciones, expreselo una vez, de manera clara y concisa, con las razones detras del razonamiento.
 - Organice sus peocupaciones antes de presentarlas: Bloqueos (errores factuales, algo que no funciona, riesgo reales) digalos claramente, cada vez que suceda, Preferencias (gustos, facilidades), con una linea a lo sumo, o saltelo.
-- si lo solicitado y la logica detras de esa solicitud es debil, muestreme como hacerlo mas solido y resistente a las pruebas de estres. 
+- si lo solicitado y la logica detras de esa solicitud es debil, muestreme como hacerlo mas solido y resistente a las pruebas de estres.
 
 ## Contexto del proyecto
 Ecosistema BIM-GIS-AI para diseño arquitectónico paramétrico en Bogotá.
@@ -53,23 +53,29 @@ Automatiza: geolocalización POT, matriz de retiros, separaciones NSR-10, motor 
    - NO usar type hints → quitarlos
    - NO usar `:=` (walrus operator)
    - Usar `globals().get()` para acceder a variables del canvas
-   - **NO incluir shebang (`#! /usr/bin/env python3`)** al inicio —
+   - **NO incluir shebang (`#! /usr/bin/env python3`)** al inicio -
      confunde al detector de lenguaje del componente "Script" y produce
      "Can not determine language", sellando el componente
 
 ### ArchiCAD Layers
 7. **Capas para clasificación de entorno** (creadas desde Grasshopper vía Live Connection):
-   - `00-00-10_Lote_proyecto` — Predio objetivo
-   - `00-20-20_Elementos_entorno_urbano` — Polígonos de vías
-   - `00-20-30_Ejes_vias` — Ejes de vías (líneas centrales)
-   - `70-50-10_Zonas_verdes_publicas` — Parques, plazas y zonas verdes
-   - `70-30-20_Andenes_preexistentes` — Andenes y espacio público peatonal
-   - `10-20-10_Topografia` — Curvas de nivel y puntos topográficos
-   - `70-20-20_Perimetros_vecinos` — Perímetros de predios vecinos
-   - `70-20-30_Volumetrias_vecinas` — Morphs de construcciones existentes en predios vecinos (ruta primaria: **contexto50**; ruta manual: opcional/fallback)
-   - `00-10-20_Elementos_referencia` — Líneas de referencia y ejes auxiliares
+   - `00-00-10_Lote_proyecto` - Predio objetivo
+   - `00-20-20_Elementos_entorno_urbano` - Polígonos de vías
+   - `00-20-30_Ejes_vias` - Ejes de vías (líneas centrales)
+   - `70-50-10_Zonas_verdes_publicas` - Parques, plazas y zonas verdes
+   - `70-30-20_Andenes_preexistentes` - Andenes y espacio público peatonal
+   - `10-20-10_Topografia` - Curvas de nivel y puntos topográficos
+   - `70-20-20_Perimetros_vecinos` - Perímetros de predios vecinos
+   - `70-20-30_Volumetrias_vecinas` - Morphs de construcciones existentes en predios vecinos (ruta primaria: **contexto50**; ruta manual: opcional/fallback)
+   - `00-10-20_Elementos_referencia` - Líneas de referencia y ejes auxiliares
 
-### Pipeline Fase 1 — Dos Etapas (v26) — **ACTUALIZADO 2026-10-06**
+### Datum Z0 y niveles ArchiCAD (ADR-024, 2026-10-25)
+- El marco de cálculo usa un único datum `z0_m`: `min_lote` (default, vértice más bajo del polígono del lote), `centro_lindero_via` (punto medio del lindero Frontal contra la vía) o `manual` (valor del operador). Se escribe en `data/pot-cache/<CHIP>-z0.json`.
+- ArchiCAD se normaliza siempre: `Z_ac = Z_modelo - z_gf`; el **Ground Floor** es **0,000** y los niveles son `0, floor_h, 2·floor_h, …`.
+- Ningún componente suma `ancla_canvas_local.z`, `z_ref` ni `desplazamiento_z` a geometría de ArchiCAD.
+- Utilidad: `scripts/utilities/calcular_z0_proyecto.py --chip <CHIP> --modo min_lote|centro_lindero_via|manual`.
+
+### Pipeline Fase 1 - Dos Etapas (v26) - **ACTUALIZADO 2026-10-06**
 
 #### ETAPA 1: Datos en bruto → ArchiCAD (clasificación manual)
 ```
@@ -90,7 +96,7 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
                                  con vecinos <0.10 m + contacto mínimo por longitud
                                  (fracción ≥0.30); Esq por contacto real; Posterior SOLO
                                  cuando todos los lados menos uno colindan con vecinos;
-                                 ancho de vía TOTAL del perfil vial — incluye andenes)
+                                 ancho de vía TOTAL del perfil vial - incluye andenes)
   → F1_ETAPA2_PATIO_v03.py      (patios de aislamiento en vértices vecino-vecino;
                                  bifurcación: 1 vol=patio normativo 3×3 m; ≥2 vol=separaciones
                                  que SÍ computan en IO según Anexo 5 POT)
@@ -99,12 +105,12 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
                                  + posterior tabla Consolidación por pisos + empate
                                  volumétrico; IO/IC/altura/GFA; ENVOLVENTE ESCALONADA:
                                  retiro lateral en pisos superiores = max(empate Anexo 5
-                                 SECCION 1.9.c — 1/5 de la altura desde el nivel de empate,
-                                 min configurable 3,0 m; separación sísmica NSR-10 A.6.5 —
+                                 SECCION 1.9.c - 1/5 de la altura desde el nivel de empate,
+                                 min configurable 3,0 m; separación sísmica NSR-10 A.6.5 -
                                  2% × h en >3 pisos) solo en lados Lateral (vecino);
                                  Frontales (vía) y EspacioPublico no se escalonan;
                                  VECINOS CON ALTURAS VARIABLES por lateral (v08+: entrada
-                                 vecinos_por_lado_json, retiro por sub-segmento — SECCION
+                                 vecinos_por_lado_json, retiro por sub-segmento - SECCION
                                  1.9.c por vecino; recorte por semiplanos robusto en
                                  cóncavos; sin la entrada = comportamiento v07);
                                  **NUEVO v09:** validador de presupuesto IO (IO≤0.70),
@@ -133,7 +139,7 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
 
 ### Grasshopper / GHPython
 11. Unidades de Rhino configuradas en METROS. Nunca usar milímetros (mm).
-12. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v08.py` + `F1_ETAPA2_LADOS_v06.py` (pipeline modular v26, regla híbrida 15m, regla Posterior N-1, Anexo 5 POT actualizado por Decreto 466/2024, ancho de vía TOTAL del perfil vial — incluye andenes; v06: laterales por vértices coincidentes + contacto mínimo + esquina real; ancho con respaldo desde LADOS_v06 → antejardín por tabla CU-5.5).
+12. Script normativo vigente: `F1_ETAPA2_NORMATIVA_v08.py` + `F1_ETAPA2_LADOS_v06.py` (pipeline modular v26, regla híbrida 15m, regla Posterior N-1, Anexo 5 POT actualizado por Decreto 466/2024, ancho de vía TOTAL del perfil vial - incluye andenes; v06: laterales por vértices coincidentes + contacto mínimo + esquina real; ancho con respaldo desde LADOS_v06 → antejardín por tabla CU-5.5).
     El linaje legacy (`F1_NORMATIVA_APLICAR_*`, `F1_CONTEXTO_POT_*`, `F1_LADOS_CONFIGURAR_*`,
     `F1_LADOS_CLASIFICAR_*`, patios viejos, `F1_PATIO_DISCONTINUIDAD_*`, `F1_VECINOS_ANALISIS_*`,
     `F1_VALIDADOR_CRUZADO_v01`, `F1_DESPLAZAR_ORIGEN_v01`, `F1_VERTICE_CERCANO_v01`) está
@@ -147,7 +153,7 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
     `F1_LAYERS_XML_v02` (merge defensivo de capas críticas, garantiza
     `00-00-10_Lote_proyecto`) y ETAPA1 v02 expone `layer_lote_ok`.
 
-### PROHIBIDO usar 
+### PROHIBIDO usar
 13. Rhinoscriptsyntax (rs) en scripts GHPython. Usar exclusivamente Rhino.Geometry (rg).
 14. Entradas JSON a GHPython: `No Type Hint` + `Item Access`.
 15. Entradas geométricas a GHPython: `List Access` + `Flatten`.
@@ -175,12 +181,12 @@ ArchiCAD (layers clasificados) → Live Connection GetElements → GH
 30. **Canvas maestro actual:** `gh-definitions/F1_CONTEXTO_v13.1.ghx` (2026-10-06: recarga por GUID verificada; sección F3 integrada con UNIDADES v02 · VOLUM v08 · MORPH v02 · ACCESOS v02; 339/358 tests pass, 19 desactualizados pendientes de limpieza).
 
 ### Datos
-30. Archivo POT fuente (geobase): `bd_uaecd.gpkg` — **NO versionado**. Ubicación configurable vía:
+30. Archivo POT fuente (geobase): `bd_uaecd.gpkg` - **NO versionado**. Ubicación configurable vía:
     - Variable de entorno `POT_GPKG_PATH` (recomendado)
     - Argumento `--gpkg` en scripts fetch
     - Default histórico: `D:\Users\Dario Salas\proyectos\DesParametrico\2-Entradas\Datos_Sitio_GDB\bd_uaecd.gpkg`
     - **Ubicación recomendada portable**: `data/geobase/bd_uaecd.gpkg` (copiar manualmente)
-31. POT GDB: `POT_Decreto_555_2021_Bogota_D_C.gdb` — igual que arriba, variable `POT_GDB_PATH`.
+31. POT GDB: `POT_Decreto_555_2021_Bogota_D_C.gdb` - igual que arriba, variable `POT_GDB_PATH`.
 32. Caché POT: `data/pot-cache/<predio-id>.json` (generado por `fetch-urban-context-v7.py`).
 33. Whitelist de campos: `config/field-whitelist.json` (~30 campos de 2455 totales).
 34. Vecinos: modelado manual en Archicad (Morph), validar con `validate-neighbors.py` antes de pasar a GH.
@@ -200,7 +206,7 @@ powershell scripts\rhino-compute\start-compute.ps1
 powershell scripts\rhino-compute\stop-compute.ps1
 powershell scripts\rhino-compute\health-check.ps1
 
-# Contexto Fase 1 — Orquestador unificado (RECOMENDADO)
+# Contexto Fase 1 - Orquestador unificado (RECOMENDADO)
 python scripts\utilities\fetch-contexto-completo_v01.py --chip AAA0240ZXJH --gpkg data\geobase\bd_uaecd.gpkg
 python scripts\utilities\fetch-contexto-completo_v01.py --chip NUEVO_CHIP --radio 75 --altura-piso 3.0 --fuente gpkg --gpkg %POT_GPKG_PATH%
 # Solo contexto base (Paso 1)
@@ -245,12 +251,12 @@ DiseñoParametrico/
 ├── scripts/                   # rhino-compute/ + utilities/
 ├── src/                       # Código por fase
 │   ├── fase-1-contexto/       # Modular ETAPA1/ETAPA2 vigente + _legacy\
-│   ├── fase-2-demanda/        # Pipeline + F2_Modelo_Financiero\ (motor v3.0) + F2_Modelo_Renta\ (motor v3.0) — hook GFA desde F1
+│   ├── fase-2-demanda/        # Pipeline + F2_Modelo_Financiero\ (motor v3.0) + F2_Modelo_Renta\ (motor v3.0) - hook GFA desde F1
 │   ├── fase-3-masa/           # VOLUM_GENERADOR v08 (volumetría por uso), ACCESOS_INTEGRADOR v02, PREP_LADYBUG
 │   ├── fase-4-ambiental/      # F4_LADYBUG_ANALISIS v02
 │   ├── fase-5-bim/            # Pendiente
 │   ├── interfases-archicad/   # F1_Layers_Proyecto_v01.xml (único)
-│   └── research/              # Exploración C# (GhDefinitionExplorer) — módulo independiente
+│   └── research/              # Exploración C# (GhDefinitionExplorer) - módulo independiente
 ├── tests/                     # Pytest (Fase 1)
 ├── exports/ logs/ LIBRARIES/ inventario_migracion/
 └── .venv/ pyproject.toml requirements.txt
@@ -283,7 +289,7 @@ DiseñoParametrico/
 ## Referencias clave
 - **POT Bogotá**: Decreto 555 de 2021
 - **NSR-10**: Reglamento Colombiano de Construcción Sismo Resistente
-- **Tapir**: protocolo JSON-RPC del ArchiCAD API (archicadapi.graphisoft.com); lo usa el paquete Python `archicad` de Graphisoft. NO es nombre genérico de los componentes de Grasshopper — cada plugin lleva su nombre (Live Connection, LadyBug, etc.).
+- **Tapir**: protocolo JSON-RPC del ArchiCAD API (archicadapi.graphisoft.com); lo usa el paquete Python `archicad` de Graphisoft. NO es nombre genérico de los componentes de Grasshopper - cada plugin lleva su nombre (Live Connection, LadyBug, etc.).
 - **Geobase Bogotá**: https://geobogota.maps.arcgis.com/
 - **MAGNA-SIRGAS Origen Bogotá**: EPSG:9377
 - **ADR-008**: Clasificación Espacial Híbrida (feedback loop ArchiCAD↔GH, regla 15m)
@@ -294,7 +300,7 @@ Todo script Python para Grasshopper debe incluir en su encabezado:
 
 1. **Propósito**: Qué hace el script y por qué existe (2-3 líneas).
 2. **Normativa aplicable**: Referencia a decretos, artículos o fichas reglamentarias.
-3. **Historial de versiones**: `vXX — qué cambió` en orden cronológico inverso.
+3. **Historial de versiones**: `vXX - qué cambió` en orden cronológico inverso.
 4. **Tabla de entradas**: Nombre, Tipo (Curve/String/Number/int), Acceso (Item/List), Descripción y procedencia (de qué componente viene).
 5. **Tabla de salidas**: Nombre, Tipo, Descripción.
 6. **Tabla de funciones internas**: Nombre, Descripción (qué hace, no cómo).
@@ -321,7 +327,7 @@ vecinos, NO a frentes de calle o espacio público. La calle ya provee ventilaci�
    - Vértice Vecino+Vecino → PATIO REQUERIDO
 
 3. **Tamaño del patio:**
-   - Lotes < 500 m² + Continua + ≤ 5 pisos: 3.0m × 3.0m fijo
+   - Lotes < 500 m2 + Continua + ≤ 5 pisos: 3.0m × 3.0m fijo
    - Regla general: max(3.0, altura_total × 0.25) m por lado
 
 4. **Implementación (pipeline modular actual):**

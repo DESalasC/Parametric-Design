@@ -88,13 +88,16 @@ def _nivel_bep(piso_1based):
     return "L%02d" % (n - 1)
 
 
-def plan_stories(bloques, floor_h, snap=True, con_tapa=False):
+def plan_stories(bloques, floor_h, zgf_m=None, snap=True, con_tapa=False):
     """Plan de niveles (stories) desde las cotas de arranque reales.
 
-    bloques: [{"id", "cota_arranque_m", "pisos"}] (cotas en marco canvas).
-    Grilla = base + j*floor_h; base = menor cota; snap = redondeo de cada
-    plataforma a la grilla (corte/relleno). Devuelve dict serializable con
-    la misma estructura que F3_VOLUM v08.1 (`_plan_stories`).
+    bloques: [{"id", "cota_arranque_m", "pisos"}] (cotas en marco de calculo
+    del proyecto, es decir Z_modelo = Z_abs - z0_m; ADR-024).
+    Grilla = base + j*floor_h; base = menor cota de bloque.
+    Niveles en ArchiCAD: elevation_ac = elevacion_modelo - zgf_m, con
+    Ground Floor (primer nivel) siempre = 0.000.
+    zgf_m: cota del primer nivel (GF) en marco de calculo. Si se omite, se
+    toma como base (menor cota de bloque).
     """
     if not bloques:
         return None
@@ -111,6 +114,8 @@ def plan_stories(bloques, floor_h, snap=True, con_tapa=False):
         except Exception:
             cotas.append(0.0)
     base = min(cotas)
+    if zgf_m is None:
+        zgf_m = base
     detalle = []
     max_j = 0
     for i, b in enumerate(bloques):
@@ -137,31 +142,43 @@ def plan_stories(bloques, floor_h, snap=True, con_tapa=False):
             max_j = o + p
     stories = []
     for j in range(int(max_j)):
+        elev_modelo = base + j * h
+        elev_ac = round(elev_modelo - zgf_m, 3)
         d = {
             "name": ("GF" if j == 0 else "L%02d" % j),
-            "elevation": round(base + j * h, 3),
-            "elevacion_relativa_m": round(j * h, 3),
+            "elevation": elev_ac,
+            "elevacion_relativa_m": elev_ac,
+            "elevacion_modelo_m": round(elev_modelo, 3),
+            "zgf_m": round(zgf_m, 3),
         }
         d["descripcion"] = "Planta baja (acceso)" if j == 0 else ("Nivel %d" % j)
         stories.append(d)
     if con_tapa:
         j = int(max_j)
+        elev_modelo = base + j * h
         stories.append({
             "name": "RF",
-            "elevation": round(base + j * h, 3),
-            "elevacion_relativa_m": round(j * h, 3),
+            "elevation": round(elev_modelo - zgf_m, 3),
+            "elevacion_relativa_m": round(elev_modelo - zgf_m, 3),
+            "elevacion_modelo_m": round(elev_modelo, 3),
+            "zgf_m": round(zgf_m, 3),
             "descripcion": "Cubierta (opcional)",
         })
     return {
         "floor_h_m": round(h, 3),
-        "base_z_m": round(base, 3),
+        "zgf_m": round(zgf_m, 3),
+        "base_z_m": round(base - zgf_m, 3),
         "snap": bool(snap),
         "stories": stories,
         "bloques": detalle,
         "avisos": [
-            "base = menor cota de bloque; nivel de acceso definitivo "
-            "(fetch v8 / NORMATIVA v10) puede desplazar la base",
-            "elevaciones en marco canvas (misma referencia que zonas/LC)",
+            "ADR-024: Ground Floor (primer nivel) = 0.000 en ArchiCAD; "
+            "elevacion_ac = elevacion_modelo - zgf_m.",
+            "base = menor cota de bloque (marco calculo); nivel de acceso "
+            "definitivo (fetch v8 / NORMATIVA v10) puede desplazar la base "
+            "/ zgf_m.",
+            "elevacion_modelo_m en marco de calculo (Z_abs - z0_m); elevation "
+            "en marco ArchiCAD (Ground Floor = 0).",
         ],
     }
 
@@ -244,7 +261,7 @@ def _parse(args):
         "plan": False, "check": False, "listar": False, "tapa": False,
         "hoja": False,
         "chip": None, "cotas": None, "pisos": None, "floor_h": 3.05,
-        "json": None, "out": None, "puerto": None,
+        "json": None, "out": None, "puerto": None, "zgf_m": None,
     }
     i = 0
     n = len(args)
@@ -260,6 +277,11 @@ def _parse(args):
             opts["hoja"] = True
         elif a == "--tapa":
             opts["tapa"] = True
+        elif a == "--zgf-m":
+            i += 1
+            opts["zgf_m"] = float(args[i]) if i < n else None
+        elif a.startswith("--zgf-m="):
+            opts["zgf_m"] = float(a.split("=", 1)[1])
         elif a == "--chip":
             i += 1
             opts["chip"] = args[i] if i < n else None
@@ -351,12 +373,11 @@ def _texto_hoja(chip, stories, floor_h=None, base=None, avisos=None):
     L.append("PASOS (ArchiCAD 29 - Test 07):")
     L.append("  1) Documento > Preferencias del proyecto > Configuracion de pisos...")
     L.append("     (EN: Options > Project Preferences > Stories...)")
-    L.append("  2) Ajustar los 3 niveles existentes (nombre + cota):")
-    L.append("       'Ground Floor' -> GF   @ -11.565")
-    L.append("       'Story'        -> L01  @  -8.515")
-    L.append("       'Story'        -> L02  @  -5.465")
-    L.append("  3) Insertar 5 niveles NUEVOS arriba (boton Insertar / '+') y fijar cota:")
-    L.append("       L03 @ -2.415 | L04 @ +0.635 | L05 @ +3.685 | L06 @ +6.735 | L07 @ +9.785")
+    L.append("  2) Configurar/verificar niveles (Ground Floor = 0.000):")
+    for s in stories:
+        L.append("       '{name}' @ {cota:+.3f} m".format(
+            name=s.get("name", "?"), cota=float(s.get("elevation", 0.0))))
+    L.append("  3) Si faltan niveles, insertarlos y fijar la cota indicada arriba.")
     L.append("  4) Aceptar. Verificar con ArchiCAD abierto:")
     L.append("       .venv\\Scripts\\python.exe src\\interfases-archicad\\F3_StorySync_v02.py --check --chip {}".format(chip))
     L.append("     -> debe decir: 'Todos los niveles deseados existen y estan alineados.'")
@@ -405,7 +426,8 @@ def _cmd_plan(opts):
     else:
         print("--plan requiere --cotas \"a,b,c\" o --chip <CHIP> (casos/<chip>/cotas-arranque.json).")
         return 1
-    plan = plan_stories(bloques, floor_h, snap=True, con_tapa=bool(opts["tapa"]))
+    plan = plan_stories(bloques, floor_h, zgf_m=opts["zgf_m"],
+                        snap=True, con_tapa=bool(opts["tapa"]))
     if not plan:
         print("Sin bloques: no hay plan.")
         return 1
@@ -413,9 +435,11 @@ def _cmd_plan(opts):
         "schema": "f3_niveles_deseados_v01",
         "chip": opts["chip"] or "CLI",
         "generado": "manual (F3_StorySync_v02 --plan)",
-        "nota": "Stories ArchiCAD (Story Settings). elevation = marco canvas; "
-                "elevacion_relativa_m = acumulado desde la base.",
+        "nota": "Stories ArchiCAD (Story Settings). elevation = marco ArchiCAD "
+                "(Ground Floor = 0.000, ADR-024). elevacion_modelo_m = marco "
+                "de calculo (Z_abs - z0_m). elevacion_relativa_m = relativo a GF.",
         "floor_h_m": plan["floor_h_m"],
+        "zgf_m": plan["zgf_m"],
         "base_z_m": plan["base_z_m"],
         "snap": plan["snap"],
         "stories": plan["stories"],

@@ -461,6 +461,38 @@ def _modo_run(args):
     gfa_m2 = args.gfa if args.gfa is not None else params.get("gfa_m2")
     costo_lote = args.costo_lote if args.costo_lote is not None else params.get("costo_lote_cop")
 
+    # --- Datum Z0 (ADR-024): calcular y guardar el marco de calculo del proyecto ---
+    z0_modo = args.z0_modo or params.get("z0_modo", "min_lote")
+    z0_valor = args.z0_valor if args.z0_valor is not None else params.get("z0_valor")
+    z0_absoluto = bool(args.z0_absoluto or params.get("z0_absoluto", False))
+    _cmd_z0 = [PY, os.path.join(ROOT, "scripts", "utilities", "calcular_z0_proyecto.py"),
+               "--chip", chip, "--modo", z0_modo]
+    if z0_valor is not None:
+        _cmd_z0 += ["--valor", str(z0_valor)]
+    if z0_absoluto:
+        _cmd_z0 += ["--absoluto"]
+    ok_z0, out_z0 = _ejecutar(_cmd_z0)
+    if not ok_z0:
+        print("ERROR: no se pudo calcular el datum Z0:")
+        for linea in out_z0.strip().splitlines()[-6:]:
+            print("    " + linea)
+        sys.exit(1)
+    try:
+        ruta_z0 = os.path.join(POT_CACHE, chip + "-z0.json")
+        if not os.path.isfile(ruta_z0):
+            raise IOError("No se generó " + ruta_z0)
+        with io.open(ruta_z0, "rb") as f:
+            _z0_json = json.loads(f.read().decode("utf-8"))
+        z0_m = float(_z0_json["z0_m"])
+        z0_abs_m = float(_z0_json.get("z0_abs_m", 0.0))
+        origen_z = float(_z0_json.get("origen_z_m", 0.0))
+        modo_z0_usado = _z0_json.get("modo", z0_modo)
+    except Exception:
+        print("ERROR: salida del datum Z0 no parseable:")
+        print(repr(out_z0[-500:]))
+        sys.exit(1)
+    print("[OK] Datum Z0 del proyecto: z0_m={:.4f} (modo={})".format(z0_m, modo_z0_usado))
+
     params_nuevos = {
         "_schema": "parametros_pipeline_v01",
         "chip": chip,
@@ -468,6 +500,10 @@ def _modo_run(args):
         "modo": modo,
         "gfa_m2": gfa_m2,
         "costo_lote_cop": costo_lote,
+        "z0_modo": modo_z0_usado,
+        "z0_m": z0_m,
+        "z0_abs_m": z0_abs_m,
+        "origen_z_m": origen_z,
         "parametros_f2_venta": _detectar_parametros(chip, "venta"),
         "parametros_f2_renta": _detectar_parametros(chip, "renta"),
     }
@@ -870,6 +906,9 @@ def main():
     parser.add_argument("--modo", default=None, help="venta|renta|mixto")
     parser.add_argument("--gfa", type=float, default=None, help="Override de GFA (m2)")
     parser.add_argument("--costo-lote", type=float, default=None, help="Override costo de lote (COP)")
+    parser.add_argument("--z0-modo", default=None, choices=("min_lote", "centro_lindero_via", "manual"), help="Datum Z0: min_lote|centro_lindero_via|manual (default min_lote)")
+    parser.add_argument("--z0-valor", type=float, default=None, help="Valor Z local para modo manual (m)")
+    parser.add_argument("--z0-absoluto", action="store_true", help="--z0-valor está en Z absoluto")
     parser.add_argument("--yes", action="store_true", help="No pedir confirmaciones")
     parser.add_argument("--refresh", action="store_true", help="Forzar actualización de contexto ignorando el estado actual")
     args = parser.parse_args()
