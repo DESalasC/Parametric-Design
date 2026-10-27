@@ -18,7 +18,7 @@ import types
 
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE = os.path.abspath(os.path.join(TESTS_DIR, ".."))
-NORMATIVA_V09 = os.path.join(BASE, "src", "fase-1-contexto", "F1_ETAPA2_NORMATIVA_v09.py")
+NORMATIVA_V09 = os.path.join(BASE, "src", "fase-1-contexto", "F1_ETAPA2_NORMATIVA_v09.1.py")
 
 sys.path.insert(0, TESTS_DIR)
 
@@ -196,7 +196,7 @@ def test_modo_potencial_sin_barras():
     assert "POTENCIAL" in g.get("mensaje", "")
     assert "presupuesto_ocupacion_m2" in g
     presupuesto = g.get("presupuesto_ocupacion_m2")
-    assert presupuesto is not None and abs(presupuesto - 662.44) < 1.0  # 0.70 * ~946
+    assert presupuesto is not None and abs(presupuesto - 596.40) < 1.0  # 0.70 * 852 m2 (lote del fixture)
     # Salidas aprobadas deben ser 0 (no hay barras_json)
     assert g.get("ocupacion_aprobada_m2", 1) == 0.0
     assert g.get("gfa_aprobado_m2", 1) == 0.0
@@ -247,7 +247,7 @@ def test_presupuesto_siempre_expuesto():
 def test_version_interna_v09():
     gvars = _base_gvars(barras_json_str=None)
     g = _ejecutar(NORMATIVA_V09, gvars)
-    assert "v09.0" in g.get("mensaje", "")
+    assert "v09.1" in g.get("mensaje", "")
 
 
 if __name__ == "__main__":

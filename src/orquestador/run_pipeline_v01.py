@@ -222,8 +222,27 @@ def _detectar_parametros(chip, tipo):
     return os.path.join(F2_VENTA_DIR, "parametros_entrada.json")
 
 
+def _cobertura_cotas_contexto50(chip):
+    """(edificios con z_base_m, total) del contexto50 vigente. (0, 0) si no existe."""
+    for ruta in (os.path.join(POT_CACHE, chip + "-contexto50.json"),
+                 os.path.join(POT_CACHE, "contexto50-actual.json")):
+        if not _existe(ruta):
+            continue
+        try:
+            with io.open(ruta, "r", encoding="utf-8") as f:
+                datos = json.load(f)
+        except Exception:
+            continue
+        eds = datos.get("edificios") or []
+        if not eds:
+            continue
+        return (sum(1 for e in eds if e.get("z_base_m") is not None), len(eds))
+    return (0, 0)
+
+
 def detectar_estado(chip, caso):
     """Devuelve un dict con el estado de cada paso: 'hecho' | 'falta' | 'manual'."""
+    cotas_con, cotas_total = _cobertura_cotas_contexto50(chip)
     return {
         "f1_contexto": {
             "tipo": "auto",
@@ -252,6 +271,24 @@ def detectar_estado(chip, caso):
                 os.path.join(POT_CACHE, "contexto50-actual.json")
             ) if _existe(os.path.join(POT_CACHE, chip + "-contexto50.json")) else None,
             "depends_on": ["f1_contexto"],
+        },
+        "f1_alzado_via": {
+            "tipo": "auto",
+            "estado": "hecho" if _existe(os.path.join(ROOT, "exports", "alzado-via",
+                                                      chip + "-alzado-via.html")) else "falta",
+            "artefacto": "exports/alzado-via/{}-alzado-via.html (z=0 sobre la via frontal)".format(chip),
+            "comando": [PY, os.path.join(ROOT, "scripts", "utilities", "generar-alzado-via.py"),
+                        "--chip", chip],
+            "depends_on": ["f1_contexto"],
+        },
+        "f1_contexto50_cotas": {
+            "tipo": "auto",
+            "estado": "hecho" if (cotas_total and cotas_con == cotas_total) else "falta",
+            "artefacto": "data/pot-cache/{}-contexto50.json (z_base_m por huella MDT: {}/{})".format(
+                chip, cotas_con, cotas_total),
+            "comando": [PY, os.path.join(ROOT, "scripts", "utilities", "anclar_contexto50_zbase.py"),
+                        "--chip", chip],
+            "depends_on": ["f1_contexto50"],
         },
         "f1_gfa": {
             "tipo": "manual",
@@ -398,13 +435,15 @@ def _imprimir_estado(estado, chip, caso, modo):
     print("CHIP: {} | CASO: {} | MODO: {}".format(chip, caso, modo))
     print("=" * 64)
     simbolos = {"hecho": "[OK]", "falta": "[  ]", "manual": "[??]"}
-    orden = ["f1_contexto", "f1_contexto50", "f1_gfa",
+    orden = ["f1_contexto", "f1_alzado_via", "f1_contexto50", "f1_contexto50_cotas", "f1_gfa",
              "f3_barras", "f1_normativa_aprobada", "f1_exportar_gfa_aprobado",
              "f2_venta", "f2_renta",
              "f3_distribucion", "f3_accesos", "f3_masa_rhino"]
     nombres = {
         "f1_contexto": "F1  Contexto normativo (fetch)",
+        "f1_alzado_via": "F1  Alzado sobre la via frontal (z=0)",
         "f1_contexto50": "F1  Contexto 50 m (fetch)",
+        "f1_contexto50_cotas": "F1  Cotas MDT de vecinos (z_base por huella)",
         "f1_gfa": "F1  Exportar GFA (manual Rhino)",
         "f3_barras": "F3  Distribuidor barras (--presupuesto-ocupacion)",
         "f1_normativa_aprobada": "F1  NORMATIVA v09 + barras_json (manual canvas)",
@@ -543,7 +582,11 @@ def _modo_run(args):
     # 1. Pasos automáticos base (F1 fetch + F3 distribución v02 + accesos)
     pasos_auto_base = [
         ("f1_contexto", "F1 fetch contexto", lambda: _ejecutar(estado["f1_contexto"]["comando"])),
+        ("f1_alzado_via", "F1 alzado sobre la via frontal",
+         lambda: _ejecutar(estado["f1_alzado_via"]["comando"])),
         ("f1_contexto50", "F1 fetch contexto 50m", lambda: _ejecutar(estado["f1_contexto50"]["comando"])),
+        ("f1_contexto50_cotas", "F1 cotas MDT del contexto 50m",
+         lambda: _ejecutar(estado["f1_contexto50_cotas"]["comando"])),
         ("f3_distribucion", "F3 distribución (v02)", lambda: _ejecutar(estado["f3_distribucion"]["comando"])),
         ("f3_accesos", "F3 accesos", lambda: _ejecutar(estado["f3_accesos"]["comando"])),
     ]
@@ -751,10 +794,21 @@ def _generar_html(estado, chip, caso, modo):
              "Genera el JSON de contexto del predio (coordenadas locales, vías, vecinos).",
              "python scripts/utilities/fetch-contexto-completo_v01.py --chip {} --solo-base".format(chip),
              estado["f1_contexto"]["artefacto"]),
+            ("f1_alzado_via", "1.2 Alzado sobre la via frontal (decidir z=0)", "auto",
+             "Planta en alzado: perfil del lindero y de la calle, puntos de muestreo del MDT, "
+             "lineas candidatas a z=0 y banda de altura POT/PEMP. Se abre desde el "
+             "orquestador y al hacer clic en una linea fija el z=0 del proyecto.",
+             "python scripts/utilities/generar-alzado-via.py --chip {}".format(chip),
+             estado["f1_alzado_via"]["artefacto"]),
             ("f1_contexto50", "1.2 Fetch contexto 50 m", "auto",
              "Extrae edificios vecinos en radio 50 m (contexto50).",
              "python scripts/utilities/fetch-contexto-completo_v01.py --chip {} --solo-50".format(chip),
              estado["f1_contexto50"]["artefacto"]),
+            ("f1_contexto50_cotas", "1.2b Cotas MDT de vecinos (z_base por huella)", "auto",
+             "Muestrea el MDT bajo la huella de cada vecino (centroide + extremos) y fija "
+             "z_base_m = cota minima: cada morph apoya en su propio terreno.",
+             "python scripts/utilities/anclar_contexto50_zbase.py --chip {}".format(chip),
+             estado["f1_contexto50_cotas"]["artefacto"]),
             ("f1_gfa", "1.3 Exportar GFA (manual Rhino, modo POTENCIAL)", "manual",
              "Cablea F1_EXPORTAR_GFA_v02 en el canvas y ejecuta para escribir GFA potencial (referencia).",
              "Componente F1_EXPORTAR_GFA_v02 en Grasshopper",
@@ -889,8 +943,15 @@ def _generar_html(estado, chip, caso, modo):
   <footer>Generado por run_pipeline_v01.py v01.1 · DiseñoParametrico</footer>
 </div>
 </body>
-</html>""".format(chip=chip, caso=caso, modo=modo, fecha=fecha, hechos=hechos,
-             total=total, pct=pct, filas="\n".join(filas))
+</html>"""
+    # Se sustituye por reemplazo directo y NO con str.format(): el CSS del <style>
+    # usa llaves (`:root { --ok:#1a7f37; ... }`) y .format() las interpretaba como
+    # campos -> KeyError: ' --ok' y el checklist no se generaba (deuda 2026-10-26).
+    _rep = {"{chip}": chip, "{caso}": caso, "{modo}": modo, "{fecha}": fecha,
+            "{hechos}": hechos, "{total}": total, "{pct}": pct,
+            "{filas}": "\n".join(filas)}
+    for _clave, _valor in _rep.items():
+        html = html.replace(_clave, str(_valor))
     return html
 
 

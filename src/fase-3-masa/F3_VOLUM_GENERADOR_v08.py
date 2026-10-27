@@ -1510,17 +1510,28 @@ def _plan_stories(bloques, floor_h, snap=True, con_tapa=False):
 
             max_j = o + p
 
+    # ADR-024 (2026-10-26): StorySync es el planificador CANONICO. Este plan es su
+    # espejo exacto: `elevation` va en marco ArchiCAD (GF = 0), `zgf_m` es la cota
+    # del primer nivel en marco de calculo y `elevacion_modelo_m` la cota de calculo.
+    zgf_m = base
+
     stories = []
 
     for j in range(int(max_j)):
+
+        elev_modelo = base + j * h
 
         d = {
 
             "name": ("GF" if j == 0 else "L%02d" % j),
 
-            "elevation": round(base + j * h, 3),
+            "elevation": round(elev_modelo - zgf_m, 3),
 
-            "elevacion_relativa_m": round(j * h, 3),
+            "elevacion_relativa_m": round(elev_modelo - zgf_m, 3),
+
+            "elevacion_modelo_m": round(elev_modelo, 3),
+
+            "zgf_m": round(zgf_m, 3),
 
         }
 
@@ -1532,13 +1543,19 @@ def _plan_stories(bloques, floor_h, snap=True, con_tapa=False):
 
         j = int(max_j)
 
+        elev_modelo = base + j * h
+
         stories.append({
 
             "name": "RF",
 
-            "elevation": round(base + j * h, 3),
+            "elevation": round(elev_modelo - zgf_m, 3),
 
-            "elevacion_relativa_m": round(j * h, 3),
+            "elevacion_relativa_m": round(elev_modelo - zgf_m, 3),
+
+            "elevacion_modelo_m": round(elev_modelo, 3),
+
+            "zgf_m": round(zgf_m, 3),
 
             "descripcion": "Cubierta (opcional)",
 
@@ -1548,7 +1565,9 @@ def _plan_stories(bloques, floor_h, snap=True, con_tapa=False):
 
         "floor_h_m": round(h, 3),
 
-        "base_z_m": round(base, 3),
+        "zgf_m": round(zgf_m, 3),
+
+        "base_z_m": round(base - zgf_m, 3),
 
         "snap": bool(snap),
 
@@ -3578,9 +3597,9 @@ if _barras_in:
 
                     _niv_p={"schema":"f3_niveles_deseados_v01","chip":_chip_bd,"generado":_ts,
 
-                            "nota":"Stories ArchiCAD (Story Settings). elevation = marco canvas; elevacion_relativa_m = acumulado desde la base.",
+                            "nota":"Stories ArchiCAD (Story Settings). ADR-024: elevation en marco ArchiCAD (GF = 0); elevacion_modelo_m en marco de calculo; zgf_m = cota del GF en marco de calculo.",
 
-                            "floor_h_m":_plan["floor_h_m"],"base_z_m":_plan["base_z_m"],
+                            "floor_h_m":_plan["floor_h_m"],"base_z_m":_plan["base_z_m"],"zgf_m":_plan.get("zgf_m"),
 
                             "snap":_plan["snap"],"stories":_plan["stories"],
 

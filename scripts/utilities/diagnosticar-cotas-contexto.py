@@ -151,10 +151,24 @@ def main():
     modo_min = ("minimo" in metodo.lower()) or ("min de" in metodo.lower())
     zb = [float(e["z_base_m"]) for e in eds if e.get("z_base_m") is not None]
     zb_local = [z - desp for z in zb]
+    n_con = len(zb)
+    out("metodo z_base        = %s" % (metodo or "(sin metadata)"))
+    out("edificios con cota   = %d/%d" % (n_con, len(eds)))
     if zb_local:
-        out("metodo z_base        = %s" % (metodo or "(sin metadata)"))
         out("z_base_m (canvas)    = %.3f .. %.3f m" % (min(zb), max(zb)))
         out("z_base ajustado      = %.3f .. %.3f m" % (min(zb_local), max(zb_local)))
+    if eds and n_con < len(eds):
+        fallos.append("%d/%d edificios sin z_base_m: sus morphs quedan en el datum (0.0) "
+                      "en vez de apoyar en su terreno; ejecutar anclar_contexto50_zbase.py"
+                      % (len(eds) - n_con, len(eds)))
+    if len(zb_local) > 1:
+        dispersion = max(zb_local) - min(zb_local)
+        out("dispersion de bases  = %.3f m (max-min)" % dispersion)
+        if dispersion < 0.05:
+            fallos.append("todas las bases a la misma altura (dispersion %.3f m): "
+                          "los morphs flotan o se solapan" % dispersion)
+    if metodo and not modo_min:
+        out("AVISO: metodo de muestreo = %s (la regla vigente es el MINIMO de la huella)" % metodo)
     ajustes = [float(e["z_base_centroide_m"]) - float(e["z_base_m"])
                for e in eds if e.get("z_base_centroide_m") is not None and e.get("z_base_m") is not None]
     if ajustes:

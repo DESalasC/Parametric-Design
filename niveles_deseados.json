@@ -1,0 +1,115 @@
+{
+  "schema": "f3_niveles_deseados_v01",
+  "chip": "CLI",
+  "generado": "manual (F3_StorySync_v02 --plan)",
+  "nota": "Stories ArchiCAD (Story Settings). elevation = marco ArchiCAD (Ground Floor = 0.000, ADR-024). elevacion_modelo_m = marco de calculo (Z_abs - z0_m). elevacion_relativa_m = relativo a GF.",
+  "floor_h_m": 3.05,
+  "zgf_m": 2.92,
+  "base_z_m": 0.0,
+  "snap": true,
+  "stories": [
+    {
+      "name": "GF",
+      "elevation": 0.0,
+      "elevacion_relativa_m": 0.0,
+      "elevacion_modelo_m": 2.92,
+      "zgf_m": 2.92,
+      "descripcion": "Planta baja (acceso)"
+    },
+    {
+      "name": "L01",
+      "elevation": 3.05,
+      "elevacion_relativa_m": 3.05,
+      "elevacion_modelo_m": 5.97,
+      "zgf_m": 2.92,
+      "descripcion": "Nivel 1"
+    },
+    {
+      "name": "L02",
+      "elevation": 6.1,
+      "elevacion_relativa_m": 6.1,
+      "elevacion_modelo_m": 9.02,
+      "zgf_m": 2.92,
+      "descripcion": "Nivel 2"
+    },
+    {
+      "name": "L03",
+      "elevation": 9.15,
+      "elevacion_relativa_m": 9.15,
+      "elevacion_modelo_m": 12.07,
+      "zgf_m": 2.92,
+      "descripcion": "Nivel 3"
+    },
+    {
+      "name": "L04",
+      "elevation": 12.2,
+      "elevacion_relativa_m": 12.2,
+      "elevacion_modelo_m": 15.12,
+      "zgf_m": 2.92,
+      "descripcion": "Nivel 4"
+    },
+    {
+      "name": "L05",
+      "elevation": 15.25,
+      "elevacion_relativa_m": 15.25,
+      "elevacion_modelo_m": 18.17,
+      "zgf_m": 2.92,
+      "descripcion": "Nivel 5"
+    },
+    {
+      "name": "L06",
+      "elevation": 18.3,
+      "elevacion_relativa_m": 18.3,
+      "elevacion_modelo_m": 21.22,
+      "zgf_m": 2.92,
+      "descripcion": "Nivel 6"
+    },
+    {
+      "name": "L07",
+      "elevation": 21.35,
+      "elevacion_relativa_m": 21.35,
+      "elevacion_modelo_m": 24.27,
+      "zgf_m": 2.92,
+      "descripcion": "Nivel 7"
+    }
+  ],
+  "bloques": [
+    {
+      "id": "B1-R1",
+      "cota_arranque_m": 2.92,
+      "cota_snap_m": 2.92,
+      "offset_niveles": 0,
+      "ajuste_m": 0.0,
+      "pisos": 5
+    },
+    {
+      "id": "B2-R1",
+      "cota_arranque_m": 5.97,
+      "cota_snap_m": 5.97,
+      "offset_niveles": 1,
+      "ajuste_m": 0.0,
+      "pisos": 5
+    },
+    {
+      "id": "B3-R1",
+      "cota_arranque_m": 9.02,
+      "cota_snap_m": 9.02,
+      "offset_niveles": 2,
+      "ajuste_m": 0.0,
+      "pisos": 5
+    },
+    {
+      "id": "B4-R1",
+      "cota_arranque_m": 12.07,
+      "cota_snap_m": 12.07,
+      "offset_niveles": 3,
+      "ajuste_m": -0.0,
+      "pisos": 5
+    }
+  ],
+  "avisos": [
+    "ADR-024: Ground Floor (primer nivel) = 0.000 en ArchiCAD; elevacion_ac = elevacion_modelo - zgf_m.",
+    "base = menor cota de bloque (marco calculo); nivel de acceso definitivo (fetch v8 / NORMATIVA v10) puede desplazar la base / zgf_m.",
+    "elevacion_modelo_m en marco de calculo (Z_abs - z0_m); elevation en marco ArchiCAD (Ground Floor = 0)."
+  ]
+}

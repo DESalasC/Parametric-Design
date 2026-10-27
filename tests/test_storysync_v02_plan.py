@@ -41,11 +41,14 @@ def test_plan_stories_valores():
         {"id": "B4-R1", "cota_arranque_m": 10.15, "pisos": 5},
     ]
     plan = ss.plan_stories(bloques, 3.05)
-    assert plan["base_z_m"] == 0.2
+    # ADR-024: el plan publica el GF en 0.000 (marco ArchiCAD) y guarda zgf_m
+    # como cota del primer nivel en el marco de calculo (aqui, la menor cota).
+    assert plan["base_z_m"] == 0.0
+    assert plan["zgf_m"] == 0.2
     assert len(plan["stories"]) == 8
     assert plan["stories"][0]["name"] == "GF"
     assert plan["stories"][-1]["name"] == "L07"
-    assert abs(plan["stories"][1]["elevation"] - 3.25) < 1e-9
+    assert abs(plan["stories"][1]["elevation"] - 3.05) < 1e-9
     assert plan["bloques"][2]["offset_niveles"] == 2
     assert abs(plan["bloques"][3]["ajuste_m"] - (-0.80)) < 1e-9
     plan_t = ss.plan_stories(bloques, 3.05, con_tapa=True)
@@ -61,9 +64,11 @@ def test_cli_plan_escribe_json(tmp_path):
     assert r.returncode == 0, r.stdout + r.stderr
     datos = json.loads(io.open(out, "r", encoding="utf-8").read())
     # cotas 1.0 y 2.0 -> snap: offsets 0 y 0 (2.0-1.0 < 1.5) -> 3 niveles
-    assert datos["base_z_m"] == 1.0
+    # ADR-024: base_z_m es el GF de ArchiCAD (0.000); la cota de calculo va en zgf_m
+    assert datos["base_z_m"] == 0.0
+    assert datos["zgf_m"] == 1.0
     assert [s["name"] for s in datos["stories"]] == ["GF", "L01", "L02"]
-    assert datos["stories"][2]["elevation"] == 7.0
+    assert datos["stories"][2]["elevation"] == 6.0
 
 
 def test_cli_plan_hoja_operador(tmp_path):

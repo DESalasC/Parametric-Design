@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿# CLAUDE.md - Proyecto DiseñoParametrico
+﻿﻿﻿# CLAUDE.md - Proyecto DiseñoParametrico
 
 > **Nota:** Este archivo debe ir en `D:\WORK\PROJECTS\DiseñoParametrico\CLAUDE.md`
 > Es generado automáticamente por `init-project.ps1`. Esta es la plantilla maestra.
@@ -270,10 +270,12 @@ DiseñoParametrico/
 ## Limitaciones conocidas
 
 - **Puerto 19723 (AutoClaw vs ArchiCAD)**: AutoClaw escritorio hardcodea 127.0.0.1:19723 y lo reclama al rato de inactividad de Grasshopper/ArchiCAD. La Live Connection de GH (AC_*) solo conecta por 19723, por lo que el workaround de mover ArchiCAD a 19724 (`cambiar_puerto_archicad.ps1`) SOLO sirve para la JSON/Python API (paquete `archicad`, F3_StorySync). Para operar el canvas: `diagnostico_puerto_19723.ps1 -Liberar` o cerrar/reabrir AutoClaw en orden (ArchiCAD -> Grasshopper -> AutoClaw).
+  - **Verificado 2026-10-26 (versión nueva de AutoClaw):** el puerto **19723 quedó libre** para ArchiCAD; la API Tapir responde ahí (`ArchiCAD 29 build 5101 INT`, PID de `Archicad`) y **19724 está cerrado**. Antes de lanzar el MCP o cualquier script de `src/interfases-archicad/`: `python scripts/utilities/detectar-puerto-archicad.py` (código 0 = API encontrada; `--json` para consumo automático).
 - **Vecinos (política 2026-09-15)**: la ruta **primaria** es **contexto50** (extrae construcciones en radio 50 m de la geobase `bd_uaecd.gpkg`/REST → `<CHIP>-contexto50.json` → `F1_ETAPA3_CONTEXTO50_v01`/`F1_CONTEXTO50_BUILD_v01a` produce huellas y volúmenes). La ruta **manual** en ArchiCAD (Morph, capa `70-20-30_Volumetrias_vecinas`) queda como **opcional/fallback** para cuando no exista información adecuada para resolverlo por contexto50. Los volúmenes de contexto50 son insumo de **análisis sísmico NSR-10, asoleación y ambiental (F4)**; **no** son insumo de F2 (motor de demanda). En el canvas `F1_Contexto_Base-Editado_v03`, el toggle que gobierna `bake`+`exportar` (creación de objetos en Rhino) está **apagado por defecto**: el componente entrega `volumenes`/`huellas` sin escribir en el documento.
 - **Lotes curvos**: NO soportados en `ANALISIS_VECINOS` (requiere polilínea).
 - **POT**: 191 campos en `.gpkg`, solo ~30 relevantes (ver `config/field-whitelist.json`).
 - **Altura POT**: El campo `ALTURA` en la capa `Area_elevacion_maxima` del .gdb NO es altura de edificación en metros. Es cota absoluta o código. El script lo deja como `null` y guarda el crudo en `altura_maxima_raw`. La altura real se define en pisos en el Decreto 555/2021.
+  - **Trampa del código `CHB` (verificado 2026-10-26):** `ALTURA_CODIGOS_ESPECIALES` del fetch v7 traduce `CHB`/`CH`/`PAT` a **7,0 m** por tabla. En AAA0030JKOE la GDB devuelve `CHB` por error (el predio **no** es patrimonio) y por eso `pot_data.altura_maxima_m` quedaba en 7,0 m. La **altura vigente es 10,00 m**, confirmada por el **IDPC en visita física (2026-10-26)** y coherente con la Nota N del PZCB. Vive en `data/pot-bogota/norma-override.json` (`altura_maxima_m`), que ahora **gana** sobre el código; los 7,0 m se conservan solo como `altura_maxima_m_referencia_pzcb`.
 - **IronPython en GH**: sin `requests`, `fiona`, `geopandas`. Usar `System.Net` para HTTP si imprescindible.
 - **Rhino.Compute + Ollama en paralelo**: con 12 GB VRAM, cambiar a `qwen2.5:7b` cuando compute esté activo.
 - **IA Local (Nemotron/DeepSeek)**: Tienen memoria corta. Si el contexto de la conversación crece demasiado, alucinan. Usar `/clear` frecuentemente al cambiar de tarea. No confiar en la memoria del chat; toda instrucción crítica debe estar en este archivo (`CLAUDE.md`) o en archivos `.md` que el modelo pueda leer.

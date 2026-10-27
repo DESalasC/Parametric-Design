@@ -56,7 +56,7 @@ def test_intersection_namespace():
 
 def test_mensaje_v06():
     src = _fuente()
-    assert "LADOS v06.5 |" in src
+    assert "LADOS v06.8 |" in src
     assert "fr:" in src
     assert "aislamiento_tipo" in src
 
@@ -72,7 +72,7 @@ def test_prefijo_error_v06():
     """El prefijo del mensaje de error debe decir v06.5 (no v04 heredado)."""
     src = _fuente()
     assert "LADOS v04 | ERROR" not in src
-    assert "LADOS v06.5 | ERROR" in src
+    assert "LADOS v06.8 | ERROR" in src
 
 
 def test_version_v061_encabezado():

@@ -28,8 +28,9 @@ def test_mapa_caso_chip():
 
 def test_detectar_estado_estructura():
     estado = rp.detectar_estado("AAA0127AZPA", "A")
-    esperados = {"f1_contexto", "f1_contexto50", "f1_gfa", "f2_venta", "f2_renta",
-                 "f3_distribucion", "f3_accesos", "f3_masa_rhino"}
+    esperados = {"f1_contexto", "f1_alzado_via", "f1_contexto50", "f1_contexto50_cotas",
+                 "f1_gfa", "f3_barras", "f1_normativa_aprobada", "f1_exportar_gfa_aprobado",
+                 "f2_venta", "f2_renta", "f3_distribucion", "f3_accesos", "f3_masa_rhino"}
     assert set(estado.keys()) == esperados
     for paso in estado.values():
         assert "estado" in paso
@@ -41,6 +42,22 @@ def test_detectar_estado_estructura():
     # los automáticos sí
     assert estado["f1_contexto"]["tipo"] == "auto"
     assert "--chip" in estado["f1_contexto"]["comando"]
+    # paso de cotas MDT: idempotente y con script dedicado
+    assert "anclar_contexto50_zbase.py" in " ".join(estado["f1_contexto50_cotas"]["comando"])
+    assert estado["f1_contexto50_cotas"]["depends_on"] == ["f1_contexto50"]
+
+
+def test_cobertura_cotas_contexto50(tmp_path, monkeypatch):
+    """La cobertura de z_base_m decide si el paso de cotas se re-ejecuta."""
+    monkeypatch.setattr(rp, "POT_CACHE", str(tmp_path))
+    assert rp._cobertura_cotas_contexto50("AAA9999ZZZZ") == (0, 0)
+
+    ruta = os.path.join(str(tmp_path), "AAA9999ZZZZ-contexto50.json")
+    datos = {"metadata": {"chip": "AAA9999ZZZZ"},
+             "edificios": [{"id": "A", "z_base_m": -1.5}, {"id": "B"}]}
+    with open(ruta, "w", encoding="utf-8") as f:
+        json.dump(datos, f)
+    assert rp._cobertura_cotas_contexto50("AAA9999ZZZZ") == (1, 2)
 
 
 def test_comando_f2_venta():

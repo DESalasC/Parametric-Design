@@ -271,7 +271,10 @@ def altura_de(ed, altura_por_piso):
     Prioridad:
       1. altura_m > 0 (del JSON, catastral) + z_base_m opcional
       2. pisos * altura_por_piso (si no hay altura_m) + z_base_m opcional
-      3. DEFAULT_ALTURA_M (fallback) + z_base_m = 0.0
+      3. DEFAULT_ALTURA_M (fallback)
+    `z_base_m` = None cuando el registro no trae cota MDT: el llamador decide el
+    fallback (no se inventa 0.0, que tras el desplazamiento Z de ETAPA1 elevaba
+    todos los morphs 14,5 m sobre el terreno - fallo 2026-10-26).
     """
     altura = to_float(ed.get("altura_m"), None)
     z_base = to_float(ed.get("z_base_m"), None)  # cota base del edificio (MDT muestreado)
@@ -280,17 +283,12 @@ def altura_de(ed, altura_por_piso):
     if altura is not None and altura > 0:
         p = int(round(pisos_raw)) if (pisos_raw is not None and pisos_raw > 0) \
             else max(1, int(round(altura / altura_por_piso)))
-        # z_base ya viene del JSON; si es None, default 0.0
-        if z_base is None:
-            z_base = 0.0
         return altura, p, False, z_base
     if pisos_raw is not None and pisos_raw > 0 and altura_por_piso > 0:
         p = int(round(pisos_raw))
-        if z_base is None:
-            z_base = 0.0
         return p * altura_por_piso, p, True, z_base
     # fallback total
-    return DEFAULT_ALTURA_M, 1, True, 0.0
+    return DEFAULT_ALTURA_M, 1, True, z_base
 
 
 def _area_compacidad(pts):
@@ -372,7 +370,9 @@ def compute_dz_from_stage1_context(in_json_path, data):
                    origen_z + ancla_z)
     chip_actual = meta.get("chip", "")
     stage_path = os.path.join(os.path.dirname(in_json_path), chip_actual + "-contexto.json")
-    stage = leer_json(stage_path)  # No asumir otro origen si el contexto falta.
+    # Sin contexto hermano no se asume otro origen (antes lanzaba IOError y el
+    # componente devolvia 0 volumenes con ERROR en el mensaje).
+    stage = leer_json(stage_path) if os.path.isfile(stage_path) else {}
     stage_meta = stage.get("metadata", {}) or {}
     stage_origen_z = to_float((stage_meta.get("origen_sirgas", {}) or {}).get("z"), 0.0)
     pts = (stage.get("topografia", {}) or {}).get("malla_terreno", []) or []
@@ -548,6 +548,7 @@ else:
         n_fallback = 0
         n_predio = 0
         n_menores = 0
+        n_sin_cota = 0
         descartados = []
         zbs = []
 
@@ -592,7 +593,13 @@ else:
                     n_fallback += 1
 
                 # Apply the stage1 context Z displacement to align with F1_ETAPA1_CONTEXTO_v02.py
-                z_base_ajustado = z_base - desplazamiento_z
+                # Sin cota MDT no se aplica el desplazamiento: el volumen queda en el
+                # datum de ETAPA1 (0.0) y se avisa, en vez de flotar +desplazamiento.
+                if z_base is None:
+                    n_sin_cota += 1
+                    z_base_ajustado = 0.0
+                else:
+                    z_base_ajustado = z_base - desplazamiento_z
 
                 crv = construir_huella(pts, z_base_ajustado)
                 if crv is None:
@@ -683,9 +690,13 @@ else:
             "CONTEXTO50_BUILD v01.2 | CHIP {0} | R {1:.0f}m | Volumenes {2}/{3} | "
             "Descartados {4} | Alturas {5:.1f}-{6:.1f}m | Fallbacks {7}"
         ).format(chip, radio_m, len(volumenes), n_total, n_skip, a_min, a_max, n_fallback)
-        if any(zb != 0.0 for zb in zbs):
-            mensaje += " | z_base (ajustado) {0:.1f}-{1:.1f}m ({2} con cota)".format(
-                min(zbs), max(zbs), len(zbs))
+        if zbs:
+            mensaje += " | z_base (ajustado) {0:.1f}-{1:.1f}m ({2} con cota de {3})".format(
+                min(zbs), max(zbs), len(zbs) - n_sin_cota, len(zbs))
+            if len(zbs) > 1 and (max(zbs) - min(zbs)) < 0.05:
+                mensaje += " | AVISO: todos los volumenes a la MISMA altura (revisar z_base_m del JSON)"
+        if n_sin_cota:
+            mensaje += " | ALERTA: {0} sin cota MDT -> en datum ETAPA1 (0.0)".format(n_sin_cota)
         if detalle_edificios:
             mensaje += " | Detalle: " + "; ".join(detalle_edificios)
         mensaje += " | Excluidos: {0} predio objetivo, {1} andenes/menores".format(

@@ -25,8 +25,9 @@ def _src(nombre):
 def test_lados_esquina_anula_posterior():
     s = _src("F1_ETAPA2_LADOS_v06.py")
     assert "if es_esquina:" in s
-    assert "idx_posterior = None" in s
-    assert "CORRECCION ESQUINA" in s
+    # el bloque de esquina debe anular el Posterior (comportamiento, no comentario)
+    bloque = s.split("if es_esquina:", 1)[1][:200]
+    assert "idx_posterior = None" in bloque
 
 
 def test_patio_colindantes_no_solo_lateral():

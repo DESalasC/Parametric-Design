@@ -40,10 +40,12 @@ def test_layers_xml_consume_llave_nombre():
     assert "json_text" in src
 
 
-def test_layers_xml_acepta_json_path_alternativo():
+def test_layers_xml_usa_output_path():
+    """Contrato vigente: la ruta de salida del XML llega por `output_path`
+    (antes `json_path`; el componente cambio de nombre y el test quedo viejo)."""
     src = _fuente(RUTA_LAYERS)
-    assert "json_path" in src
-    assert "os.path.exists(_json_path)" in src
+    assert "output_path" in src
+    assert 'globals().get("output_path", None)' in src
 
 
 def test_contrato_usos_pisos_a_pisos():

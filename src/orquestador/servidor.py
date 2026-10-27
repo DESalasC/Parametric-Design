@@ -1712,6 +1712,77 @@ def _crear_estructura(nombre):
     return True, carpeta
 
 
+# --------------------------------------------------------------- alzado / z=0
+_ALZADO_MOD = None
+_ALZADO_CACHE = {}
+
+
+def _gen_alzado():
+    """Carga perezosa del generador de alzado (el archivo lleva guiones)."""
+    global _ALZADO_MOD
+    if _ALZADO_MOD is None:
+        import importlib.util
+        ruta = os.path.join(ROOT, "scripts", "utilities", "generar-alzado-via.py")
+        spec = importlib.util.spec_from_file_location("generar_alzado_via", ruta)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _ALZADO_MOD = mod
+    return _ALZADO_MOD
+
+
+def _alzado_datos(chip, regen=False):
+    """Payload del alzado (cacheado por chip; `regen` fuerza recalculo)."""
+    if not regen and chip in _ALZADO_CACHE:
+        return _ALZADO_CACHE[chip]
+    datos = _gen_alzado().construir(chip)
+    _ALZADO_CACHE[chip] = datos
+    return datos
+
+
+def _z0_ruta(chip):
+    return os.path.join(POT_CACHE, chip + "-z0.json")
+
+
+def _z0_guardar(chip, z0_m, modo="manual", origen="alzado"):
+    # z0_abs_m coherente con el marco: origen_sirgas.z + ancla.z + z0_m
+    z_abs = None
+    try:
+        with io.open(os.path.join(POT_CACHE, chip + "-contexto.json"), "r", encoding="utf-8") as f:
+            meta = (json.load(f) or {}).get("metadata") or {}
+        # el marco local arranca en origen_sirgas.z (no en el ancla del lote):
+        # msnm = z_local + origen_sirgas.z
+        z_abs = round(float((meta.get("origen_sirgas") or {}).get("z", 0.0))
+                      + float(z0_m), 4)
+    except Exception:
+        z_abs = None
+    datos = {
+        "chip": chip,
+        "modo": modo,
+        "z0_m": round(float(z0_m), 4),
+        "z0_abs_m": z_abs,
+        "origen": origen,
+        "fecha": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "nota": ("Datum local del proyecto (Ground Level) fijado desde el alzado sobre "
+                 "la via frontal. En ArchiCAD Ground Floor = 0,000 (ADR-024)."),
+    }
+    with io.open(_z0_ruta(chip), "w", encoding="utf-8") as f:
+        json.dump(datos, f, indent=2, ensure_ascii=False)
+    try:
+        p = os.path.join(ORQ_DIR, "parametros_pipeline.json")
+        with io.open(p, "r", encoding="utf-8") as f:
+            params = json.load(f)
+        params["chip"] = chip
+        params["z0_m"] = datos["z0_m"]
+        params["z0_modo"] = modo
+        if datos.get("z0_abs_m") is not None:
+            params["z0_abs_m"] = datos["z0_abs_m"]
+        with io.open(p, "w", encoding="utf-8") as f:
+            json.dump(params, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
+    return datos
+
+
 class Handler(BaseHTTPRequestHandler):
     def _send(self, code, body, ctype="application/json; charset=utf-8"):
         if isinstance(body, (dict, list)):
@@ -1737,6 +1808,33 @@ class Handler(BaseHTTPRequestHandler):
                     self._send(200, f.read(), "text/html; charset=utf-8")
             else:
                 self._json_error("index.html no encontrado", 404)
+            return
+        if parsed.path == "/alzado":
+            chip = (q.get("chip") or [""])[0].strip().upper()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            try:
+                mod = _gen_alzado()
+                datos = _alzado_datos(chip, regen=bool(q.get("regen")))
+                html = mod.html_alzado(datos, mod.svg_alzado(datos), servidor=True)
+                self._send(200, html, "text/html; charset=utf-8")
+            except SystemExit as e:
+                self._json_error(str(e), 404)
+            except Exception as e:
+                self._json_error(str(e), 500)
+            return
+        if parsed.path == "/api/alzado":
+            chip = (q.get("chip") or [""])[0].strip().upper()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            try:
+                self._send(200, {"ok": True, "alzado": _alzado_datos(chip)})
+            except SystemExit as e:
+                self._json_error(str(e), 404)
+            except Exception as e:
+                self._json_error(str(e), 500)
             return
         if parsed.path == "/api/lotes":
             self._send(200, {"ok": True, "lotes": _lotes()})
@@ -1835,6 +1933,22 @@ class Handler(BaseHTTPRequestHandler):
             data = json.loads(body) if body else {}
         except Exception:
             self._json_error("JSON inválido")
+            return
+
+        if parsed.path == "/api/z0":
+            chip = (data.get("chip") or "").strip().upper()
+            z0 = data.get("z0_m")
+            if not chip or z0 is None:
+                self._json_error("chip y z0_m son requeridos")
+                return
+            try:
+                datos = _z0_guardar(chip, z0, modo=(data.get("modo") or "manual"),
+                                    origen=(data.get("origen") or "alzado"))
+            except Exception as e:
+                self._json_error(str(e), 500)
+                return
+            self._send(200, {"ok": True, "z0_m": datos["z0_m"], "modo": datos["modo"],
+                             "ruta": _z0_ruta(chip)})
             return
 
         if parsed.path == "/api/proyecto":

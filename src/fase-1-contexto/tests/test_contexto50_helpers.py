@@ -134,18 +134,26 @@ def test_extraer_anillos_geojson_polygon():
 def test_altura_de_prioridades():
     ns = _helpers()
     altura_de = ns["altura_de"]
-    # altura_m manda sobre pisos (ahora retorna 4 valores: h, p, fb, z_base)
+    # altura_m manda sobre pisos (retorna 4 valores: h, p, fb, z_base)
+    # sin z_base_m devuelve None: el llamador decide el fallback (2026-10-26)
     h, p, fb, zb = altura_de({"altura_m": 19.0, "pisos": 5}, 3.8)
-    assert abs(h - 19.0) < 1e-9 and p == 5 and fb is False and zb == 0.0
+    assert abs(h - 19.0) < 1e-9 and p == 5 and fb is False and zb is None
     # sin altura_m -> pisos * altura_piso (fallback True)
     h, p, fb, zb = altura_de({"pisos": 4}, 3.8)
-    assert abs(h - 15.2) < 1e-9 and p == 4 and fb is True and zb == 0.0
+    assert abs(h - 15.2) < 1e-9 and p == 4 and fb is True and zb is None
     # sin nada -> DEFAULT_ALTURA_M (3.0), 1 piso
     h, p, fb, zb = altura_de({}, 3.8)
-    assert abs(h - 3.0) < 1e-9 and p == 1 and fb is True and zb == 0.0
+    assert abs(h - 3.0) < 1e-9 and p == 1 and fb is True and zb is None
     # altura_m infiere pisos si no vienen
     h, p, fb, zb = altura_de({"altura_m": 7.6}, 3.8)
-    assert p == 2 and fb is False and zb == 0.0
+    assert p == 2 and fb is False and zb is None
+    # con cota MDT la devuelve tal cual en las tres ramas
+    h, p, fb, zb = altura_de({"altura_m": 19.0, "z_base_m": -3.2}, 3.8)
+    assert zb == -3.2
+    h, p, fb, zb = altura_de({"pisos": 2, "z_base_m": 0.0}, 3.8)
+    assert zb == 0.0          # 0.0 es cota valida (nivel del ancla), no "sin cota"
+    h, p, fb, zb = altura_de({"z_base_m": 5.5}, 3.8)
+    assert zb == 5.5
 
 
 def test_es_horario_y_area_compacidad():

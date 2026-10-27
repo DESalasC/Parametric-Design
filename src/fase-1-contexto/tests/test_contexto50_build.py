@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests de lógica para F1_CONTEXTO50_BUILD_v01b.py (componente GHPython).
+"""Tests de lógica para F1_CONTEXTO50_BUILD_v01.2.py (componente GHPython).
 
 Ejecuta el script del componente con módulos Rhino/System simulados y copias
 aisladas del JSON real de contexto 50 m (con/sin hermano CHIP-contexto.json),
@@ -18,7 +18,7 @@ import types
 import pytest
 
 SRC = os.path.join(
-    os.path.dirname(__file__), "..", "F1_CONTEXTO50_BUILD_v01b.py"
+    os.path.dirname(__file__), "..", "F1_CONTEXTO50_BUILD_v01.2.py"
 )
 JSON_REAL = os.path.join(
     r"D:\Work\PROJECTS\DiseñoParametrico", "data", "pot-cache",
@@ -309,4 +309,4 @@ def test_z_base_v01d_mueve_y_conserva_perimetro():
     assert [(p[0], p[1]) for p in h0] == [(p[0], p[1]) for p in h1]
     assert all(abs(p[2] - 0.0) < 1e-9 for p in h0)
     assert all(abs(p[2] - 12.5) < 1e-9 for p in h1)
-    assert "z_base 12.5-12.5m" in ns1["mensaje"]
+    assert "z_base (ajustado) 12.5-12.5m (7 con cota de 7)" in ns1["mensaje"]

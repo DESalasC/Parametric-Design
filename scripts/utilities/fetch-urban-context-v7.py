@@ -114,6 +114,11 @@ def _aplicar_norma_override(pot_data, chip):
         "voladizo_permitido": "voladizo_permitido",
         "subdivision_min_m2": "subdivision_min_m2",
         "frente_min_m": "frente_min_m",
+        # 2026-10-26: la altura en metros del override GANA sobre el codigo de la GDB
+        # (el codigo "CHB" devolvia 7,0 m por tabla y el predio no es patrimonio).
+        "altura_maxima_m": "altura_maxima_m",
+        "altura_maxima_m_referencia_pzcb": "altura_maxima_m_referencia_pzcb",
+        "altura_maxima_fuente": "altura_maxima_fuente",
         "fuente": "fuente_norma",
     }
     aplicado = []
@@ -134,6 +139,7 @@ def _aplicar_norma_override(pot_data, chip):
     if pisos is not None and pisos != "":
         try:
             pot_data["altura_maxima_pisos"] = int(pisos)
+            # solo se deriva de los pisos si el override no fijo la altura en metros
             if pot_data.get("altura_maxima_m") in (None, ""):
                 pot_data["altura_maxima_m"] = round(float(pisos) * ALTURA_PISO_M, 2)
             aplicado.append("altura_maxima_pisos")
@@ -141,6 +147,10 @@ def _aplicar_norma_override(pot_data, chip):
             pass
     if aplicado:
         print("  NORMA OVERRIDE aplicado (%s): %s" % (chip, ", ".join(aplicado)))
+        if "altura_maxima_m" in aplicado:
+            print("    altura maxima = %.2f m (fuente: %s)" % (
+                float(pot_data.get("altura_maxima_m") or 0.0),
+                pot_data.get("altura_maxima_fuente") or pot_data.get("fuente_norma") or "-"))
     return bool(aplicado)
 
 

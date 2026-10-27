@@ -1116,8 +1116,11 @@ if _msg_valido:
         float(patio_area_total), tipologia, float(antejardin), float(ancho_via_m), float(retiro_lateral), float(retiro_posterior),
         " (empate)" if empate_posterior else "")
 else:
-    mensaje = ("NORMATIVA v09.1 | NO VALIDADO | Lote {:.2f} m2 | Ocup {:.2f} m2 | IO real {:.4f} / max {:.4f} | Presupuesto {:.2f} m2 | {} pisos | Alt {:.2f} m | GFA {:.2f} m2 | {}").format(
-        area_lote, _msg_ocupacion, _msg_io_real, io_maximo, presupuesto_ocupacion_m2, pisos_finales, altura_total, _msg_gfa_total, "; ".join(sorted(set(bloqueos))))
+    # 2026-10-26: el mensaje NO VALIDADO tambien declara el modo, para que el
+    # operador sepa si los numeros son POTENCIAL o APROBADO (antes no lo decia).
+    _modo_msg = "APROBADO (barras_json)" if barras_ocupacion is not None else "POTENCIAL"
+    mensaje = ("NORMATIVA v09.1 | {} | NO VALIDADO | Lote {:.2f} m2 | Ocup {:.2f} m2 | IO real {:.4f} / max {:.4f} | Presupuesto {:.2f} m2 | {} pisos | Alt {:.2f} m | GFA {:.2f} m2 | {}").format(
+        _modo_msg, area_lote, _msg_ocupacion, _msg_io_real, io_maximo, presupuesto_ocupacion_m2, pisos_finales, altura_total, _msg_gfa_total, "; ".join(sorted(set(bloqueos))))
 
 if altura_vecinos_m <= 0: warnings.append("sin altura_vecinos_m -> sin escalonamiento lateral (SECCION 1.9.c)")
 

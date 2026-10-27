@@ -81,6 +81,88 @@ def altura_de(props, ap):
     return round(2 * ap, 2), 2, "default(2 niveles)"
 
 
+# Campos de cota que agrega scripts/utilities/anclar_contexto50_zbase.py (muestreo MDT).
+CAMPOS_Z_BASE = ("z_base_m", "z_base_centroide_m", "z_base_min_m", "z_base_max_m",
+                 "z_base_n_puntos", "z_base_metodo")
+# Tolerancia de emparejamiento de huellas al heredar cotas.
+TOL_HUELLA_M = 0.5
+
+
+def centroide_huella(e):
+    """Centroide aproximado (media de vertices) de la huella; None si no hay."""
+    anillos = e.get("anillos")
+    ring = anillos[0] if (isinstance(anillos, list) and anillos) else e.get("vertices")
+    pts = []
+    for p in ring or []:
+        try:
+            pts.append((float(p[0]), float(p[1])))
+        except (TypeError, ValueError, IndexError):
+            pass
+    if not pts:
+        return None
+    if len(pts) > 1 and abs(pts[0][0] - pts[-1][0]) < 1e-9 and abs(pts[0][1] - pts[-1][1]) < 1e-9:
+        pts = pts[:-1]                      # vertice de cierre duplicado: no pesa
+    return (sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts))
+
+
+def heredar_cotas_zbase(edificios, ruta_previa):
+    """Conserva las cotas MDT del contexto50 anterior al regenerar el JSON.
+
+    Este fetch reconstruye los edificios desde la geobase y NO muestrea el MDT.
+    Sin heredar, cada corrida del orquestador borraba el `z_base_m` por huella y
+    los morphs del Contexto50 quedaban todos a la misma altura (fallo
+    2026-10-26: 0/90 con cota, 71 morphs a +14.488 m).
+
+    El `id` catastral NO es unico por construccion (90 registros / 45 ids en
+    AAA0030JKOE): se empareja por id + centroide de huella (<= TOL_HUELLA_M) para
+    no asignar a una construccion la cota de otra del mismo predio.
+
+    Devuelve (n_heredados, metadata_previa).
+    """
+    if not ruta_previa or not os.path.isfile(ruta_previa):
+        return 0, {}
+    try:
+        with open(ruta_previa, "r", encoding="utf-8") as f:
+            previo = json.load(f)
+    except Exception:
+        return 0, {}
+    if not isinstance(previo, dict):
+        return 0, {}
+
+    previos = []
+    for e in previo.get("edificios") or []:
+        if not isinstance(e, dict) or e.get("z_base_m") is None:
+            continue
+        ident = str(e.get("id") or "")
+        if not ident:
+            continue
+        previos.append({"id": ident, "c": centroide_huella(e),
+                        "datos": dict((k, e[k]) for k in CAMPOS_Z_BASE if k in e)})
+
+    usados = [False] * len(previos)
+    n = 0
+    for e in edificios or []:
+        ident = str(e.get("id") or "")
+        if not ident:
+            continue
+        c = centroide_huella(e)
+        mejor, mejor_d = -1, None
+        for k, p in enumerate(previos):
+            if usados[k] or p["id"] != ident:
+                continue
+            if c is None or p["c"] is None:
+                d = 0.0                      # sin geometria comparable: primer libre
+            else:
+                d = ((c[0] - p["c"][0]) ** 2 + (c[1] - p["c"][1]) ** 2) ** 0.5
+            if d <= TOL_HUELLA_M and (mejor_d is None or d < mejor_d):
+                mejor, mejor_d = k, d
+        if mejor >= 0:
+            e.update(previos[mejor]["datos"])
+            usados[mejor] = True
+            n += 1
+    return n, (previo.get("metadata") or {})
+
+
 def _esri_a_canvas(coords, ox, oy, dx, dy):
     """coords = [(X_esri, Y_esri), ...] -> [[x, y], ...] en marco canvas."""
     return [[round(X - (ox + dx), 3), round(Y - (oy + dy), 3)] for (X, Y) in coords]
@@ -200,7 +282,16 @@ def main():
                                          "altura_m": e["altura_m"]},
                           "geometry": {"type": "Polygon", "coordinates": ring}})
 
+    # Cotas MDT: se heredan del JSON vigente ANTES de sobrescribirlo (no se pierden).
+    p_json = os.path.join(args.out, "%s-contexto50.json" % args.chip)
+    n_cotas, meta_previa = heredar_cotas_zbase(edificios, p_json)
+
     alturas = [x["altura_m"] for x in edificios]
+    fuente_cotas = dict(meta_previa.get("z_base_fuente") or {})
+    if not fuente_cotas:
+        fuente_cotas = {"metodo": "(sin muestreo MDT)",
+                        "nota": "ejecutar scripts/utilities/anclar_contexto50_zbase.py"}
+    fuente_cotas["edificios_con_cota"] = n_cotas
     out = {"metadata": {
         "chip": args.chip, "esquema": "contexto50/v1", "marco": args.marco,
         "radio_m": args.radio, "buffer_desde": "lote (poligono)",
@@ -218,10 +309,10 @@ def main():
         "conteo": {"edificaciones": len(edificios),
                    "pisos_max": max([e["pisos"] for e in edificios]) if edificios else 0,
                    "altura_max_m": max(alturas) if alturas else 0},
+        "z_base_fuente": fuente_cotas,
     }, "edificios": edificios}
 
     os.makedirs(args.out, exist_ok=True)
-    p_json = os.path.join(args.out, "%s-contexto50.json" % args.chip)
     with open(p_json, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     p_gj = os.path.join(args.out, "%s-contexto50.geojson" % args.chip)
@@ -232,6 +323,11 @@ def main():
     print("Edificios: %d | pisos max %d | alturas %.1f-%.1f m"
           % (len(edificios), out["metadata"]["conteo"]["pisos_max"],
              min(alturas), max(alturas)))
+    print("Cotas MDT heredadas: %d/%d edificios" % (n_cotas, len(edificios)))
+    if edificios and n_cotas < len(edificios):
+        print("AVISO: %d edificios sin z_base_m -> los morphs de esos vecinos quedarian"
+              " en el datum. Ejecuta: python scripts/utilities/anclar_contexto50_zbase.py"
+              " --chip %s" % (len(edificios) - n_cotas, args.chip))
     print("OK -> %s" % p_json)
 
 

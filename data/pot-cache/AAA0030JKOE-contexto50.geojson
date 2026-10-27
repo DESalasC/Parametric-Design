@@ -34,6 +34,17 @@
    "edificaciones": 90,
    "pisos_max": 10,
    "altura_max_m": 38.0
+  },
+  "z_base_fuente": {
+   "metodo": "MDT (REST Catastro) por huella: centroide + extremos (min/max x,y); z_base_m = minimo de las cotas validas",
+   "fecha": "2026-10-26 17:09",
+   "n_ok": 90,
+   "n_fallidos": 0,
+   "n_puntos": 450,
+   "pausa_s": 0.05,
+   "z_ref_m": 2649.039,
+   "nota": "z_base_m en el marco del canvas (z_local = z_MDT - z_ref; z_ref = origen_sirgas.z + ancla.z; ancla del lote = 0). Modo huella: base = punto mas bajo de la huella (no flota en el borde de aguas abajo); z_base_centroide_m se conserva para diagnostico.",
+   "edificios_con_cota": 90
   }
  },
  "features": [

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
-F3_DISTRIBUCION_v03.py — v03.9 (genérica v03) — Distribuidor de barras por crujía con presupuesto IO
+F3_DISTRIBUCION_v03.py — v03.10 (genérica v03) — Distribuidor de barras por crujía con presupuesto IO
 Proyecto: DisenoParametrico / Fase 3
 GH Python Script para Grasshopper (IronPython 2.7 compatible) + CLI
 ================================================================================
@@ -17,6 +17,14 @@ RESUMEN:
   APROBADOS (ocupacion_aprobada_m2, gfa_aprobado_m2, envelope_aprobado_por_piso).
 
 HISTORIAL DE VERSIONES (se conservan las últimas tres; anteriores en el Vault):
+  v03.10 (2026-10-26): COTA DE ARRANQUE = MINIMO DEL TERRENO BAJO LA HUELLA.
+    Antes era UNA sola muestra en el centroide del bloque (`_terreno(cx, cy)`):
+    en ladera el bloque arrancaba a la cota del centro y quedaba flotando en su
+    borde de aguas abajo (reporte del operador sobre los volumenes de ZONAS).
+    Ahora muestrea centroide + vertices + puntos medios del borde y toma el
+    MINIMO; guarda `cota_arranque_centroide_m`, `cota_arranque_max_m` y
+    `cota_arranque_n_puntos` para diagnostico. Si el operador pasa
+    `cota_arranque_m` como entrada, se respeta esa cota fija.
   v03.9 (2026-10-13): FIX de marcos en el ESCALONAMIENTO LATERAL: el recorte por
     piso usaba el poligono del lote (marco LOCAL) con el rango Y de la huella en
     marco CANVAS (mezcla de marcos) => los pisos 2..n quedaban desplazados (solo
@@ -773,16 +781,49 @@ def generar_barras_para_n(lote_m2, presupuesto_m2, n_barras, floor_h, separacion
         except Exception:
             return None
 
+    def _cotas_huella(pts_m, cx, cy):
+        """Cotas del terreno bajo la huella: centroide + vertices + puntos medios.
+
+        v03.10: la cota de arranque es el MINIMO de estas muestras (regla
+        "el bloque apoya en el punto mas bajo de su huella"). Con una sola
+        muestra en el centroide, en ladera el volumen flotaba en el borde
+        de aguas abajo.
+        """
+        muestras = [(cx, cy)]
+        n = len(pts_m)
+        for k in range(n):
+            x0, y0 = pts_m[k]
+            x1, y1 = pts_m[(k + 1) % n]
+            muestras.append((x0, y0))
+            muestras.append(((x0 + x1) / 2.0, (y0 + y1) / 2.0))
+        zs = []
+        for (mx, my) in muestras:
+            z = _terreno(mx, my)
+            if z is not None:
+                zs.append(float(z))
+        return zs
+
     # --- bloques (ancho completo; alcance validado por banda) ---
     bloques = []
     alcance = []
+    bajadas = []          # v03.10: cuanto baja la cota al pasar de centroide a minimo de huella
     for (b, y0, y1, pts) in cs:
         pts_m = [_mundo(p) for p in pts]
         xs = [p[0] for p in pts_m]
         ys = [p[1] for p in pts_m]
         cx = sum(xs) / len(xs)
         cy = sum(ys) / len(ys)
-        z0 = _terreno(cx, cy)
+        z_cent = _terreno(cx, cy)
+        zs_huella = _cotas_huella(pts_m, cx, cy)
+        if zs_huella:
+            z0 = min(zs_huella)
+            if z_cent is not None and (z_cent - z0) > 0.05:
+                bajadas.append(z_cent - z0)
+        elif z_cent is not None:
+            z0 = z_cent
+            zs_huella = [z_cent]
+        else:
+            z0 = None
         if z0 is None:
             z0 = 0.0
             avisos.append(u"B{}-R1: sin cota de terreno (z0=0 provisional)".format(b))
@@ -812,11 +853,22 @@ def generar_barras_para_n(lote_m2, presupuesto_m2, n_barras, floor_h, separacion
             "id": "B{}-R1".format(b),
             "huella_xy": _pts_r,
             "cota_arranque_m": round(float(z0), 3),
-            "criterio_arranque": u"terreno en centroide (o cota fija); plataforma horizontal preliminar",
+            "cota_arranque_centroide_m": (round(float(z_cent), 3) if z_cent is not None else None),
+            "cota_arranque_max_m": (round(float(max(zs_huella)), 3) if zs_huella else None),
+            "cota_arranque_n_puntos": len(zs_huella),
+            "criterio_arranque": (u"cota fija del operador" if z_fija is not None else
+                                  u"minimo del terreno bajo la huella (centroide+vertices+medios); "
+                                  u"plataforma horizontal"),
             "area_m2": round(_area_pts(pts), 2),
             "pisos": pisos,
             "floor_h": floor_h,
         })
+
+    # v03.10: resumen del criterio de cota (minimo de huella vs centroide)
+    if bajadas:
+        avisos.append(u"cota de arranque por minimo de huella: bajada media {:.2f} m "
+                      u"(max {:.2f} m) respecto al centroide".format(
+                          sum(bajadas) / len(bajadas), max(bajadas)))
 
     # v03.7: pisos por bloque (override directo o bandas con redistribucion)
     pisos_bloques = [pisos] * len(bloques)

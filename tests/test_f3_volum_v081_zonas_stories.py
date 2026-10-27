@@ -177,8 +177,13 @@ def test_export_flag_escribe_stories_y_apaga_flag(tmp_path):
     assert [s["name"] for s in niv["stories"]] == \
         ["GF", "L01", "L02", "L03", "L04", "L05", "L06", "L07"]
     elev = [s["elevation"] for s in niv["stories"]]
-    esperado = [0.2, 3.25, 6.3, 9.35, 12.4, 15.45, 18.5, 21.55]
+    # ADR-024: `elevation` va en marco ArchiCAD (GF = 0); la cota de calculo va en zgf_m
+    esperado = [0.0, 3.05, 6.1, 9.15, 12.2, 15.25, 18.3, 21.35]
     assert all(abs(a - b) < 1e-6 for a, b in zip(elev, esperado))
+    assert abs(niv["zgf_m"] - 0.2) < 1e-9
+    assert niv["base_z_m"] == 0.0
+    assert all(abs(s["elevacion_modelo_m"] - (s["elevation"] + 0.2)) < 1e-6
+               for s in niv["stories"])
     assert abs(niv["bloques"][1]["ajuste_m"] - (-0.10)) < 1e-9
     assert abs(niv["bloques"][3]["ajuste_m"] - (-0.80)) < 1e-9
     assert niv["bloques"][1]["offset_niveles"] == 1
