@@ -1,31 +1,13 @@
 {
   "usos": [
-    "Local comercial",
     "Vivienda"
   ],
   "matriz": {
-    "Local comercial": {
-      "Local comercial": 1,
-      "Vivienda": 2
-    },
     "Vivienda": {
-      "Local comercial": 2,
       "Vivienda": 1
     }
   },
   "justificaciones": {
-    "Local comercial|Local comercial": {
-      "nivel": 1,
-      "razon": "Continuidad de fachada activa."
-    },
-    "Local comercial|Vivienda": {
-      "nivel": 2,
-      "razon": "Local en primer piso con acceso independiente; segregacion de flujos residencial/comercial (NSR-10 Título C)."
-    },
-    "Vivienda|Local comercial": {
-      "nivel": 2,
-      "razon": "Local en primer piso con acceso independiente; segregacion de flujos residencial/comercial (NSR-10 Título C)."
-    },
     "Vivienda|Vivienda": {
       "nivel": 1,
       "razon": "Agrupacion por niveles; sin relacion programatica directa."
