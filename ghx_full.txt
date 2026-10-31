@@ -1,0 +1,913 @@
+Object starts: 455
+Components parsed: 455
+
+=== ALL COMPONENTS ===
+GUID: 0d986a36-a41a-429c-8f29-9e2658659e25 | Name: GhPython Script | NickName: #87-F1_ETAPA1_CONTEXTO_v02.py
+GUID: d4aab682-ad94-40e9-a5b5-eaf20b3350c7 | Name: GhPython Script | NickName: #166-F1_ETAPA2_NORMATIVA_v10.py
+GUID: d3bed17b-1b6b-4e89-8761-1985327b292b | Name: GhPython Script | NickName: #88-F1_ETAPA2_PATIO_v03.py
+GUID: 03edc848-3a7f-4fa4-b2a6-bf736d5414f5 | Name: GhPython Script | NickName: #78-F1_ETAPA2_LADOS_v06.py
+GUID: 35bd28f4-53a8-4e21-bf88-ed6dc6173a8c | Name: File Path | NickName: #42-File Path
+GUID: 6a8732f5-d48d-465a-8d94-d57ca928f322 | Name: Panel | NickName: #5-Panel
+GUID: 15733227-041e-45e8-b1f7-d84eb95f0eb4 | Name: Panel | NickName: #95-Panel
+GUID: 28b87fd9-301d-4d71-b78b-b054159df54a | Name: Panel | NickName: #93-Panel
+GUID: 8b17987d-da61-41b7-9712-57b50a21f998 | Name: Boolean Toggle | NickName: #137-Boolean Toggle
+GUID: 84453b10-964e-4389-9951-fdbf34e7e957 | Name: Panel | NickName: #156-Panel
+GUID: dd604d67-9b5f-416e-9fbb-0819263b68e9 | Name: 2D Polyline | NickName: #253-2D Polyline
+GUID: 849a322b-7d33-4c1e-8633-9dfe37af1f59 | Name: Boolean Toggle | NickName: #220-Boolean Toggle
+GUID: 0bb86424-168b-4a23-8729-b34cf8f4f464 | Name: Layer | NickName: #227-Layer
+GUID: 34cdf701-7cf8-4955-8975-75329121639e | Name: Line Type | NickName: #225-Line Type
+GUID: 760e4765-8728-46dc-8ef3-5deee88006dd | Name: Polyline Settings | NickName: #248-Polyline Settings
+GUID: 4db3f174-8a42-436d-aced-a70672391d3e | Name: Pen | NickName: #226-Pen
+GUID: e5825223-1365-42ed-9490-ae707a7a09cb | Name: 2D Viewpoint | NickName: #224-2D Viewpoint
+GUID: 89201549-7937-4bb2-864f-a95e4aa35b60 | Name: Number Slider | NickName: #228-Number Slider
+GUID: 04aec516-6fc6-4810-89ad-4c7c3d602b6a | Name: Number Slider | NickName: #229-Number Slider
+GUID: 772379fe-bfb9-4a3b-8c09-36f1ae73e39b | Name: Panel | NickName: #157-Panel
+GUID: 0830dd93-5b15-49a0-9808-688e1ce4b74b | Name: Panel | NickName: #159-Panel
+GUID: 63e69fd5-d297-4dc8-8c71-867541849e60 | Name: Panel | NickName: #57-Panel
+GUID: 42b993db-8865-48f2-a456-ac01c6bd34d7 | Name: Relay | NickName: #66-Relay
+GUID: 380f39b7-9873-421a-af11-ed44574b9418 | Name: 2D Polyline | NickName: #255-2D Polyline
+GUID: 7e2f27a2-c765-4f44-94f8-5fa04eae9f82 | Name: Boolean Toggle | NickName: #223-Boolean Toggle
+GUID: 3e5d0ca6-fbe0-4e00-be8e-560007d4d928 | Name: Layer | NickName: #239-Layer
+GUID: 72e819a2-0155-4315-8d76-015ce69f4657 | Name: Line Type | NickName: #237-Line Type
+GUID: 311eb66f-fd9b-453f-9d93-be217b5f3deb | Name: Polyline Settings | NickName: #250-Polyline Settings
+GUID: 901e3b63-3fea-4dd9-80fe-95e3cf5ab767 | Name: Pen | NickName: #238-Pen
+GUID: 0cbe0c13-8ec1-4281-a9a1-4807586739e4 | Name: 2D Viewpoint | NickName: #236-2D Viewpoint
+GUID: 8ea22cc0-d729-43e5-926c-5d052ab9f5fe | Name: Number Slider | NickName: #240-Number Slider
+GUID: 40a99b07-e22d-4256-9862-b2fcd8dc6bbb | Name: Number Slider | NickName: #241-Number Slider
+GUID: f14aed47-9d88-4b2c-9ca0-7a42204505a3 | Name: Merge | NickName: #59-Merge
+GUID: d14425f9-533d-419f-91e1-1a1d962a3186 | Name: 2D Polyline | NickName: #254-2D Polyline
+GUID: 6ab82bef-54d9-44c1-b5b3-6d6805086423 | Name: Boolean Toggle | NickName: #222-Boolean Toggle
+GUID: f0d50526-09ee-4826-8b39-40bcad7df949 | Name: Layer | NickName: #233-Layer
+GUID: 3839b024-127d-43e7-9b54-7ece590f14cd | Name: Line Type | NickName: #231-Line Type
+GUID: b81b4596-0469-4755-b504-296ddd5890fb | Name: Polyline Settings | NickName: #249-Polyline Settings
+GUID: e7cc4cd8-cbf8-4e60-b0d1-7c48b2466df9 | Name: Pen | NickName: #232-Pen
+GUID: 6d22157d-e41b-47c8-a535-4c6f3c667b4a | Name: 2D Viewpoint | NickName: #230-2D Viewpoint
+GUID: 123c4142-1f99-46ce-9864-1138d1abcf0c | Name: Number Slider | NickName: #234-Number Slider
+GUID: 1a1b6e8a-bec4-42f5-bbd4-1c42663229d0 | Name: Number Slider | NickName: #235-Number Slider
+GUID: 1840c52e-a9cc-4222-8b40-dea520b25ad2 | Name: Panel | NickName: #7-Panel
+GUID: c4f84ab6-92ca-4ada-88e2-786201fc80a4 | Name: Panel | NickName: #89-Panel
+GUID: d2bbbe59-0e4c-4e4c-979b-3945ce82b179 | Name: Relay | NickName: #92-Relay
+GUID: f4f06e09-bd63-48c9-aacf-ebb1a18798f2 | Name: Number Slider | NickName: #107-Number Slider
+GUID: 64ac3a17-bd64-4985-9dcb-559a9acefde0 | Name: Panel | NickName: #187-Panel
+GUID: c7c2bc5b-4052-4ce7-ae0a-42a7909799f8 | Name: Panel | NickName: #194-Panel
+GUID: 880d9e49-9938-4d31-a0bc-35d297a2ab28 | Name: GhPython Script | NickName: #146-F1_LAYERS_XML_v02.py
+GUID: 1fd35183-777a-41fb-8537-bc45b054ef4b | Name: Panel | NickName: #91-Panel
+GUID: b439301d-b0be-41a2-928f-41da4f18c987 | Name: Panel | NickName: #90-Panel
+GUID: 6189090f-7bd9-40a2-9efd-da6728321f62 | Name: GhPython Script | NickName: Fancy Names
+GUID: ad270c61-3268-4dcc-b9e8-dd6e9711f5c8 | Name: GhPython Script | NickName: #47-F1_CONTEXTO50_BUILD_v01.3.py
+GUID: f7f1bd10-32ba-4501-9dda-ebe9486e179b | Name: GhPython Script | NickName: #53-F0_LOAD_PROYECTO_v01.py
+GUID: 6c6470af-070b-40fb-8ce0-708b1bc4c36d | Name: Relay | NickName: #191-Relay
+GUID: 92829854-3405-4203-b1dd-701411597671 | Name: Area | NickName: #263-Area
+GUID: b4dfe4e3-b87b-4b62-b84c-98d829ff0c09 | Name: Panel | NickName: #200-Panel
+GUID: fb742b15-3bde-4c9c-87bc-d7c26fc84df3 | Name: Boolean Toggle | NickName: #109-Boolean Toggle
+GUID: e07db6bf-212d-4d7e-a2c9-da85f3cfd502 | Name: Value List | NickName: #262-Value List
+GUID: c8d88565-ae8d-4127-aea2-80cad521e413 | Name: Number Slider | NickName: #108-Number Slider
+GUID: 90cd998a-cf3d-4d66-bad7-6ebb9c8d5fa8 | Name: Panel | NickName: #175-Panel
+GUID: 45f34d3c-d6dd-4c2c-a205-81ac308016ea | Name: Panel | NickName: #179-Panel
+GUID: ed129f1a-f0ce-42fd-a8f8-d59ffe2660f4 | Name: Panel | NickName: #180-Panel
+GUID: d1f1c084-9663-45e0-ab5b-10ab6ca1e023 | Name: Panel | NickName: #181-Panel
+GUID: ec511a85-a91c-4b9f-b257-e0d7da451d23 | Name: Panel | NickName: #182-Panel
+GUID: 702eccf6-3076-42af-bff8-18788a45f560 | Name: Panel | NickName: #185-Panel
+GUID: d23735c9-60d8-4295-9583-e9547a66670e | Name: Panel | NickName: #186-Panel
+GUID: d99cc805-befe-4c30-b61a-5541f0f841a2 | Name: Panel | NickName: #183-Panel
+GUID: c16825c6-468b-42ab-8d89-5bb3a3e6b000 | Name: Value List | NickName: #112-Value List
+GUID: 08dbd128-35a6-435b-9ea7-79402a2b00b8 | Name: Panel | NickName: #165-Panel
+GUID: 357fa72a-93e4-4425-b31c-e01dd408b3aa | Name: Addition | NickName: #155-Addition
+GUID: d836b34f-5419-465d-a84d-e8230ac289b4 | Name: Number Slider | NickName: #141-Number Slider
+GUID: 7aadd219-4308-492c-8d2b-c73d8041a9ef | Name: GhPython Script | NickName: #267-F1_OVERRIDE_USO_v01.py
+GUID: cec00a6d-b355-4ca1-9659-7362d5f52ae2 | Name: Boolean Toggle | NickName: #259-Boolean Toggle
+GUID: 4d6fba96-1d12-4029-9683-b92d8c021e55 | Name: GhPython Script | NickName: #278-F1_EXPORTAR_GFA_v02.4.py
+GUID: 7f12bc12-850d-4bd3-928a-43c850272731 | Name: Panel | NickName: #272-Panel
+GUID: 57232634-8272-4117-b257-37f79f02c366 | Name: Panel | NickName: #275-Panel
+GUID: 758487fe-61fb-4919-88c5-1c98d94d6725 | Name: Panel | NickName: #274-Panel
+GUID: 55030132-8f2b-45c2-856c-cfd3424bfb4f | Name: Panel | NickName: #277-Panel
+GUID: eb315550-d746-4cac-8aa7-afe18c78f761 | Name: Panel | NickName: #276-Panel
+GUID: 317814cc-ff32-43ef-8565-fc611857b8df | Name: Panel | NickName: #273-Panel
+GUID: 27de6944-de5a-480c-9636-b21af4a9ec7d | Name: Panel | NickName: #286-Panel
+GUID: b903fe07-7be3-4c39-8df8-b0122ce9aba2 | Name: Panel | NickName: #197-Panel
+GUID: e661bc13-5085-492c-8011-fa8f822e2e49 | Name: Panel | NickName: #198-Panel
+GUID: 8f44a013-cd50-4112-9820-2e7279c7a41b | Name: Panel | NickName: #199-Panel
+GUID: 38323b45-34cc-42b3-a539-e2e9745e78b6 | Name: Panel | NickName: #195-Panel
+GUID: ff0fcdd4-f859-442b-b594-8fd671b949a6 | Name: Panel | NickName: #196-Panel
+GUID: 41d42d82-93b7-4037-b79a-d3fbf11d8059 | Name: Panel | NickName: #147-Panel
+GUID: a3134bb0-55c8-49f3-896f-9c46998931ae | Name: Panel | NickName: #189-Panel
+GUID: 0d1eca32-e997-4907-a772-a9166aa1c7a9 | Name: Relay | NickName: #65-Relay
+GUID: 57bb3157-6032-45ae-8e93-6fd413f437b3 | Name: Panel | NickName: #94-Panel
+GUID: 9233109c-fbb0-4ddb-b43c-bc7069417ad9 | Name: Panel | NickName: #287-Panel
+GUID: 59fbebbf-1edf-441c-9604-860d364fcba4 | Name: Panel | NickName: #288-Panel
+GUID: f64dbcbb-eedb-433a-a177-8d65d8095f62 | Name: Panel | NickName: #289-Panel
+GUID: 1d4f3d63-4e93-4557-a029-b9cd443004b2 | Name: Panel | NickName: #82-Panel
+GUID: 0cce8b8c-fd80-43e0-8a31-c6c895e21057 | Name: Panel | NickName: #81-Panel
+GUID: be3562fe-86e5-4802-9481-87c0a2260585 | Name: Panel | NickName: #97-Panel
+GUID: eaf82dd6-6ede-43ce-95bb-a62e537bc753 | Name: Panel | NickName: #48-Panel
+GUID: aa101248-4f97-41cb-b4cb-e64c44676e8b | Name: Value List | NickName: #113-Value List
+GUID: 37716694-f7a2-4bf9-a6f3-57820c4a26e0 | Name: Number Slider | NickName: #176-Number Slider
+GUID: 2134c72c-86b1-44ff-b1dc-5cbc480c8e14 | Name: Number Slider | NickName: #110-Number Slider
+GUID: 934649b8-f30e-4e0d-9946-44b39a418994 | Name: Number Slider | NickName: #111-Number Slider
+GUID: c1892186-c813-41cb-bec2-21c8067218b1 | Name: Panel | NickName: #158-Panel
+GUID: 2dc76614-d1cc-444c-b35e-e98d87e80ca9 | Name: Panel | NickName: #85-Panel
+GUID: 2e914f70-6eb8-411a-972c-363e484bceea | Name: Panel | NickName: #30-Panel
+GUID: 7a432820-bfc3-4f64-a540-014698dd6436 | Name: Panel | NickName: #36-Panel
+GUID: 5a318d6c-64e2-4b89-8314-b880615266ef | Name: Panel | NickName: #44-Panel
+GUID: bcc3ada7-773e-4c7f-81b7-bc9996c57149 | Name: Curve | NickName: #52-Curve
+GUID: 904b6c1d-25c3-43ca-9764-c890793a79fe | Name: Curve | NickName: #51-Curve
+GUID: 3f88648e-3885-41eb-9fd0-ef923dfa34af | Name: Curve | NickName: #50-Curve
+GUID: d7be7a0e-8698-4399-ba5c-c653546bb97a | Name: Number Slider | NickName: #68-Number Slider
+GUID: 1e6dc444-0c34-430f-9148-4240875941d0 | Name: Number Slider | NickName: #69-Number Slider
+GUID: 478712be-5815-489c-997e-cbd8bf9c606d | Name: Deconstruct 2D Polyline | NickName: #15-Deconstruct 2D Polyline
+GUID: ac47b487-ba18-4ea9-8d63-d9b916ff6e26 | Name: Deconstruct 2D Polyline | NickName: #12-Deconstruct 2D Polyline
+GUID: f2cd77e4-f7c1-4845-9def-85a9d94be25b | Name: Relay | NickName: #23-Relay
+GUID: 1438c1ca-389d-489c-b673-efa9baabc494 | Name: Deconstruct 2D Polyline | NickName: #13-Deconstruct 2D Polyline
+GUID: ebb20caa-158a-4e94-a4be-40e9e030cf83 | Name: Relay | NickName: #21-Relay
+GUID: 267eaecc-557b-4336-a976-21f4a751efed | Name: Relay | NickName: #22-Relay
+GUID: b2c63b70-56a6-4355-bd5a-2d2004cb4dcb | Name: Deconstruct 2D Polyline | NickName: #11-Deconstruct 2D Polyline
+GUID: 0eb19658-f906-4321-bce0-0d2c071c81a5 | Name: Discontinuity | NickName: #35-Discontinuity
+GUID: f19513b3-7722-473c-8e74-20971cb106da | Name: Panel | NickName: #60-Panel
+GUID: 6d2eeba1-3621-4525-a927-d50a79898068 | Name: GhPython Script | NickName: #8-GhPython Script
+GUID: 78b9fd6b-ffb9-4ff9-8601-6596080b9ca0 | Name: Text Join | NickName: #31-Text Join
+GUID: e59eb879-013c-4118-b70c-acc0c04f3698 | Name: Merge | NickName: #20-Merge
+GUID: b3af946a-c564-4209-9294-fa89a6976d29 | Name: File Path | NickName: #62-File Path
+GUID: fd3423b1-8746-4269-9e48-d3b90c0d31e6 | Name: Panel | NickName: #49-Panel
+GUID: 0865d8d8-1b01-446f-a93d-ed55c872ac8d | Name: Text Join | NickName: #43-Text Join
+GUID: 60af5a5b-eae0-4812-9d98-777c610edcc8 | Name: Merge | NickName: #34-Merge
+GUID: 27cc6af6-372a-4bed-931b-24755c7ef4d1 | Name: Panel | NickName: #25-Panel
+GUID: b0236142-1719-40f4-abf8-76c39e6a3e88 | Name: Panel | NickName: #6-Panel
+GUID: 1a4544c5-6e27-4dad-993c-2e224f626bc9 | Name: Text Join | NickName: #33-Text Join
+GUID: 9f1e1586-3a52-4367-88ad-2961cf9e0658 | Name: Merge | NickName: #18-Merge
+GUID: 1d751cb9-293f-4e51-8a9d-be47ef2e4352 | Name: Panel | NickName: #38-Panel
+GUID: 749104c7-6f20-479f-93d6-d4c4ae9db733 | Name: Panel | NickName: #61-Panel
+GUID: c7b05cf9-cc04-4c3a-a9ff-c34aa1a7910f | Name: Panel | NickName: #2-Panel
+GUID: a5c82623-3079-475a-9837-66871b700f79 | Name: GhPython Script | NickName: #3-GhPython Script
+GUID: ced222ac-dd75-44dc-b94c-6f75e4902917 | Name: Merge | NickName: #17-Merge
+GUID: c63b5578-7f1a-481b-8280-a33991b57c4e | Name: File Path | NickName: #37-File Path
+GUID: 66c173d7-31b3-4a22-9acd-468486fb09ee | Name: Text Join | NickName: #27-Text Join
+GUID: 6449298a-b31a-496e-8884-e1a35cc25bba | Name: Panel | NickName: #46-Panel
+GUID: 3f45df55-582b-48e8-98b1-992b6a0321d8 | Name: Boolean Toggle | NickName: #29-Boolean Toggle
+GUID: 4f0b0d0c-c758-49ba-b757-3423422932ad | Name: Panel | NickName: #58-Panel
+GUID: e327a458-1571-457b-8185-b7b162da62bc | Name: Morph Solid | NickName: #63-Morph Solid
+GUID: 88c456d6-2341-4157-bbe4-4a51090eb4cd | Name: Boolean Toggle | NickName: #54-Boolean Toggle
+GUID: 0c26a207-9856-43a6-84dc-ba4cdb9820ae | Name: Boolean Toggle | NickName: #28-Boolean Toggle
+GUID: a3e18872-7fab-403a-90b0-3221f1885768 | Name: Bifocals | NickName: #10-Bifocals
+GUID: 087871a4-6ec3-4389-b33f-b8703fd8bacb | Name: Boolean Toggle | NickName: #1-Boolean Toggle
+GUID: 5301ad37-cf0a-4260-869d-5bb8004c78a0 | Name: Panel | NickName: #41-Panel
+GUID: 1ee725c5-6ed5-4f3e-a6c2-2f536cc6c6f7 | Name: Panel | NickName: #9-Panel
+GUID: 6a30edd7-ad55-4bb5-b655-4661491037b8 | Name: Boolean Toggle | NickName: #135-Boolean Toggle
+GUID: 82bb1e2a-4481-4265-b7e6-1811fa3ce562 | Name: Panel | NickName: #142-Panel
+GUID: f6c9b51e-32d1-4ca9-a55b-110c414109e1 | Name: Panel | NickName: #102-Panel
+GUID: 3ec247b1-4020-4595-8829-14a200c74eac | Name: Polyline Settings | NickName: #125-Polyline Settings
+GUID: a384ca19-1fae-44d6-b049-2bfe1bb5ea0e | Name: Curve | NickName: #115-Curve
+GUID: ca49279b-7297-4a65-a232-1ac1b99bb74f | Name: 2D Polyline | NickName: #143-2D Polyline
+GUID: 7df02852-4711-4513-86da-eb9e622c9440 | Name: Layer | NickName: #106-Layer
+GUID: ff8a3228-87d5-480f-ae45-ac461b9ceebf | Name: 2D Viewpoint | NickName: #131-2D Viewpoint
+GUID: 592bb6c9-9b5b-4527-9174-17c4d8fb276c | Name: Line Type | NickName: #101-Line Type
+GUID: 60a0c532-9603-4d52-a6b2-f1ccad351d07 | Name: Pen | NickName: #103-Pen
+GUID: baa9b444-c899-4d4b-9ec8-aeedb84d218e | Name: Merge | NickName: #100-Merge
+GUID: 22f9b32e-6510-473e-a8c2-de1cc56ebaf1 | Name: Number Slider | NickName: #80-Number Slider
+GUID: 0eafeb92-ec9c-4e0a-a3ed-1ad7caba58d2 | Name: Mesh | NickName: #123-Mesh
+GUID: dbc95c73-4eba-46be-ad1b-f645cf419845 | Name: Relay | NickName: #96-Relay
+GUID: dca4a6c3-5024-4a66-a020-6e5884373d5c | Name: Mesh | NickName: #99-Mesh
+GUID: 6dd340ab-a7f7-43dc-8298-39a7faf0074d | Name: CreateMeshes | NickName: #145-CreateMeshes
+GUID: 6a375270-ab81-445a-a42b-687ae6596bc9 | Name: MeshSkirtTypes | NickName: #136-MeshSkirtTypes
+GUID: 27647d89-c0fd-45b7-9c0d-4e0d18ed990a | Name: MeshRidgeTypes | NickName: #138-MeshRidgeTypes
+GUID: 062194a4-bb25-4e36-93f1-4e717c28c9d0 | Name: Panel | NickName: #162-Panel
+GUID: 8c5cf5c0-6d4c-46ab-ab09-8e706ffcb0d3 | Name: Panel | NickName: #161-Panel
+GUID: 0bf3fa7e-4f67-43f7-9069-cf6fe3b096f7 | Name: Deconstruct Mesh | NickName: #105-Deconstruct Mesh
+GUID: 9e33e757-ad0d-4345-a368-ac6c1847533d | Name: Boolean Toggle | NickName: #104-Boolean Toggle
+GUID: 7a26ae98-b331-40bc-afb7-656afaf2e88a | Name: Boolean Toggle | NickName: #134-Boolean Toggle
+GUID: 08455ae4-5d60-49cf-9f63-34479c9e9109 | Name: Relay | NickName: #19-Relay
+GUID: 1ea7de8d-5f61-4bef-b2e3-68f8880c34aa | Name: Relay | NickName: #201-Relay
+GUID: 01e5d387-3575-453f-a5c8-b445f08b6fc7 | Name: Relay | NickName: #67-Relay
+GUID: b9b52851-151c-441f-a62b-e945739fe023 | Name: Panel | NickName: #71-Panel
+GUID: 0233a1ba-e22d-43c5-82d8-2271070e92b2 | Name: Deconstruct 2D Polyline | NickName: #26-Deconstruct 2D Polyline
+GUID: 5b50f44c-2241-4d9f-8170-3c37d9c1bd13 | Name: Panel | NickName: #45-Panel
+GUID: ac209233-807c-44aa-b509-0d057290f8ea | Name: 2D Curve | NickName: #16-2D Curve
+GUID: 19f5d71c-566b-4eb8-9ad8-3b347359dee2 | Name: PolylineDetails | NickName: #40-PolylineDetails
+GUID: fb06952e-d1bf-41dd-b786-c80004dbc678 | Name: End Points | NickName: #24-End Points
+GUID: b33704fa-c3c1-447e-a9e1-ff5e6182551a | Name: Panel | NickName: #39-Panel
+GUID: dc9c2e53-9427-480d-8c47-e0694a6c0454 | Name: Number Slider | NickName: #127-Number Slider
+GUID: 20218518-41dc-4537-b434-762666ca75f0 | Name: Panel | NickName: #84-Panel
+GUID: eb4f42e5-e1df-4a4c-9064-1297d6cf9c32 | Name: Panel | NickName: #70-Panel
+GUID: fb511c0d-1457-4d60-9213-03867c6c236a | Name: Panel | NickName: #64-Panel
+GUID: 468c4fcf-187b-44a4-945c-ff45409d1919 | Name: Relay | NickName: #74-Relay
+GUID: 75a255b0-88f8-416f-b41b-511ccbc8f256 | Name: Panel | NickName: #76-Panel
+GUID: 33fedb5f-5245-4518-b1bc-eae6c982d553 | Name: File Path | NickName: #73-File Path
+GUID: eda71746-c5a8-4b99-aa50-07c1dc5afe3d | Name: Boolean Toggle | NickName: #114-Boolean Toggle
+GUID: 6eaf2956-f649-4540-a900-4b32a10deee4 | Name: GhPython Script | NickName: #246-F3_DISTRIBUCION_v03.py
+GUID: 9ee561bd-c38a-471e-b202-52fed1276b48 | Name: Panel | NickName: #260-Panel
+GUID: 15d034b9-e099-49b9-916a-f6b8b219adfe | Name: Panel | NickName: #83-Panel
+GUID: 8c7e8133-0bbe-401d-9fa0-6c4b761bbc5d | Name: GhPython Script | NickName: #247-F3_VOLUM_GENERADOR_v08.py
+GUID: 8eaf3a60-de2a-4e86-891a-92be4b05be59 | Name: GhPython Script | NickName: #261-F3_MORPH_ATRIBUTOS_v02.py
+GUID: 768ebdc8-7e53-4541-b511-72408af73c32 | Name: GhPython Script | NickName: #266-F3_ACCESOS_INTEGRADOR_v02.py
+GUID: 60a9e98b-3ca0-4e63-b965-3fe65ae06804 | Name: Boolean Toggle | NickName: #211-Boolean Toggle
+GUID: cfab7031-f2f0-402b-99ba-753561e80287 | Name: Boolean Toggle | NickName: #212-Boolean Toggle
+GUID: e05f8f43-2ae2-4256-98e0-bb28d60a523a | Name: Panel | NickName: #213-Panel
+GUID: ba6ed6bc-1040-4af2-9b38-42041de28f71 | Name: Panel | NickName: #214-Panel
+GUID: ab3a9f4c-26ae-4553-bf95-018a7d42dfb0 | Name: GhPython Script | NickName: #209-GhPython Script
+GUID: c7cced40-8223-4be6-867d-053b5538733d | Name: Merge | NickName: #218-Merge
+GUID: 70baf962-5d0f-4c48-bede-7b6df39d3dcf | Name: Panel | NickName: #210-Panel
+GUID: 775cbddc-136b-42d8-b9a1-954acf3de7ba | Name: Merge | NickName: #216-Merge
+GUID: 795fbf2a-6e1e-452b-8e7f-867a082f4294 | Name: Panel | NickName: #251-Panel
+GUID: ab4b44cb-5c73-4c73-85fe-1eae77abbea7 | Name: Panel | NickName: #242-Panel
+GUID: e0fd46b4-4845-4efe-aec7-f3258241a68e | Name: Text Join | NickName: #221-Text Join
+GUID: 6f68e9f5-9abf-4aee-956b-3a4f8f6a6655 | Name: Text Join | NickName: #219-Text Join
+GUID: ccf3dd73-b7a4-45d5-80c8-f98614002345 | Name: Relay | NickName: #204-Relay
+GUID: d29dc15b-8be3-42e4-a462-b9646bc8247d | Name: Panel | NickName: #98-Panel
+GUID: 11b314e3-5540-4150-a6a5-461705ea4949 | Name: Panel | NickName: #203-Panel
+GUID: 59b9cfe2-481b-40b3-9f8e-f563767809ec | Name: Merge | NickName: #207-Merge
+GUID: 8bb53d04-fd9d-4913-8f71-17bec5845638 | Name: Text Join | NickName: #208-Text Join
+GUID: 1503dde0-93b6-4798-927f-aea7d47a3801 | Name: Value List | NickName: #243-Value List
+GUID: 36a640db-ef17-4bdf-9cfa-9186deef18b4 | Name: Value List | NickName: #244-Value List
+GUID: 6126aaea-a05d-42ad-8847-11e1bcd482fd | Name: Panel | NickName: #245-Panel
+GUID: 6c5ba3b4-f736-4d6c-8a27-b3982adfbe53 | Name: Merge | NickName: #252-Merge
+GUID: f0e16fe8-e47f-4b33-97b0-863471c94bdc | Name: Text Join | NickName: #258-Text Join
+GUID: 5fe99180-4ef7-4a27-b2b4-7309dd83d812 | Name: Panel | NickName: #256-Panel
+GUID: 3cd964a7-8e94-4ad4-8e77-c66dadd1075c | Name: Panel | NickName: #190-Panel
+GUID: 61d0c4e5-ea2a-46a3-ab18-21b1bb9de70a | Name: Panel | NickName: #271-Panel
+GUID: a1c435d3-ee7e-416f-96bb-82f435afbc96 | Name: Panel | NickName: #268-Panel
+GUID: 2d024429-600f-4112-84a3-369f7f8c03df | Name: Panel | NickName: #188-Panel
+GUID: 4bb706ab-34fb-42de-b48d-bd164f045b0c | Name: Panel | NickName: #269-Panel
+GUID: 75a2e5ab-b2f0-4563-8013-545833bd6b5a | Name: Panel | NickName: #270-Panel
+GUID: 7f22c946-9443-4808-8b4e-c254bd94077d | Name: Panel | NickName: #215-Panel
+GUID: 3c58edf4-f463-43d5-995d-c033e34e16cb | Name: Panel | NickName: #264-Panel
+GUID: bd2ac736-15e3-4060-9b6b-46789821dedc | Name: Panel | NickName: #257-Panel
+GUID: dd1fc9ba-7c58-436a-b866-92ffbe01f837 | Name: Zone | NickName: #291-Zone
+GUID: e9607073-1a60-4270-ada0-68ac9d7240f8 | Name: Zone Settings | NickName: #290-Zone Settings
+GUID: 828c34ab-5f7b-499e-bc03-a60ebcc8dce4 | Name: Boolean Toggle | NickName: #285-Boolean Toggle
+GUID: b2484541-d4e3-40d9-b622-b5bc904f545c | Name: Layer | NickName: #279-Layer
+GUID: f8f36bf8-e511-4c4f-8203-6f386b7ad911 | Name: Line Type | NickName: #281-Line Type
+GUID: 380e0aa5-31ad-4108-9d94-ecb58bca326d | Name: Pen | NickName: #282-Pen
+GUID: 10532c0d-7f87-4efb-8cc6-91ca21347225 | Name: 2D Viewpoint | NickName: #280-2D Viewpoint
+GUID: e5ef868b-df0a-4d86-8bbf-11b08d795808 | Name: Number Slider | NickName: #283-Number Slider
+GUID: f6e78136-37be-4b0c-8955-25177d5c659e | Name: Number Slider | NickName: #284-Number Slider
+GUID: 921141e7-7912-458e-9ce3-ce457dac0dc6 | Name: Panel | NickName: #205-Panel
+GUID: c51b3e5c-d0e7-4cd4-97c6-1153940d7608 | Name: Group | NickName: 
+GUID: 83d4a3cc-a5bc-4fa8-99f1-105d0765d1d6 | Name: Group | NickName: Fase 3 - Creacion Volumenes
+GUID: 8e92ae56-55dc-484e-9d6d-80133e013c5c | Name: Group | NickName: Determinación altura ejes
+GUID: 48f3fa48-29d2-41ba-b405-053ff73fd733 | Name: Group | NickName: Datos ArchiCAD
+GUID: d0d0789f-a7d6-4c5a-96f5-9ab64e6d39dd | Name: Group | NickName: 01 | Entrada JSON y Contexto Urbano
+GUID: 9ebc95fc-13c5-42db-80d5-f79c660b7b39 | Name: Group | NickName: 03 | Clasificación Linderos y Patios
+GUID: cb6fdc2d-12be-4d1f-8006-e15c13657eb4 | Name: Group | NickName: 04 | Normativa y Alturas Urbanas
+GUID: 1dee5c9a-02b6-4b1b-828d-82a9880dc848 | Name: Group | NickName: 05 | Rutas y Configuración JSON
+GUID: bdbe0d15-9943-4176-9847-9b28ccb0b83b | Name: Group | NickName: 08 | Contexto 3D / Morph Solid
+GUID: ea1b9473-3536-4ade-9b4b-fcbaf5b7f9d6 | Name: Group | NickName: 07 | Dibujo 2D en Archicad (Tapir)
+GUID: 08bc3460-41b1-49b5-a61d-6cabc1464c5b | Name: Group | NickName: 09 | Terreno y Mallas Archicad
+GUID: bba83612-eff3-4cc4-b451-ed16d784b74b | Name: Group | NickName: 10 | Utilidades y Diagnóstico
+GUID: 6e99f404-cea9-421d-9c51-c2b89878d1ed | Name: Group | NickName: 06 | Exportación GFA a JSON
+GUID: bcabde6b-32bf-446b-85b5-c4d9318df319 | Name: Group | NickName: Ocupaciones por piso
+GUID: 8c839f38-130b-4f1f-9a96-bef0ed55d6f5 | Name: Group | NickName: Dibujo Raw en ArchiCAD
+GUID: f55b4e66-2095-4e4d-bd50-3b107b353abc | Name: Group | NickName: 02 | Capas Archicad (XML / API)
+GUID: 4444cede-7b3a-4bdc-ac22-644cf5ab24d8 | Name: Group | NickName: 
+GUID: 48c48d04-9a53-4fed-a77d-b1acd3fc016e | Name: Group | NickName: GhPython Script
+GUID: 62e64c98-2145-4126-b833-d8e698330fb1 | Name: Group | NickName: Ocupaciones por piso
+GUID: b5256602-2ac9-4170-8537-1b532811f746 | Name: Group | NickName: Ocupaciones por piso
+GUID: dcca63ed-f231-4d9d-ad06-6b5cfa34ed1c | Name: Python 3 Script | NickName: #163-Python 3 Script
+GUID: a0d539fd-cfa4-40a3-bcc1-a12a03606794 | Name: Group | NickName: Base normativa · límites para distribución
+GUID: d4aa2e48-30b6-47e2-a220-a896adebef23 | Name: Panel | NickName: #206-Panel
+GUID: ad1f7c90-dd0b-46dd-96d5-3867b8c64f2a | Name: Panel | NickName: #174-Panel
+GUID: eadf62f2-810a-4c4b-9c84-67c3d66bf24f | Name: Panel | NickName: #217-Panel
+GUID: 37bf9948-065e-4814-a36d-b49f7427dbb6 | Name: GhPython Script | NickName: #265-F3_UNIDADES_TIPOLOGIAS_v02.py
+GUID: c5c87b08-0718-40ca-b6b5-2a05ea47f84a | Name: Panel | NickName: #55-Panel
+GUID: 2ef824b7-8910-43b8-86f1-47889c9bc6a7 | Name: Panel | NickName: #56-Panel
+GUID: f6955378-f509-4afa-9b9a-57fe4eb20c48 | Name: Group | NickName: 
+GUID: 25ab4fb3-048a-4a5a-b053-704235c9d9f7 | Name: Number Slider | NickName: #153-Number Slider
+GUID: 369af5a1-e357-45b4-8901-4cd92310e83c | Name: Number Slider | NickName: #154-Number Slider
+GUID: 2f2b84fc-43d5-4c62-94d4-bbb8128e9afe | Name: Number Slider | NickName: #148-Number Slider
+GUID: f88bc221-cf91-4da7-9224-31d2dc107898 | Name: Number Slider | NickName: #149-Number Slider
+GUID: a6b9a94f-e828-41a4-ab4a-a0bcdb475fa0 | Name: Number Slider | NickName: #160-Number Slider
+GUID: 4687a655-b928-4b3f-b4fd-ceebfd4e464d | Name: Number Slider | NickName: #152-Number Slider
+GUID: ff618817-5ada-46b6-90b1-0a372095108a | Name: Number Slider | NickName: #150-Number Slider
+GUID: 39db0e50-008e-43f0-b6f2-fe2e97e09e4a | Name: Number Slider | NickName: #151-Number Slider
+GUID: 49a3b26a-869b-4fae-be70-05bac95064b0 | Name: Panel | NickName: #144-Panel
+GUID: f27e032a-9a98-4f7c-aa7e-535a02355a4f | Name: ConnectArchicad | NickName: #32-ConnectArchicad
+GUID: ff86289a-3585-4fd0-a0e6-a495f6fcc8db | Name: Number Slider | NickName: #4-Number Slider
+GUID: 65a30082-60da-4c38-9e54-55818100af5b | Name: Panel | NickName: #72-Panel
+GUID: 63424485-682b-48fe-8529-558366b19b91 | Name: GetLayersDetails | NickName: #193-GetLayersDetails
+GUID: 0598a51f-1267-493e-99a1-045fb4b80709 | Name: Layer | NickName: #184-Layer
+GUID: 48e3c918-ee71-4752-85d8-f00c19af1489 | Name: Panel | NickName: #202-Panel
+GUID: 62a08541-2131-4e80-93e6-aa9ea4eadc78 | Name: Layers | NickName: #192-Layers
+GUID: 34ac3588-ddb3-4adc-a801-c49b8cf4b190 | Name: GhPython Script | NickName: #164-F1_ETAPA2_NORMATIVA_v10.py
+GUID: 8cb8c179-77dc-42b6-a4e2-a6b515e68178 | Name: Boolean Toggle | NickName: #132-Boolean Toggle
+GUID: 177f61c7-1877-47fa-9a4f-9895cfd728ea | Name: Relay | NickName: #167-Relay
+GUID: 33fbfa60-f206-4900-8e87-550aa4527d31 | Name: Relay | NickName: #172-Relay
+GUID: 45b01434-b37b-4530-a3b5-90f8b38fc454 | Name: Relay | NickName: #171-Relay
+GUID: 99fde746-6a5d-4af8-9e03-3552420a5ca9 | Name: Relay | NickName: #168-Relay
+GUID: 4add7b0b-8ed1-4319-9dc9-915677e505b8 | Name: Panel | NickName: #169-Panel
+GUID: b619de4b-8ed4-4f3f-bcc3-266441bff819 | Name: GhPython Script | NickName: #75-GhPython Script
+GUID: 1fd1c54f-8761-4b3c-8dc9-ccc12569afb2 | Name: Merge | NickName: #77-Merge
+GUID: 438f700a-2692-42d5-9464-31112d0a68ea | Name: File Path | NickName: #86-File Path
+GUID: 06fd146d-b953-4caf-a292-77f37cf53801 | Name: Text Join | NickName: #79-Text Join
+GUID: a38d1948-2dcf-4597-855a-d0ed68995dd6 | Name: Panel | NickName: #178-Panel
+GUID: 3f1c0c14-094c-4d1e-b8bb-a3ff764ae459 | Name: Panel | NickName: #173-Panel
+GUID: d5f24c5c-c756-4b08-9f06-f6132d95869e | Name: Number Slider | NickName: #133-Number Slider
+GUID: 26759aa9-e84e-472d-bf9a-34b93c73f04c | Name: Relay | NickName: #140-Relay
+GUID: 2c740254-0fae-440c-8fad-48c2871feee7 | Name: Relay | NickName: #139-Relay
+GUID: 0715a683-4555-4ff7-aa9f-1d223b25a376 | Name: Relay | NickName: #126-Relay
+GUID: 3424221e-195b-4494-a4b4-8477e105ffcf | Name: Relay | NickName: #130-Relay
+GUID: 61d675b9-3640-4909-8d54-16113d2a2c32 | Name: Relay | NickName: #128-Relay
+GUID: 5aff8c27-01ee-491e-9d14-61ecd668cfa3 | Name: Panel | NickName: #170-Panel
+GUID: fa49748c-01f2-4038-833c-3727da13f8ba | Name: Relay | NickName: #122-Relay
+GUID: 303ef6ae-b9d9-4eba-8926-c7121a603a27 | Name: Relay | NickName: #121-Relay
+GUID: c1593597-dbda-40ab-a06e-e08964a6e5ed | Name: Relay | NickName: #124-Relay
+GUID: c07130aa-b149-432f-b43c-11886ac398d7 | Name: Panel | NickName: #177-Panel
+GUID: c98778e9-9250-4eaf-9376-b436185e66a0 | Name: Relay | NickName: #129-Relay
+GUID: 556a6bdf-ec12-4352-ada4-6ebab0127a0b | Name: Relay | NickName: #116-Relay
+GUID: 9819dc3a-998e-4919-9325-748b52507ae1 | Name: Relay | NickName: #117-Relay
+GUID: 5a3ee0ba-0d93-4441-822c-fce5a89b146a | Name: Relay | NickName: #118-Relay
+GUID: f3499029-e9c0-446d-be52-fed99d7c23af | Name: Relay | NickName: #119-Relay
+GUID: e0734226-eed3-4fd9-a859-9489eeaa17dd | Name: Relay | NickName: #120-Relay
+GUID: a4f665a4-df6d-4a6b-9757-b413ed1a2ae4 | Name: Cluster | NickName: Cluster
+GUID: 0b4407ea-34dd-4837-bd5a-a822cdbc19c4 | Name: Group | NickName: GhPython Script
+GUID: 6be8efe7-5d48-4343-a7a9-0153c958e387 | Name: Group | NickName: GhPython Script
+GUID: fea3344c-964e-4461-be1c-8770c364a783 | Name: Group | NickName: GhPython Script
+GUID: fcfd350d-33d3-4375-a22c-e9e469770e95 | Name: Group | NickName: GhPython Script
+GUID: d2945cec-0ea9-42ba-be1f-db46e0507041 | Name: Group | NickName: File Path
+GUID: 47ed12b6-d5d0-4410-92a6-8ce91e85d189 | Name: Group | NickName: 2D Polyline
+GUID: 0a114d37-3e32-43e4-8b2d-42dded85f44b | Name: Group | NickName: Layer
+GUID: 7287bcb8-d10c-4eac-9990-01cdfdb4e1d0 | Name: Group | NickName: Line Type
+GUID: d0455030-b945-464d-83fc-c599f424b7b1 | Name: Group | NickName: Polyline Settings
+GUID: bf402058-7818-459d-85b7-a602f176e990 | Name: Group | NickName: Pen
+GUID: dc1f3f83-8e76-446d-8262-6f5c2d2d2333 | Name: Group | NickName: 2D Viewpoint
+GUID: e128bfa4-ad9e-488d-a63b-51b188f0ac7f | Name: Group | NickName: Relay
+GUID: 64700644-7c63-4378-9e63-4a167b8b684d | Name: Group | NickName: 2D Polyline
+GUID: fe209487-a0cb-472d-9d5d-cef34e47b890 | Name: Group | NickName: Layer
+GUID: 79cc96fc-e25f-410b-aee8-4c51e027f979 | Name: Group | NickName: Line Type
+GUID: aa4694f6-3ca4-4b29-9ffb-3f23cd39a0a1 | Name: Group | NickName: Polyline Settings
+GUID: 1e891a64-5647-4d5b-a63e-343510218a97 | Name: Group | NickName: Pen
+GUID: 901a6945-c9d1-4037-b334-65b3e490c866 | Name: Group | NickName: 2D Viewpoint
+GUID: a941412d-1fed-48cc-9d39-1d1e442807b5 | Name: Group | NickName: Merge
+GUID: ee70e819-5acc-4276-a4ed-41fc0e2c41ea | Name: Group | NickName: 2D Polyline
+GUID: 8bc5079f-67d0-42a2-ac10-00ed783730b9 | Name: Group | NickName: Layer
+GUID: 429265f9-3b01-429d-ae6e-b3536bf77419 | Name: Group | NickName: Line Type
+GUID: 9bf3cca2-1db2-42bf-b495-c65bd9ec7244 | Name: Group | NickName: Polyline Settings
+GUID: e64fa53b-8e68-4935-854b-38a6a098c4bf | Name: Group | NickName: Pen
+GUID: effe19ac-37f6-4d1c-bd41-5719e40c89e2 | Name: Group | NickName: 2D Viewpoint
+GUID: e8834553-fdc5-4195-9da7-d7d162ec0dc4 | Name: Group | NickName: Relay
+GUID: 349a293b-7fcd-4301-be40-aa86169a4de2 | Name: Group | NickName: GhPython Script
+GUID: 067b08fc-44c5-49c1-9fc7-9b476852b972 | Name: Group | NickName: GhPython Script
+GUID: aa41848f-61f5-4128-b0c2-cdfc6bf82212 | Name: Group | NickName: GhPython Script
+GUID: 7feda5ca-11d0-49fb-a602-2f298d9ff2c7 | Name: Group | NickName: GhPython Script
+GUID: ef00cc2c-5caa-4e5b-9b04-6ecce1927d1c | Name: Group | NickName: Relay
+GUID: f5079b97-fa3c-40f3-ba74-2e9f804523c5 | Name: Group | NickName: Area
+GUID: 053ccdf9-e707-4701-8e34-52c7a9b76c73 | Name: Group | NickName: Value List
+GUID: 0bbb9302-f61b-4f3e-8d5e-8c195283a4a4 | Name: Group | NickName: Value List
+GUID: 31ab57ac-9c4b-4070-ab65-c356e73727a1 | Name: Group | NickName: Addition
+GUID: 20842082-0241-45ec-bc1d-fbe4befba40a | Name: Group | NickName: GhPython Script
+GUID: 01d5f0d4-ea08-4723-ac7e-cb9b60324000 | Name: Group | NickName: GhPython Script
+GUID: 0ebe1973-eef0-4fe9-927f-1b9a50665a55 | Name: Group | NickName: Relay
+GUID: 765a3e92-a42a-4b92-9a99-566ecfe9d344 | Name: Group | NickName: Value List
+GUID: 4821e07b-0437-42da-931d-9650858dc8b3 | Name: Group | NickName: Curve
+GUID: abc3b424-003a-449e-8b6c-8ae852c24447 | Name: Group | NickName: Curve
+GUID: 2f68d7f9-e013-4467-9e4e-96e9964070c6 | Name: Group | NickName: Curve
+GUID: d7a32fac-d546-49bc-adb1-20219faed004 | Name: Group | NickName: Deconstruct 2D Polyline
+GUID: 316181ea-5a9a-4c4a-b126-7043f643de9a | Name: Group | NickName: Deconstruct 2D Polyline
+GUID: 20cd3bdf-67d4-4e50-93ff-872efe87d540 | Name: Group | NickName: Relay
+GUID: 1dafc0a4-fc70-49ef-b6a2-ce7d9c67f37b | Name: Group | NickName: Deconstruct 2D Polyline
+GUID: 52a59ce1-dbfa-4c5e-837c-448805f3b049 | Name: Group | NickName: Relay
+GUID: 98efb9f6-46c5-42ae-87f5-39d68d8b8479 | Name: Group | NickName: Relay
+GUID: 83b5b276-0070-4efa-92ab-a418eed2392e | Name: Group | NickName: Deconstruct 2D Polyline
+GUID: 3e2cb0d1-42f9-4fad-9806-73212f2d46de | Name: Group | NickName: Discontinuity
+GUID: e4106a1c-c03c-4245-924f-97f588601524 | Name: Group | NickName: GhPython Script
+GUID: c1edf7c3-c229-4bd5-9603-0bb853c41916 | Name: Group | NickName: Text Join
+GUID: d3398967-e757-4c25-a8a6-9ae816218d84 | Name: Group | NickName: Merge
+GUID: 6a820b8e-4b88-4ea0-b5ac-8e74e18f6b77 | Name: Group | NickName: File Path
+GUID: 8d6e143a-a5fc-44d1-8219-68c4bb2b9095 | Name: Group | NickName: Text Join
+GUID: 121662ac-1f72-49a5-af48-6194e1d3886b | Name: Group | NickName: Merge
+GUID: 86702393-73b6-43bf-8bb1-1f20a76a66cb | Name: Group | NickName: Deconstruct 2D Polyline
+GUID: c8748509-90c8-4796-a44d-99e3c41a82c1 | Name: Group | NickName: Text Join
+GUID: 4a09c114-e2cd-4cf9-a93e-70350e7af1dc | Name: Group | NickName: Merge
+GUID: 9ec8fae6-f620-453d-816e-d7deb1887c33 | Name: Group | NickName: GhPython Script
+GUID: c219be24-e0f8-4af4-ac3e-5d8251515a8c | Name: Group | NickName: Merge
+GUID: 1c3fe858-0319-402c-84b3-cdbc32b967bd | Name: Group | NickName: File Path
+GUID: 0472cc74-2f50-4482-af63-b2f51d05f5cf | Name: Group | NickName: Text Join
+GUID: 6dea28f4-9c6b-4195-9a04-5b0d4bb3b0aa | Name: Group | NickName: Morph Solid
+GUID: 1bf79cae-5e41-4514-92e7-fba80932f07c | Name: Group | NickName: Bifocals
+GUID: 0526803b-8fe7-4c48-91ec-dab49217b8a2 | Name: Group | NickName: Polyline Settings
+GUID: 5b3c6374-12dd-4bc8-8de1-3b1d0f25529d | Name: Group | NickName: Curve
+GUID: 52731cbd-1d9e-4cde-a43b-8032098fd7b5 | Name: Group | NickName: 2D Polyline
+GUID: 001dbcab-c53d-4cc9-9c47-07de58a4a0b8 | Name: Group | NickName: Layer
+GUID: f6fe1835-43fe-4960-85c4-aeab5cb07e10 | Name: Group | NickName: 2D Viewpoint
+GUID: de7b8774-ad1c-4256-8aab-f7c739c8c8d0 | Name: Group | NickName: Line Type
+GUID: 0c6bc576-8714-41a2-8077-e122c6deb016 | Name: Group | NickName: Pen
+GUID: 3e230ea3-b573-4d12-9803-0448a23b56f6 | Name: Group | NickName: Merge
+GUID: 8f0d3531-719d-424c-a0bf-a7ccecd6a19c | Name: Group | NickName: Mesh
+GUID: 956e5760-e743-4f22-afaf-e8f07b326a97 | Name: Group | NickName: Relay
+GUID: c866fd4d-768a-4e82-b767-30ef30c61c0e | Name: Group | NickName: Mesh
+GUID: 865645c9-1a8c-4c36-8b9d-25a55d1fbe00 | Name: Group | NickName: CreateMeshes
+GUID: 31ac10c6-da05-4cdf-ad24-65e652083d5a | Name: Group | NickName: MeshSkirtTypes
+GUID: adcb68ae-07ac-4a36-9381-47ae783fd288 | Name: Group | NickName: MeshRidgeTypes
+GUID: 6119d388-3f89-4749-81b1-0992a90e8380 | Name: Group | NickName: Deconstruct Mesh
+GUID: a6d547ee-9a40-4a3b-a640-7edbf5877518 | Name: Group | NickName: Relay
+GUID: dc9b5548-e7db-47cd-84af-f2ab9a9cdc5f | Name: Group | NickName: Relay
+GUID: 8c06104e-4054-4283-a186-310659208ca2 | Name: Group | NickName: Relay
+GUID: fa693ad2-5bc3-4c51-923a-a45a4e32d43c | Name: Group | NickName: Deconstruct 2D Polyline
+GUID: 93e1715e-9b0c-44be-92c7-02ee2468b233 | Name: Group | NickName: 2D Curve
+GUID: fd78c034-bd76-4812-a204-f5c9dcc1817f | Name: Group | NickName: PolylineDetails
+GUID: c368c5df-585f-4beb-a015-ec3991dd6eaf | Name: Group | NickName: End Points
+GUID: 9ceb1ba3-d745-4663-9568-af44da57ebff | Name: Group | NickName: Relay
+GUID: 9f135801-2119-42cf-a9ad-4829b3b92958 | Name: Group | NickName: File Path
+GUID: 4a1ab6ba-5688-4bdb-a3a0-28c7c8d7a1c9 | Name: Group | NickName: GhPython Script
+GUID: cb8ca007-c787-4473-8114-c2161d462a15 | Name: Group | NickName: GhPython Script
+GUID: 7ed2ee84-e1fe-46e1-a226-9383c5af2b17 | Name: Group | NickName: GhPython Script
+GUID: c21eb057-d8bc-4621-8e49-c02eb504022c | Name: Group | NickName: GhPython Script
+GUID: 4fbd1bd0-6bb5-4848-b08e-88738072d0c4 | Name: Group | NickName: GhPython Script
+GUID: 8a6512aa-c61b-4533-98b7-cd8fa6177e29 | Name: Group | NickName: Merge
+GUID: 0ccb2f2d-adf2-42ff-841b-10d0cf5d8026 | Name: Group | NickName: Merge
+GUID: 045df87d-9033-485d-abbb-640ae732811a | Name: Group | NickName: Text Join
+GUID: e6ae46d5-ece2-4451-997d-bfe5580b56c0 | Name: Group | NickName: Text Join
+GUID: 1211fd74-7e79-4f2b-af20-5adc33c644f8 | Name: Group | NickName: Relay
+GUID: 3b1534f5-dc8c-4bc8-9a3e-327b1c5d90fd | Name: Group | NickName: Merge
+GUID: 307b198a-3ea3-4f3d-a36c-21ffa63d41f1 | Name: Group | NickName: Text Join
+GUID: d9c03ffc-88d7-44e2-b421-795a9ac979e4 | Name: Group | NickName: Value List
+GUID: 85f8c22d-50d5-42c7-a760-1a3bbb905fe5 | Name: Group | NickName: Value List
+GUID: 16a19ddc-0596-4e9b-8d60-bdadaff0436b | Name: Group | NickName: Merge
+GUID: 5daa979a-9155-4b57-8b16-3312736a81d9 | Name: Group | NickName: Text Join
+GUID: 712c4d61-dc8b-4a25-87a7-be6003f094a4 | Name: Group | NickName: Zone
+GUID: b91e5556-a614-4046-b64d-efc72b437574 | Name: Group | NickName: Zone Settings
+GUID: 0588d2c2-c327-4242-a5ef-6e29b9ff82e2 | Name: Group | NickName: Layer
+GUID: 4b198a69-77e3-46d9-8ebf-79cb0c63d2d0 | Name: Group | NickName: Line Type
+GUID: 253be513-6666-4672-a5f4-f46838c8416d | Name: Group | NickName: Pen
+GUID: 5d653c95-1f91-4f77-96b1-f1450ade31af | Name: Group | NickName: 2D Viewpoint
+GUID: 1bbe2300-aec4-4ac6-8c60-5bae2549753a | Name: Group | NickName: Python 3 Script
+GUID: b749ff5d-dabc-4ff5-8f92-bea74eacb141 | Name: Group | NickName: GhPython Script
+GUID: 9528bdb0-2340-4799-ace3-645655c851a9 | Name: Group | NickName: ConnectArchicad
+GUID: c56f480b-88ee-453f-8299-771e12c2ce89 | Name: Group | NickName: GetLayersDetails
+GUID: 07520bcb-f67d-4c3c-868a-07694ad6922b | Name: Group | NickName: Layer
+GUID: 2d5e2c14-56f3-4f64-a48a-5edb0d920f2b | Name: Group | NickName: Layers
+GUID: d54c3697-2a26-41ea-8198-e192f5cc0954 | Name: Group | NickName: GhPython Script
+GUID: 8ec200a5-ce72-48ef-b124-227b93c9892a | Name: Group | NickName: Relay
+GUID: 6ba75714-18eb-45c8-ae40-df211301ba36 | Name: Group | NickName: Relay
+GUID: 32f8255a-7801-4bd2-aef0-030f6514fe12 | Name: Group | NickName: Relay
+GUID: f6aa5ef7-413f-415d-b3a7-dfc34addf1e4 | Name: Group | NickName: Relay
+GUID: 10d78b41-a4eb-46bd-8822-2be5b853ce9f | Name: Group | NickName: GhPython Script
+GUID: 380c2009-c673-454c-baa8-368da146eaf3 | Name: Group | NickName: Merge
+GUID: 68163386-0ea4-4a7e-9169-6b2ff3d2bc18 | Name: Group | NickName: File Path
+GUID: acb3d434-5b08-40e0-a55f-45e616aded32 | Name: Group | NickName: Text Join
+GUID: 4b3a2e49-007f-4590-a95e-69111b99a793 | Name: Group | NickName: Relay
+GUID: f74bf69e-6e36-4ca0-9367-a17dac57d7f7 | Name: Group | NickName: Relay
+GUID: 8e92093b-39e0-475f-b3b1-fce1ee3c38df | Name: Group | NickName: Relay
+GUID: db129839-c9f3-451e-a9f1-d3ac0d0df136 | Name: Group | NickName: Relay
+GUID: 9a0b437f-753a-46c0-976a-5aa5b3794221 | Name: Group | NickName: Relay
+GUID: 535a8657-a86b-414a-9326-2265c54a5064 | Name: Group | NickName: Relay
+GUID: 79b8b8fd-1701-4da4-8441-4af6fb371a2a | Name: Group | NickName: Relay
+GUID: ccbce5fc-1eaa-4957-ae8f-14d6d25429d2 | Name: Group | NickName: Relay
+GUID: af7ecd81-9414-49f1-9e23-c4b2fa8fcfe2 | Name: Group | NickName: Relay
+GUID: df2ac14a-82de-4626-95f4-60081b45ba32 | Name: Group | NickName: Relay
+GUID: 537f41ea-b3aa-4f67-a222-c8cf37b4ae1a | Name: Group | NickName: Relay
+GUID: 7980e494-d56f-45c4-89e7-6dacd9f92b78 | Name: Group | NickName: Relay
+GUID: fe18fc81-027b-4f00-aa8b-75b6b60a17e4 | Name: Group | NickName: Relay
+GUID: 2131d015-3811-4f7c-a8e5-aed5490aa2e0 | Name: Group | NickName: Relay
+GUID: 1d03f714-62b0-4f6b-b2d0-0e308e0dd276 | Name: Group | NickName: Cluster
+
+=== UNIQUE TypeHintID GUIDs (9) ===
+1c282eeb-dd16-439f-94e4-7d92b542fe8b
+35915213-5534-4277-81b8-1bdc9e7383d2
+37261734-eec7-4f50-b6a8-b8d1f3c4396b
+39fbc626-7a01-46ab-a18e-ec1c0c41685b
+48d01794-d3d8-4aef-990e-127168822244
+87f87f55-5b71-41f4-8aea-21d494016f81
+9ba89ec2-5315-435f-a621-b66c5fa2f301
+d60527f5-b5af-4ef6-8970-5f96fe412559
+e1937b56-b1da-4c12-8bd8-e34ee81746ef
+
+=== DETAIL: ArchiCAD + GHPython components ===
+
+--- GUID: 0d986a36-a41a-429c-8f29-9e2658659e25 | Name: GhPython Script | NickName: #87-F1_ETAPA1_CONTEXTO_v02.py ---
+INPUTS (1):
+   name='json_path' nickname='json_path' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['438f700a-2692-42d5-9464-31112d0a68ea']
+OUTPUTS (22):
+   name='lot_curve' nickname='lot_curve' typehintID=None
+   name='lot_area' nickname='lot_area' typehintID=None
+   name='vecinos_curves' nickname='vecinos_curves' typehintID=None
+   name='vias_oficiales' nickname='vias_oficiales' typehintID=None
+   name='ejes_vias_curves' nickname='ejes_vias_curves' typehintID=None
+   name='espacios_publicos' nickname='espacios_publicos' typehintID=None
+   name='topo_mesh' nickname='topo_mesh' typehintID=None
+   name='altura_max_pot' nickname='altura_max_pot' typehintID=None
+   name='tratamiento' nickname='tratamiento' typehintID=None
+   name='rango_edificabilidad' nickname='rango_edificabilidad' typehintID=None
+   name='sector_normativo' nickname='sector_normativo' typehintID=None
+   name='upz' nickname='upz' typehintID=None
+   name='ancho_via_oficial_m' nickname='ancho_via_oficial_m' typehintID=None
+   name='tipologia_oficial' nickname='tipologia_oficial' typehintID=None
+   name='reglamentacion_json' nickname='reglamentacion_json' typehintID=None
+   name='io_normativo' nickname='io_normativo' typehintID=None
+   name='origen_x' nickname='origen_x' typehintID=None
+   name='origen_y' nickname='origen_y' typehintID=None
+   name='layers_json' nickname='layers_json' typehintID=None
+   name='layer_lote_ok' nickname='layer_lote_ok' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+   name='json_path' nickname='json_path' typehintID=None
+
+--- GUID: d4aab682-ad94-40e9-a5b5-eaf20b3350c7 | Name: GhPython Script | NickName: #166-F1_ETAPA2_NORMATIVA_v10.py ---
+INPUTS (33):
+   name='vecinos_intervalos_json' nickname='vecinos_intervalos_json' access=Item typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['2287adb8-8d96-4ed4-a12c-914434fff84c']
+   name='reglamentacion_json' nickname='reglamentacion_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['1164b99f-f386-4322-83ea-270ddb7dcfde']
+   name='lot_polygon' nickname='lot_polygon' access=Item typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['c09872c2-4406-4e1c-92c7-e65068e12056']
+   name='sides_table_json' nickname='sides_table_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['0d0cfd98-43fc-49f1-b97b-71e2de29ff4b']
+   name='patio_curves' nickname='patio_curves' access=List typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['682c18d1-29e9-484c-af68-972c367af124']
+   name='altura_max_pot' nickname='altura_max_pot' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['d2bbbe59-0e4c-4e4c-979b-3945ce82b179']
+   name='tratamiento' nickname='tratamiento' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['ec7336a7-df91-47ba-89a7-42750c8473c3']
+   name='rango_edificabilidad' nickname='rango_edificabilidad' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['b9248064-ac9f-4fdc-995b-5a81c1b937a7']
+   name='floor_height_user' nickname='floor_height_user' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['f4f06e09-bd63-48c9-aacf-ebb1a18798f2']
+   name='io_maximo_user' nickname='io_maximo_user' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['c8d88565-ae8d-4127-aea2-80cad521e413']
+   name='piso_adicional' nickname='piso_adicional' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['fb742b15-3bde-4c9c-87bc-d7c26fc84df3']
+   name='tipo_bonificacion' nickname='tipo_bonificacion' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['c16825c6-468b-42ab-8d89-5bb3a3e6b000']
+   name='tipologia' nickname='tipologia' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['aa101248-4f97-41cb-b4cb-e64c44676e8b']
+   name='ancho_via_m' nickname='ancho_via_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['f79d0c8a-a639-40d2-9488-797dcc4ebade']
+   name='antejardin_m' nickname='antejardin_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['2134c72c-86b1-44ff-b1dc-5cbc480c8e14']
+   name='empate_posterior_pisos' nickname='empate_posterior_pisos' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['934649b8-f30e-4e0d-9946-44b39a418994']
+   name='altura_vecinos_m' nickname='altura_vecinos_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='empate_lateral_min_m' nickname='empate_lateral_min_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='voladizo_frontal_m' nickname='voladizo_frontal_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='vecinos_por_lado_json' nickname='vecinos_por_lado_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='frente_override_json' nickname='frente_override_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='normativa_confirmada' nickname='normativa_confirmada' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['eda71746-c5a8-4b99-aa50-07c1dc5afe3d']
+   name='pisos_maximos_total' nickname='pisos_maximos_total' access=Item typehintID=48d01794-d3d8-4aef-990e-127168822244 source=['dc9c2e53-9427-480d-8c47-e0694a6c0454']
+   name='barras_json' nickname='barras_json' access=Item typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['35b13a06-542a-4f60-88a3-39a56ed56bf5']
+   name='retiro_patrimonial_m' nickname='retiro_patrimonial_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['25ab4fb3-048a-4a5a-b053-704235c9d9f7']
+   name='franja_patrimonial_longitud_m' nickname='franja_patrimonial_longitud_m' access=Tree typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['369af5a1-e357-45b4-8901-4cd92310e83c']
+   name='vecino_patrimonio_por_lado' nickname='vecino_patrimonio_por_lado' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['49a3b26a-869b-4fae-be70-05bac95064b0']
+   name='construccion_no_patrimonio_exenta' nickname='construccion_no_patrimonio_exenta' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=['41d42d82-93b7-4037-b79a-d3fbf11d8059']
+   name='altura_vecino_derecha_m' nickname='altura_vecino_derecha_m' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=['2f2b84fc-43d5-4c62-94d4-bbb8128e9afe']
+   name='empate_lateral_derecha_m' nickname='empate_lateral_derecha_m' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=['f88bc221-cf91-4da7-9224-31d2dc107898']
+   name='altura_vecino_izquierda_m' nickname='altura_vecino_izquierda_m' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=['ff618817-5ada-46b6-90b1-0a372095108a']
+   name='empate_lateral_izquierda_m' nickname='empate_lateral_izquierda_m' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=['39db0e50-008e-43f0-b6f2-fe2e97e09e4a']
+   name='cota_terreno_central_m' nickname='cota_terreno_central_m' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=['4687a655-b928-4b3f-b4fd-ceebfd4e464d']
+OUTPUTS (20):
+   name='envelope_curve' nickname='envelope_curve' typehintID=None
+   name='envelope_por_piso' nickname='envelope_por_piso' typehintID=None
+   name='retiros_por_piso' nickname='retiros_por_piso' typehintID=None
+   name='gfa_total' nickname='gfa_total' typehintID=None
+   name='ocupacion_real' nickname='ocupacion_real' typehintID=None
+   name='io_maximo' nickname='io_maximo' typehintID=None
+   name='ic_real' nickname='ic_real' typehintID=None
+   name='ic_maximo' nickname='ic_maximo' typehintID=None
+   name='altura_total' nickname='altura_total' typehintID=None
+   name='pisos_finales' nickname='pisos_finales' typehintID=None
+   name='valido' nickname='valido' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+   name='recortes_intervalos_json' nickname='recortes_intervalos_json' typehintID=None
+   name='presupuesto_ocupacion_m2' nickname='presupuesto_ocupacion_m2' typehintID=None
+   name='ocupacion_aprobada_m2' nickname='ocupacion_aprobada_m2' typehintID=None
+   name='gfa_aprobado_m2' nickname='gfa_aprobado_m2' typehintID=None
+   name='envelope_aprobado_por_piso' nickname='envelope_aprobado_por_piso' typehintID=None
+   name='lote_frente_m' nickname='lote_frente_m' typehintID=None
+   name='lote_fondo_m' nickname='lote_fondo_m' typehintID=None
+   name='alertas_patrimonio' nickname='alertas_patrimonio' typehintID=None
+
+--- GUID: d3bed17b-1b6b-4e89-8761-1985327b292b | Name: GhPython Script | NickName: #88-F1_ETAPA2_PATIO_v03.py ---
+INPUTS (4):
+   name='lot_vertices' nickname='lot_vertices' access=List typehintID=e1937b56-b1da-4c12-8bd8-e34ee81746ef source=['42b993db-8865-48f2-a456-ac01c6bd34d7']
+   name='sides_table_json' nickname='sides_table_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['0d0cfd98-43fc-49f1-b97b-71e2de29ff4b']
+   name='altura_max_pot' nickname='altura_max_pot' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['d2bbbe59-0e4c-4e4c-979b-3945ce82b179']
+   name='n_volumenes' nickname='n_volumenes' access=? typehintID=None source=['22f9b32e-6510-473e-a8c2-de1cc56ebaf1']
+OUTPUTS (3):
+   name='patios_curves' nickname='patios_curves' typehintID=None
+   name='patio_count' nickname='patio_count' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+
+--- GUID: 03edc848-3a7f-4fa4-b2a6-bf736d5414f5 | Name: GhPython Script | NickName: #78-F1_ETAPA2_LADOS_v06.py ---
+INPUTS (10):
+   name='lot_vertices' nickname='lot_vertices' access=List typehintID=e1937b56-b1da-4c12-8bd8-e34ee81746ef source=['42b993db-8865-48f2-a456-ac01c6bd34d7']
+   name='vias_curves' nickname='vias_curves' access=List typehintID=9ba89ec2-5315-435f-a621-b66c5fa2f301 source=['01e5d387-3575-453f-a5c8-b445f08b6fc7']
+   name='ep_curves' nickname='ep_curves' access=List typehintID=9ba89ec2-5315-435f-a621-b66c5fa2f301 source=['3f88648e-3885-41eb-9fd0-ef923dfa34af']
+   name='vecinos_curves' nickname='vecinos_curves' access=List typehintID=9ba89ec2-5315-435f-a621-b66c5fa2f301 source=['904b6c1d-25c3-43ca-9764-c890793a79fe']
+   name='andenes_curves' nickname='andenes_curves' access=List typehintID=9ba89ec2-5315-435f-a621-b66c5fa2f301 source=['bcc3ada7-773e-4c7f-81b7-bc9996c57149']
+   name='tol_colindancia_m' nickname='tol_colindancia_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['d7be7a0e-8698-4399-ba5c-c653546bb97a']
+   name='contacto_min_frac' nickname='contacto_min_frac' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['1e6dc444-0c34-430f-9148-4240875941d0']
+   name='lado_via_setback_override_json' nickname='lado_via_setback_override_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['b3af946a-c564-4209-9294-fa89a6976d29']
+   name='clasificacion_lados_json' nickname='clasificacion_lados_json' access=Item typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['468c4fcf-187b-44a4-945c-ff45409d1919']
+   name='contexto_json_path' nickname='contexto_json_path' access=Item typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['eb4f42e5-e1df-4a4c-9064-1297d6cf9c32']
+OUTPUTS (7):
+   name='sides_table_json' nickname='sides_table_json' typehintID=None
+   name='lot_simplificado' nickname='lot_simplificado' typehintID=None
+   name='es_esquina' nickname='es_esquina' typehintID=None
+   name='ancho_via_m' nickname='ancho_via_m' typehintID=None
+   name='puente_lados_ok' nickname='puente_lados_ok' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+   name='vecinos_intervalos_json' nickname='vecinos_intervalos_json' typehintID=None
+
+--- GUID: 880d9e49-9938-4d31-a0bc-35d297a2ab28 | Name: GhPython Script | NickName: #146-F1_LAYERS_XML_v02.py ---
+INPUTS (3):
+   name='json_text' nickname='json_text' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['7882dbae-ea96-484d-b09d-b67e5f8e1e01']
+   name='output_path' nickname='output_path' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['63e69fd5-d297-4dc8-8c71-867541849e60']
+   name='execute' nickname='execute' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['8b17987d-da61-41b7-9712-57b50a21f998']
+OUTPUTS (4):
+   name='xml_text' nickname='xml_text' typehintID=None
+   name='status' nickname='status' typehintID=None
+   name='layer_count' nickname='layer_count' typehintID=None
+   name='missing_layers' nickname='missing_layers' typehintID=None
+
+--- GUID: 6189090f-7bd9-40a2-9efd-da6728321f62 | Name: GhPython Script | NickName: Fancy Names ---
+INPUTS (1):
+   name='run' nickname='run' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=['087871a4-6ec3-4389-b33f-b8703fd8bacb']
+OUTPUTS (2):
+   name='inventario' nickname='inventario' typehintID=None
+   name='total_componentes' nickname='total_componentes' typehintID=None
+
+--- GUID: ad270c61-3268-4dcc-b9e8-dd6e9711f5c8 | Name: GhPython Script | NickName: #47-F1_CONTEXTO50_BUILD_v01.3.py ---
+INPUTS (4):
+   name='json_path' nickname='json_path' access=Item typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['c63b5578-7f1a-481b-8280-a33991b57c4e']
+   name='altura_piso' nickname='altura_piso' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='bake' nickname='bake' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['3f45df55-582b-48e8-98b1-992b6a0321d8']
+   name='exportar' nickname='exportar' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['0c26a207-9856-43a6-84dc-ba4cdb9820ae']
+OUTPUTS (10):
+   name='volumenes' nickname='volumenes' typehintID=None
+   name='huellas' nickname='huellas' typehintID=None
+   name='alturas' nickname='alturas' typehintID=None
+   name='pisos' nickname='pisos' typehintID=None
+   name='ids' nickname='ids' typehintID=None
+   name='capa' nickname='capa' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+   name='out' nickname='out' typehintID=None
+   name='z_origen' nickname='z_origen' typehintID=None
+   name='desplazamiento_z' nickname='desplazamiento_z' typehintID=None
+
+--- GUID: f7f1bd10-32ba-4501-9dda-ebe9486e179b | Name: GhPython Script | NickName: #53-F0_LOAD_PROYECTO_v01.py ---
+INPUTS (2):
+   name='ruta_json' nickname='ruta_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['db7420f0-40fd-4a65-b68f-aa92903bea7c']
+   name='caso_default' nickname='caso_default' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+OUTPUTS (22):
+   name='chip' nickname='chip' typehintID=None
+   name='tipologia' nickname='tipologia' typehintID=None
+   name='piso_adicional' nickname='piso_adicional' typehintID=None
+   name='tipo_bonificacion' nickname='tipo_bonificacion' typehintID=None
+   name='floor_height_user' nickname='floor_height_user' typehintID=None
+   name='antejardin_decision' nickname='antejardin_decision' typehintID=None
+   name='antejardin_m' nickname='antejardin_m' typehintID=None
+   name='voladizo_frontal_m' nickname='voladizo_frontal_m' typehintID=None
+   name='empate_posterior_pisos' nickname='empate_posterior_pisos' typehintID=None
+   name='empate_posterior_m' nickname='empate_posterior_m' typehintID=None
+   name='empate_posterior_entrepiso_m' nickname='empate_posterior_entrepiso_m' typehintID=None
+   name='tratamiento' nickname='tratamiento' typehintID=None
+   name='caso' nickname='caso' typehintID=None
+   name='alineacion_nucleo' nickname='alineacion_nucleo' typehintID=None
+   name='usos' nickname='usos' typehintID=None
+   name='modos' nickname='modos' typehintID=None
+   name='escenarios' nickname='escenarios' typehintID=None
+   name='vecinos_por_lado_json' nickname='vecinos_por_lado_json' typehintID=None
+   name='frente_override_json' nickname='frente_override_json' typehintID=None
+   name='ok' nickname='ok' typehintID=None
+   name='log' nickname='log' typehintID=None
+   name='clasificacion_lados_json' nickname='clasificacion_lados_json' typehintID=None
+
+--- GUID: 7aadd219-4308-492c-8d2b-c73d8041a9ef | Name: GhPython Script | NickName: #267-F1_OVERRIDE_USO_v01.py ---
+INPUTS (4):
+   name='activar' nickname='activar' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['cec00a6d-b355-4ca1-9659-7362d5f52ae2']
+   name='uso_seleccionado' nickname='uso_seleccionado' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['e07db6bf-212d-4d7e-a2c9-da85f3cfd502']
+   name='uso_normativo' nickname='uso_normativo' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='justificacion' nickname='justificacion' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+OUTPUTS (6):
+   name='uso_efectivo' nickname='uso_efectivo' typehintID=None
+   name='override_aplicado' nickname='override_aplicado' typehintID=None
+   name='uso_normativo_ref' nickname='uso_normativo_ref' typehintID=None
+   name='flag_pipeline' nickname='flag_pipeline' typehintID=None
+   name='escenarios_sugeridos' nickname='escenarios_sugeridos' typehintID=None
+   name='nota' nickname='nota' typehintID=None
+
+--- GUID: 4d6fba96-1d12-4029-9683-b92d8c021e55 | Name: GhPython Script | NickName: #278-F1_EXPORTAR_GFA_v02.4.py ---
+INPUTS (13):
+   name='json_path' nickname='json_path' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['0d1eca32-e997-4907-a772-a9166aa1c7a9']
+   name='area_envelope' nickname='area_envelope' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['89ff43a1-d9d4-4223-8689-8a1d14de5037']
+   name='gfa_total' nickname='gfa_total' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['e7263eb1-ab22-493f-a851-b08854332996']
+   name='ocupacion_real' nickname='ocupacion_real' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['f2c78542-7883-4815-998f-c9aa517ce7b1']
+   name='io_maximo' nickname='io_maximo' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['86d781d0-8e25-43ab-9a29-09722103c52f']
+   name='ic_real' nickname='ic_real' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['b8da39cd-0eef-45b6-b323-364342dffb36']
+   name='ic_maximo' nickname='ic_maximo' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['fb3641a4-1a33-4791-adc9-546d4c06fb89']
+   name='altura_total' nickname='altura_total' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['7471935c-e936-4306-a5f7-ea3a8f6c1e02']
+   name='pisos_finales' nickname='pisos_finales' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['5f107c70-28e0-4b87-b9d0-97620d6ac613']
+   name='valido' nickname='valido' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['32254f9d-df9e-4de0-abed-5dddf64ae00c']
+   name='mensaje' nickname='mensaje' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['9313be4d-8ea5-4e27-ba52-5c26a1c7dd5d']
+   name='flag_pipeline' nickname='flag_pipeline' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['758487fe-61fb-4919-88c5-1c98d94d6725']
+   name='output_path' nickname='output_path' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+OUTPUTS (4):
+   name='estado' nickname='estado' typehintID=None
+   name='ruta_json' nickname='ruta_json' typehintID=None
+   name='json_text' nickname='json_text' typehintID=None
+   name='warning' nickname='warning' typehintID=None
+
+--- GUID: 6d2eeba1-3621-4525-a927-d50a79898068 | Name: GhPython Script | NickName: #8-GhPython Script ---
+INPUTS (2):
+   name='x' nickname='x' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=[]
+   name='y' nickname='y' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=[]
+OUTPUTS (1):
+   name='a' nickname='a' typehintID=None
+
+--- GUID: a5c82623-3079-475a-9837-66871b700f79 | Name: GhPython Script | NickName: #3-GhPython Script ---
+INPUTS (2):
+   name='x' nickname='x' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=[]
+   name='y' nickname='y' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=[]
+OUTPUTS (1):
+   name='a' nickname='a' typehintID=None
+
+--- GUID: 6eaf2956-f649-4540-a900-4b32a10deee4 | Name: GhPython Script | NickName: #246-F3_DISTRIBUCION_v03.py ---
+INPUTS (16):
+   name='chip' nickname='chip' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['ccf3dd73-b7a4-45d5-80c8-f98614002345']
+   name='presupuesto_ocupacion_m2' nickname='presupuesto_ocupacion_m2' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['45b01434-b37b-4530-a3b5-90f8b38fc454']
+   name='io_max' nickname='io_max' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='n_barras_objetivo' nickname='n_barras_objetivo' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['d4aa2e48-30b6-47e2-a220-a896adebef23']
+   name='entrepiso_adaptativo' nickname='entrepiso_adaptativo' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=[]
+   name='prioridad_ajuste' nickname='prioridad_ajuste' access=List typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='usos' nickname='usos' access=List typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='bloques_separacion_m' nickname='bloques_separacion_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='bloques_crujia' nickname='bloques_crujia' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='bloques_nucleo' nickname='bloques_nucleo' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='output_json' nickname='output_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='base_normativa_json' nickname='base_normativa_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['33fbfa60-f206-4900-8e87-550aa4527d31']
+   name='topo_mesh' nickname='topo_mesh' access=Item typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['16b7297d-8eaf-4fa4-9f49-d9547e454c09']
+   name='pisos_por_bloque' nickname='pisos_por_bloque' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='limites_pisos_json' nickname='limites_pisos_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='sep_lateral_json' nickname='sep_lateral_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['eadf62f2-810a-4c4b-9c84-67c3d66bf24f']
+OUTPUTS (8):
+   name='barras_json' nickname='barras_json' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+   name='alternativa_recomendada' nickname='alternativa_recomendada' typehintID=None
+   name='ocupacion_total_m2' nickname='ocupacion_total_m2' typehintID=None
+   name='gfa_real_m2' nickname='gfa_real_m2' typehintID=None
+   name='floor_h_usado' nickname='floor_h_usado' typehintID=None
+   name='n_barras_usado' nickname='n_barras_usado' typehintID=None
+   name='layout_espacial_json' nickname='layout_espacial_json' typehintID=None
+
+--- GUID: 8c7e8133-0bbe-401d-9fa0-6c4b761bbc5d | Name: GhPython Script | NickName: #247-F3_VOLUM_GENERADOR_v08.py ---
+INPUTS (12):
+   name='envelope_por_piso' nickname='envelope_por_piso' access=Tree typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['6f47441c-5f78-4140-b2a4-2c6a55bbfc4c']
+   name='envelope_curve' nickname='envelope_curve' access=Item typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['9682e8c4-bf63-4f4c-aa4a-16ae081a9cbc']
+   name='json_path' nickname='json_path' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['921141e7-7912-458e-9ce3-ce457dac0dc6']
+   name='floor_height' nickname='floor_height' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='salida_morph' nickname='salida_morph' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['60a9e98b-3ca0-4e63-b965-3fe65ae06804']
+   name='salida_zona' nickname='salida_zona' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['cfab7031-f2f0-402b-99ba-753561e80287']
+   name='sides_table_json' nickname='sides_table_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['0d0cfd98-43fc-49f1-b97b-71e2de29ff4b']
+   name='lote_vertices' nickname='lote_vertices' access=List typehintID=e1937b56-b1da-4c12-8bd8-e34ee81746ef source=['8c08d851-4c4d-48f5-91b8-686565c244c8']
+   name='alineacion_nucleo' nickname='alineacion_nucleo' access=List typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=[]
+   name='barras_implantadas_json' nickname='barras_implantadas_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['35b13a06-542a-4f60-88a3-39a56ed56bf5']
+   name='layout_usos_json' nickname='layout_usos_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['2f5b4ab4-e543-46c7-8270-0cd5f842331f']
+   name='z_origin' nickname='z_origin' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['ba3eb3a5-e134-445e-9032-175bee846605']
+OUTPUTS (20):
+   name='volumenes_principales' nickname='volumenes_principales' typehintID=None
+   name='volumenes_circulacion' nickname='volumenes_circulacion' typehintID=None
+   name='volumenes_servicios' nickname='volumenes_servicios' typehintID=None
+   name='volumenes_nucleo' nickname='volumenes_nucleo' typehintID=None
+   name='losas' nickname='losas' typehintID=None
+   name='etiquetas' nickname='etiquetas' typehintID=None
+   name='volumenes_por_uso' nickname='volumenes_por_uso' typehintID=None
+   name='usos_etiquetas' nickname='usos_etiquetas' typehintID=None
+   name='usos_pisos' nickname='usos_pisos' typehintID=None
+   name='circulacion_pisos' nickname='circulacion_pisos' typehintID=None
+   name='servicios_pisos' nickname='servicios_pisos' typehintID=None
+   name='losas_pisos' nickname='losas_pisos' typehintID=None
+   name='nucleo_pisos' nickname='nucleo_pisos' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+   name='zonas_perimetros' nickname='zonas_perimetros' typehintID=None
+   name='zonas_pisos' nickname='zonas_pisos' typehintID=None
+   name='zonas_atributos' nickname='zonas_atributos' typehintID=None
+   name='zonas_alturas' nickname='zonas_alturas' typehintID=None
+   name='zonas_nombres' nickname='zonas_nombres' typehintID=None
+   name='zonas_centroides' nickname='zonas_centroides' typehintID=None
+
+--- GUID: 8eaf3a60-de2a-4e86-891a-92be4b05be59 | Name: GhPython Script | NickName: #261-F3_MORPH_ATRIBUTOS_v02.py ---
+INPUTS (10):
+   name='morphs' nickname='morphs' access=List typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['c2ce036e-02c4-4450-82b0-5bbec7b5097e']
+   name='pisos' nickname='pisos' access=List typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['4ac8d286-fca6-4f23-997e-9505fec0e0a9']
+   name='usos' nickname='usos' access=List typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['bdcf1fa2-d0c6-4d6b-b0a9-1ced7fff5e4c']
+   name='nombres_niveles' nickname='nombres_niveles' access=List typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='chip' nickname='chip' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['ccf3dd73-b7a4-45d5-80c8-f98614002345']
+   name='salida_path' nickname='salida_path' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['2abab5bb-ba89-467d-abfa-e92c4123e506']
+   name='building_material' nickname='building_material' access=List typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='structural_function' nickname='structural_function' access=Item typehintID=48d01794-d3d8-4aef-990e-127168822244 source=[]
+   name='position' nickname='position' access=Item typehintID=48d01794-d3d8-4aef-990e-127168822244 source=['1503dde0-93b6-4798-927f-aea7d47a3801']
+   name='renovation_status' nickname='renovation_status' access=Item typehintID=48d01794-d3d8-4aef-990e-127168822244 source=['36a640db-ef17-4bdf-9cfa-9186deef18b4']
+OUTPUTS (6):
+   name='layer_names' nickname='layer_names' typehintID=None
+   name='story_names' nickname='story_names' typehintID=None
+   name='layers_json' nickname='layers_json' typehintID=None
+   name='manifest_json' nickname='manifest_json' typehintID=None
+   name='estado' nickname='estado' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+
+--- GUID: 768ebdc8-7e53-4541-b511-72408af73c32 | Name: GhPython Script | NickName: #266-F3_ACCESOS_INTEGRADOR_v02.py ---
+INPUTS (3):
+   name='layout_espacial_json' nickname='layout_espacial_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['ea77dff8-581c-4e66-8cbc-73e40d7988fb']
+   name='matriz_adyacencias_json' nickname='matriz_adyacencias_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['06f3f85d-a5c9-42cd-89c3-afdce848da1e']
+   name='sides' nickname='sides' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['0d0cfd98-43fc-49f1-b97b-71e2de29ff4b']
+OUTPUTS (4):
+   name='accesos_&lt;id&gt;.json' nickname='accesos_&lt;id&gt;.json' typehintID=None
+   name='accesos_&lt;id&gt;.txt' nickname='accesos_&lt;id&gt;.txt' typehintID=None
+   name='accesos_json' nickname='accesos_json' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+
+--- GUID: ab3a9f4c-26ae-4553-bf95-018a7d42dfb0 | Name: GhPython Script | NickName: #209-GhPython Script ---
+INPUTS (2):
+   name='x' nickname='x' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=[]
+   name='y' nickname='y' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=[]
+OUTPUTS (1):
+   name='a' nickname='a' typehintID=None
+
+--- GUID: 37bf9948-065e-4814-a36d-b49f7427dbb6 | Name: GhPython Script | NickName: #265-F3_UNIDADES_TIPOLOGIAS_v02.py ---
+INPUTS (11):
+   name='f2_resultados_json' nickname='f2_resultados_json' access=Item typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['c56d9ca6-d3e9-4054-9c3c-c666711543fb']
+   name='layout_espacial_json' nickname='layout_espacial_json' access=Item typehintID=35915213-5534-4277-81b8-1bdc9e7383d2 source=['2f5b4ab4-e543-46c7-8270-0cd5f842331f']
+   name='cota_via_m' nickname='cota_via_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['f79d0c8a-a639-40d2-9488-797dcc4ebade']
+   name='chip' nickname='chip' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['ccf3dd73-b7a4-45d5-80c8-f98614002345']
+   name='lote_frente_m' nickname='lote_frente_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['7f7daac5-332b-4d03-aa7a-cb984d62e44c']
+   name='lote_fondo_m' nickname='lote_fondo_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['c641aa85-55b6-42ee-976f-84b0bb2eafcc']
+   name='angulo_fachada_deg' nickname='angulo_fachada_deg' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='permitir_duplex_vivienda' nickname='permitir_duplex_vivienda' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=[]
+   name='permitir_duplex_comercio' nickname='permitir_duplex_comercio' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=[]
+   name='consolidar_parqueaderos' nickname='consolidar_parqueaderos' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=[]
+   name='modo_validacion' nickname='modo_validacion' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=[]
+OUTPUTS (16):
+   name='unidades_json' nickname='unidades_json' typehintID=None
+   name='parqueaderos_json' nickname='parqueaderos_json' typehintID=None
+   name='circulaciones_json' nickname='circulaciones_json' typehintID=None
+   name='prevalidacion_txt' nickname='prevalidacion_txt' typehintID=None
+   name='volumenes_por_uso' nickname='volumenes_por_uso' typehintID=None
+   name='usos_etiquetas' nickname='usos_etiquetas' typehintID=None
+   name='usos_pisos' nickname='usos_pisos' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+   name='layout_espacial_json' nickname='layout_espacial_json' typehintID=None
+   name='layout_json' nickname='layout_json' typehintID=None
+   name='layoutEspacialJson' nickname='layoutEspacialJson' typehintID=None
+   name='layout_espacial' nickname='layout_espacial' typehintID=None
+   name='matriz_adyacencias_json' nickname='matriz_adyacencias_json' typehintID=None
+   name='matriz_json' nickname='matriz_json' typehintID=None
+   name='matrizAdyacenciasJson' nickname='matrizAdyacenciasJson' typehintID=None
+   name='matriz_adyacencias' nickname='matriz_adyacencias' typehintID=None
+
+--- GUID: f27e032a-9a98-4f7c-aa7e-535a02355a4f | Name: ConnectArchicad | NickName: #32-ConnectArchicad ---
+INPUTS (0):
+OUTPUTS (0):
+
+--- GUID: 63424485-682b-48fe-8529-558366b19b91 | Name: GetLayersDetails | NickName: #193-GetLayersDetails ---
+INPUTS (0):
+OUTPUTS (0):
+
+--- GUID: 62a08541-2131-4e80-93e6-aa9ea4eadc78 | Name: Layers | NickName: #192-Layers ---
+INPUTS (0):
+OUTPUTS (0):
+
+--- GUID: 34ac3588-ddb3-4adc-a801-c49b8cf4b190 | Name: GhPython Script | NickName: #164-F1_ETAPA2_NORMATIVA_v10.py ---
+INPUTS (35):
+   name='reglamentacion _json' nickname='reglamentacion _json' access=List typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['2c740254-0fae-440c-8fad-48c2871feee7']
+   name='vecinos_intervalos_json' nickname='vecinos_intervalos_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['26759aa9-e84e-472d-bf9a-34b93c73f04c']
+   name='lot_polygon' nickname='lot_polygon' access=Item typehintID=9ba89ec2-5315-435f-a621-b66c5fa2f301 source=['0715a683-4555-4ff7-aa9f-1d223b25a376']
+   name='sides_table_json' nickname='sides_table_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['3424221e-195b-4494-a4b4-8477e105ffcf']
+   name='patio_curves' nickname='patio_curves' access=List typehintID=9ba89ec2-5315-435f-a621-b66c5fa2f301 source=['61d675b9-3640-4909-8d54-16113d2a2c32']
+   name='altura_max_pot' nickname='altura_max_pot' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['fa49748c-01f2-4038-833c-3727da13f8ba']
+   name='tratamiento' nickname='tratamiento' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['303ef6ae-b9d9-4eba-8926-c7121a603a27']
+   name='rango_edificabilidad' nickname='rango_edificabilidad' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['c1593597-dbda-40ab-a06e-e08964a6e5ed']
+   name='floor_height_user' nickname='floor_height_user' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['c98778e9-9250-4eaf-9376-b436185e66a0']
+   name='io_maximo_user' nickname='io_maximo_user' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['556a6bdf-ec12-4352-ada4-6ebab0127a0b']
+   name='piso_adicional' nickname='piso_adicional' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['9819dc3a-998e-4919-9325-748b52507ae1']
+   name='tipo_bonificacion' nickname='tipo_bonificacion' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['5a3ee0ba-0d93-4441-822c-fce5a89b146a']
+   name='tipologia' nickname='tipologia' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=['f3499029-e9c0-446d-be52-fed99d7c23af']
+   name='ancho_via_m' nickname='ancho_via_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=['e0734226-eed3-4fd9-a859-9489eeaa17dd']
+   name='antejardin_m' nickname='antejardin_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='empate_posterior_pisos' nickname='empate_posterior_pisos' access=Item typehintID=48d01794-d3d8-4aef-990e-127168822244 source=[]
+   name='altura_vecinos_m' nickname='altura_vecinos_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='empate_lateral_min_m' nickname='empate_lateral_min_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='voladizo_frontal_m' nickname='voladizo_frontal_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='vecinos_por_lado_json' nickname='vecinos_por_lado_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='frente_override_json' nickname='frente_override_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='reglamentacion_json' nickname='reglamentacion_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='normativa_confirmada' nickname='normativa_confirmada' access=Item typehintID=d60527f5-b5af-4ef6-8970-5f96fe412559 source=['8cb8c179-77dc-42b6-a4e2-a6b515e68178']
+   name='pisos_maximos_total' nickname='pisos_maximos_total' access=Item typehintID=48d01794-d3d8-4aef-990e-127168822244 source=['d5f24c5c-c756-4b08-9f06-f6132d95869e']
+   name='vecinos_intervalos_json' nickname='vecinos_intervalos_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='barras_json' nickname='barras_json' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='retiro_patrimonial_m' nickname='retiro_patrimonial_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='franja_patrimonial_longitud_m' nickname='franja_patrimonial_longitud_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='vecino_patrimonio_por_lado' nickname='vecino_patrimonio_por_lado' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='construccion_no_patrimonio_exenta' nickname='construccion_no_patrimonio_exenta' access=Item typehintID=37261734-eec7-4f50-b6a8-b8d1f3c4396b source=[]
+   name='altura_vecino_derecha_m' nickname='altura_vecino_derecha_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='altura_vecino_izquierda_m' nickname='altura_vecino_izquierda_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='empate_lateral_derecha_m' nickname='empate_lateral_derecha_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='empate_lateral_izquierda_m' nickname='empate_lateral_izquierda_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+   name='cota_terreno_central_m' nickname='cota_terreno_central_m' access=Item typehintID=39fbc626-7a01-46ab-a18e-ec1c0c41685b source=[]
+OUTPUTS (21):
+   name='base_json' nickname='base_json' typehintID=None
+   name='presupuesto_ocupacion' nickname='presupuesto_ocupacion' typehintID=None
+   name='envelope_curve' nickname='envelope_curve' typehintID=None
+   name='envelope_por_piso' nickname='envelope_por_piso' typehintID=None
+   name='retiros_por_piso' nickname='retiros_por_piso' typehintID=None
+   name='gfa_total' nickname='gfa_total' typehintID=None
+   name='ocupacion_real' nickname='ocupacion_real' typehintID=None
+   name='io_maximo' nickname='io_maximo' typehintID=None
+   name='ic_real' nickname='ic_real' typehintID=None
+   name='ic_maximo' nickname='ic_maximo' typehintID=None
+   name='altura_total' nickname='altura_total' typehintID=None
+   name='altura_total_validada' nickname='altura_total_validada' typehintID=None
+   name='pisos_finales' nickname='pisos_finales' typehintID=None
+   name='valido' nickname='valido' typehintID=None
+   name='mensaje' nickname='mensaje' typehintID=None
+   name='recortes_intervalos_json' nickname='recortes_intervalos_json' typehintID=None
+   name='presupuesto_ocupacion_m2' nickname='presupuesto_ocupacion_m2' typehintID=None
+   name='ocupacion_aprobada_m2' nickname='ocupacion_aprobada_m2' typehintID=None
+   name='gfa_aprobado_m2' nickname='gfa_aprobado_m2' typehintID=None
+   name='envelope_aprobado_por_piso' nickname='envelope_aprobado_por_piso' typehintID=None
+   name='alertas_patrimonio' nickname='alertas_patrimonio' typehintID=None
+
+--- GUID: b619de4b-8ed4-4f3f-bcc3-266441bff819 | Name: GhPython Script | NickName: #75-GhPython Script ---
+INPUTS (2):
+   name='x' nickname='x' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=[]
+   name='y' nickname='y' access=Item typehintID=87f87f55-5b71-41f4-8aea-21d494016f81 source=[]
+OUTPUTS (1):
+   name='a' nickname='a' typehintID=None

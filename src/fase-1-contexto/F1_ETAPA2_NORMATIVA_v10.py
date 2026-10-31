@@ -761,10 +761,11 @@ def _subsegmentos_piso(nv, lados, vertices, retiros_base, vecinos_por_lado,
                        altura_vecinos_m, empate_lateral_min, nsr_coef,
                        pisos_finales, floor_h, voladizo_frontal,
                        vecino_patrimonio, retiro_patrimonial_m,
-                       franja_patrimonial_longitud_m,
+                       franja_patrimonial_longitud_m, franja_t1, longitud_lado_0,
                        construccion_exenta, altura_vecino_derecha_m,
                        empate_lateral_derecha_m, empate_activo=True):
     """Genera subtramos con retiros por lado, considerando retiro patrimonial
+    limitado a la primera franja [0, franja_t1] del lado 0 (norte-occidental)
     y altura diferencial por lado derecho."""
     h_piso = nv * floor_h
     r_sismica = separacion_sismica_piso(h_piso, nsr_coef) \
@@ -782,6 +783,11 @@ def _subsegmentos_piso(nv, lados, vertices, retiros_base, vecinos_por_lado,
         if cls == "Lateral" and i in vecinos_por_lado:
             vecs = vecinos_por_lado[i]
             sub_pts = _subdividir_lado(p1, p2, vecs)
+            # parametro t acumulado de cada punto en [0,1] sobre el lado p1->p2
+            lado_len = p1.DistanceTo(p2)
+            ts = [0.0]
+            for jj in range(1, len(sub_pts)):
+                ts.append(min(1.0, ts[-1] + sub_pts[jj-1].DistanceTo(sub_pts[jj]) / max(lado_len, 1e-8)))
             for j in range(len(sub_pts) - 1):
                 r = max(retiro_base, r_sismica)
                 if empate_activo:
@@ -793,10 +799,15 @@ def _subsegmentos_piso(nv, lados, vertices, retiros_base, vecinos_por_lado,
                         if altura_vecino_derecha_m and altura_vecino_derecha_m > 0:
                             h_vec = altura_vecino_derecha_m
                     r = max(r, retiro_lateral_empate(h_piso, h_vec, empate_lateral_min))
-                # Retiro patrimonial: solo si lado es patrimonio y dentro de franja
+                # Retiro patrimonial: solo si lado es patrimonio y, para el lado 0,
+                # el subtramo inicia dentro de la primera franja [0, franja_t1]
                 if i in vecino_patrimonio and vecino_patrimonio[i].get("patrimonio", False):
                     if retiro_patrimonial_m and retiro_patrimonial_m > 0:
-                        r = max(r, retiro_patrimonial_m)
+                        dentro_franja = True
+                        if i == 0 and longitud_lado_0 > 1e-8:
+                            dentro_franja = 0 <= ts[j] < franja_t1
+                        if dentro_franja:
+                            r = max(r, retiro_patrimonial_m)
                 subs.append(((sub_pts[j], sub_pts[j + 1]), r))
         elif cls == "Lateral":
             r = max(retiro_base, r_sismica)
@@ -807,10 +818,17 @@ def _subsegmentos_piso(nv, lados, vertices, retiros_base, vecinos_por_lado,
                     # Detectar si este lado es el derecho por aproximacion (ultimo lateral)
                     h_vec = altura_vecino_derecha_m
                 r = max(r, retiro_lateral_empate(h_piso, h_vec, empate_lateral_min))
-            # Retiro patrimonial si aplica
+            # Retiro patrimonial si aplica (solo lado completo; para el lado 0 con
+            # franja parcial [0, franja_t1<1] no se aplica al lado entero para
+            # evitar el aislamiento cruzado fuera de la franja)
             if i in vecino_patrimonio and vecino_patrimonio[i].get("patrimonio", False):
                 if retiro_patrimonial_m and retiro_patrimonial_m > 0:
-                    r = max(r, retiro_patrimonial_m)
+                    if i != 0:
+                        # Lados distintos a 0: aplica retiro patrimonial completo (legacy)
+                        r = max(r, retiro_patrimonial_m)
+                    elif 0 <= ts[j] < franja_t1:
+                        # Lado 0: aplica solo dentro de la primera franja [0, franja_t1]
+                        r = max(r, retiro_patrimonial_m)
             subs.append(((p1, p2), r))
         elif cls == "Frontal" and nv > 1 and voladizo_frontal > 0:
             r = max(0.0, retiro_base - voladizo_frontal)
@@ -1156,6 +1174,25 @@ altura_vecino_izquierda_m = numero_opcional(altura_vecino_izquierda_raw)
 empate_lateral_derecha_m = numero_opcional(empate_lateral_derecha_raw)
 empate_lateral_izquierda_m = numero_opcional(empate_lateral_izquierda_raw)
 
+# v10 - Franja patrimonial del lado 0 (norte-occidental): el retiro patrimonial
+# se aplica SOLO al subsegmento [0, t1] del lado 0, limitado por
+# franja_patrimonial_longitud_m. Si no hay franja definida, comportamiento legacy
+# (retiro sobre todo el lado patrimonio).
+franja_t1 = 1.0
+longitud_lado_0 = 0.0
+if franja_patrimonial_longitud and franja_patrimonial_longitud > 0:
+    try:
+        v0 = vertices_lote[0]
+        v1 = vertices_lote[1] if len(vertices_lote) > 1 else None
+        if v1 is not None:
+            longitud_lado_0 = v0.DistanceTo(v1)
+            if longitud_lado_0 > 1e-8 and 0 in vecino_patrimonio and vecino_patrimonio[0].get("patrimonio", False):
+                franja_t1 = min(1.0, franja_patrimonial_longitud / longitud_lado_0)
+            else:
+                franja_t1 = 0.0
+    except Exception:
+        franja_t1 = 1.0
+
 # Patios
 patios_list = [p for p in safe_list(patio_raw) if p is not None]
 patio_area_total = sum(area_curve(p) for p in patios_list)
@@ -1323,10 +1360,15 @@ else:
                             h = span.get('altura_m')
                             if cls == 'Lateral' and empate_activo and h is not None:
                                 r = max(r, retiro_lateral_empate(nv * floor_h, float(h), empate_lateral_min))
-                            # v10: retiro patrimonial en intervalos
+                            # v10: retiro patrimonial en intervalos (solo lado 0 dentro
+                            # de la primera franja [0, franja_t1])
                             if i in vecino_patrimonio and vecino_patrimonio[i].get('patrimonio', False):
                                 if retiro_patrimonial_m and retiro_patrimonial_m > 0:
-                                    r = max(r, retiro_patrimonial_m)
+                                    dentro_franja = True
+                                    if i == 0 and longitud_lado_0 > 1e-8:
+                                        dentro_franja = 0 <= t0 < franja_t1
+                                    if dentro_franja:
+                                        r = max(r, retiro_patrimonial_m)
                             subs.append(((p, q), r))
                             diag_recortes.append({'piso': nv, 'id': i, 't0': t0, 't1': t1,
                                                   'retiro_m': r, 'altura_vecino_m': h})
@@ -1338,9 +1380,9 @@ else:
                                           altura_vecinos_m, empate_lateral_min, nsr_coef,
                                           pisos_finales, floor_h, voladizo_frontal,
                                           vecino_patrimonio, retiro_patrimonial_m,
-                                          franja_patrimonial_longitud, construccion_exenta,
-                                          altura_vecino_derecha_m, empate_lateral_derecha_m,
-                                          empate_activo)
+                                          franja_patrimonial_longitud, franja_t1, longitud_lado_0,
+                                          construccion_exenta, altura_vecino_derecha_m,
+                                          empate_lateral_derecha_m, empate_activo)
             try:
                 envs, area = _recortar_regiones_locales(lot_polygon, subs, patios_list,
                                                         _area_signada_puntos(vertices_lote) > 0)
@@ -1405,10 +1447,12 @@ for nv in range(1, pisos_finales + 1):
                 r_l = max([retiro_lateral_empate(h_piso, v[0], empate_lateral_min) for v in vecinos_por_lado[lid]] or [0.0])
             else:
                 r_l = retiro_lateral_empate(h_piso, altura_vecinos_m, empate_lateral_min)
-        # v10: retiro patrimonial
+        # v10: retiro patrimonial (solo lado 0 limitado a la primera franja;
+        # si no hay franja definida, comportamiento legacy sobre todo el lado)
         if lid in vecino_patrimonio and vecino_patrimonio[lid].get("patrimonio", False):
             if retiro_patrimonial_m and retiro_patrimonial_m > 0:
-                r_l = max(r_l, retiro_patrimonial_m)
+                if lid != 0 or franja_patrimonial_longitud and franja_patrimonial_longitud > 0:
+                    r_l = max(r_l, retiro_patrimonial_m)
         retiro_max = max(retiro_max, r_l, r_sismica)
     if retiro_max > 0:
         escalonados.append(nv)

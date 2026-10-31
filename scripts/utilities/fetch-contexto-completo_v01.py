@@ -24,12 +24,24 @@ CAMBIOS v01 (2026-09-28):
      F1_ETAPA3_CONTEXTO50_v01.1.py) encuentren el archivo sin requerir
      que el canvas tenga el CHIP hardcodeado.
 
+CAMBIOS v02 (2026-10-30):
+  1. Nueva etapa opcional `--enviar-archicad` que, tras generar los JSON, envía
+     lote, vías oficiales y espacios públicos a ArchiCAD vía Tapir
+     (puerto CommandConnection 19724). Cierra el círculo JSON → ArchiCAD desde
+     el orquestador sin depender del canvas GH.
+     - Lote objetivo -> zona en 00-00-10_Lote_proyecto (placa a cota 0 local).
+     - Vías oficiales -> wall delgado (0.10 m) en 00-20-20_Elementos_entorno_urbano.
+     - Espacios públicos -> zona en 70-50-10_Zonas_verdes_publicas.
+  2. Nuevo argumento `--tapir-puerto` (default 19724) para el CommandConnection.
+  3. Las coordenadas se expresan en marco local (restan origen SIRGAS del metadata).
+
 USO (desde la raíz del proyecto o vía orquestador):
   python scripts/utilities/fetch-contexto-completo.py --chip AAA0240ZXJH --gpkg <ruta_gpkg>
   python scripts/utilities/fetch-contexto-completo.py --chip AAA0240ZXJH --radio 75 --out data/pot-cache --gpkg <ruta_gpkg>
 """
 
 import argparse
+import json
 import os
 import sys
 import subprocess
@@ -84,6 +96,12 @@ def main():
     )
     parser.add_argument(
         "--solo-50", action="store_true", help="Solo ejecutar Paso 2 (requiere CHIP-contexto.json previo)"
+    )
+    parser.add_argument(
+        "--enviar-archicad", action="store_true", help="Tras generar JSON, enviar lote/vias/espacios_publicos a ArchiCAD via Tapir (puerto 19724)"
+    )
+    parser.add_argument(
+        "--tapir-puerto", type=int, default=19723, help="Puerto Tapir CommandConnection de ArchiCAD (default: 19723; verificado que la API responde en 19723 en este equipo 2026-10-30). Si Rhino.Compute está activo, cambiar a qwen2.5:7b."
     )
     args = parser.parse_args()
 
@@ -160,6 +178,41 @@ def main():
         except Exception as e:
             print(f"   AVISO: No se pudo crear canonico: {e}")
 
+    # ── Etapa opcional: enviar lote/vias/espacios_publicos a ArchiCAD vía Tapir ──
+    # Determinar puerto Tapir: usar detectar-puerto-archicad.py y fallback a
+    # --tapir-puerto si la detección falla.
+    if args.enviar_archicad:
+        # Ejecutar script de detección de puerto
+        detect_script = os.path.join(project_root, "scripts", "utilities", "detectar-puerto-archicad.py")
+        rc_detect = subprocess.run(
+            [sys.executable, detect_script, "--json"],
+            capture_output=True, text=True, cwd=project_root
+        )
+        detect_result = {}
+        if rc_detect.returncode == 0:
+            try:
+                detect_result = json.loads(rc_detect.stdout)
+            except Exception:
+                detect_result = {}
+        # Usar puerto detectado si ArchiCAD respondió, si no, fallback al argumento
+        if detect_result.get("puerto") and detect_result.get("resultados"):
+            # Verificar que al menos un puerto tenga estado "tapir"
+            puerto_tapir = None
+            for r in detect_result["resultados"]:
+                if r.get("estado") == "tapir":
+                    puerto_tapir = r["puerto"]
+                    break
+            if puerto_tapir is None and detect_result.get("puerto"):
+                # Fallback: usar el puerto detectado aunque no sea tapir estricto
+                puerto_tapir = detect_result["puerto"]
+        else:
+            puerto_tapir = args.tapir_puerto
+
+        ctx_file = os.path.join(out_dir_abs, f"{args.chip}-contexto.json")
+        rc_tapir = _enviar_a_archicad(ctx_file, args.chip, puerto=puerto_tapir)
+        if rc_tapir != 0:
+            return rc_tapir
+
     print(f"\n{'='*60}")
     print(f"CONTEXTO COMPLETO GENERADO para CHIP {args.chip}")
     print(f"   {ctx_base}")
@@ -167,6 +220,158 @@ def main():
     print(f"   {os.path.join(out_dir_abs, f'{args.chip}-contexto50.geojson')}")
     print(f"   Canonico para canvas: {ctx50_canonical}")
     print(f"{'='*60}")
+    return 0
+
+
+# ============================================================================
+# Envío a ArchiCAD vía Tapir (JSON/Python API, puerto 19724)
+# ============================================================================
+def _conectar_tapir(puerto=19723):
+    """Abre CommandConnection a ArchiCAD. Devuelve conn o None."""
+    try:
+        from archicad import ACConnection
+        conn = ACConnection.connect(port=puerto)
+        return conn
+    except Exception as e:
+        print("   AVISO: No se pudo conectar a ArchiCAD Tapir puerto {}: {}".format(puerto, e))
+        return None
+
+
+def _elementos_desde_json(ctx_path, chip):
+    """Lee <CHIP>-contexto.json y devuelve lista de elementos para mapear a ArchiCAD.
+
+    Elementos:
+      - lote_objetivo      -> zona en 00-00-10_Lote_proyecto (altura 0, referencia de terreno)
+      - vias_oficiales     -> linea (wall delgado) en 00-20-20_Elementos_entorno_urbano
+      - espacios_publicos  -> zona en 70-50-10_Zonas_verdes_publicas
+    """
+    if not os.path.exists(ctx_path):
+        print("   ERROR: No existe el JSON de contexto: {}".format(ctx_path))
+        return None
+    try:
+        with open(ctx_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print("   ERROR: No se pudo leer el JSON de contexto: {}".format(e))
+        return None
+
+    meta = data.get("metadata", {})
+    origen = meta.get("origen_sirgas", {})
+    dx = float(origen.get("x", 0.0))
+    dy = float(origen.get("y", 0.0))
+
+    elementos = []
+
+    # Lote objetivo como zona de referencia (placa a cota 0 local).
+    lote = data.get("lote_objetivo", {})
+    lote_verts = lote.get("vertices_3d_local", [])
+    if lote_verts and len(lote_verts) >= 3:
+        # Aceptar coordenadas 2D [x,y] o 3D [x,y,z]
+        poligono = []
+        for v in lote_verts:
+            if len(v) >= 3:
+                poligono.append([round(v[0] - dx, 3), round(v[1] - dy, 3)])
+            elif len(v) == 2:
+                poligono.append([round(v[0] - dx, 3), round(v[1] - dy, 3)])
+            else:
+                poligono.append([round(v[0], 3), round(v[1], 3)])
+        elementos.append({
+            "tipo": "zone",
+            "vertices": poligono,
+            "altura_m": 0.0,
+            "capa": "00-00-10_Lote_proyecto",
+            "nombre": "Lote " + chip,
+        })
+
+    # Vías oficiales como líneas (walls delgados de -0.15 m de elevación en planta, por debajo del nivel L01).
+    for via in data.get("vias_oficiales", []):
+        coords = via.get("coordenadas_local", [])
+        if len(coords) >= 2:
+            pts = []
+            for c in coords:
+                if len(c) >= 3:
+                    pts.append([round(c[0] - dx, 3), round(c[1] - dy, 3)])
+                elif len(c) == 2:
+                    pts.append([round(c[0] - dx, 3), round(c[1] - dy, 3)])
+                else:
+                    pts.append([round(c[0], 3), round(c[1], 3)])
+            elementos.append({
+                "tipo": "wall",
+                "vertices": pts,
+                "altura_m": -0.15,
+                "capa": "00-20-20_Elementos_entorno_urbano",
+                "nombre": via.get("nombre") or via.get("codigo") or "Via",
+            })
+
+    # Espacios públicos como zonas.
+    for ep in data.get("espacios_publicos", []):
+        coords = ep.get("coordenadas_local", [])
+        if len(coords) >= 3:
+            poligono = []
+            for c in coords:
+                if len(c) >= 3:
+                    poligono.append([round(c[0] - dx, 3), round(c[1] - dy, 3)])
+                elif len(c) == 2:
+                    poligono.append([round(c[0] - dx, 3), round(c[1] - dy, 3)])
+                else:
+                    poligono.append([round(c[0], 3), round(c[1], 3)])
+            elementos.append({
+                "tipo": "zone",
+                "vertices": poligono,
+                "altura_m": 0.0,
+                "capa": "70-50-10_Zonas_verdes_publicas",
+                "nombre": ep.get("nombre") or "Espacio publico",
+            })
+
+    return elementos
+
+
+def _enviar_a_archicad(ctx_path, chip, puerto=19724):
+    """Envía lote/vias/espacios_publicos del JSON de contexto a ArchiCAD vía Tapir.
+
+    Retorna 0 si se envió todo, 1 si falló la conexión o el envío.
+    """
+    print("\n" + "=" * 60)
+    print(">>> ETAPA OPCIONAL: Enviar contexto a ArchiCAD (Tapir puerto {})".format(puerto))
+    print("=" * 60)
+
+    conn = _conectar_tapir(puerto)
+    if conn is None:
+        print("   [FALLO] No se pudo conectar a ArchiCAD. Asegúrese de que ArchiCAD esté abierto y escuche en el puerto {}.".format(puerto))
+        return 1
+
+    elementos = _elementos_desde_json(ctx_path, chip)
+    if elementos is None:
+        return 1
+    if not elementos:
+        print("   AVISO: No hay elementos para enviar (lote, vías o espacios públicos vacíos).")
+        return 0
+
+    commands = conn.commands
+    enviados = 0
+    errores = 0
+    for el in elementos:
+        try:
+            verts = el["vertices"]
+            if el["tipo"] == "zone":
+                res = commands.CreateZone(polygon=verts, layer=el["capa"])
+            elif el["tipo"] == "wall":
+                res = commands.CreateWall(polygon=verts, height=float(el["altura_m"]), layer=el["capa"])
+            elif el["tipo"] == "slab":
+                res = commands.CreateSlab(polygon=verts, thickness=float(el["altura_m"]), layer=el["capa"])
+            else:
+                print("   AVISO: tipo no soportado {} para {}".format(el["tipo"], el.get("nombre")))
+                errores += 1
+                continue
+            print("   OK: {} -> {} (id={})".format(el["tipo"], el["capa"], res))
+            enviados += 1
+        except Exception as e:
+            print("   ERROR: {} -> {}: {}".format(el["tipo"], el.get("nombre"), e))
+            errores += 1
+
+    print("   Enviados: {} | Errores: {}".format(enviados, errores))
+    if errores and enviados == 0:
+        return 1
     return 0
 
 

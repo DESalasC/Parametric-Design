@@ -1,0 +1,77 @@
+TOTAL CHARS: 3423370
+DefinitionObjects at: 27973
+DefinitionObjects">
+          <items count="1">
+            <item name="ObjectCount" type_name="gh_int32" type_code="3">455</item>
+          </items>
+          <chunks count="455">
+            <chunk name="Object" index="0">
+              <items count="3">
+                <item name="GUID" type_name="gh_guid" type_code="9">410755b1-224a-4c1e-a407-bf32fb45ea7e</item>
+                <item name="Lib" type_name="gh_guid" type_code="9">00000000-0000-0000-0000-000000000000</item>
+                <item name="Name" type_name="gh_string" type_code="10">GhPython Script</item>
+              </items>
+              <chunks count="1">
+                <chunk name="Container">
+                  <items count="12">
+                    <item name="CodeInput" type_name="gh_string" type_code="10">"""
+================================================================================
+F1_ETAPA1_CONTEXTO_v02.py — Etapa 1: Datos en bruto → Geometria + Capas
+Proyecto: DisenoParametrico / Fase 1
+GH Python Script para Grasshopper (IronPython 2.7 compatible)
+================================================================================
+
+PROPOSITO:
+  Etapa 1 del pipeline v26. Lee el JSON de contexto v6 y entrega TODA la
+  geometria en bruto organizada por CAPA DESTINO, lista para enviar a
+  ArchiCAD via Tapir.
+
+  El flujo posterior es MANUAL en ArchiCAD: se clasifican los poligonos
+  (vias, andenes, zonas verdes, predios vecinos) en los layers creados,
+  y se construyen los Morphs de volumetrias vecinas.
+
+CAMBIOS v02.3 (2026-10-13):
+  - Z_BASE CORRECTO (Mínimo Z válido del terreno): prioridad min_z válido malla
+    terreno (punto más bajo lote) -&gt; promedio vecinos N/S -&gt; ancla SE -&gt; 0.0.
+  - Geometría en LOCAL Z: todas las salidas (lote, vecinos, vías, EP, topografía)
+    usan Z_local = Z_absoluto - Z_base. SE corner = (0,0,0). Terreno empieza en ~0.
+  - Coherencia total con F1_CONTEXTO50_BUILD v01.3 y F3_VOLUM_GENERADOR v08.1.
+
+CAMBIOS v02.2 (2026-10-13):
+  - Se corrigió el origen Z (dz) para tomar el punto más bajo de la malla de terreno
+    (min_z) cuando está disponible. Si existen vecinos al norte y al sur del lote,
+    se toma la media de sus cotas Z promedio (más cercana en cada dirección) para
+    definir dz, asegurando mejor alineación con el contexto urbano. Se mantiene dx, dy
+    del vértice SE del lote.
+
+CAMBIOS v02.1 (2026-10-13):
+  - Se corrigió el origen Z (dz) para tomar el punto más bajo de la malla de terreno
+    (min_z) cuando está disponible, asegurando que el sistema de coordenadas locales
+    tenga Z=0 en el terreno y evitando valores negativos. Se mantuvo dx, dy del
+    vértice SE del lote.
+
+CAMBIOS v02 (2026-08-15):
+  GARANTIA DEL LAYER DEL LOTE: el layer "00-00-10_Lote_proyecto" queda
+  asegurado en layers_json con merge defensivo (si faltara en la lista
+  estandar se re-inserta como primer elemento) y se expone la salida
+  booleana layer_lote_ok. Responde a la solicitud del usuario: el layer
+  del lote debe estar incluido en el script de arranque.
+
+  DERIVACION REGLAMENTARIA (ampliado 2026-08-15): nuevas salidas
+  ancho_via_oficial_m, tipologia_oficial y reglamentacion_json para que
+  F1_ETAPA2_NORMATIVA_v05 pueda sacar tipologia/ancho_via_m/antejardin_m
+  directamente de la reglamentacion cuando las entradas del operador son
+  nulas o 0. Nota: la fuente POT actual (fetch-urban-context-v6) trae
+  ancho: null en las vias y NO trae tipologia ni antejardin (mapas
+  CU-5.4.2-33 y CU-5.5, raster) -&gt; las salidas quedan vacias/0 hasta que
+  la fuente los provea; NORMATIVA_v05 avisa y usa los defaults.
+
+ENTRADAS:
+  json_path (String) — Ruta al &lt;CHIP&gt;-contexto.json
+
+SALIDAS (agrupadas por capa destino):
+  LOTE:        lot_curve (Curve) + lot_area (Number)
+  VECINOS:     vecinos_curves (Curve[]) — capa "predios vecinos"
+  VIAS:        vias_oficiales (Curve[]) — capa 00-20-20_Elementos_entorno_urbano
+  ESPACIOS:    espacios_publicos (Curve[]) — capa 70-50-10_Zonas_verdes_publicas
+  TOPO:        topo_mesh (Mesh) — capa 10-20

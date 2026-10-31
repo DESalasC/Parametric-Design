@@ -1,0 +1,485 @@
+Object chunks found: 455
+
+=== ALL COMPONENTS (instance_guid, nickname, name) ===
+0d986a36-a41a-429c-8f29-9e2658659e25|#87-F1_ETAPA1_CONTEXTO_v02.py|GhPython Script
+d4aab682-ad94-40e9-a5b5-eaf20b3350c7|#166-F1_ETAPA2_NORMATIVA_v10.py|GhPython Script
+d3bed17b-1b6b-4e89-8761-1985327b292b|#88-F1_ETAPA2_PATIO_v03.py|GhPython Script
+03edc848-3a7f-4fa4-b2a6-bf736d5414f5|#78-F1_ETAPA2_LADOS_v06.py|GhPython Script
+35bd28f4-53a8-4e21-bf88-ed6dc6173a8c|#42-File Path|File Path
+6a8732f5-d48d-465a-8d94-d57ca928f322|#5-Panel|Panel
+15733227-041e-45e8-b1f7-d84eb95f0eb4|#95-Panel|Panel
+28b87fd9-301d-4d71-b78b-b054159df54a|#93-Panel|Panel
+8b17987d-da61-41b7-9712-57b50a21f998|#137-Boolean Toggle|Boolean Toggle
+84453b10-964e-4389-9951-fdbf34e7e957|#156-Panel|Panel
+dd604d67-9b5f-416e-9fbb-0819263b68e9|#253-2D Polyline|2D Polyline
+849a322b-7d33-4c1e-8633-9dfe37af1f59|#220-Boolean Toggle|Boolean Toggle
+0bb86424-168b-4a23-8729-b34cf8f4f464|#227-Layer|Layer
+34cdf701-7cf8-4955-8975-75329121639e|#225-Line Type|Line Type
+760e4765-8728-46dc-8ef3-5deee88006dd|#248-Polyline Settings|Polyline Settings
+4db3f174-8a42-436d-aced-a70672391d3e|#226-Pen|Pen
+e5825223-1365-42ed-9490-ae707a7a09cb|#224-2D Viewpoint|2D Viewpoint
+89201549-7937-4bb2-864f-a95e4aa35b60|#228-Number Slider|Number Slider
+04aec516-6fc6-4810-89ad-4c7c3d602b6a|#229-Number Slider|Number Slider
+772379fe-bfb9-4a3b-8c09-36f1ae73e39b|#157-Panel|Panel
+0830dd93-5b15-49a0-9808-688e1ce4b74b|#159-Panel|Panel
+63e69fd5-d297-4dc8-8c71-867541849e60|#57-Panel|Panel
+42b993db-8865-48f2-a456-ac01c6bd34d7|#66-Relay|Relay
+380f39b7-9873-421a-af11-ed44574b9418|#255-2D Polyline|2D Polyline
+7e2f27a2-c765-4f44-94f8-5fa04eae9f82|#223-Boolean Toggle|Boolean Toggle
+3e5d0ca6-fbe0-4e00-be8e-560007d4d928|#239-Layer|Layer
+72e819a2-0155-4315-8d76-015ce69f4657|#237-Line Type|Line Type
+311eb66f-fd9b-453f-9d93-be217b5f3deb|#250-Polyline Settings|Polyline Settings
+901e3b63-3fea-4dd9-80fe-95e3cf5ab767|#238-Pen|Pen
+0cbe0c13-8ec1-4281-a9a1-4807586739e4|#236-2D Viewpoint|2D Viewpoint
+8ea22cc0-d729-43e5-926c-5d052ab9f5fe|#240-Number Slider|Number Slider
+40a99b07-e22d-4256-9862-b2fcd8dc6bbb|#241-Number Slider|Number Slider
+f14aed47-9d88-4b2c-9ca0-7a42204505a3|#59-Merge|Merge
+d14425f9-533d-419f-91e1-1a1d962a3186|#254-2D Polyline|2D Polyline
+6ab82bef-54d9-44c1-b5b3-6d6805086423|#222-Boolean Toggle|Boolean Toggle
+f0d50526-09ee-4826-8b39-40bcad7df949|#233-Layer|Layer
+3839b024-127d-43e7-9b54-7ece590f14cd|#231-Line Type|Line Type
+b81b4596-0469-4755-b504-296ddd5890fb|#249-Polyline Settings|Polyline Settings
+e7cc4cd8-cbf8-4e60-b0d1-7c48b2466df9|#232-Pen|Pen
+6d22157d-e41b-47c8-a535-4c6f3c667b4a|#230-2D Viewpoint|2D Viewpoint
+123c4142-1f99-46ce-9864-1138d1abcf0c|#234-Number Slider|Number Slider
+1a1b6e8a-bec4-42f5-bbd4-1c42663229d0|#235-Number Slider|Number Slider
+1840c52e-a9cc-4222-8b40-dea520b25ad2|#7-Panel|Panel
+c4f84ab6-92ca-4ada-88e2-786201fc80a4|#89-Panel|Panel
+d2bbbe59-0e4c-4e4c-979b-3945ce82b179|#92-Relay|Relay
+f4f06e09-bd63-48c9-aacf-ebb1a18798f2|#107-Number Slider|Number Slider
+64ac3a17-bd64-4985-9dcb-559a9acefde0|#187-Panel|Panel
+c7c2bc5b-4052-4ce7-ae0a-42a7909799f8|#194-Panel|Panel
+880d9e49-9938-4d31-a0bc-35d297a2ab28|#146-F1_LAYERS_XML_v02.py|GhPython Script
+1fd35183-777a-41fb-8537-bc45b054ef4b|#91-Panel|Panel
+b439301d-b0be-41a2-928f-41da4f18c987|#90-Panel|Panel
+6189090f-7bd9-40a2-9efd-da6728321f62|Fancy Names|GhPython Script
+ad270c61-3268-4dcc-b9e8-dd6e9711f5c8|#47-F1_CONTEXTO50_BUILD_v01.3.py|GhPython Script
+f7f1bd10-32ba-4501-9dda-ebe9486e179b|#53-F0_LOAD_PROYECTO_v01.py|GhPython Script
+6c6470af-070b-40fb-8ce0-708b1bc4c36d|#191-Relay|Relay
+92829854-3405-4203-b1dd-701411597671|#263-Area|Area
+b4dfe4e3-b87b-4b62-b84c-98d829ff0c09|#200-Panel|Panel
+fb742b15-3bde-4c9c-87bc-d7c26fc84df3|#109-Boolean Toggle|Boolean Toggle
+e07db6bf-212d-4d7e-a2c9-da85f3cfd502|#262-Value List|Value List
+c8d88565-ae8d-4127-aea2-80cad521e413|#108-Number Slider|Number Slider
+90cd998a-cf3d-4d66-bad7-6ebb9c8d5fa8|#175-Panel|Panel
+45f34d3c-d6dd-4c2c-a205-81ac308016ea|#179-Panel|Panel
+ed129f1a-f0ce-42fd-a8f8-d59ffe2660f4|#180-Panel|Panel
+d1f1c084-9663-45e0-ab5b-10ab6ca1e023|#181-Panel|Panel
+ec511a85-a91c-4b9f-b257-e0d7da451d23|#182-Panel|Panel
+702eccf6-3076-42af-bff8-18788a45f560|#185-Panel|Panel
+d23735c9-60d8-4295-9583-e9547a66670e|#186-Panel|Panel
+d99cc805-befe-4c30-b61a-5541f0f841a2|#183-Panel|Panel
+c16825c6-468b-42ab-8d89-5bb3a3e6b000|#112-Value List|Value List
+08dbd128-35a6-435b-9ea7-79402a2b00b8|#165-Panel|Panel
+357fa72a-93e4-4425-b31c-e01dd408b3aa|#155-Addition|Addition
+d836b34f-5419-465d-a84d-e8230ac289b4|#141-Number Slider|Number Slider
+7aadd219-4308-492c-8d2b-c73d8041a9ef|#267-F1_OVERRIDE_USO_v01.py|GhPython Script
+cec00a6d-b355-4ca1-9659-7362d5f52ae2|#259-Boolean Toggle|Boolean Toggle
+4d6fba96-1d12-4029-9683-b92d8c021e55|#278-F1_EXPORTAR_GFA_v02.4.py|GhPython Script
+7f12bc12-850d-4bd3-928a-43c850272731|#272-Panel|Panel
+57232634-8272-4117-b257-37f79f02c366|#275-Panel|Panel
+758487fe-61fb-4919-88c5-1c98d94d6725|#274-Panel|Panel
+55030132-8f2b-45c2-856c-cfd3424bfb4f|#277-Panel|Panel
+eb315550-d746-4cac-8aa7-afe18c78f761|#276-Panel|Panel
+317814cc-ff32-43ef-8565-fc611857b8df|#273-Panel|Panel
+27de6944-de5a-480c-9636-b21af4a9ec7d|#286-Panel|Panel
+b903fe07-7be3-4c39-8df8-b0122ce9aba2|#197-Panel|Panel
+e661bc13-5085-492c-8011-fa8f822e2e49|#198-Panel|Panel
+8f44a013-cd50-4112-9820-2e7279c7a41b|#199-Panel|Panel
+38323b45-34cc-42b3-a539-e2e9745e78b6|#195-Panel|Panel
+ff0fcdd4-f859-442b-b594-8fd671b949a6|#196-Panel|Panel
+41d42d82-93b7-4037-b79a-d3fbf11d8059|#147-Panel|Panel
+a3134bb0-55c8-49f3-896f-9c46998931ae|#189-Panel|Panel
+0d1eca32-e997-4907-a772-a9166aa1c7a9|#65-Relay|Relay
+57bb3157-6032-45ae-8e93-6fd413f437b3|#94-Panel|Panel
+9233109c-fbb0-4ddb-b43c-bc7069417ad9|#287-Panel|Panel
+59fbebbf-1edf-441c-9604-860d364fcba4|#288-Panel|Panel
+f64dbcbb-eedb-433a-a177-8d65d8095f62|#289-Panel|Panel
+1d4f3d63-4e93-4557-a029-b9cd443004b2|#82-Panel|Panel
+0cce8b8c-fd80-43e0-8a31-c6c895e21057|#81-Panel|Panel
+be3562fe-86e5-4802-9481-87c0a2260585|#97-Panel|Panel
+eaf82dd6-6ede-43ce-95bb-a62e537bc753|#48-Panel|Panel
+aa101248-4f97-41cb-b4cb-e64c44676e8b|#113-Value List|Value List
+37716694-f7a2-4bf9-a6f3-57820c4a26e0|#176-Number Slider|Number Slider
+2134c72c-86b1-44ff-b1dc-5cbc480c8e14|#110-Number Slider|Number Slider
+934649b8-f30e-4e0d-9946-44b39a418994|#111-Number Slider|Number Slider
+c1892186-c813-41cb-bec2-21c8067218b1|#158-Panel|Panel
+2dc76614-d1cc-444c-b35e-e98d87e80ca9|#85-Panel|Panel
+2e914f70-6eb8-411a-972c-363e484bceea|#30-Panel|Panel
+7a432820-bfc3-4f64-a540-014698dd6436|#36-Panel|Panel
+5a318d6c-64e2-4b89-8314-b880615266ef|#44-Panel|Panel
+bcc3ada7-773e-4c7f-81b7-bc9996c57149|#52-Curve|Curve
+904b6c1d-25c3-43ca-9764-c890793a79fe|#51-Curve|Curve
+3f88648e-3885-41eb-9fd0-ef923dfa34af|#50-Curve|Curve
+d7be7a0e-8698-4399-ba5c-c653546bb97a|#68-Number Slider|Number Slider
+1e6dc444-0c34-430f-9148-4240875941d0|#69-Number Slider|Number Slider
+478712be-5815-489c-997e-cbd8bf9c606d|#15-Deconstruct 2D Polyline|Deconstruct 2D Polyline
+ac47b487-ba18-4ea9-8d63-d9b916ff6e26|#12-Deconstruct 2D Polyline|Deconstruct 2D Polyline
+f2cd77e4-f7c1-4845-9def-85a9d94be25b|#23-Relay|Relay
+1438c1ca-389d-489c-b673-efa9baabc494|#13-Deconstruct 2D Polyline|Deconstruct 2D Polyline
+ebb20caa-158a-4e94-a4be-40e9e030cf83|#21-Relay|Relay
+267eaecc-557b-4336-a976-21f4a751efed|#22-Relay|Relay
+b2c63b70-56a6-4355-bd5a-2d2004cb4dcb|#11-Deconstruct 2D Polyline|Deconstruct 2D Polyline
+0eb19658-f906-4321-bce0-0d2c071c81a5|#35-Discontinuity|Discontinuity
+f19513b3-7722-473c-8e74-20971cb106da|#60-Panel|Panel
+6d2eeba1-3621-4525-a927-d50a79898068|#8-GhPython Script|GhPython Script
+78b9fd6b-ffb9-4ff9-8601-6596080b9ca0|#31-Text Join|Text Join
+e59eb879-013c-4118-b70c-acc0c04f3698|#20-Merge|Merge
+b3af946a-c564-4209-9294-fa89a6976d29|#62-File Path|File Path
+fd3423b1-8746-4269-9e48-d3b90c0d31e6|#49-Panel|Panel
+0865d8d8-1b01-446f-a93d-ed55c872ac8d|#43-Text Join|Text Join
+60af5a5b-eae0-4812-9d98-777c610edcc8|#34-Merge|Merge
+27cc6af6-372a-4bed-931b-24755c7ef4d1|#25-Panel|Panel
+b0236142-1719-40f4-abf8-76c39e6a3e88|#6-Panel|Panel
+1a4544c5-6e27-4dad-993c-2e224f626bc9|#33-Text Join|Text Join
+9f1e1586-3a52-4367-88ad-2961cf9e0658|#18-Merge|Merge
+1d751cb9-293f-4e51-8a9d-be47ef2e4352|#38-Panel|Panel
+749104c7-6f20-479f-93d6-d4c4ae9db733|#61-Panel|Panel
+c7b05cf9-cc04-4c3a-a9ff-c34aa1a7910f|#2-Panel|Panel
+a5c82623-3079-475a-9837-66871b700f79|#3-GhPython Script|GhPython Script
+ced222ac-dd75-44dc-b94c-6f75e4902917|#17-Merge|Merge
+c63b5578-7f1a-481b-8280-a33991b57c4e|#37-File Path|File Path
+66c173d7-31b3-4a22-9acd-468486fb09ee|#27-Text Join|Text Join
+6449298a-b31a-496e-8884-e1a35cc25bba|#46-Panel|Panel
+3f45df55-582b-48e8-98b1-992b6a0321d8|#29-Boolean Toggle|Boolean Toggle
+4f0b0d0c-c758-49ba-b757-3423422932ad|#58-Panel|Panel
+e327a458-1571-457b-8185-b7b162da62bc|#63-Morph Solid|Morph Solid
+88c456d6-2341-4157-bbe4-4a51090eb4cd|#54-Boolean Toggle|Boolean Toggle
+0c26a207-9856-43a6-84dc-ba4cdb9820ae|#28-Boolean Toggle|Boolean Toggle
+a3e18872-7fab-403a-90b0-3221f1885768|#10-Bifocals|Bifocals
+087871a4-6ec3-4389-b33f-b8703fd8bacb|#1-Boolean Toggle|Boolean Toggle
+5301ad37-cf0a-4260-869d-5bb8004c78a0|#41-Panel|Panel
+1ee725c5-6ed5-4f3e-a6c2-2f536cc6c6f7|#9-Panel|Panel
+6a30edd7-ad55-4bb5-b655-4661491037b8|#135-Boolean Toggle|Boolean Toggle
+82bb1e2a-4481-4265-b7e6-1811fa3ce562|#142-Panel|Panel
+f6c9b51e-32d1-4ca9-a55b-110c414109e1|#102-Panel|Panel
+3ec247b1-4020-4595-8829-14a200c74eac|#125-Polyline Settings|Polyline Settings
+a384ca19-1fae-44d6-b049-2bfe1bb5ea0e|#115-Curve|Curve
+ca49279b-7297-4a65-a232-1ac1b99bb74f|#143-2D Polyline|2D Polyline
+7df02852-4711-4513-86da-eb9e622c9440|#106-Layer|Layer
+ff8a3228-87d5-480f-ae45-ac461b9ceebf|#131-2D Viewpoint|2D Viewpoint
+592bb6c9-9b5b-4527-9174-17c4d8fb276c|#101-Line Type|Line Type
+60a0c532-9603-4d52-a6b2-f1ccad351d07|#103-Pen|Pen
+baa9b444-c899-4d4b-9ec8-aeedb84d218e|#100-Merge|Merge
+22f9b32e-6510-473e-a8c2-de1cc56ebaf1|#80-Number Slider|Number Slider
+0eafeb92-ec9c-4e0a-a3ed-1ad7caba58d2|#123-Mesh|Mesh
+dbc95c73-4eba-46be-ad1b-f645cf419845|#96-Relay|Relay
+dca4a6c3-5024-4a66-a020-6e5884373d5c|#99-Mesh|Mesh
+6dd340ab-a7f7-43dc-8298-39a7faf0074d|#145-CreateMeshes|CreateMeshes
+6a375270-ab81-445a-a42b-687ae6596bc9|#136-MeshSkirtTypes|MeshSkirtTypes
+27647d89-c0fd-45b7-9c0d-4e0d18ed990a|#138-MeshRidgeTypes|MeshRidgeTypes
+062194a4-bb25-4e36-93f1-4e717c28c9d0|#162-Panel|Panel
+8c5cf5c0-6d4c-46ab-ab09-8e706ffcb0d3|#161-Panel|Panel
+0bf3fa7e-4f67-43f7-9069-cf6fe3b096f7|#105-Deconstruct Mesh|Deconstruct Mesh
+9e33e757-ad0d-4345-a368-ac6c1847533d|#104-Boolean Toggle|Boolean Toggle
+7a26ae98-b331-40bc-afb7-656afaf2e88a|#134-Boolean Toggle|Boolean Toggle
+08455ae4-5d60-49cf-9f63-34479c9e9109|#19-Relay|Relay
+1ea7de8d-5f61-4bef-b2e3-68f8880c34aa|#201-Relay|Relay
+01e5d387-3575-453f-a5c8-b445f08b6fc7|#67-Relay|Relay
+b9b52851-151c-441f-a62b-e945739fe023|#71-Panel|Panel
+0233a1ba-e22d-43c5-82d8-2271070e92b2|#26-Deconstruct 2D Polyline|Deconstruct 2D Polyline
+5b50f44c-2241-4d9f-8170-3c37d9c1bd13|#45-Panel|Panel
+ac209233-807c-44aa-b509-0d057290f8ea|#16-2D Curve|2D Curve
+19f5d71c-566b-4eb8-9ad8-3b347359dee2|#40-PolylineDetails|PolylineDetails
+fb06952e-d1bf-41dd-b786-c80004dbc678|#24-End Points|End Points
+b33704fa-c3c1-447e-a9e1-ff5e6182551a|#39-Panel|Panel
+dc9c2e53-9427-480d-8c47-e0694a6c0454|#127-Number Slider|Number Slider
+20218518-41dc-4537-b434-762666ca75f0|#84-Panel|Panel
+eb4f42e5-e1df-4a4c-9064-1297d6cf9c32|#70-Panel|Panel
+fb511c0d-1457-4d60-9213-03867c6c236a|#64-Panel|Panel
+468c4fcf-187b-44a4-945c-ff45409d1919|#74-Relay|Relay
+75a255b0-88f8-416f-b41b-511ccbc8f256|#76-Panel|Panel
+33fedb5f-5245-4518-b1bc-eae6c982d553|#73-File Path|File Path
+eda71746-c5a8-4b99-aa50-07c1dc5afe3d|#114-Boolean Toggle|Boolean Toggle
+6eaf2956-f649-4540-a900-4b32a10deee4|#246-F3_DISTRIBUCION_v03.py|GhPython Script
+9ee561bd-c38a-471e-b202-52fed1276b48|#260-Panel|Panel
+15d034b9-e099-49b9-916a-f6b8b219adfe|#83-Panel|Panel
+8c7e8133-0bbe-401d-9fa0-6c4b761bbc5d|#247-F3_VOLUM_GENERADOR_v08.py|GhPython Script
+8eaf3a60-de2a-4e86-891a-92be4b05be59|#261-F3_MORPH_ATRIBUTOS_v02.py|GhPython Script
+768ebdc8-7e53-4541-b511-72408af73c32|#266-F3_ACCESOS_INTEGRADOR_v02.py|GhPython Script
+60a9e98b-3ca0-4e63-b965-3fe65ae06804|#211-Boolean Toggle|Boolean Toggle
+cfab7031-f2f0-402b-99ba-753561e80287|#212-Boolean Toggle|Boolean Toggle
+e05f8f43-2ae2-4256-98e0-bb28d60a523a|#213-Panel|Panel
+ba6ed6bc-1040-4af2-9b38-42041de28f71|#214-Panel|Panel
+ab3a9f4c-26ae-4553-bf95-018a7d42dfb0|#209-GhPython Script|GhPython Script
+c7cced40-8223-4be6-867d-053b5538733d|#218-Merge|Merge
+70baf962-5d0f-4c48-bede-7b6df39d3dcf|#210-Panel|Panel
+775cbddc-136b-42d8-b9a1-954acf3de7ba|#216-Merge|Merge
+795fbf2a-6e1e-452b-8e7f-867a082f4294|#251-Panel|Panel
+ab4b44cb-5c73-4c73-85fe-1eae77abbea7|#242-Panel|Panel
+e0fd46b4-4845-4efe-aec7-f3258241a68e|#221-Text Join|Text Join
+6f68e9f5-9abf-4aee-956b-3a4f8f6a6655|#219-Text Join|Text Join
+ccf3dd73-b7a4-45d5-80c8-f98614002345|#204-Relay|Relay
+d29dc15b-8be3-42e4-a462-b9646bc8247d|#98-Panel|Panel
+11b314e3-5540-4150-a6a5-461705ea4949|#203-Panel|Panel
+59b9cfe2-481b-40b3-9f8e-f563767809ec|#207-Merge|Merge
+8bb53d04-fd9d-4913-8f71-17bec5845638|#208-Text Join|Text Join
+1503dde0-93b6-4798-927f-aea7d47a3801|#243-Value List|Value List
+36a640db-ef17-4bdf-9cfa-9186deef18b4|#244-Value List|Value List
+6126aaea-a05d-42ad-8847-11e1bcd482fd|#245-Panel|Panel
+6c5ba3b4-f736-4d6c-8a27-b3982adfbe53|#252-Merge|Merge
+f0e16fe8-e47f-4b33-97b0-863471c94bdc|#258-Text Join|Text Join
+5fe99180-4ef7-4a27-b2b4-7309dd83d812|#256-Panel|Panel
+3cd964a7-8e94-4ad4-8e77-c66dadd1075c|#190-Panel|Panel
+61d0c4e5-ea2a-46a3-ab18-21b1bb9de70a|#271-Panel|Panel
+a1c435d3-ee7e-416f-96bb-82f435afbc96|#268-Panel|Panel
+2d024429-600f-4112-84a3-369f7f8c03df|#188-Panel|Panel
+4bb706ab-34fb-42de-b48d-bd164f045b0c|#269-Panel|Panel
+75a2e5ab-b2f0-4563-8013-545833bd6b5a|#270-Panel|Panel
+7f22c946-9443-4808-8b4e-c254bd94077d|#215-Panel|Panel
+3c58edf4-f463-43d5-995d-c033e34e16cb|#264-Panel|Panel
+bd2ac736-15e3-4060-9b6b-46789821dedc|#257-Panel|Panel
+dd1fc9ba-7c58-436a-b866-92ffbe01f837|#291-Zone|Zone
+e9607073-1a60-4270-ada0-68ac9d7240f8|#290-Zone Settings|Zone Settings
+828c34ab-5f7b-499e-bc03-a60ebcc8dce4|#285-Boolean Toggle|Boolean Toggle
+b2484541-d4e3-40d9-b622-b5bc904f545c|#279-Layer|Layer
+f8f36bf8-e511-4c4f-8203-6f386b7ad911|#281-Line Type|Line Type
+380e0aa5-31ad-4108-9d94-ecb58bca326d|#282-Pen|Pen
+10532c0d-7f87-4efb-8cc6-91ca21347225|#280-2D Viewpoint|2D Viewpoint
+e5ef868b-df0a-4d86-8bbf-11b08d795808|#283-Number Slider|Number Slider
+f6e78136-37be-4b0c-8955-25177d5c659e|#284-Number Slider|Number Slider
+921141e7-7912-458e-9ce3-ce457dac0dc6|#205-Panel|Panel
+c51b3e5c-d0e7-4cd4-97c6-1153940d7608||Group
+83d4a3cc-a5bc-4fa8-99f1-105d0765d1d6|Fase 3 - Creacion Volumenes|Group
+8e92ae56-55dc-484e-9d6d-80133e013c5c|Determinación altura ejes|Group
+48f3fa48-29d2-41ba-b405-053ff73fd733|Datos ArchiCAD|Group
+d0d0789f-a7d6-4c5a-96f5-9ab64e6d39dd|01 | Entrada JSON y Contexto Urbano|Group
+9ebc95fc-13c5-42db-80d5-f79c660b7b39|03 | Clasificación Linderos y Patios|Group
+cb6fdc2d-12be-4d1f-8006-e15c13657eb4|04 | Normativa y Alturas Urbanas|Group
+1dee5c9a-02b6-4b1b-828d-82a9880dc848|05 | Rutas y Configuración JSON|Group
+bdbe0d15-9943-4176-9847-9b28ccb0b83b|08 | Contexto 3D / Morph Solid|Group
+ea1b9473-3536-4ade-9b4b-fcbaf5b7f9d6|07 | Dibujo 2D en Archicad (Tapir)|Group
+08bc3460-41b1-49b5-a61d-6cabc1464c5b|09 | Terreno y Mallas Archicad|Group
+bba83612-eff3-4cc4-b451-ed16d784b74b|10 | Utilidades y Diagnóstico|Group
+6e99f404-cea9-421d-9c51-c2b89878d1ed|06 | Exportación GFA a JSON|Group
+bcabde6b-32bf-446b-85b5-c4d9318df319|Ocupaciones por piso|Group
+8c839f38-130b-4f1f-9a96-bef0ed55d6f5|Dibujo Raw en ArchiCAD|Group
+f55b4e66-2095-4e4d-bd50-3b107b353abc|02 | Capas Archicad (XML / API)|Group
+4444cede-7b3a-4bdc-ac22-644cf5ab24d8||Group
+48c48d04-9a53-4fed-a77d-b1acd3fc016e|GhPython Script|Group
+62e64c98-2145-4126-b833-d8e698330fb1|Ocupaciones por piso|Group
+b5256602-2ac9-4170-8537-1b532811f746|Ocupaciones por piso|Group
+dcca63ed-f231-4d9d-ad06-6b5cfa34ed1c|#163-Python 3 Script|Python 3 Script
+a0d539fd-cfa4-40a3-bcc1-a12a03606794|Base normativa · límites para distribución|Group
+d4aa2e48-30b6-47e2-a220-a896adebef23|#206-Panel|Panel
+ad1f7c90-dd0b-46dd-96d5-3867b8c64f2a|#174-Panel|Panel
+eadf62f2-810a-4c4b-9c84-67c3d66bf24f|#217-Panel|Panel
+37bf9948-065e-4814-a36d-b49f7427dbb6|#265-F3_UNIDADES_TIPOLOGIAS_v02.py|GhPython Script
+c5c87b08-0718-40ca-b6b5-2a05ea47f84a|#55-Panel|Panel
+2ef824b7-8910-43b8-86f1-47889c9bc6a7|#56-Panel|Panel
+f6955378-f509-4afa-9b9a-57fe4eb20c48||Group
+25ab4fb3-048a-4a5a-b053-704235c9d9f7|#153-Number Slider|Number Slider
+369af5a1-e357-45b4-8901-4cd92310e83c|#154-Number Slider|Number Slider
+2f2b84fc-43d5-4c62-94d4-bbb8128e9afe|#148-Number Slider|Number Slider
+f88bc221-cf91-4da7-9224-31d2dc107898|#149-Number Slider|Number Slider
+a6b9a94f-e828-41a4-ab4a-a0bcdb475fa0|#160-Number Slider|Number Slider
+4687a655-b928-4b3f-b4fd-ceebfd4e464d|#152-Number Slider|Number Slider
+ff618817-5ada-46b6-90b1-0a372095108a|#150-Number Slider|Number Slider
+39db0e50-008e-43f0-b6f2-fe2e97e09e4a|#151-Number Slider|Number Slider
+49a3b26a-869b-4fae-be70-05bac95064b0|#144-Panel|Panel
+f27e032a-9a98-4f7c-aa7e-535a02355a4f|#32-ConnectArchicad|ConnectArchicad
+ff86289a-3585-4fd0-a0e6-a495f6fcc8db|#4-Number Slider|Number Slider
+65a30082-60da-4c38-9e54-55818100af5b|#72-Panel|Panel
+63424485-682b-48fe-8529-558366b19b91|#193-GetLayersDetails|GetLayersDetails
+0598a51f-1267-493e-99a1-045fb4b80709|#184-Layer|Layer
+48e3c918-ee71-4752-85d8-f00c19af1489|#202-Panel|Panel
+62a08541-2131-4e80-93e6-aa9ea4eadc78|#192-Layers|Layers
+34ac3588-ddb3-4adc-a801-c49b8cf4b190|#164-F1_ETAPA2_NORMATIVA_v10.py|GhPython Script
+8cb8c179-77dc-42b6-a4e2-a6b515e68178|#132-Boolean Toggle|Boolean Toggle
+177f61c7-1877-47fa-9a4f-9895cfd728ea|#167-Relay|Relay
+33fbfa60-f206-4900-8e87-550aa4527d31|#172-Relay|Relay
+45b01434-b37b-4530-a3b5-90f8b38fc454|#171-Relay|Relay
+99fde746-6a5d-4af8-9e03-3552420a5ca9|#168-Relay|Relay
+4add7b0b-8ed1-4319-9dc9-915677e505b8|#169-Panel|Panel
+b619de4b-8ed4-4f3f-bcc3-266441bff819|#75-GhPython Script|GhPython Script
+1fd1c54f-8761-4b3c-8dc9-ccc12569afb2|#77-Merge|Merge
+438f700a-2692-42d5-9464-31112d0a68ea|#86-File Path|File Path
+06fd146d-b953-4caf-a292-77f37cf53801|#79-Text Join|Text Join
+a38d1948-2dcf-4597-855a-d0ed68995dd6|#178-Panel|Panel
+3f1c0c14-094c-4d1e-b8bb-a3ff764ae459|#173-Panel|Panel
+d5f24c5c-c756-4b08-9f06-f6132d95869e|#133-Number Slider|Number Slider
+26759aa9-e84e-472d-bf9a-34b93c73f04c|#140-Relay|Relay
+2c740254-0fae-440c-8fad-48c2871feee7|#139-Relay|Relay
+0715a683-4555-4ff7-aa9f-1d223b25a376|#126-Relay|Relay
+3424221e-195b-4494-a4b4-8477e105ffcf|#130-Relay|Relay
+61d675b9-3640-4909-8d54-16113d2a2c32|#128-Relay|Relay
+5aff8c27-01ee-491e-9d14-61ecd668cfa3|#170-Panel|Panel
+fa49748c-01f2-4038-833c-3727da13f8ba|#122-Relay|Relay
+303ef6ae-b9d9-4eba-8926-c7121a603a27|#121-Relay|Relay
+c1593597-dbda-40ab-a06e-e08964a6e5ed|#124-Relay|Relay
+c07130aa-b149-432f-b43c-11886ac398d7|#177-Panel|Panel
+c98778e9-9250-4eaf-9376-b436185e66a0|#129-Relay|Relay
+556a6bdf-ec12-4352-ada4-6ebab0127a0b|#116-Relay|Relay
+9819dc3a-998e-4919-9325-748b52507ae1|#117-Relay|Relay
+5a3ee0ba-0d93-4441-822c-fce5a89b146a|#118-Relay|Relay
+f3499029-e9c0-446d-be52-fed99d7c23af|#119-Relay|Relay
+e0734226-eed3-4fd9-a859-9489eeaa17dd|#120-Relay|Relay
+a4f665a4-df6d-4a6b-9757-b413ed1a2ae4|Cluster|Cluster
+0b4407ea-34dd-4837-bd5a-a822cdbc19c4|GhPython Script|Group
+6be8efe7-5d48-4343-a7a9-0153c958e387|GhPython Script|Group
+fea3344c-964e-4461-be1c-8770c364a783|GhPython Script|Group
+fcfd350d-33d3-4375-a22c-e9e469770e95|GhPython Script|Group
+d2945cec-0ea9-42ba-be1f-db46e0507041|File Path|Group
+47ed12b6-d5d0-4410-92a6-8ce91e85d189|2D Polyline|Group
+0a114d37-3e32-43e4-8b2d-42dded85f44b|Layer|Group
+7287bcb8-d10c-4eac-9990-01cdfdb4e1d0|Line Type|Group
+d0455030-b945-464d-83fc-c599f424b7b1|Polyline Settings|Group
+bf402058-7818-459d-85b7-a602f176e990|Pen|Group
+dc1f3f83-8e76-446d-8262-6f5c2d2d2333|2D Viewpoint|Group
+e128bfa4-ad9e-488d-a63b-51b188f0ac7f|Relay|Group
+64700644-7c63-4378-9e63-4a167b8b684d|2D Polyline|Group
+fe209487-a0cb-472d-9d5d-cef34e47b890|Layer|Group
+79cc96fc-e25f-410b-aee8-4c51e027f979|Line Type|Group
+aa4694f6-3ca4-4b29-9ffb-3f23cd39a0a1|Polyline Settings|Group
+1e891a64-5647-4d5b-a63e-343510218a97|Pen|Group
+901a6945-c9d1-4037-b334-65b3e490c866|2D Viewpoint|Group
+a941412d-1fed-48cc-9d39-1d1e442807b5|Merge|Group
+ee70e819-5acc-4276-a4ed-41fc0e2c41ea|2D Polyline|Group
+8bc5079f-67d0-42a2-ac10-00ed783730b9|Layer|Group
+429265f9-3b01-429d-ae6e-b3536bf77419|Line Type|Group
+9bf3cca2-1db2-42bf-b495-c65bd9ec7244|Polyline Settings|Group
+e64fa53b-8e68-4935-854b-38a6a098c4bf|Pen|Group
+effe19ac-37f6-4d1c-bd41-5719e40c89e2|2D Viewpoint|Group
+e8834553-fdc5-4195-9da7-d7d162ec0dc4|Relay|Group
+349a293b-7fcd-4301-be40-aa86169a4de2|GhPython Script|Group
+067b08fc-44c5-49c1-9fc7-9b476852b972|GhPython Script|Group
+aa41848f-61f5-4128-b0c2-cdfc6bf82212|GhPython Script|Group
+7feda5ca-11d0-49fb-a602-2f298d9ff2c7|GhPython Script|Group
+ef00cc2c-5caa-4e5b-9b04-6ecce1927d1c|Relay|Group
+f5079b97-fa3c-40f3-ba74-2e9f804523c5|Area|Group
+053ccdf9-e707-4701-8e34-52c7a9b76c73|Value List|Group
+0bbb9302-f61b-4f3e-8d5e-8c195283a4a4|Value List|Group
+31ab57ac-9c4b-4070-ab65-c356e73727a1|Addition|Group
+20842082-0241-45ec-bc1d-fbe4befba40a|GhPython Script|Group
+01d5f0d4-ea08-4723-ac7e-cb9b60324000|GhPython Script|Group
+0ebe1973-eef0-4fe9-927f-1b9a50665a55|Relay|Group
+765a3e92-a42a-4b92-9a99-566ecfe9d344|Value List|Group
+4821e07b-0437-42da-931d-9650858dc8b3|Curve|Group
+abc3b424-003a-449e-8b6c-8ae852c24447|Curve|Group
+2f68d7f9-e013-4467-9e4e-96e9964070c6|Curve|Group
+d7a32fac-d546-49bc-adb1-20219faed004|Deconstruct 2D Polyline|Group
+316181ea-5a9a-4c4a-b126-7043f643de9a|Deconstruct 2D Polyline|Group
+20cd3bdf-67d4-4e50-93ff-872efe87d540|Relay|Group
+1dafc0a4-fc70-49ef-b6a2-ce7d9c67f37b|Deconstruct 2D Polyline|Group
+52a59ce1-dbfa-4c5e-837c-448805f3b049|Relay|Group
+98efb9f6-46c5-42ae-87f5-39d68d8b8479|Relay|Group
+83b5b276-0070-4efa-92ab-a418eed2392e|Deconstruct 2D Polyline|Group
+3e2cb0d1-42f9-4fad-9806-73212f2d46de|Discontinuity|Group
+e4106a1c-c03c-4245-924f-97f588601524|GhPython Script|Group
+c1edf7c3-c229-4bd5-9603-0bb853c41916|Text Join|Group
+d3398967-e757-4c25-a8a6-9ae816218d84|Merge|Group
+6a820b8e-4b88-4ea0-b5ac-8e74e18f6b77|File Path|Group
+8d6e143a-a5fc-44d1-8219-68c4bb2b9095|Text Join|Group
+121662ac-1f72-49a5-af48-6194e1d3886b|Merge|Group
+86702393-73b6-43bf-8bb1-1f20a76a66cb|Deconstruct 2D Polyline|Group
+c8748509-90c8-4796-a44d-99e3c41a82c1|Text Join|Group
+4a09c114-e2cd-4cf9-a93e-70350e7af1dc|Merge|Group
+9ec8fae6-f620-453d-816e-d7deb1887c33|GhPython Script|Group
+c219be24-e0f8-4af4-ac3e-5d8251515a8c|Merge|Group
+1c3fe858-0319-402c-84b3-cdbc32b967bd|File Path|Group
+0472cc74-2f50-4482-af63-b2f51d05f5cf|Text Join|Group
+6dea28f4-9c6b-4195-9a04-5b0d4bb3b0aa|Morph Solid|Group
+1bf79cae-5e41-4514-92e7-fba80932f07c|Bifocals|Group
+0526803b-8fe7-4c48-91ec-dab49217b8a2|Polyline Settings|Group
+5b3c6374-12dd-4bc8-8de1-3b1d0f25529d|Curve|Group
+52731cbd-1d9e-4cde-a43b-8032098fd7b5|2D Polyline|Group
+001dbcab-c53d-4cc9-9c47-07de58a4a0b8|Layer|Group
+f6fe1835-43fe-4960-85c4-aeab5cb07e10|2D Viewpoint|Group
+de7b8774-ad1c-4256-8aab-f7c739c8c8d0|Line Type|Group
+0c6bc576-8714-41a2-8077-e122c6deb016|Pen|Group
+3e230ea3-b573-4d12-9803-0448a23b56f6|Merge|Group
+8f0d3531-719d-424c-a0bf-a7ccecd6a19c|Mesh|Group
+956e5760-e743-4f22-afaf-e8f07b326a97|Relay|Group
+c866fd4d-768a-4e82-b767-30ef30c61c0e|Mesh|Group
+865645c9-1a8c-4c36-8b9d-25a55d1fbe00|CreateMeshes|Group
+31ac10c6-da05-4cdf-ad24-65e652083d5a|MeshSkirtTypes|Group
+adcb68ae-07ac-4a36-9381-47ae783fd288|MeshRidgeTypes|Group
+6119d388-3f89-4749-81b1-0992a90e8380|Deconstruct Mesh|Group
+a6d547ee-9a40-4a3b-a640-7edbf5877518|Relay|Group
+dc9b5548-e7db-47cd-84af-f2ab9a9cdc5f|Relay|Group
+8c06104e-4054-4283-a186-310659208ca2|Relay|Group
+fa693ad2-5bc3-4c51-923a-a45a4e32d43c|Deconstruct 2D Polyline|Group
+93e1715e-9b0c-44be-92c7-02ee2468b233|2D Curve|Group
+fd78c034-bd76-4812-a204-f5c9dcc1817f|PolylineDetails|Group
+c368c5df-585f-4beb-a015-ec3991dd6eaf|End Points|Group
+9ceb1ba3-d745-4663-9568-af44da57ebff|Relay|Group
+9f135801-2119-42cf-a9ad-4829b3b92958|File Path|Group
+4a1ab6ba-5688-4bdb-a3a0-28c7c8d7a1c9|GhPython Script|Group
+cb8ca007-c787-4473-8114-c2161d462a15|GhPython Script|Group
+7ed2ee84-e1fe-46e1-a226-9383c5af2b17|GhPython Script|Group
+c21eb057-d8bc-4621-8e49-c02eb504022c|GhPython Script|Group
+4fbd1bd0-6bb5-4848-b08e-88738072d0c4|GhPython Script|Group
+8a6512aa-c61b-4533-98b7-cd8fa6177e29|Merge|Group
+0ccb2f2d-adf2-42ff-841b-10d0cf5d8026|Merge|Group
+045df87d-9033-485d-abbb-640ae732811a|Text Join|Group
+e6ae46d5-ece2-4451-997d-bfe5580b56c0|Text Join|Group
+1211fd74-7e79-4f2b-af20-5adc33c644f8|Relay|Group
+3b1534f5-dc8c-4bc8-9a3e-327b1c5d90fd|Merge|Group
+307b198a-3ea3-4f3d-a36c-21ffa63d41f1|Text Join|Group
+d9c03ffc-88d7-44e2-b421-795a9ac979e4|Value List|Group
+85f8c22d-50d5-42c7-a760-1a3bbb905fe5|Value List|Group
+16a19ddc-0596-4e9b-8d60-bdadaff0436b|Merge|Group
+5daa979a-9155-4b57-8b16-3312736a81d9|Text Join|Group
+712c4d61-dc8b-4a25-87a7-be6003f094a4|Zone|Group
+b91e5556-a614-4046-b64d-efc72b437574|Zone Settings|Group
+0588d2c2-c327-4242-a5ef-6e29b9ff82e2|Layer|Group
+4b198a69-77e3-46d9-8ebf-79cb0c63d2d0|Line Type|Group
+253be513-6666-4672-a5f4-f46838c8416d|Pen|Group
+5d653c95-1f91-4f77-96b1-f1450ade31af|2D Viewpoint|Group
+1bbe2300-aec4-4ac6-8c60-5bae2549753a|Python 3 Script|Group
+b749ff5d-dabc-4ff5-8f92-bea74eacb141|GhPython Script|Group
+9528bdb0-2340-4799-ace3-645655c851a9|ConnectArchicad|Group
+c56f480b-88ee-453f-8299-771e12c2ce89|GetLayersDetails|Group
+07520bcb-f67d-4c3c-868a-07694ad6922b|Layer|Group
+2d5e2c14-56f3-4f64-a48a-5edb0d920f2b|Layers|Group
+d54c3697-2a26-41ea-8198-e192f5cc0954|GhPython Script|Group
+8ec200a5-ce72-48ef-b124-227b93c9892a|Relay|Group
+6ba75714-18eb-45c8-ae40-df211301ba36|Relay|Group
+32f8255a-7801-4bd2-aef0-030f6514fe12|Relay|Group
+f6aa5ef7-413f-415d-b3a7-dfc34addf1e4|Relay|Group
+10d78b41-a4eb-46bd-8822-2be5b853ce9f|GhPython Script|Group
+380c2009-c673-454c-baa8-368da146eaf3|Merge|Group
+68163386-0ea4-4a7e-9169-6b2ff3d2bc18|File Path|Group
+acb3d434-5b08-40e0-a55f-45e616aded32|Text Join|Group
+4b3a2e49-007f-4590-a95e-69111b99a793|Relay|Group
+f74bf69e-6e36-4ca0-9367-a17dac57d7f7|Relay|Group
+8e92093b-39e0-475f-b3b1-fce1ee3c38df|Relay|Group
+db129839-c9f3-451e-a9f1-d3ac0d0df136|Relay|Group
+9a0b437f-753a-46c0-976a-5aa5b3794221|Relay|Group
+535a8657-a86b-414a-9326-2265c54a5064|Relay|Group
+79b8b8fd-1701-4da4-8441-4af6fb371a2a|Relay|Group
+ccbce5fc-1eaa-4957-ae8f-14d6d25429d2|Relay|Group
+af7ecd81-9414-49f1-9e23-c4b2fa8fcfe2|Relay|Group
+df2ac14a-82de-4626-95f4-60081b45ba32|Relay|Group
+537f41ea-b3aa-4f67-a222-c8cf37b4ae1a|Relay|Group
+7980e494-d56f-45c4-89e7-6dacd9f92b78|Relay|Group
+fe18fc81-027b-4f00-aa8b-75b6b60a17e4|Relay|Group
+2131d015-3811-4f7c-a8e5-aed5490aa2e0|Relay|Group
+1d03f714-62b0-4f6b-b2d0-0e308e0dd276|Cluster|Group
+
+=== ARCHICAD / LIVE CONNECTION COMPONENTS ===
+GUID: f27e032a-9a98-4f7c-aa7e-535a02355a4f
+  Name: ConnectArchicad
+  NickName: #32-ConnectArchicad
+
+=== GHPYTHON COMPONENTS ===
+GUID: 0d986a36-a41a-429c-8f29-9e2658659e25 | NickName: #87-F1_ETAPA1_CONTEXTO_v02.py
+GUID: d4aab682-ad94-40e9-a5b5-eaf20b3350c7 | NickName: #166-F1_ETAPA2_NORMATIVA_v10.py
+GUID: d3bed17b-1b6b-4e89-8761-1985327b292b | NickName: #88-F1_ETAPA2_PATIO_v03.py
+GUID: 03edc848-3a7f-4fa4-b2a6-bf736d5414f5 | NickName: #78-F1_ETAPA2_LADOS_v06.py
+GUID: 880d9e49-9938-4d31-a0bc-35d297a2ab28 | NickName: #146-F1_LAYERS_XML_v02.py
+GUID: 6189090f-7bd9-40a2-9efd-da6728321f62 | NickName: Fancy Names
+GUID: ad270c61-3268-4dcc-b9e8-dd6e9711f5c8 | NickName: #47-F1_CONTEXTO50_BUILD_v01.3.py
+GUID: f7f1bd10-32ba-4501-9dda-ebe9486e179b | NickName: #53-F0_LOAD_PROYECTO_v01.py
+GUID: 7aadd219-4308-492c-8d2b-c73d8041a9ef | NickName: #267-F1_OVERRIDE_USO_v01.py
+GUID: 4d6fba96-1d12-4029-9683-b92d8c021e55 | NickName: #278-F1_EXPORTAR_GFA_v02.4.py
+GUID: 6d2eeba1-3621-4525-a927-d50a79898068 | NickName: #8-GhPython Script
+GUID: a5c82623-3079-475a-9837-66871b700f79 | NickName: #3-GhPython Script
+GUID: 6eaf2956-f649-4540-a900-4b32a10deee4 | NickName: #246-F3_DISTRIBUCION_v03.py
+GUID: 8c7e8133-0bbe-401d-9fa0-6c4b761bbc5d | NickName: #247-F3_VOLUM_GENERADOR_v08.py
+GUID: 8eaf3a60-de2a-4e86-891a-92be4b05be59 | NickName: #261-F3_MORPH_ATRIBUTOS_v02.py
+GUID: 768ebdc8-7e53-4541-b511-72408af73c32 | NickName: #266-F3_ACCESOS_INTEGRADOR_v02.py
+GUID: ab3a9f4c-26ae-4553-bf95-018a7d42dfb0 | NickName: #209-GhPython Script
+GUID: 37bf9948-065e-4814-a36d-b49f7427dbb6 | NickName: #265-F3_UNIDADES_TIPOLOGIAS_v02.py
+GUID: 34ac3588-ddb3-4adc-a801-c49b8cf4b190 | NickName: #164-F1_ETAPA2_NORMATIVA_v10.py
+GUID: b619de4b-8ed4-4f3f-bcc3-266441bff819 | NickName: #75-GhPython Script
