@@ -1,59 +1,76 @@
 {
   "schema": "f3_niveles_deseados_v01",
   "chip": "AAA0030JKOE",
-  "generado": "manual (F3_StorySync_v02 --plan)",
-  "nota": "Stories ArchiCAD (Story Settings). elevation = marco canvas; elevacion_relativa_m = acumulado desde la base.",
+  "generado": "F3_StorySync_v02 --plan --zgf-m (convencion L01=0.000, sin GF)",
+  "nota": "Stories ArchiCAD (Story Settings). elevation = marco ArchiCAD (L01 = 0.000). elevacion_modelo_m = marco de calculo (Z_abs - z0_m). No hay GF.",
   "floor_h_m": 3.05,
-  "base_z_m": -11.565,
+  "zgf_m": -11.565,
+  "base_z_m": 0.0,
   "snap": true,
   "stories": [
     {
-      "name": "GF",
-      "elevation": -11.565,
-      "elevacion_relativa_m": 0.0,
-      "descripcion": "Planta baja (acceso)"
-    },
-    {
       "name": "L01",
-      "elevation": -8.515,
-      "elevacion_relativa_m": 3.05,
-      "descripcion": "Nivel 1"
+      "elevation": 0.0,
+      "elevacion_relativa_m": 0.0,
+      "elevacion_modelo_m": -11.565,
+      "zgf_m": -11.565,
+      "descripcion": "Nivel 1 (acceso)"
     },
     {
       "name": "L02",
-      "elevation": -5.465,
-      "elevacion_relativa_m": 6.1,
+      "elevation": 3.05,
+      "elevacion_relativa_m": 3.05,
+      "elevacion_modelo_m": -8.515,
+      "zgf_m": -11.565,
       "descripcion": "Nivel 2"
     },
     {
       "name": "L03",
-      "elevation": -2.415,
-      "elevacion_relativa_m": 9.15,
+      "elevation": 6.1,
+      "elevacion_relativa_m": 6.1,
+      "elevacion_modelo_m": -5.465,
+      "zgf_m": -11.565,
       "descripcion": "Nivel 3"
     },
     {
       "name": "L04",
-      "elevation": 0.635,
-      "elevacion_relativa_m": 12.2,
+      "elevation": 9.15,
+      "elevacion_relativa_m": 9.15,
+      "elevacion_modelo_m": -2.415,
+      "zgf_m": -11.565,
       "descripcion": "Nivel 4"
     },
     {
       "name": "L05",
-      "elevation": 3.685,
-      "elevacion_relativa_m": 15.25,
+      "elevation": 12.2,
+      "elevacion_relativa_m": 12.2,
+      "elevacion_modelo_m": 0.635,
+      "zgf_m": -11.565,
       "descripcion": "Nivel 5"
     },
     {
       "name": "L06",
-      "elevation": 6.735,
-      "elevacion_relativa_m": 18.3,
+      "elevation": 15.25,
+      "elevacion_relativa_m": 15.25,
+      "elevacion_modelo_m": 3.685,
+      "zgf_m": -11.565,
       "descripcion": "Nivel 6"
     },
     {
       "name": "L07",
-      "elevation": 9.785,
-      "elevacion_relativa_m": 21.35,
+      "elevation": 18.3,
+      "elevacion_relativa_m": 18.3,
+      "elevacion_modelo_m": 6.735,
+      "zgf_m": -11.565,
       "descripcion": "Nivel 7"
+    },
+    {
+      "name": "L08",
+      "elevation": 21.35,
+      "elevacion_relativa_m": 21.35,
+      "elevacion_modelo_m": 9.785,
+      "zgf_m": -11.565,
+      "descripcion": "Nivel 8"
     }
   ],
   "bloques": [
@@ -91,7 +108,9 @@
     }
   ],
   "avisos": [
-    "base = menor cota de bloque; nivel de acceso definitivo (fetch v8 / NORMATIVA v10) puede desplazar la base",
-    "elevaciones en marco canvas (misma referencia que zonas/LC)"
+    "ADR-024: Nivel 1 (L01) = 0.000 en ArchiCAD; elevacion_ac = elevacion_modelo - zgf_m.",
+    "base = menor cota de bloque (marco calculo); nivel de acceso definitivo (fetch v8 / NORMATIVA v10) puede desplazar la base / zgf_m.",
+    "elevacion_modelo_m en marco de calculo (Z_abs - z0_m); elevation en marco ArchiCAD (L01 = 0.000).",
+    "Convención: L01, L02, ... SIEMPRE con L01 en 0.000. No se usa GF."
   ]
 }

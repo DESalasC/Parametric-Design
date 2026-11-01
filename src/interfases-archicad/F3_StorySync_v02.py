@@ -95,8 +95,8 @@ def plan_stories(bloques, floor_h, zgf_m=None, snap=True, con_tapa=False):
     del proyecto, es decir Z_modelo = Z_abs - z0_m; ADR-024).
     Grilla = base + j*floor_h; base = menor cota de bloque.
     Niveles en ArchiCAD: elevation_ac = elevacion_modelo - zgf_m, con
-    Ground Floor (primer nivel) siempre = 0.000.
-    zgf_m: cota del primer nivel (GF) en marco de calculo. Si se omite, se
+    L01 (primer nivel) siempre = 0.000. No se usa GF.
+    zgf_m: cota del primer nivel (L01) en marco de calculo. Si se omite, se
     toma como base (menor cota de bloque).
     """
     if not bloques:
@@ -145,13 +145,13 @@ def plan_stories(bloques, floor_h, zgf_m=None, snap=True, con_tapa=False):
         elev_modelo = base + j * h
         elev_ac = round(elev_modelo - zgf_m, 3)
         d = {
-            "name": ("GF" if j == 0 else "L%02d" % j),
+            "name": "L%02d" % (j + 1),
             "elevation": elev_ac,
             "elevacion_relativa_m": elev_ac,
             "elevacion_modelo_m": round(elev_modelo, 3),
             "zgf_m": round(zgf_m, 3),
         }
-        d["descripcion"] = "Planta baja (acceso)" if j == 0 else ("Nivel %d" % j)
+        d["descripcion"] = "Nivel %d (acceso)" % (j + 1) if j == 0 else "Nivel %d" % (j + 1)
         stories.append(d)
     if con_tapa:
         j = int(max_j)
@@ -172,13 +172,13 @@ def plan_stories(bloques, floor_h, zgf_m=None, snap=True, con_tapa=False):
         "stories": stories,
         "bloques": detalle,
         "avisos": [
-            "ADR-024: Ground Floor (primer nivel) = 0.000 en ArchiCAD; "
+            "ADR-024: Nivel 1 (L01) = 0.000 en ArchiCAD; "
             "elevacion_ac = elevacion_modelo - zgf_m.",
             "base = menor cota de bloque (marco calculo); nivel de acceso "
             "definitivo (fetch v8 / NORMATIVA v10) puede desplazar la base "
             "/ zgf_m.",
             "elevacion_modelo_m en marco de calculo (Z_abs - z0_m); elevation "
-            "en marco ArchiCAD (Ground Floor = 0).",
+            "en marco ArchiCAD (L01 = 0.000).",
         ],
     }
 
