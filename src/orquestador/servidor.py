@@ -71,6 +71,7 @@ PROVISIONAL = os.path.join(PROYECTOS, "_provisional")
 NORMA_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "norma-override.json")
 FINANCIERO_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "financiero-override.json")
 NIVELES_BLOQUE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "niveles-bloque-override.json")
+ELEVACIONES_ZONAS_RUTA = os.path.join(ROOT, "data", "pot-bogota", "elevaciones-zonas-override.json")
 ALTURA_ENTREPISO_MAX_M = 3.80  # Bogota: altura maxima de entrepiso
 SETBACK_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "setback-override.json")
 # 2026-09-28: dias para el aviso de GFA desactualizado en el pipeline (_gfa_gh_estado)
@@ -1955,8 +1956,214 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, {"ok": ok, "chip": chip, "niveles_bloque": _niveles_bloque_chip(chip), "ruta": ruta})
             return
 
+        if parsed.path == "/api/elevaciones-zonas":
+            chip = (q.get("chip") or [""])[0]
+            if not chip:
+                self._json_error("chip requerido", 400)
+                return
+            nb = _niveles_bloque_chip(chip)
+            if not nb:
+                self._json_error("chip no tiene niveles-bloque configurados", 400)
+                return
+            cfg = _elevaciones_zonas_chip(chip) or {}
+            res = _calcular_elevaciones_zonas(nb, cfg)
+            self._send(200, {"ok": res.get("ok"), "chip": chip, "elevaciones": res})
+            return
+
+        if parsed.path == "/api/elevaciones-zonas":
+            chip = (data.get("chip") or "").strip().upper()
+            if not chip:
+                self._json_error("chip requerido", 400)
+                return
+            cfg = data.get("config_zonas") or {}
+            problemas = _validar_config_zonas(cfg)
+            if problemas:
+                self._json_error({"error": "config invalida", "problemas": problemas}, 400)
+                return
+            ok, ruta = _elevaciones_zonas_guardar(chip, cfg)
+            nb = _niveles_bloque_chip(chip)
+            res = _calcular_elevaciones_zonas(nb or {}, cfg) if nb else {"ok": False, "error": "sin niveles-bloque"}
+            self._send(200, {"ok": ok, "chip": chip, "config_zonas": _elevaciones_zonas_chip(chip), "elevaciones": res, "ruta": ruta})
+            return
+
         self._json_error("ruta no encontrada", 404)
 
+
+
+def _elevaciones_zonas_leer():
+    """Lee data/pot-bogota/elevaciones-zonas-override.json (dict por chip)."""
+    return _json(ELEVACIONES_ZONAS_RUTA)
+
+
+def _elevaciones_zonas_chip(chip):
+    data = _elevaciones_zonas_leer()
+    return data.get(chip) if isinstance(data.get(chip), dict) else None
+
+
+def _elevaciones_zonas_guardar(chip, payload):
+    """Guarda (merge) la configuracion de elevaciones de zonas por bloque para un CHIP."""
+    data = _elevaciones_zonas_leer() or {}
+    data[chip] = payload
+    try:
+        os.makedirs(os.path.dirname(ELEVACIONES_ZONAS_RUTA), exist_ok=True)
+        with io.open(ELEVACIONES_ZONAS_RUTA, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True, ELEVACIONES_ZONAS_RUTA
+    except Exception as e:
+        return False, str(e)
+
+
+def _calcular_elevaciones_zonas(niveles_bloque, config_zonas=None):
+    if not niveles_bloque:
+        return {"ok": False, "error": "niveles_bloque requerido"}
+
+    cfg = config_zonas or {}
+    pisos = int(niveles_bloque.get("pisos", 5) or 5)
+    grupos = niveles_bloque.get("grupos") or {}
+    alturas_por_grupo = niveles_bloque.get("alturas_por_grupo") or {}
+    cota_arranque_por_grupo = cfg.get("cota_arranque_por_grupo") or {}
+    umbral_proximo_frac = float(cfg.get("umbral_proximo_frac", 0.5))
+    umbral_muy_cercano_frac = float(cfg.get("umbral_muy_cercano_frac", 0.1))
+    orden_bloques = cfg.get("orden_bloques") or list(grupos.keys())
+
+    alturas_referencia = None
+    for gid in orden_bloques:
+        if gid in alturas_por_grupo and alturas_por_grupo[gid]:
+            alturas_referencia = alturas_por_grupo[gid]
+            break
+    if alturas_referencia is None and "g1" in alturas_por_grupo:
+        alturas_referencia = alturas_por_grupo["g1"]
+    if alturas_referencia is None:
+        alturas_referencia = [3.05] * pisos
+
+    niveles_globales = []
+    cota_acum = 0.0
+    for i, h in enumerate(alturas_referencia):
+        cota_acum += h
+        niveles_globales.append({
+            "lnn": "L%02d" % (i + 1),
+            "cota_m": round(cota_acum, 3),
+            "entrepiso_m": h
+        })
+
+    cota_arranque = {}
+    for i, gid in enumerate(orden_bloques):
+        if gid in cota_arranque_por_grupo and cota_arranque_por_grupo[gid] is not None:
+            cota_arranque[gid] = float(cota_arranque_por_grupo[gid])
+        else:
+            cota_arranque[gid] = 0.0 if i == 0 else None
+
+    resultado = {"ok": True, "niveles_globales": niveles_globales, "elevaciones_por_grupo": {}, "reporte_html": ""}
+
+    for idx, gid in enumerate(orden_bloques):
+        ca = cota_arranque.get(gid)
+        if ca is None:
+            ca = 0.0
+
+        alturas_grupo = alturas_por_grupo.get(gid) or alturas_referencia
+        n_pisos_grupo = len(alturas_grupo)
+
+        losas = []
+        cota_actual = ca
+        for p in range(n_pisos_grupo):
+            losas.append({
+                "piso": p + 1,
+                "entrepiso_m": alturas_grupo[p],
+                "cota_inferior_m": round(cota_actual, 3),
+                "cota_superior_m": round(cota_actual + alturas_grupo[p], 3)
+            })
+            cota_actual += alturas_grupo[p]
+
+        elevaciones_pisos = {}
+        for losa in losas:
+            ci = losa["cota_inferior_m"]
+            mejor_lnn = None
+            mejor_dist = float("inf")
+            for ng in niveles_globales:
+                cota_inferior_nivel = ng["cota_m"] - ng["entrepiso_m"] if ng["lnn"] != "L01" else 0.0
+                dist = abs(ci - cota_inferior_nivel)
+                if dist < mejor_dist:
+                    mejor_dist = dist
+                    mejor_lnn = ng["lnn"]
+
+            altura_ep = alturas_grupo[0] if alturas_grupo else 3.05
+            umbral_proximo = altura_ep * umbral_proximo_frac
+            umbral_muy_cercano = altura_ep * umbral_muy_cercano_frac
+
+            if mejor_dist <= umbral_muy_cercano:
+                clasificacion = "muy_cercano"
+            elif mejor_dist <= umbral_proximo:
+                clasificacion = "proximo"
+            else:
+                clasificacion = "lejano"
+
+            n_lnn = int(mejor_lnn[1:]) if mejor_lnn and mejor_lnn.startswith("L") else 1
+            cota_base_lnn = (n_lnn - 1) * altura_ep
+            offset = round(ci - cota_base_lnn, 3)
+
+            elevaciones_pisos["piso_%d" % losa["piso"]] = {
+                "piso": losa["piso"],
+                "cota_inferior_m": losa["cota_inferior_m"],
+                "cota_superior_m": losa["cota_superior_m"],
+                "lnn_referencia": mejor_lnn,
+                "offset_m": offset,
+                "distancia_a_lnn_m": round(mejor_dist, 3),
+                "clasificacion": clasificacion,
+                "cota_arranque_bloque_m": ca
+            }
+
+        resultado["elevaciones_por_grupo"][gid] = {
+            "cota_arranque_m": ca,
+            "pisos": elevaciones_pisos,
+            "altura_total_m": round(cota_actual - ca, 3)
+        }
+
+    html = ['<h4 style="margin:0 0 8px; font-size:13px;">Elevaciones de zonas por bloque</h4>']
+    html.append('<table style="width:100%; border-collapse:collapse; font-size:12px;">')
+    html.append('<thead><tr><th style="text-align:left;">Bloque</th><th style="text-align:left;">Cota arranque (m)</th><th style="text-align:left;">Piso</th><th style="text-align:left;">Cota inf (m)</th><th style="text-align:left;">Cota sup (m)</th><th style="text-align:left;">LNN ref.</th><th style="text-align:left;">Offset (m)</th><th style="text-align:left;">Clasificacion</th></tr></thead><tbody>')
+    for gid in orden_bloques:
+        ep = resultado["elevaciones_por_grupo"][gid]
+        for k, v in ep["pisos"].items():
+            html.append('<tr>')
+            html.append('<td><b>%s</b></td>' % gid.upper())
+            html.append('<td>%s</td>' % format(ep["cota_arranque_m"], ".2f"))
+            html.append('<td>%d</td>' % v["piso"])
+            html.append('<td>%s</td>' % format(v["cota_inferior_m"], ".2f"))
+            html.append('<td>%s</td>' % format(v["cota_superior_m"], ".2f"))
+            html.append('<td><b>%s</b></td>' % v["lnn_referencia"])
+            html.append('<td>%s</td>' % (format(v["offset_m"], "+.2f") if v["offset_m"] >= 0 else format(v["offset_m"], "-.2f")))
+            html.append('<td>%s</td>' % v["clasificacion"])
+            html.append('</tr>')
+    html.append('</tbody></table>')
+    html.append('<p class="fuente" style="margin-top:6px;">Regla: cada zona se referencia al LNN global mas cercano a su cota inferior. Offset = cota_inferior_zona - cota_LNN. Si el ultimo bloque queda muy cercano al terreno (<= 1/10 entrepiso), se prioriza esa cota sobre el LNN.</p>')
+    resultado["reporte_html"] = "".join(html)
+    return resultado
+
+
+def _validar_config_zonas(config):
+    problemas = []
+    umbral_p = config.get("umbral_proximo_frac", 0.5)
+    umbral_m = config.get("umbral_muy_cercano_frac", 0.1)
+    try:
+        up = float(umbral_p)
+        if up <= 0 or up > 1:
+            problemas.append("umbral_proximo_frac debe estar entre 0 y 1")
+    except Exception:
+        problemas.append("umbral_proximo_frac invalido")
+    try:
+        um = float(umbral_m)
+        if um <= 0 or um > 1:
+            problemas.append("umbral_muy_cercano_frac debe estar entre 0 y 1")
+    except Exception:
+        problemas.append("umbral_muy_cercano_frac invalido")
+    cotas = config.get("cota_arranque_por_grupo") or {}
+    for gid, c in cotas.items():
+        if c is not None:
+            try:
+                float(c)
+            except Exception:
+                problemas.append("cota_arranque_por_grupo.%s invalido" % gid)
+    return problemas
 
 def _niveles_bloque_leer():
     """Lee data/pot-bogota/niveles-bloque-override.json (dict por chip)."""

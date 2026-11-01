@@ -245,6 +245,40 @@
       </div>
     </div>
     <div style="margin-top:14px;">
+    <div id="elevaciones-zonas-card" style="margin-top:14px; display:none;">
+      <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Elevaciones de zonas por bloque (por CHIP)</h3>
+      <div class="ayuda" style="margin-bottom:10px;">
+        Cada zona se referencia al LNN global mas cercano a su cota inferior (proyeccion vertical del borde inferior sobre el MDT).
+        <b>Cota de arranque</b>: cota del terreno en la base de ese bloque (m msnm). El primer bloque usa 0,00 del orquestador.
+        <b>Umbral proximo</b>: fraccion del entrepiso para considerar que una zona esta cerca de un LNN (ej. 0.5 = medio entrepiso).
+        <b>Muy cercano</b>: fraccion para priorizar la cota del terreno sobre el LNN en el ultimo bloque (ej. 0.1 = 1/10 entrepiso).
+      </div>
+      <div class="fila">
+        <div class="campo" style="flex:1 1 260px;">
+          <label>Orden de bloques (frente a posterior)</label>
+          <input type="text" id="ez_orden" placeholder="g1,g2,g3,g4" style="width:100%;">
+          <div class="fuente" style="font-size:11px;color:#6b7280;margin-top:2px;">IDs de grupo separados por comas</div>
+        </div>
+        <div class="campo" style="flex:1 1 200px;">
+          <label>Umbral proximo (fraccion entrepiso)</label>
+          <input type="number" id="ez_umbral_proximo" placeholder="0.5" min="0.01" max="1" step="0.05" value="0.5" style="width:100%;">
+        </div>
+        <div class="campo" style="flex:1 1 200px;">
+          <label>Umbral muy cercano (fraccion entrepiso)</label>
+          <input type="number" id="ez_umbral_muy_cercano" placeholder="0.1" min="0.01" max="1" step="0.05" value="0.1" style="width:100%;">
+        </div>
+      </div>
+      <div class="campo" style="margin-top:8px;">
+        <label>Cota de arranque por bloque (m msnm)</label>
+        <div id="ez_cotas" class="checks" style="margin-top:6px;"></div>
+        <div class="fuente" style="font-size:11px;color:#6b7280;margin-top:2px;">Deja en blanco para usar 0,00 en el primer bloque y MDT en los demas.</div>
+      </div>
+      <div id="ez_reporte" style="margin-top:12px; border:1px dashed #cbd5e1; border-radius:8px; padding:12px; background:#fbfcfe; display:none;"></div>
+      <div style="margin-top:10px;">
+        <button class="btn exito" id="btn-guardar-elevaciones-zonas" type="button">Guardar elevaciones (por CHIP)</button>
+        <span id="ez-aviso" class="fuente" style="margin-left:10px;"></span>
+      </div>
+    </div>
       <button class="btn primario" id="btn-generar-f3" type="button">Generar masa (F3) para este CHIP</button>
     </div>
     <div id="f3-resultado" class="aviso info" style="display:none;"></div>
@@ -304,7 +338,8 @@ async function init(){
     const o = document.createElement('option'); o.value = c; o.textContent = c;
     sel.appendChild(o);
   });
-  sel.addEventListener('change', () => { activarChip(); cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); if(window.cargarNivelesBloque) cargarNivelesBloque(sel.value); cargarNormaOverride(); if(window.Frontal) Frontal.setChip(sel.value); });
+  sel.addEventListener('change', () => { activarChip(); cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); if(window.cargarNivelesBloque) cargarNivelesBloque(sel.value);
+    if(window.cargarElevacionesZonas) cargarElevacionesZonas(sel.value); cargarNormaOverride(); if(window.Frontal) Frontal.setChip(sel.value); });
 
   renderSeccion('normativa', $('vars-normativa'));
   renderNormaOverride();
@@ -1645,6 +1680,90 @@ async function guardarNivelesBloque(chip){
 
 // Integrar con cambio de chip
 const _chipSelOrig = $('chip') && $('chip').onchange;
+// ---------- elevaciones de zonas por bloque ----------
+async function cargarElevacionesZonas(chip){
+  const card = $('elevaciones-zonas-card');
+  const cotas = $('ez_cotas');
+  const reporte = $('ez_reporte');
+  const btn = $('btn-guardar-elevaciones-zonas');
+  if(!chip){ card.style.display='none'; return; }
+  card.style.display='block';
+  const nb = await api('/api/niveles-bloque?chip=' + encodeURIComponent(chip));
+  const ez = await api('/api/elevaciones-zonas?chip=' + encodeURIComponent(chip));
+  let cfg = {};
+  if(ez.ok && ez.config_zonas) cfg = ez.config_zonas;
+  let nbData = {};
+  if(nb.ok && nb.niveles_bloque) nbData = nb.niveles_bloque;
+  const grupos = nbData.grupos || {};
+  const ordenDefault = Object.keys(grupos).join(',');
+  $('ez_orden').value = cfg.orden_bloques || ordenDefault;
+  $('ez_umbral_proximo').value = cfg.umbral_proximo_frac != null ? cfg.umbral_proximo_frac : '0.5';
+  $('ez_umbral_muy_cercano').value = cfg.umbral_muy_cercano_frac != null ? cfg.umbral_muy_cercano_frac : '0.1';
+  // Pintar cotas de arranque por grupo
+  let htmlCotas = '';
+  const orden = ($('ez_orden').value || ordenDefault).split(',').map(x=>x.trim()).filter(x=>x);
+  orden.forEach(function(gid){
+    const val = (cfg.cota_arranque_por_grupo && cfg.cota_arranque_por_grupo[gid] != null) ? cfg.cota_arranque_por_grupo[gid] : '';
+    htmlCotas += '<div class="check-item"><label>' + gid.toUpperCase() + ': <input type="number" id="ez_cota_'+gid+'" placeholder="0.00" step="0.01" value="'+val+'" style="width:110px; margin-left:6px;"> m msnm</label></div>';
+  });
+  cotas.innerHTML = htmlCotas;
+  reporte.innerHTML = '';
+  reporte.style.display = 'none';
+  btn.onclick = function(){ guardarElevacionesZonas(chip); };
+  if(ez.ok && ez.elevaciones && ez.elevaciones.reporte_html){
+    $('ez_reporte').innerHTML = ez.elevaciones.reporte_html;
+    $('ez_reporte').style.display = 'block';
+  }
+  $('ez_orden').onchange = function(){
+    cargarElevacionesZonas(chip);
+  };
+  $('ez_umbral_proximo').onchange = function(){
+    cargarElevacionesZonas(chip);
+  };
+  $('ez_umbral_muy_cercano').onchange = function(){
+    cargarElevacionesZonas(chip);
+  };
+}
+
+function recolectarConfigZonas(chip){
+  const orden = ($('ez_orden').value || '').split(',').map(x=>x.trim()).filter(x=>x);
+  const cotas = {};
+  orden.forEach(function(gid){
+    const v = $('ez_cota_'+gid);
+    if(v && v.value.trim()!=='') cotas[gid] = parseFloat(v.value) || 0;
+  });
+  return {
+    chip: chip,
+    orden_bloques: orden,
+    umbral_proximo_frac: parseFloat($('ez_umbral_proximo').value || '0.5') || 0.5,
+    umbral_muy_cercano_frac: parseFloat($('ez_umbral_muy_cercano').value || '0.1') || 0.1,
+    cota_arranque_por_grupo: cotas
+  };
+}
+
+async function guardarElevacionesZonas(chip){
+  const cfg = recolectarConfigZonas(chip);
+  const aviso = $('ez-aviso');
+  const r = await api('/api/elevaciones-zonas', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({chip: chip, config_zonas: cfg})
+  });
+  if(r.ok){
+    aviso.className='fuente'; aviso.style.color='#166534';
+    aviso.textContent='Guardado: ' + r.ruta;
+    // Refrescar reporte con la config guardada
+    const res = r.elevaciones || {};
+    if(res.reporte_html){
+      $('ez_reporte').innerHTML = res.reporte_html;
+      $('ez_reporte').style.display = 'block';
+    }
+  } else {
+    aviso.className='fuente'; aviso.style.color='#991b1b';
+    aviso.textContent = (r.error && r.error.problemas ? r.error.problemas.join('; ') : (r.error||'error'));
+  }
+}
+
+// Vincular al cambio de chip (se llama dentro del change del chip principal)
 async function generarF3(){
   const chip = $('chip').value;
   if(!chip){ alert('Seleccione un CHIP primero.'); return; }
