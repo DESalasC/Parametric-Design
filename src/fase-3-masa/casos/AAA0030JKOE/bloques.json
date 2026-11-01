@@ -1,8 +1,8 @@
 {
   "chip": "AAA0030JKOE",
-  "n": 2,
+  "n": 4,
   "n_solicitado": 4,
-  "n_max_recomendado": 2,
+  "n_max_recomendado": 4,
   "distribucion": "automatico",
   "orientacion": {
     "modo": "automatico",
@@ -26,26 +26,26 @@
   "angulo": null,
   "azimut_grados": null,
   "crujia": {
-    "modo": "doble",
-    "circulacion": "central",
+    "modo": "unica",
+    "circulacion": "lateral",
     "crujia_m": 6.11
   },
   "nucleo_posicion": "centro",
   "separacion_m": 6.0,
   "separacion_min_norma_m": 6.0,
-  "desnivel_m": 13.05,
+  "desnivel_m": 4.35,
   "niveles": {
     "modo": "auto",
-    "desnivel_m": 13.05,
+    "desnivel_m": 4.35,
     "entrada_m": 2635.52,
     "salida_m": 2648.57,
     "delta_m": 13.05,
     "fuente": "topografia.perfil_lados (MDT Catastro) (salida = via posterior)"
   },
   "ancho_min": {
-    "ancho_min_m": 13.42,
-    "crujia_modo": "doble",
-    "circulacion": "central",
+    "ancho_min_m": 7.31,
+    "crujia_modo": "unica",
+    "circulacion": "lateral",
     "crujia_m": 6.11,
     "nucleo_m": 5.4,
     "circulacion_m": 1.2,
@@ -54,30 +54,16 @@
     },
     "unidad_max_m2": 55.0,
     "prof_ref_m": 9.0,
-    "formula": "ancho_min = max(2 x crujia + circulacion, nucleo) [doble crujia, circ. central]"
+    "formula": "ancho_min = max(crujia + circulacion, nucleo) [crujia unica, circ. lateral]"
   },
   "fuente_geometria": "lote_objetivo (franjas dirigidas 52.6 deg; ref: calle de acceso (Occidente-2)) - AAA0030JKOE-contexto.json; lados: AAA0030JKOE-vecinos-por-lado-override.json",
-  "avisos": [
-    "Bloques solicitados: 4 -> usados 2 por ancho minimo por programa (13.4 m = 2 x crujia 6.1 + circulacion 1.2); franja mas angosta al solicitado: 8.4 m."
-  ],
+  "avisos": [],
   "nota": "Propuesta de multivolumen v02.2: franjas referidas al predio y ordenadas desde la entrada; z_base_m relativo a la cota de ENTRADA (B1 = 0.00); auto interpola la topografia MDT (Entrada -> nivel final del lote). Crujia y nucleo_posicion quedan como contrato para VOLUM v09. Poligonos esquematicos: el canvas los re-encaja en la envolvente F1. z_terreno_medio_m = MDT absoluto (m); z_local del marco del canvas = MDT - origen_sirgas.z.",
   "bloques": [
     {
       "id": "B1",
       "orden": 1,
       "poligono_local": [
-        [
-          102.505,
-          103.242
-        ],
-        [
-          93.591,
-          91.585
-        ],
-        [
-          92.82,
-          92.13
-        ],
         [
           79.902,
           101.25
@@ -107,22 +93,26 @@
           112.79
         ],
         [
-          98.801,
-          105.932
+          90.874,
+          111.69
+        ],
+        [
+          81.843,
+          99.879
         ]
       ],
-      "area_lote_m2": 337.18,
-      "ancho_m": 14.98,
-      "huella_objetivo_m2": 270.81,
+      "area_lote_m2": 124.92,
+      "ancho_m": 8.37,
+      "huella_objetivo_m2": 136.3,
       "pisos": 5,
       "z_base_m": 0.0,
-      "z_terreno_medio_m": 2639.06,
-      "gfa_objetivo_m2": 1354.05,
+      "z_terreno_medio_m": 2637.08,
+      "gfa_objetivo_m2": 681.5,
       "unidades_estimadas": {
         "Vivienda": {
           "unidad_m2": 55.0,
-          "min": 24,
-          "max": 25
+          "min": 12,
+          "max": 13
         }
       }
     },
@@ -131,9 +121,89 @@
       "orden": 2,
       "poligono_local": [
         [
-          123.213,
-          96.853
+          102.505,
+          103.242
         ],
+        [
+          93.591,
+          91.585
+        ],
+        [
+          92.82,
+          92.13
+        ],
+        [
+          86.748,
+          96.417
+        ],
+        [
+          95.73,
+          108.162
+        ],
+        [
+          98.801,
+          105.932
+        ]
+      ],
+      "area_lote_m2": 123.3,
+      "ancho_m": 8.37,
+      "huella_objetivo_m2": 134.53,
+      "pisos": 5,
+      "z_base_m": 4.35,
+      "z_terreno_medio_m": 2641.11,
+      "gfa_objetivo_m2": 672.65,
+      "unidades_estimadas": {
+        "Vivienda": {
+          "unidad_m2": 55.0,
+          "min": 12,
+          "max": 13
+        }
+      }
+    },
+    {
+      "id": "B3",
+      "orden": 3,
+      "poligono_local": [
+        [
+          118.389,
+          100.357
+        ],
+        [
+          105.334,
+          83.286
+        ],
+        [
+          100.073,
+          87.004
+        ],
+        [
+          98.494,
+          88.12
+        ],
+        [
+          111.614,
+          105.277
+        ]
+      ],
+      "area_lote_m2": 180.33,
+      "ancho_m": 8.37,
+      "huella_objetivo_m2": 196.76,
+      "pisos": 5,
+      "z_base_m": 8.7,
+      "z_terreno_medio_m": 2644.67,
+      "gfa_objetivo_m2": 983.8,
+      "unidades_estimadas": {
+        "Vivienda": {
+          "unidad_m2": 55.0,
+          "min": 17,
+          "max": 18
+        }
+      }
+    },
+    {
+      "id": "B4",
+      "orden": 4,
+      "poligono_local": [
         [
           124.232,
           96.113
@@ -191,42 +261,26 @@
           78.414
         ],
         [
-          109.026,
-          80.677
+          110.238,
+          79.821
         ],
         [
-          108.241,
-          81.232
-        ],
-        [
-          106.29,
-          82.61
-        ],
-        [
-          100.073,
-          87.004
-        ],
-        [
-          98.494,
-          88.12
-        ],
-        [
-          111.614,
-          105.277
+          123.245,
+          96.83
         ]
       ],
-      "area_lote_m2": 487.7,
-      "ancho_m": 21.59,
-      "huella_objetivo_m2": 391.71,
+      "area_lote_m2": 178.66,
+      "ancho_m": 8.37,
+      "huella_objetivo_m2": 194.94,
       "pisos": 5,
       "z_base_m": 13.05,
-      "z_terreno_medio_m": 2645.99,
-      "gfa_objetivo_m2": 1958.55,
+      "z_terreno_medio_m": 2647.67,
+      "gfa_objetivo_m2": 974.7,
       "unidades_estimadas": {
         "Vivienda": {
           "unidad_m2": 55.0,
-          "min": 35,
-          "max": 36
+          "min": 17,
+          "max": 18
         }
       }
     }
