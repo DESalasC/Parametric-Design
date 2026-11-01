@@ -284,3 +284,15 @@ def test_nuevo_chip_validacion_formato():
     assert "Formato" in r["mensaje"]
     r2 = sv._nuevo_chip("")
     assert r2["ok"] is False
+
+
+def test_frontal_payload_y_pagina():
+    """Seccion 1d: payload de la vista frontal y pagina independiente."""
+    d = sv._frontal_datos("AAA0030JKOE")
+    assert d["chip"] == "AAA0030JKOE"
+    assert d["frente"]["lado_id"] == 25
+    assert len(d["lindero"]) == 25 and len(d["calle"]) == 25
+    assert d["curvas"] and d["plano"]["lados"] and d["esquinas"]
+    assert d["banda"]["top_z"] == round(d["banda"]["base_z"] + d["altura"]["h_m"], 3)
+    html = sv._frontal_pagina("AAA0030JKOE")
+    assert "Frontal.montar" in html and "/frontal.js" in html

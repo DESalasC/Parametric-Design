@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual de usuario — Orquestador web de DiseñoParamétrico</title>
+<style>
+  :root{
+    --ink:#15201f; --muted:#5c6b69; --line:#d9e3e0; --paper:#fff; --bg:#f2f6f5;
+    --teal:#0f6b5f; --teal-soft:#e6f2ef; --amber:#96620f; --amber-soft:#fdf3de;
+    --red:#992e2e; --red-soft:#fbe9e9; --blue:#25527a; --blue-soft:#e9f0f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55}
+  .page{max-width:1060px;margin:0 auto;background:var(--paper);padding:52px 60px 70px;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+  header.top{border-bottom:3px solid var(--teal);padding-bottom:20px;margin-bottom:26px}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  h1{font-size:30px;line-height:1.15;margin:10px 0 8px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0}
+  .meta{display:flex;gap:24px;flex-wrap:wrap;margin-top:16px;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--ink)}
+  h2{font-size:21px;margin:40px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+  h3{font-size:16px;margin:24px 0 8px}
+  p{margin:8px 0}
+  ul,ol{margin:8px 0 8px 20px;padding:0}
+  li{margin:4px 0}
+  table{width:100%;border-collapse:collapse;margin:13px 0 18px;font-size:13.5px}
+  th{background:#edf3f1;text-align:left;padding:8px 10px;border:1px solid var(--line);font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:#344643}
+  td{padding:8px 10px;border:1px solid var(--line);vertical-align:top}
+  tr:nth-child(even) td{background:#fafcfb}
+  code{background:#edf3f1;padding:1px 5px;border-radius:4px;font-family:Consolas,"SF Mono",monospace;font-size:12.5px}
+  pre{background:#10201e;color:#e8f2ef;padding:14px 16px;border-radius:8px;overflow:auto;font-family:Consolas,monospace;font-size:12.5px;line-height:1.5}
+  .callout{border-left:4px solid var(--teal);background:var(--teal-soft);padding:12px 15px;border-radius:0 8px 8px 0;margin:14px 0}
+  .callout.warn{border-left-color:var(--amber);background:var(--amber-soft)}
+  .callout.bad{border-left-color:var(--red);background:var(--red-soft)}
+  .callout p{margin:3px 0}
+  .steps{counter-reset:step;margin:16px 0}
+  .step{position:relative;padding:0 0 4px 44px;margin-bottom:18px;border-left:2px solid var(--line);margin-left:14px}
+  .step:last-child{border-left-color:transparent}
+  .step::before{counter-increment:step;content:counter(step);position:absolute;left:-15px;top:-2px;width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .step h3{margin:0 0 6px;font-size:15.5px}
+  .step p{margin:4px 0}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+  .ok{background:var(--teal-soft);color:var(--teal)}
+  .warn{background:var(--amber-soft);color:var(--amber)}
+  .bad{background:var(--red-soft);color:var(--red)}
+  .info{background:var(--blue-soft);color:var(--blue)}
+  .kbd{display:inline-block;border:1px solid #b9c7c4;border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:12px;background:#f8fbfa;font-family:Consolas,monospace}
+  .ui{display:grid;grid-template-columns:52px 1fr;gap:12px;border:1px solid var(--line);border-radius:9px;padding:12px 14px;margin:10px 0;background:#fbfdfc}
+  .ui .num{width:42px;height:42px;border-radius:9px;background:var(--teal);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .ui h4{margin:0 0 3px;font-size:14.5px}
+  .ui p{margin:0;font-size:13.5px;color:var(--muted)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  figure{margin:18px 0;padding:0}figure img{width:100%;height:auto;border:1px solid var(--line);border-radius:8px;display:block}figcaption{font-size:12px;color:var(--muted);margin-top:6px}
+footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+  @media print{body{background:#fff}.page{box-shadow:none;padding:0}h2{page-break-after:avoid}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <div class="kicker">Manual de usuario · v1.1</div>
+  <h1>Orquestador web de DiseñoParamétrico</h1>
+  <p class="sub">Guía práctica para operar el formulario local que coordina F1, F2 y F3, desde la creación del proyecto hasta la generación de masa y los pasos en Rhino/Grasshopper/ArchiCAD.</p>
+  <div class="meta">
+    <span><b>Fecha:</b> 2026-11-01</span>
+    <span><b>Aplicación:</b> <code>src/orquestador/servidor.py</code></span>
+    <span><b>URL:</b> http://127.0.0.1:8900</span>
+    <span><b>Alcance:</b> F0 a F3</span>
+  </div>
+</header>
+
+<div class="callout warn">
+  <p><strong>Antes de empezar.</strong> Este manual describe la interfaz y el comportamiento reales a la fecha. El orquestador <em>no</em> sustituye a Rhino, Grasshopper ni ArchiCAD: coordina datos, ejecuta lo automatizable y convierte lo manual en checklist. Si algo no coincide con lo que ve en pantalla, revise la sección 9 (problemas frecuentes) antes de continuar.</p>
+</div>
+
+<h2>1. Qué es y qué necesita</h2>
+<p>Es una aplicación local de una sola página. Recoge las variables del proyecto una sola vez, genera los archivos canónicos que lee el canvas de Grasshopper, ejecuta los motores F2 y F3 por línea de comandos y muestra el estado de cada paso. No requiere conexión a internet; sí requiere la geobase POT local.</p>
+
+<table>
+  <thead><tr><th style="width:30%">Requisito</th><th>Detalle</th></tr></thead>
+  <tbody>
+    <tr><td>Python del proyecto</td><td><code>.venv\Scripts\python.exe</code> en la raíz del repositorio.</td></tr>
+    <tr><td>Geobase POT</td><td><code>data/geobase/bd_uaecd.gpkg</code> (≈3,2 GB) o la ruta definida en <code>POT_GPKG_PATH</code>.</td></tr>
+    <tr><td>Datos del predio</td><td><code>data/pot-cache/&lt;CHIP&gt;-contexto.json</code>; si no existe, el botón “Procesar CHIP nuevo” lo genera.</td></tr>
+    <tr><td>Rhino + Grasshopper</td><td>Solo para los pasos manuales: GFA aprobado y masa/Morphs.</td></tr>
+    <tr><td>ArchiCAD + Live Connection</td><td>Para Morphs, zonas y stories. El puerto 19723 debe estar libre para Grasshopper.</td></tr>
+  </tbody>
+</table>
+
+<h2>2. Arranque y cierre</h2>
+<h3>Arrancar</h3>
+<pre>cd D:\Work\PROJECTS\DiseñoParametrico
+.\.venv\Scripts\python.exe src\orquestador\servidor.py --puerto 8900</pre>
+<p>Abra <code>http://127.0.0.1:8900</code> en el navegador. El servidor queda en primer plano; para detenerlo use <span class="kbd">Ctrl</span> + <span class="kbd">C</span>. Si el puerto está ocupado, cambie <code>--puerto</code>.</p>
+
+<h3>Verificar sin ejecutar nada</h3>
+<pre>.\.venv\Scripts\python.exe src\orquestador\run_pipeline_v01.py --status</pre>
+<p>Muestra los 13 pasos con su estado: <span class="badge ok">OK</span>, <span class="badge bad">falta</span> o <span class="badge warn">manual</span>. Es la forma segura de saber dónde quedó la última sesión.</p>
+
+<h3>Generar el checklist visual</h3>
+<pre>.\.venv\Scripts\python.exe src\orquestador\run_pipeline_v01.py --checklist</pre>
+<p>Escribe <code>src/orquestador/checklist.html</code>. Ábralo con doble clic para imprimir o revisar paso a paso.</p>
+
+<h2>3. Mapa de la pantalla</h2>
+<p>La página se lee de arriba hacia abajo. Cada bloque corresponde a una decisión y escribe archivos distintos.</p>
+
+<div class="ui"><div class="num">0</div><div><h4>Proyecto</h4><p>Nombre, creación de la carpeta del proyecto y guardado del proyecto activo. Sin nombre se trabaja en <code>_provisional</code>. “Crear estructura” genera la carpeta y su subcarpeta <code>Archicad/</code> para el <code>.pln</code>.</p></div></div>
+<div class="ui"><div class="num">1</div><div><h4>Predio (CHIP)</h4><p>Selección de un CHIP existente o procesamiento de uno nuevo. “Procesar CHIP nuevo” descarga contexto base y 50 m, lo activa para el canvas y refresca las secciones. Puede tardar 1–3 minutos.</p></div></div>
+<div class="ui"><div class="num">1b</div><div><h4>Plano y vecinos por lado</h4><p>Vista en planta con norte arriba y contexto de 25 m. Cada vecino tiene color y etiqueta. Al hacer clic sobre un lado se cicla su clasificación: indefinido → vía → vía no frontal → predio/vecino → espacio público → libre. Los lados “vía no frontal” y “espacio público” se marcan sin altura.</p></div></div>
+<div class="ui"><div class="num">1d</div><div><h4>Frontal (nivel 0,00)</h4><p>Vista del lote desde la calle <b>FRONTAL</b> con terreno, calle, vecinos inmediatos, curvas de nivel en MSNM y perímetro con los colores de la planta. Permite marcar hasta <b>5 puntos</b> en la planta (se proyectan a la fachada con su línea de altura permitida) y fijar el <b>nivel 0,00</b> haciendo clic en el alzado o escribiendo una cota MSNM. La franja gris muestra la altura reglamentaria medida <b>sobre el terreno</b>. El botón <b>Abrir</b> lleva a la página independiente <code>/frontal?chip=...</code>.</p></div></div>
+<div class="ui"><div class="num">2</div><div><h4>Normativa y generación de GFA</h4><p>Completa los datos que la geobase no trae (rango, altura, IO, IC, antejardín) y permite marcar los usos del proyecto. “Guardar norma (override)” fusiona esos valores al volver a hacer fetch.</p></div></div>
+<div class="ui"><div class="num">3</div><div><h4>Financiero</h4><p>Modo de negocio (venta, renta, mixto), aporte del lote, escenarios de mercado, variables y fuentes. “Calcular F2” ejecuta el motor; “Guardar financiero” persiste el override por CHIP. También contiene los botones para disparar la exportación de GFA y del diagnóstico de lados/patio en el canvas.</p></div></div>
+<div class="ui"><div class="num">4</div><div><h4>Modelado (masa)</h4><p>Ajusta nócleo, orientación de bloques (paralelo/perpendicular a la calle o a un lindero), niveles automáticos con la topografía y ancho mínimo. “Generar masa (F3)” usa los usos y escenarios marcados arriba; “Ejecutar pipeline completo (F1→F2→F3)” encadena todo.</p></div></div>
+<div class="ui"><div class="num">★</div><div><h4>Resultados y archivos de intercambio</h4><p>“Resultados del lote seleccionado” muestra los datos del CHIP activo. “Archivos de intercambio” lista los nombres canónicos que el canvas lee; <code>&lt;CHIP&gt;</code> y <code>&lt;CASO&gt;</code> se sustituyen por los valores reales.</p></div></div>
+
+<h2>4. Flujo recomendado, paso a paso</h2>
+
+<div class="steps">
+  <div class="step">
+    <h3>Crear o abrir el proyecto</h3>
+    <p>En la sección 0 escriba un nombre y pulse <strong>Crear estructura</strong>. Verifique que aparece la carpeta del proyecto y, dentro, <code>Archicad/</code>. Si solo va a hacer una prueba, use <strong>Guardar (provisional)</strong>.</p>
+    <p class="small">Resultado: <code>data/activo/proyecto.json</code> y la estructura de carpetas del proyecto.</p>
+  </div>
+
+  <div class="step">
+    <h3>Elegir el predio</h3>
+    <p>Seleccione un CHIP de la lista. Si es nuevo, escríbalo y pulse <strong>Procesar CHIP nuevo</strong>. Espere a que termine la descarga y la activación automática del contexto.</p>
+    <p class="small">Resultado: <code>data/pot-cache/&lt;CHIP&gt;-contexto.json</code>, <code>contexto50-actual.json</code> y los copias canónicas que lee el canvas.</p>
+  </div>
+
+  <div class="step">
+    <h3>Revisar el plano y clasificar los lados</h3>
+    <p>Haga clic en cada lado hasta que la clasificación coincida con la realidad: frontal (vía), lateral (vecino) o posterior. Haga clic en un vecino para ubicarlo. Si un lado es vía no frontal o espacio público, déjelo marcado como tal: no computa altura.</p>
+    <p>Después pulse <strong>Guardar vecinos/frentes (por CHIP)</strong> y, si va a trabajar el canvas, <strong>Generar JSON NORMATIVA (vecinos_por_lado_json)</strong>.</p>
+    <p class="small">Resultado: <code>&lt;CHIP&gt;-vecinos-por-lado.json</code> y su override; alimenta LADOS y NORMATIVA.</p>
+  </div>
+
+  <div class="step">
+    <h3>Fijar el nivel 0,00 en la vista FRONTAL</h3>
+    <p>En la sección <b>1d</b> revise el lado frontal (debe ser la calle FRONTAL). Marque hasta 5 puntos en la planta; cada uno aparece en el alzado con su identificador y una línea vertical hasta la altura permitida. Haga clic sobre el alzado o escriba la cota en <b>Nivel 0,00 (MSNM)</b> y pulse <b>Fijar</b>.</p>
+    <p>Use <b>Mín. lote</b> para volver al criterio de mínimo del lote y <b>Reiniciar puntos</b> para borrar las marcas. Si la malla ETAPA1 no cubre la calle, pulse <b>Actualizar cotas MDT</b> (lee Catastro y deja el resultado en caché).</p>
+    <p class="small">Resultado: <code>data/pot-cache/&lt;CHIP&gt;-z0.json</code> con <code>z0_m</code>, <code>z0_abs_m</code> y la posición <code>presentacion.x_frente_m</code>; los puntos quedan en <code>&lt;CHIP&gt;-frontal.json</code>.</p>
+    <div class="callout warn"><p><strong>No confunda</strong> el 0,00 del proyecto con el nivel del terreno que manda la norma. La banda gris de altura se mide sobre el terreno; el 0,00 es un datum independiente. La nota inferior de la vista muestra la diferencia (Δ) entre ambos.</p></div>
+  </div>
+
+  <div class="step">
+    <h3>Completar la norma faltante</h3>
+    <p>Si la geobase no trae rango, altura, IO, IC o antejardín, complételos en la sección 2 con la fuente (ficha UPZ, resolución, decreto) y pulse <strong>Guardar norma (override)</strong>. Vuelva a procesar el CHIP o re-fetch para que el override se fusione.</p>
+    <div class="callout warn"><p><strong>Regla:</strong> el override del operador gana sobre la geobase. Deje escrito de dónde sale cada valor; sin fuente, el dato no es auditable.</p></div>
+  </div>
+
+  <div class="step">
+    <h3>Marcar usos y decidir el negocio</h3>
+    <p>En la sección 2 marque los usos (vivienda, comercio, servicios, salud, etc.). En la sección 3 elija el modo de negocio (venta, renta o mixto), el aporte del lote y los escenarios de mercado. Guarde el financiero.</p>
+    <p>Si quiere ver el resultado antes de modelar, pulse <strong>Calcular F2 (con aporte del lote)</strong>.</p>
+    <p class="small">Resultado: <code>data/pot-bogota/financiero-override.json</code> y los parámetros del motor F2.</p>
+  </div>
+
+  <div class="step">
+    <h3>Exportar el GFA desde el canvas</h3>
+    <p>Pulse <strong>Exportar GFA (disparar en canvas)</strong>. Eso pone <code>gfa-export-flag.json</code> en <code>true</code>; el componente <code>F1_EXPORTAR_GFA_v02.4</code> lo consume, exporta y lo devuelve a <code>false</code>.</p>
+    <div class="callout warn"><p><strong>Importante:</strong> este botón no calcula el GFA. Solo dispara la exportación. El cálculo ocurre en el canvas con NORMATIVA v10. Si el canvas no está abierto, el flag queda pendiente y el archivo no se actualiza.</p></div>
+  </div>
+
+  <div class="step">
+    <h3>Definir el modelado</h3>
+    <p>En la sección 4 ajuste la orientación de los bloques, el tipo de crujía, la posición del núcleo y los niveles. La línea viva consulta <code>POST /api/proponer-bloques</code> y muestra orientación, niveles, ancho mínimo y avisos antes de generar.</p>
+    <p>Pulse <strong>Generar masa (F3)</strong> para este CHIP o <strong>Ejecutar pipeline completo (F1→F2→F3)</strong> si quiere encadenar los pasos automáticos.</p>
+  </div>
+
+  <div class="step">
+    <h3>Ejecutar los pasos manuales</h3>
+    <p>El orquestador no puede hacerlos solo. Siga la sección 6 de este manual: NORMATIVA aprobada, GFA aprobado, masa en Rhino y Morphs/zonas en ArchiCAD. Vuelva a <code>--status</code> después de cada uno para confirmar que el artefacto existe.</p>
+  </div>
+
+  <div class="step">
+    <h3>Cerrar la sesión</h3>
+    <p>Guarde el proyecto, genere el checklist, registre el avance en el vault y haga commit del repositorio. Si va a cambiar de CHIP, no hace falta recablear el canvas: los archivos canónicos se sobrescriben solos.</p>
+  </div>
+</div>
+
+<h2>5. Controles y qué hace cada uno</h2>
+<table>
+  <thead><tr><th style="width:32%">Control</th><th>Qué hace</th><th style="width:26%">Archivo o efecto</th></tr></thead>
+  <tbody>
+    <tr><td>Crear estructura</td><td>Crea la carpeta del proyecto y <code>Archicad/</code>; copia el material provisional.</td><td><code>proyectos/&lt;nombre&gt;/</code></td></tr>
+    <tr><td>Guardar (provisional)</td><td>Guarda sin crear estructura definitiva.</td><td><code>data/activo/proyecto.json</code></td></tr>
+    <tr><td>Procesar CHIP nuevo</td><td>Fetch de contexto base y 50 m; activa archivos canónicos.</td><td><code>&lt;CHIP&gt;-contexto.json</code>, <code>contexto50-actual.json</code></td></tr>
+    <tr><td>Guardar vecinos/frentes</td><td>Persiste la clasificación por lado y refresca el activo.</td><td><code>&lt;CHIP&gt;-vecinos-por-lado-override.json</code></td></tr>
+    <tr><td>Lado frontal (calle)</td><td>Elige el lado del lote que se mira de frente. Por defecto toma la calle de acceso del modelado o el lado clasificado como vía.</td><td><code>/api/frontal?lado=</code></td></tr>
+    <tr><td>Clic en la planta</td><td>Marca P1…P5 dentro del lote; cada punto se proyecta al alzado con su cota de terreno y su línea de altura.</td><td><code>&lt;CHIP&gt;-frontal.json</code></td></tr>
+    <tr><td>Clic en el alzado / Nivel 0,00</td><td>Fija el datum del proyecto en la cota señalada (o en la MSNM escrita). <b>Mín. lote</b> restaura el mínimo del lote.</td><td><code>&lt;CHIP&gt;-z0.json</code></td></tr>
+    <tr><td>Banda sobre el perfil</td><td>Dibuja la altura permitida siguiendo el perfil del terreno en vez de una base horizontal.</td><td>solo vista</td></tr>
+    <tr><td>H desde 0,00 (ref.)</td><td>Línea de referencia de la altura medida desde el 0,00, para comparar con la banda sobre terreno.</td><td>solo vista</td></tr>
+    <tr><td>Actualizar cotas MDT</td><td>Lee el MDT de Catastro para el lindero y la calle y lo deja en caché (puede tardar ~30 s).</td><td><code>&lt;CHIP&gt;-frontal-mdt.json</code></td></tr>
+    <tr><td>Abrir</td><td>Abre la vista frontal en una página independiente, a ancho completo.</td><td><code>/frontal?chip=&lt;CHIP&gt;</code></td></tr>
+    <tr><td>Generar JSON NORMATIVA</td><td>Produce el JSON que consume NORMATIVA v10.</td><td><code>&lt;CHIP&gt;-vecinos-por-lado.json</code></td></tr>
+    <tr><td>Guardar norma (override)</td><td>Fusiona los datos normativos faltantes.</td><td><code>data/pot-bogota/norma-override.json</code></td></tr>
+    <tr><td>Guardar financiero</td><td>Persiste variables y fuentes del análisis.</td><td><code>financiero-override.json</code></td></tr>
+    <tr><td>Calcular F2</td><td>Ejecuta el motor de demanda con el GFA y el aporte del lote.</td><td><code>resultados/resultados_&lt;CHIP&gt;.json</code></td></tr>
+    <tr><td>Exportar GFA</td><td>Dispara el flag de exportación en el canvas.</td><td><code>gfa-export-flag.json</code></td></tr>
+    <tr><td>Exportar diagnóstico lados+patio</td><td>Dispara el flag para que PATIO escriba el diagnóstico.</td><td><code>lados-export-flag.json</code></td></tr>
+    <tr><td>Generar masa (F3)</td><td>Distribución + accesos + propuesta de bloques con los usos y escenarios elegidos.</td><td><code>casos/&lt;CASO&gt;/</code></td></tr>
+    <tr><td>Pipeline completo</td><td>Encadena F1 fetch, F2 y F3 automáticos.</td><td>log en <code>src/orquestador/logs/</code></td></tr>
+  </tbody>
+</table>
+
+<h2>6. Pasos que siguen siendo manuales</h2>
+
+<h3>6.1 NORMATIVA aprobada en el canvas</h3>
+<ol>
+  <li>Abra <code>gh-definitions/F1_CONTEXTO_v13.7.ghx</code> en Rhino/Grasshopper.</li>
+  <li>Verifique que ETAPA1 tiene el <code>json_path</code> apuntando a <code>data/pot-cache/CHIP-contexto.json</code> y que LADOS recibe curvas nativas (Type Hint <code>Curve</code>, List + Flatten).</li>
+  <li>Ejecute la cadena: ETAPA1 → LADOS v06.8 → PATIO v03.4 → NORMATIVA v10.</li>
+  <li>Compruebe en el panel de NORMATIVA: <code>valido=True</code>, <code>io_real ≤ 0,70</code>, <code>gfa_aprobado_m2 &gt; 0</code>.</li>
+</ol>
+
+<h3>6.2 GFA aprobado</h3>
+<ol>
+  <li>Conecte <code>gfa_aprobado_m2</code> y <code>ocupacion_aprobada_m2</code> a <code>F1_EXPORTAR_GFA_v02.4</code>.</li>
+  <li>Pulse <strong>Exportar GFA</strong> en el orquestador o ponga el flag en <code>true</code>.</li>
+  <li>Verifique que el JSON escrito tenga <code>modo=APROBADO</code> y <code>gfa_aprobado_m2</code>.</li>
+</ol>
+<div class="callout bad"><p><strong>No confunda</strong> el GFA potencial (referencia) con el GFA aprobado. El primero sirve para explorar; el segundo es el que debe alimentar F2 y F3. Si el archivo tiene fecha vieja o <code>fuente</code> de un canvas anterior, no lo use para decidir.</p></div>
+
+<h3>6.3 Masa y Morphs en ArchiCAD</h3>
+<ol>
+  <li>Cargue <code>F3_VOLUM_GENERADOR_v08.py</code> en el componente GHPython.</li>
+  <li>Conecte <code>envelope_aprobado_por_piso</code> desde NORMATIVA v10 (si está en modo APROBADO) o <code>envelope_por_piso</code> (potencial).</li>
+  <li>Conecte las salidas <code>*_mesh</code> a los componentes <code>AC_*</code> de Live Connection.</li>
+  <li>Verifique el round-trip con <code>GetElements</code> y el censo de zonas.</li>
+</ol>
+
+<h3>6.4 Stories</h3>
+<ol>
+  <li>Genere el plan: <code>F3_StorySync_v02.py --plan --chip &lt;CHIP&gt; --zgf-m &lt;valor&gt;</code>.</li>
+  <li>Cree los niveles en ArchiCAD (Story Settings). La API solo permite leerlos, no crearlos.</li>
+  <li>Verifique: <code>F3_StorySync_v02.py --check</code> → 8/8 niveles, 0 faltantes.</li>
+</ol>
+
+<h3>6.5 Nivel 0,00 y banda de altura (vista FRONTAL)</h3>
+<p>La vista <b>1d</b> es la forma recomendada de fijar el <b>Ground Floor</b>. Antes de tocar ArchiCAD:</p>
+<ol>
+  <li>Confirme el <b>lado frontal</b>: debe ser la calle que el operador clasificó como <b>vía</b> en la planta. Si hay varias vías, use el selector y verifique la etiqueta (p. ej. Occidente-2).</li>
+  <li>Marque puntos en la planta (máx. 5). Cada punto muestra su cota de terreno en MSNM y su línea vertical de altura permitida; la altura H se puede editar por punto si la norma cambia en un tramo.</li>
+  <li>Fije el 0,00 con un clic en el alzado o escribiendo la cota MSNM. El alzado dibuja la línea <b>0,00 (L 01)</b> y la banda gris de altura sobre el terreno; la nota inferior indica la diferencia entre el terreno y el 0,00.</li>
+  <li>Revise las <b>esquinas del polígono</b> (cotas laterales), la <b>calle</b> y los <b>vecinos inmediatos</b> con su altura en metros. Si la calle quedó estimada, pulse <b>Actualizar cotas MDT</b>.</li>
+  <li>Al cambiar el 0,00, vuelva a generar el plan de stories (<code>F3_StorySync_v02.py --plan</code>) y verifique en ArchiCAD que el Ground Floor es 0,000.</li>
+</ol>
+<figure><img src="assets/frontal-nivel-0.png" alt="Vista FRONTAL del orquestador: planta con puntos P1-P3, alzado desde la calle, curvas de nivel MSNM y banda de altura"><figcaption>Vista FRONTAL de AAA0030JKOE: planta con P1–P3, alzado desde la calle, curvas de nivel MSNM, vecinos con altura y banda gris de 10,00 m sobre el terreno. El 0,00 (L 01) está en el mínimo del lote.</figcaption></figure>
+<div class="callout"><p><strong>Lectura correcta:</strong> la banda gris es la altura que la norma permite <b>sobre el nivel del terreno</b>. El 0,00 del proyecto es independiente; si el terreno en el punto señalado está 1,29 m por encima del 0,00, la banda arranca 1,29 m arriba. Ese Δ se muestra en la propia vista.</p></div>
+
+<h2>7. Archivos canónicos que debe conocer</h2>
+<table>
+  <thead><tr><th>Archivo</th><th>Quién lo escribe</th><th>Quién lo lee</th></tr></thead>
+  <tbody>
+    <tr><td><code>data/pot-cache/CHIP-contexto.json</code></td><td>fetch / orquestador</td><td>ETAPA1</td></tr>
+    <tr><td><code>data/pot-cache/CHIP-vecinos-por-lado.json</code></td><td>orquestador / vecinos_por_lado.py</td><td>NORMATIVA</td></tr>
+    <tr><td><code>data/fase-2-demanda/CHIP-gfa-gh.json</code></td><td>F1_EXPORTAR_GFA_v02.4</td><td>F2 venta y renta</td></tr>
+    <tr><td><code>src/fase-3-masa/casos/CASO/programa-areas.json</code></td><td>F3_DISTRIBUCION</td><td>F3_VOLUM</td></tr>
+    <tr><td><code>src/fase-3-masa/casos/CASO/accesos.json</code></td><td>F3_ACCESOS</td><td>orquestador / F3</td></tr>
+    <tr><td><code>src/fase-3-masa/casos/CASO/bloques.json</code></td><td>F3_DISTRIBUCION v02</td><td>F3_VOLUM (previsto)</td></tr>
+    <tr><td><code>data/pot-cache/&lt;CHIP&gt;-frontal.json</code></td><td>orquestador (<code>POST /api/frontal/puntos</code>)</td><td>vista FRONTAL</td></tr>
+    <tr><td><code>data/pot-cache/&lt;CHIP&gt;-frontal-mdt.json</code></td><td>orquestador (Actualizar cotas MDT)</td><td>vista FRONTAL</td></tr>
+    <tr><td><code>data/pot-cache/&lt;CHIP&gt;-z0.json</code></td><td>orquestador (<code>POST /api/z0</code>)</td><td>F3 / stories</td></tr>
+    <tr><td><code>data/pot-bogota/norma-override.json</code></td><td>orquestador</td><td>fetch-urban-context</td></tr>
+    <tr><td><code>data/pot-bogota/financiero-override.json</code></td><td>orquestador</td><td>motor F2</td></tr>
+  </tbody>
+</table>
+<p class="small">La lista completa, con nombres literales y reglas de sustitución, está en <code>src/orquestador/ARCHIVOS_INTERCAMBIO.md</code>.</p>
+
+<h2>8. Estados del pipeline</h2>
+<table>
+  <thead><tr><th style="width:18%">Estado</th><th>Significado</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge ok">OK</span></td><td>El artefacto existe y el paso está hecho.</td><td>Nada; continúe.</td></tr>
+    <tr><td><span class="badge bad">falta</span></td><td>El paso es automático pero el artefacto no existe.</td><td>Ejecute el paso o el pipeline.</td></tr>
+    <tr><td><span class="badge warn">manual</span></td><td>Requiere Rhino, Grasshopper o ArchiCAD.</td><td>Siga el checklist y verifique el artefacto.</td></tr>
+    <tr><td><span class="badge info">omitido</span></td><td>Ya estaba hecho y el pipeline no lo repite.</td><td>Use <code>--refresh</code> si sospecha datos viejos.</td></tr>
+  </tbody>
+</table>
+
+<h2>9. Problemas frecuentes</h2>
+<table>
+  <thead><tr><th style="width:30%">Síntoma</th><th>Causa probable</th><th>Solución</th></tr></thead>
+  <tbody>
+    <tr><td>“Sin contexto para el chip” (404)</td><td>No existe <code>&lt;CHIP&gt;-contexto.json</code> o el CHIP está mal escrito.</td><td>Procese el CHIP nuevo o ejecute el fetch; revise mayúsculas.</td></tr>
+    <tr><td>El canvas muestra datos del predio anterior</td><td>Archivo canónico no actualizado.</td><td>Vuelva a activar el CHIP en el orquestador; no recablee el canvas.</td></tr>
+    <tr><td><code>F3_DISTRIBUCION_v03</code> pide <code>--base-normativa-json</code></td><td>El pipeline de main no pasa la base; el worktree sí lo corrige.</td><td>Use la versión integrada del worktree o genere la base con <code>generar_base_normativa.py --chip &lt;CHIP&gt; --presupuesto-ocupacion &lt;m²&gt;</code>.</td></tr>
+    <tr><td>El paso F3_BARRAS queda en “falta”</td><td>No existe <code>barras.json</code>; además falta la base normativa.</td><td>Ejecute el generador y luego v03 con <code>--base-normativa-json</code>; verifique <code>casos/B/barras.json</code>.</td></tr>
+    <tr><td>StorySync no encuentra <code>niveles_deseados.json</code></td><td>El plan no se ha generado o está en el worktree.</td><td>Ejecute <code>--plan</code> en el repo activo y confirme la ruta.</td></tr>
+    <tr><td>El GFA no cambia al pulsar Exportar</td><td>El canvas no está abierto o el flag no fue consumido.</td><td>Abra el canvas, revise <code>gfa-export-flag.json</code> y vuelva a ejecutar NORMATIVA.</td></tr>
+    <tr><td>Live Connection no conecta</td><td>Puerto 19723 ocupado por AutoClaw.</td><td>Cierre AutoClaw o use el <code>portproxy</code> documentado; verifique con <code>Get-NetTCPConnection</code>.</td></tr>
+    <tr><td>Los resultados F2 no coinciden con el canvas</td><td>El GFA de entrada es viejo o de otro canvas.</td><td>Mire la fecha y la fuente del JSON; re-exporte el GFA aprobado y vuelva a calcular.</td></tr>
+    <tr><td>El pipeline desde un worktree lee datos en blanco</td><td><code>fetch-contexto-completo</code> escribe en la raíz del repo principal, no del worktree.</td><td>Sincronice <code>data/pot-cache/</code> antes de correr, o ejecute desde la raíz.</td></tr>
+  </tbody>
+</table>
+
+<h2>10. Referencia rápida de la API</h2>
+<p>El servidor usa <code>GET</code> para consultas y <code>POST</code> para acciones. Todos los cuerpos son JSON.</p>
+<table>
+  <thead><tr><th style="width:34%">Ruta</th><th>Uso</th></tr></thead>
+  <tbody>
+    <tr><td><code>GET /api/lotes</code></td><td>Lista los CHIP disponibles.</td></tr>
+    <tr><td><code>GET /api/contexto?chip=</code></td><td>Datos del predio y POT.</td></tr>
+    <tr><td><code>GET /api/plano?chip=</code></td><td>Geometría del plano y vecinos.</td></tr>
+    <tr><td><code>GET /api/vecinos-por-lado?chip=</code></td><td>Clasificación por lado.</td></tr>
+    <tr><td><code>GET /api/estado?chip=&amp;caso=</code></td><td>Estado de los 13 pasos.</td></tr>
+    <tr><td><code>GET /api/archivos</code></td><td>Tabla de archivos canónicos.</td></tr>
+    <tr><td><code>GET /api/financiero?chip=</code></td><td>Variables financieras y fuentes.</td></tr>
+    <tr><td><code>GET /api/frontal?chip=&amp;lado=&amp;mdt=</code></td><td>Payload de la vista frontal (perfil, curvas, vecinos, puntos, banda).</td></tr>
+    <tr><td><code>GET /api/frontal/puntos?chip=</code></td><td>Puntos P1…P5 guardados.</td></tr>
+    <tr><td><code>GET /frontal?chip=</code></td><td>Página independiente de la vista frontal.</td></tr>
+    <tr><td><code>POST /api/frontal/puntos</code></td><td>Guarda hasta 5 puntos (y alturas por punto) y devuelve el frontal recalculado.</td></tr>
+    <tr><td><code>GET /api/alzado?chip=</code></td><td>Datos del alzado sobre la vía.</td></tr>
+    <tr><td><code>POST /api/nuevo-chip</code></td><td>Fetch y activación de un CHIP nuevo.</td></tr>
+    <tr><td><code>POST /api/activar-chip</code></td><td>Activa los archivos canónicos del CHIP.</td></tr>
+    <tr><td><code>POST /api/activar-caso</code></td><td>Activa los archivos del caso F3.</td></tr>
+    <tr><td><code>POST /api/norma-override</code></td><td>Guarda la norma completada por el operador.</td></tr>
+    <tr><td><code>POST /api/vecinos-por-lado</code></td><td>Guarda la clasificación y refresca el activo.</td></tr>
+    <tr><td><code>POST /api/financiero</code></td><td>Guarda variables financieras.</td></tr>
+    <tr><td><code>POST /api/calcular-f2</code></td><td>Ejecuta el motor F2.</td></tr>
+    <tr><td><code>POST /api/generar-f3</code></td><td>Distribución, accesos y bloques.</td></tr>
+    <tr><td><code>POST /api/proponer-bloques</code></td><td>Simulación sin escribir archivos.</td></tr>
+    <tr><td><code>POST /api/pipeline</code></td><td>Ejecuta el pipeline desde la UI.</td></tr>
+    <tr><td><code>POST /api/exportar-gfa</code></td><td>Pone el flag de exportación.</td></tr>
+    <tr><td><code>POST /api/exportar-lados</code></td><td>Pone el flag de diagnóstico de lados/patio.</td></tr>
+    <tr><td><code>POST /api/z0</code></td><td>Guarda la cota de datum del proyecto (y la posición <code>x_frente_m</code> / <code>punto_id</code> de la vista frontal).</td></tr>
+    <tr><td><code>POST /api/proyecto</code></td><td>Guarda el proyecto y crea su estructura.</td></tr>
+  </tbody>
+</table>
+
+<h2>11. Lista de verificación de sesión</h2>
+<table>
+  <thead><tr><th style="width:6%">✓</th><th>Comprobación</th></tr></thead>
+  <tbody>
+    <tr><td>☐</td><td>El proyecto tiene nombre y carpeta; el <code>proyecto.json</code> está guardado.</td></tr>
+    <tr><td>☐</td><td>El CHIP correcto está activo y el contexto base y 50 m están frescos.</td></tr>
+    <tr><td>☐</td><td>Los lados están clasificados y guardados; el JSON de NORMATIVA existe.</td></tr>
+    <tr><td>?</td><td>El nivel 0,00 está fijado en la vista FRONTAL, con su Δ contra el terreno, y coincide con el L 01 de ArchiCAD.</td></tr>
+    <tr><td>☐</td><td>La norma faltante está completa, con fuente escrita.</td></tr>
+    <tr><td>☐</td><td>Los usos y el modo de negocio están marcados y guardados.</td></tr>
+    <tr><td>☐</td><td>El GFA aprobado tiene fecha de hoy y <code>valido=True</code>.</td></tr>
+    <tr><td>☐</td><td>F2 venta y renta se recalcularon con ese GFA.</td></tr>
+    <tr><td>☐</td><td><code>barras.json</code> y <code>niveles_deseados.json</code> existen para el caso.</td></tr>
+    <tr><td>☐</td><td><code>F3_StorySync_v02 --check</code> da 8/8.</td></tr>
+    <tr><td>☐</td><td>Masa y Morphs verificados en ArchiCAD; censo 20/20.</td></tr>
+    <tr><td>☐</td><td>Checklist HTML generado y avance registrado en el vault.</td></tr>
+  </tbody>
+</table>
+
+<h2>12. Límites conocidos</h2>
+<ul>
+  <li>El orquestador <strong>no crea stories</strong> en ArchiCAD: la API solo las lee. La creación es manual asistida y la verificación es automática.</li>
+  <li>El puerto de Live Connection es fijo (19723). No lo cambie: la conexión deja de funcionar.</li>
+  <li>Los pasos que dependen de Rhino/ArchiCAD no se pueden ejecutar headless; el checklist verifica el artefacto, no la intención.</li>
+  <li>La vista FRONTAL fija el datum <code>z0</code> y muestra las cotas del terreno; la grilla de niveles de <code>F3_StorySync</code> sigue consultándose en el plan y en los JSON.</li>
+  <li>El pipeline estándar de main aún apunta a F3 v02; hasta integrar el worktree, use v03 con <code>--base-normativa-json</code>.</li>
+</ul>
+
+<footer>
+  Manual de usuario del orquestador web · DiseñoParamétrico · 2026-11-01. Basado en la interfaz <code>index.html</code>, las rutas de <code>servidor.py</code> y el estado real del pipeline a esa fecha. v1.1 (2026-11-01): sección 1d, vista FRONTAL y API asociada.
+</footer>
+
+</div>
+</body>
+</html>

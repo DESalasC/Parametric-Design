@@ -146,3 +146,16 @@ El loader reemplaza los inputs sueltos, pero el cableado del canvas es **manual*
    antes recibían los inputs sueltos (F1_LADOS, F1_NORMATIVA, F3_VOLUM, F3_ACCESOS).
 5. Ejecución **por clic o Tapir**: se re-escribe el `proyecto.json` (formulario o
    Tapir) y se dispara la solución; no hay que re-cablear nada.
+
+## Vista FRONTAL (sección 1d, 2026-11-01)
+
+`index.html` incluye la sección **1d**: planta en miniatura para marcar hasta 5 puntos y
+alzado del lote **desde la calle FRONTAL** (perfil, curvas de nivel MSNM, vecinos con altura,
+perímetro con los colores de la planta, esquinas y banda de altura sobre el terreno). El
+clic en el alzado o una cota MSNM fija el **nivel 0,00** del proyecto.
+
+- Utilidad: `scripts/utilities/F1_FRONTAL_NIVEL_v01.py` (`--chip`, `--lado`, `--mdt malla|rest`, `--json`).
+- API: `GET /api/frontal?chip=&lado=&mdt=`, `GET|POST /api/frontal/puntos`, `POST /api/z0` (con `x_frente_m` / `punto_id`).
+- Página independiente: `GET /frontal?chip=<CHIP>` (carga `frontal.js` y `frontal.css`).
+- Archivos: `<CHIP>-frontal.json`, `<CHIP>-frontal-mdt.json`, `<CHIP>-z0.json`.
+- Tests: `pytest tests/test_frontal_nivel_v01.py tests/test_servidor.py -q`.

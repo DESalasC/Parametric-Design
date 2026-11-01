@@ -57,6 +57,7 @@
   .nota { border:1px dashed #cbd5e1; border-radius:10px; padding:16px; background:#fbfcfe; }
   @media (max-width:560px) { header h1 { font-size:18px; } .fila { flex-direction:column; } .check-item { flex:1 1 100%; } }
 </style>
+<link rel="stylesheet" href="/frontal.css">
 </head>
 <body>
 <header>
@@ -128,7 +129,18 @@
     <pre id="vecinos-normativa" style="display:none; background:#0f172a; color:#e2e8f0; padding:12px; border-radius:8px; font-size:12px; overflow:auto; max-height:260px;"></pre>
   </div>
 
-  <!-- ===== 2. Normativa y GFA ===== -->
+  <!-- ===== 1d. Frontal (nivel 0,00) ===== -->
+  <div class="card card-frontal">
+    <h2><span class="seccion-num">1d</span>Frontal (nivel 0,00)</h2>
+    <div class="subtitulo">Vista del lote <b>desde la calle FRONTAL</b>: terreno, calle, vecinos inmediatos,
+      curvas de nivel en MSNM y per&iacute;metro con los colores de la planta. Marque hasta <b>5 puntos</b> en
+      la planta para proyectarlos en la fachada; haga clic en el alzado o escriba una cota MSNM para fijar el
+      <b>nivel 0,00</b> del proyecto (L 01 en ArchiCAD). La franja gris muestra la altura reglamentaria medida
+      <b>sobre el nivel del terreno</b>, que no siempre coincide con el 0,00.</div>
+    <div id="frontal"></div>
+  </div>
+
+  <!-- ===== 2. Normativa y generaci&oacute;n de GFA ===== -->
   <div class="card">
     <h2><span class="seccion-num">2</span>Normativa y generación de GFA</h2>
     <div class="subtitulo">Parámetros normativos y de ocupación.</div>
@@ -229,6 +241,7 @@
 
 </div>
 
+<script src="/frontal.js"></script>
 <script>
 let VARIABLES = [], CASO_CHIP = {}, CASO_TITULO = {}, MODOS = [], ESCENARIOS = [], VECINOS = null;
 
@@ -254,7 +267,7 @@ async function init(){
     const o = document.createElement('option'); o.value = c; o.textContent = c;
     sel.appendChild(o);
   });
-  sel.addEventListener('change', () => { activarChip(); cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); cargarNormaOverride(); });
+  sel.addEventListener('change', () => { activarChip(); cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); cargarNormaOverride(); if(window.Frontal) Frontal.setChip(sel.value); });
 
   renderSeccion('normativa', $('vars-normativa'));
   renderNormaOverride();
@@ -269,6 +282,14 @@ async function init(){
   renderEscenarios();
   cargarArchivos();
   bindCaso();
+  if(window.Frontal) Frontal.montar('frontal', {});
+
+  // 2026-11-01: enlace directo /?chip=AAA... (util para presentar y capturar)
+  var _pre = new URLSearchParams(location.search).get('chip');
+  if (_pre && (lotes.lotes || []).indexOf(_pre) >= 0) {
+    sel.value = _pre;
+    sel.dispatchEvent(new Event('change'));
+  }
 }
 
 function opcionValor(op){ return (op && typeof op === 'object') ? op.v : op; }

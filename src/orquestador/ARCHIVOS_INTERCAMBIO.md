@@ -29,6 +29,9 @@ conserva el archivo por-CHIP/caso como historial. Así el canvas no se edita jam
 |---|---|---|---|
 | `gfa_flag` | `data/fase-2-demanda/gfa-export-flag.json` | orquestador (`POST /api/exportar-gfa`) | `F1_EXPORTAR_GFA_v02` (dispara la exportación y la devuelve a false) |
 | `vecinos_override` | `data/pot-cache/<CHIP>-vecinos-por-lado-override.json` | orquestador (`POST /api/vecinos-por-lado`) | orquestador (`GET`) — confirmaciones del operador |
+| `frontal_puntos` | `data/pot-cache/<CHIP>-frontal.json` | orquestador (`POST /api/frontal/puntos`) | vista FRONTAL (planta + alzado) |
+| `frontal_mdt` | `data/pot-cache/<CHIP>-frontal-mdt.json` | orquestador (`Actualizar cotas MDT`) | vista FRONTAL (cotas reales en caché) |
+| `z0` | `data/pot-cache/<CHIP>-z0.json` | orquestador (`POST /api/z0`, sección 1d) | F3 / F3_StorySync / vista FRONTAL |
 | `norma_override` | `data/pot-bogota/norma-override.json` | orquestador (`POST /api/norma-override`) | `fetch-urban-context-v7.py` (fusiona en `pot_data`, gana sobre la geobase) |
 | `financiero_override` | `data/pot-bogota/financiero-override.json` | orquestador (`POST /api/financiero`) | orquestador + generación de `parametros_<CHIP>_mercado2026.json` |
 | `parametros_f2_venta` | `src/fase-2-demanda/F2_Modelo_Financiero/parametros_<CHIP>_mercado2026.json` | orquestador (`POST /api/financiero`) o manual | `F2_DEMANDA_MOTOR_v03.py` (`--parametros`) |
@@ -57,4 +60,5 @@ conserva el archivo por-CHIP/caso como historial. Así el canvas no se edita jam
 - Los **overrides del operador** (`norma-override.json`, `financiero-override.json`,
   `<CHIP>-vecinos-por-lado-override.json`) **ganan** sobre los datos automáticos/geobase.
 - El **GFA** se exporta solo bajo demanda (flag `true`), no en cada recomputación del canvas.
+- La **vista FRONTAL** (sección 1d) es la fuente del datum: `POST /api/z0` guarda `z0_m` y `presentacion.x_frente_m`; los puntos P1..P5 viven en `<CHIP>-frontal.json` (máx. 5, dentro del lote) y el caché del MDT en `<CHIP>-frontal-mdt.json`.
 - El orquestador expone estos nombres en `GET /api/archivos` (tarjeta "Archivos de intercambio").
