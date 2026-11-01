@@ -70,6 +70,8 @@ PROYECTOS = os.path.join(ORQ_DIR, "proyectos")
 PROVISIONAL = os.path.join(PROYECTOS, "_provisional")
 NORMA_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "norma-override.json")
 FINANCIERO_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "financiero-override.json")
+NIVELES_BLOQUE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "niveles-bloque-override.json")
+ALTURA_ENTREPISO_MAX_M = 3.80  # Bogota: altura maxima de entrepiso
 SETBACK_OVERRIDE_RUTA = os.path.join(ROOT, "data", "pot-bogota", "setback-override.json")
 # 2026-09-28: dias para el aviso de GFA desactualizado en el pipeline (_gfa_gh_estado)
 ANTIGUEDAD_GFA_DIAS = 30
@@ -1739,66 +1741,11 @@ def _alzado_datos(chip, regen=False):
     return datos
 
 
-_FRONTAL_MOD = None
-_FRONTAL_CACHE = {}
-
-
-def _gen_frontal():
-    """Carga perezosa del generador de la vista FRONTAL (F1_FRONTAL_NIVEL_v01)."""
-    global _FRONTAL_MOD
-    if _FRONTAL_MOD is None:
-        import importlib.util
-        ruta = os.path.join(ROOT, "scripts", "utilities", "F1_FRONTAL_NIVEL_v01.py")
-        spec = importlib.util.spec_from_file_location("f1_frontal_nivel", ruta)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        _FRONTAL_MOD = mod
-    return _FRONTAL_MOD
-
-
-def _frontal_datos(chip, lado=None, mdt="malla", regen=False):
-    """Payload de la vista frontal (cacheado por chip/lado/mdt y firma de archivos)."""
-    mod = _gen_frontal()
-    firma = []
-    for r in (mod.ruta_puntos(chip), mod.ruta_z0(chip)):
-        try:
-            firma.append(int(os.path.getmtime(r)))
-        except Exception:
-            firma.append(0)
-    clave = (chip, lado, mdt, tuple(firma))
-    if not regen and clave in _FRONTAL_CACHE:
-        return _FRONTAL_CACHE[clave]
-    datos = mod.construir(chip, lado_id=lado, mdt=mdt)
-    if len(_FRONTAL_CACHE) > 8:
-        _FRONTAL_CACHE.clear()
-    _FRONTAL_CACHE[clave] = datos
-    return datos
-
-
-def _frontal_pagina(chip):
-    """Pagina independiente de la vista FRONTAL (presentacion / captura)."""
-    return """<!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FRONTAL - %(chip)s</title>
-<link rel="stylesheet" href="/frontal.css">
-</head><body class="fr-standalone">
-<header class="fr-top"><div>
-  <div class="fr-kicker">Diseño paramétrico · F1 contexto</div>
-  <h1>Vista FRONTAL desde la calle</h1>
-  <p>Nivel 0,00 del proyecto y altura reglamentaria sobre el terreno</p>
-</div><a class="fr-back" href="/">Volver al orquestador</a></header>
-<main class="fr-main"><div id="frontal"></div></main>
-<script src="/frontal.js"></script>
-<script>Frontal.montar('frontal', {chip: '%(chip)s', standalone: true});</script>
-</body></html>""" % {"chip": chip}
-
-
 def _z0_ruta(chip):
     return os.path.join(POT_CACHE, chip + "-z0.json")
 
 
-def _z0_guardar(chip, z0_m, modo="manual", origen="alzado", presentacion=None):
+def _z0_guardar(chip, z0_m, modo="manual", origen="alzado"):
     # z0_abs_m coherente con el marco: origen_sirgas.z + ancla.z + z0_m
     z_abs = None
     try:
@@ -1820,8 +1767,6 @@ def _z0_guardar(chip, z0_m, modo="manual", origen="alzado", presentacion=None):
         "nota": ("Datum local del proyecto (Ground Level) fijado desde el alzado sobre "
                  "la via frontal. En ArchiCAD Ground Floor = 0,000 (ADR-024)."),
     }
-    if presentacion:
-        datos["presentacion"] = presentacion
     with io.open(_z0_ruta(chip), "w", encoding="utf-8") as f:
         json.dump(datos, f, indent=2, ensure_ascii=False)
     try:
@@ -1890,55 +1835,6 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, {"ok": True, "alzado": _alzado_datos(chip)})
             except SystemExit as e:
                 self._json_error(str(e), 404)
-            except Exception as e:
-                self._json_error(str(e), 500)
-            return
-        if parsed.path in ("/frontal.js", "/frontal.css"):
-            ruta = os.path.join(ORQ_DIR, parsed.path.lstrip("/"))
-            if os.path.exists(ruta):
-                ctype = ("application/javascript; charset=utf-8"
-                         if ruta.endswith(".js") else "text/css; charset=utf-8")
-                with io.open(ruta, "r", encoding="utf-8") as f:
-                    self._send(200, f.read(), ctype)
-            else:
-                self._json_error("no encontrado", 404)
-            return
-        if parsed.path == "/frontal":
-            chip = (q.get("chip") or [""])[0].strip().upper()
-            if not re.match(r"^[A-Z]{3}[0-9]{4}[A-Z0-9]{4}$", chip or ""):
-                self._json_error("chip requerido", 400)
-                return
-            self._send(200, _frontal_pagina(chip), "text/html; charset=utf-8")
-            return
-        if parsed.path == "/api/frontal":
-            chip = (q.get("chip") or [""])[0].strip().upper()
-            if not re.match(r"^[A-Z]{3}[0-9]{4}[A-Z0-9]{4}$", chip or ""):
-                self._json_error("chip requerido", 400)
-                return
-            lado = q.get("lado") or [None]
-            try:
-                lado_i = int(lado[0]) if lado[0] not in (None, "", "auto") else None
-            except Exception:
-                lado_i = None
-            mdt = (q.get("mdt") or ["malla"])[0]
-            if mdt not in ("malla", "rest"):
-                mdt = "malla"
-            try:
-                self._send(200, {"ok": True,
-                                 "frontal": _frontal_datos(chip, lado_i, mdt,
-                                                           regen=bool(q.get("regen")))})
-            except SystemExit as e:
-                self._json_error(str(e), 404)
-            except Exception as e:
-                self._json_error(str(e), 500)
-            return
-        if parsed.path == "/api/frontal/puntos":
-            chip = (q.get("chip") or [""])[0].strip().upper()
-            if not re.match(r"^[A-Z]{3}[0-9]{4}[A-Z0-9]{4}$", chip or ""):
-                self._json_error("chip requerido", 400)
-                return
-            try:
-                self._send(200, {"ok": True, "estado": _gen_frontal().leer_puntos(chip)})
             except Exception as e:
                 self._json_error(str(e), 500)
             return
@@ -2029,7 +1925,73 @@ class Handler(BaseHTTPRequestHandler):
                              "contexto": (ctx or {}).get("pot", {}),
                              "override": override_data})
             return
+        if parsed.path == "/api/niveles-bloque":
+            chip = (q.get("chip") or [""])[0]
+            if not chip:
+                self._json_error("chip requerido", 400)
+                return
+            nb = _niveles_bloque_chip(chip)
+            self._send(200, {"ok": True, "chip": chip, "niveles_bloque": nb or {}})
+            return
+
+        if parsed.path == "/api/niveles-bloque":
+            chip = (data.get("chip") or "").strip().upper()
+            if not chip:
+                self._json_error("chip requerido", 400)
+                return
+            nb = data.get("niveles_bloque") or {}
+            modo = nb.get("modo", "iguales")
+            if modo not in ("iguales", "diferentes"):
+                self._json_error("modo invalido: use 'iguales' o 'diferentes'", 400)
+                return
+            problemas = []
+            alturas_por_grupo = nb.get("alturas_por_grupo") or {}
+            for gid, alturas in alturas_por_grupo.items():
+                problemas += ["grupo %s: %s" % (gid, p) for p in _validar_alturas(alturas)]
+            if problemas:
+                self._json_error({"error": "alturas invalidas", "problemas": problemas}, 400)
+                return
+            ok, ruta = _niveles_bloque_guardar(chip, nb)
+            self._send(200, {"ok": ok, "chip": chip, "niveles_bloque": _niveles_bloque_chip(chip), "ruta": ruta})
+            return
+
         self._json_error("ruta no encontrada", 404)
+
+
+def _niveles_bloque_leer():
+    """Lee data/pot-bogota/niveles-bloque-override.json (dict por chip)."""
+    return _json(NIVELES_BLOQUE_RUTA)
+
+
+def _niveles_bloque_chip(chip):
+    data = _niveles_bloque_leer()
+    return data.get(chip) if isinstance(data.get(chip), dict) else None
+
+
+def _niveles_bloque_guardar(chip, payload):
+    """Guarda (merge) la configuracion de alturas de entrepiso por bloque para un CHIP."""
+    data = _niveles_bloque_leer() or {}
+    data[chip] = payload
+    try:
+        with io.open(NIVELES_BLOQUE_RUTA, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True, NIVELES_BLOQUE_RUTA
+    except Exception as e:
+        return False, str(e)
+
+
+def _validar_alturas(alturas):
+    """Valida que cada altura este entre 0 y ALTURA_ENTREPISO_MAX_M (3.80 m Bogota)."""
+    problemas = []
+    for i, h in enumerate(alturas or []):
+        try:
+            v = float(h)
+        except Exception:
+            problemas.append("piso %d: valor invalido" % (i + 1))
+            continue
+        if v <= 0 or v > ALTURA_ENTREPISO_MAX_M:
+            problemas.append("piso %d: %.2f m (debe estar entre 0 y %.2f m)" % (i + 1, v, ALTURA_ENTREPISO_MAX_M))
+    return problemas
 
     def do_POST(self):
         parsed = urlparse(self.path)
@@ -2047,60 +2009,14 @@ class Handler(BaseHTTPRequestHandler):
             if not chip or z0 is None:
                 self._json_error("chip y z0_m son requeridos")
                 return
-            presentacion = {}
-            if data.get("x_frente_m") is not None:
-                try:
-                    presentacion["x_frente_m"] = round(float(data["x_frente_m"]), 3)
-                except Exception:
-                    pass
-            if data.get("punto_id"):
-                presentacion["punto_id"] = str(data["punto_id"]).strip().upper()
             try:
                 datos = _z0_guardar(chip, z0, modo=(data.get("modo") or "manual"),
-                                    origen=(data.get("origen") or "alzado"),
-                                    presentacion=(presentacion or None))
+                                    origen=(data.get("origen") or "alzado"))
             except Exception as e:
                 self._json_error(str(e), 500)
                 return
-            z0_msnm = None
-            try:
-                with io.open(os.path.join(POT_CACHE, chip + "-contexto.json"), "r",
-                             encoding="utf-8") as f:
-                    meta = (json.load(f) or {}).get("metadata") or {}
-                z0_msnm = round(float(datos["z0_m"])
-                                + float((meta.get("origen_sirgas") or {}).get("z", 0.0)), 2)
-            except Exception:
-                pass
             self._send(200, {"ok": True, "z0_m": datos["z0_m"], "modo": datos["modo"],
-                             "presentacion": datos.get("presentacion"),
-                             "z0_msnm": z0_msnm,
                              "ruta": _z0_ruta(chip)})
-            return
-        if parsed.path == "/api/frontal/puntos":
-            chip = (data.get("chip") or "").strip().upper()
-            if not re.match(r"^[A-Z]{3}[0-9]{4}[A-Z0-9]{4}$", chip or ""):
-                self._json_error("chip requerido", 400)
-                return
-            mod = _gen_frontal()
-            try:
-                estado = mod.guardar_puntos(chip, data.get("puntos") or [],
-                                            data.get("alturas") or {})
-            except Exception as e:
-                self._json_error(str(e), 500)
-                return
-            lado = data.get("lado")
-            try:
-                lado_i = int(lado) if lado not in (None, "", "auto") else None
-            except Exception:
-                lado_i = None
-            mdt = data.get("mdt") if data.get("mdt") in ("malla", "rest") else "malla"
-            try:
-                frontal = _frontal_datos(chip, lado_i, mdt, regen=True)
-            except Exception as e:
-                self._send(200, {"ok": True, "estado": estado, "frontal": None,
-                                 "error": str(e)})
-                return
-            self._send(200, {"ok": True, "estado": estado, "frontal": frontal})
             return
 
         if parsed.path == "/api/proyecto":
