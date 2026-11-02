@@ -1,47 +1,35 @@
 # Manejo de saltos de línea por tipo de archivo
 # En Windows: checkout como CRLF, commit como LF (consistencia cross-platform)
-
 # Texto normal: normalizar a LF en el repo
 * text=auto eol=lf
-
 # Scripts PowerShell: CRLF (nativo Windows)
 *.ps1 text eol=crlf
 *.psm1 text eol=crlf
 *.psd1 text eol=crlf
-
 # Scripts Python: LF (nativo Unix, multiplataforma)
 *.py text eol=lf
-
 # Scripts Bash/Shell: LF
 *.sh text eol=lf
 *.bash text eol=lf
-
 # Markdown: LF
 *.md text eol=lf
 *.markdown text eol=lf
-
 # JSON: LF
 *.json text eol=lf
-
 # YAML: LF
 *.yml text eol=lf
 *.yaml text eol=lf
-
 # TOML: LF
 *.toml text eol=lf
-
 # Config files: LF
 *.cfg text eol=lf
 *.ini text eol=lf
 *.conf text eol=lf
-
 # Editor config
 .editorconfig text eol=lf
-
 # Git
 .gitignore text eol=lf
 .gitattributes text eol=lf
-
 # Binarios (no tocar)
 *.png binary
 *.jpg binary
@@ -68,7 +56,8 @@
 *.gh binary
 *.ghx binary
 *.ghuser binary
-
 # Archivos Windows específicos
 *.bat text eol=crlf
 *.cmd text eol=crlf
+data/lotes-ejemplo/*.bpn filter=lfs diff=lfs merge=lfs -text
+data/lotes-ejemplo/*.pln filter=lfs diff=lfs merge=lfs -text
