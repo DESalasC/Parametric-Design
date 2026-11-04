@@ -1,0 +1,11 @@
+{
+  "AAA0030JKOE": {
+    "chip": "AAA0030JKOE",
+    "orden_bloques": [
+      "g1"
+    ],
+    "umbral_proximo_frac": 0.5,
+    "umbral_muy_cercano_frac": 0.1,
+    "cota_arranque_por_grupo": {}
+  }
+}

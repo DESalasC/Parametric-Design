@@ -1,12 +1,12 @@
 {
   "gfa_total": 3312.57,
-  "pisos": 5,
+  "pisos": 4,
   "area_por_piso": 662.51,
   "programa_pisos": [
     {
       "piso": 1,
       "altura_z": 0.0,
-      "altura_piso": 3.6,
+      "altura_piso": 3.05,
       "usos": [
         {
           "uso": "Vivienda",
@@ -22,8 +22,8 @@
     },
     {
       "piso": 2,
-      "altura_z": 3.6,
-      "altura_piso": 3.0,
+      "altura_z": 3.05,
+      "altura_piso": 3.05,
       "usos": [
         {
           "uso": "Vivienda",
@@ -39,8 +39,8 @@
     },
     {
       "piso": 3,
-      "altura_z": 6.6,
-      "altura_piso": 3.0,
+      "altura_z": 6.1,
+      "altura_piso": 3.05,
       "usos": [
         {
           "uso": "Vivienda",
@@ -56,30 +56,13 @@
     },
     {
       "piso": 4,
-      "altura_z": 9.6,
-      "altura_piso": 3.0,
+      "altura_z": 9.15,
+      "altura_piso": 3.05,
       "usos": [
         {
           "uso": "Vivienda",
-          "area_bruta": 613.91,
-          "area_neta": 478.85
-        },
-        {
-          "uso": "Nucleo",
-          "area_bruta": 48.6,
-          "area_neta": 48.6
-        }
-      ]
-    },
-    {
-      "piso": 5,
-      "altura_z": 12.6,
-      "altura_piso": 3.0,
-      "usos": [
-        {
-          "uso": "Vivienda",
-          "area_bruta": 613.9,
-          "area_neta": 478.84
+          "area_bruta": 1276.4,
+          "area_neta": 995.59
         },
         {
           "uso": "Nucleo",
@@ -167,25 +150,25 @@
     "resumen": [
       {
         "id": "B1",
-        "pisos": 5,
+        "pisos": 4,
         "z_base_m": 0.0,
         "area_lote_m2": 124.92
       },
       {
         "id": "B2",
-        "pisos": 5,
+        "pisos": 4,
         "z_base_m": 4.35,
         "area_lote_m2": 123.3
       },
       {
         "id": "B3",
-        "pisos": 5,
+        "pisos": 4,
         "z_base_m": 8.7,
         "area_lote_m2": 180.33
       },
       {
         "id": "B4",
-        "pisos": 5,
+        "pisos": 4,
         "z_base_m": 13.05,
         "area_lote_m2": 178.66
       }

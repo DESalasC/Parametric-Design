@@ -22,7 +22,7 @@
       "via_cercana_dist_m": 45.5
     }
   },
-  "lindero": "Sur",
+  "lindero": "Occidente",
   "angulo": null,
   "azimut_grados": null,
   "crujia": {
@@ -104,15 +104,15 @@
       "area_lote_m2": 124.92,
       "ancho_m": 8.37,
       "huella_objetivo_m2": 136.3,
-      "pisos": 5,
+      "pisos": 4,
       "z_base_m": 0.0,
       "z_terreno_medio_m": 2637.08,
-      "gfa_objetivo_m2": 681.5,
+      "gfa_objetivo_m2": 545.2,
       "unidades_estimadas": {
         "Vivienda": {
           "unidad_m2": 55.0,
-          "min": 12,
-          "max": 13
+          "min": 9,
+          "max": 10
         }
       }
     },
@@ -148,15 +148,15 @@
       "area_lote_m2": 123.3,
       "ancho_m": 8.37,
       "huella_objetivo_m2": 134.53,
-      "pisos": 5,
+      "pisos": 4,
       "z_base_m": 4.35,
       "z_terreno_medio_m": 2641.11,
-      "gfa_objetivo_m2": 672.65,
+      "gfa_objetivo_m2": 538.12,
       "unidades_estimadas": {
         "Vivienda": {
           "unidad_m2": 55.0,
-          "min": 12,
-          "max": 13
+          "min": 9,
+          "max": 10
         }
       }
     },
@@ -188,15 +188,15 @@
       "area_lote_m2": 180.33,
       "ancho_m": 8.37,
       "huella_objetivo_m2": 196.76,
-      "pisos": 5,
+      "pisos": 4,
       "z_base_m": 8.7,
       "z_terreno_medio_m": 2644.67,
-      "gfa_objetivo_m2": 983.8,
+      "gfa_objetivo_m2": 787.04,
       "unidades_estimadas": {
         "Vivienda": {
           "unidad_m2": 55.0,
-          "min": 17,
-          "max": 18
+          "min": 14,
+          "max": 15
         }
       }
     },
@@ -272,15 +272,15 @@
       "area_lote_m2": 178.66,
       "ancho_m": 8.37,
       "huella_objetivo_m2": 194.94,
-      "pisos": 5,
+      "pisos": 4,
       "z_base_m": 13.05,
       "z_terreno_medio_m": 2647.67,
-      "gfa_objetivo_m2": 974.7,
+      "gfa_objetivo_m2": 779.76,
       "unidades_estimadas": {
         "Vivienda": {
           "unidad_m2": 55.0,
-          "min": 17,
-          "max": 18
+          "min": 14,
+          "max": 15
         }
       }
     }

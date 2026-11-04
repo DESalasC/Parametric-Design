@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formulario de solicitud — DiseñoParametrico</title>
+<style>
+  :root { --ok:#1a7f37; --manual:#b8860b; --falta:#b42318; --azul:#1f2937; --bg:#f6f7f9; --card:#fff; --borde:#e2e5ea; }
+  * { box-sizing: border-box; }
+  body { font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; margin:0; background:var(--bg); color:#1f2328; line-height:1.5; }
+  header { background:var(--azul); color:#fff; padding:20px; }
+  header h1 { margin:0 0 4px; font-size:21px; }
+  header p { margin:0; font-size:13px; opacity:.85; }
+  .wrap { max-width:980px; margin:0 auto; padding:18px 16px 70px; }
+  .card { background:var(--card); border:1px solid var(--borde); border-radius:10px; padding:16px 18px; margin:14px 0; }
+  .card h2 { margin:0 0 4px; font-size:17px; }
+  .card .subtitulo { font-size:12.5px; color:#6b7280; margin:0 0 12px; }
+  .seccion-num { display:inline-block; background:var(--azul); color:#fff; border-radius:6px; padding:1px 8px; font-size:13px; margin-right:8px; }
+  .campo { margin:10px 0; }
+  .campo label { display:block; font-weight:600; font-size:14px; margin-bottom:4px; }
+  .campo .ayuda { font-size:12px; color:#6b7280; margin-top:2px; }
+  .campo input[type=text], .campo input[type=number], .campo select { width:100%; padding:9px 11px; border:1px solid #cbd5e1; border-radius:7px; font-size:14px; background:#fff; }
+  .campo input:focus, .campo select:focus { outline:2px solid #2563eb; border-color:#2563eb; }
+  .fila { display:flex; gap:14px; flex-wrap:wrap; }
+  .fila .campo { flex:1 1 220px; }
+  .checks { display:flex; flex-wrap:wrap; gap:10px; margin:8px 0; }
+  .check-item { flex:1 1 230px; border:1px solid var(--borde); border-radius:8px; padding:10px 12px; background:#f8fafc; }
+  .check-item label { display:flex; gap:8px; align-items:flex-start; cursor:pointer; font-size:14px; }
+  .check-item input[type=checkbox] { margin-top:3px; }
+  .check-item .desc { font-size:12px; color:#6b7280; margin-left:22px; }
+  .cat-principal { border-left:3px solid var(--ok); }
+  .cat-complementario { border-left:3px solid #2563eb; }
+  .cat-restringido { border-left:3px solid #d97706; }
+  .cat-prohibido { border-left:3px solid var(--falta); }
+  .cat-tag { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.4px; }
+  .grid-info { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; }
+  .kv { background:#f8fafc; border:1px solid var(--borde); border-radius:8px; padding:10px 12px; }
+  .kv .k { font-size:11px; text-transform:uppercase; color:#6b7280; letter-spacing:.4px; }
+  .kv .v { font-size:15px; font-weight:600; word-break:break-word; }
+  .btn { display:inline-block; padding:10px 18px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
+  .btn.primario { background:#2563eb; color:#fff; }
+  .btn.exito { background:var(--ok); color:#fff; }
+  .btn.secundario { background:#e5e7eb; color:#1f2328; }
+  .btn:hover { opacity:.9; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .aviso { padding:10px 14px; border-radius:8px; font-size:13px; margin:10px 0; }
+  .aviso.error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+  .aviso.ok { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+  .aviso.info { background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }
+  .badge { display:inline-block; font-size:12px; padding:2px 9px; border-radius:20px; color:#fff; background:#64748b; }
+  .badge.desnivel { background:var(--manual); }
+  .fuente { font-size:11.5px; color:#8a9199; margin-top:2px; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th, td { text-align:left; padding:7px 9px; border-bottom:1px solid var(--borde); vertical-align:top; }
+  th { color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:.4px; }
+  .caso-titulo { font-size:13px; color:#374151; background:#f1f5f9; border-radius:6px; padding:6px 10px; margin:6px 0; }
+  .nota { border:1px dashed #cbd5e1; border-radius:10px; padding:16px; background:#fbfcfe; }
+  @media (max-width:560px) { header h1 { font-size:18px; } .fila { flex-direction:column; } .check-item { flex:1 1 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Formulario de solicitud — DiseñoParametrico</h1>
+  <p>Complete los datos. No necesita conocer comandos ni jerga interna.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ===== Proyecto ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">0</span>Proyecto</h2>
+    <div class="subtitulo">Nombre y estructura de trabajo.</div>
+    <div class="campo">
+      <label for="nombre">Nombre del proyecto</label>
+      <input type="text" id="nombre" placeholder="Ej. Edificio_ElPrado_A" value="">
+      <div class="ayuda">Sin nombre se trabaja en el directorio <b>provisional</b> (<code>_provisional</code>).
+        Al presionar <b>Crear estructura</b> con un nombre válido, se crea la carpeta del proyecto
+        y se copia allí el material provisional. Incluye la carpeta <code>Archicad/</code> para el
+        archivo <code>.pln</code>.</div>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn exito" id="btn-crear">Crear estructura</button>
+      <button class="btn primario" id="btn-guardar">Guardar (provisional)</button>
+    </div>
+    <div id="proyecto-aviso"></div>
+  </div>
+
+  <!-- ===== 1. Predio ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">1</span>Predio (CHIP)</h2>
+    <div class="subtitulo">Identificación y datos del lote.</div>
+    <div class="campo">
+      <label for="chip">CHIP del predio</label>
+      <select id="chip"></select>
+    </div>
+    <div class="campo" style="margin-top:10px;">
+      <label for="chip-nuevo">¿Predio nuevo? Escriba su CHIP y pro&cacute;selo</label>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <input type="text" id="chip-nuevo" placeholder="Ej. AAA0240ZXJH" style="text-transform:uppercase; width:170px;">
+        <button class="btn primario" id="btn-nuevo-chip" type="button">Procesar CHIP nuevo</button>
+        <span id="nuevo-chip-aviso" class="fuente"></span>
+      </div>
+      <div class="ayuda">Descarga el contexto del predio (base + 50 m), lo activa para el canvas y refresca todas las
+        secciones. Puede tardar 1–3 minutos; requiere la geobase local. Es el disparador de un proceso nuevo.</div>
+    </div>
+    <div id="predio-info" class="aviso info">Seleccione un CHIP para ver la información del predio.</div>
+    <div id="predio-detalle" class="grid-info" style="display:none;"></div>
+  </div>
+
+  <!-- ===== 1b·1c. Plano y vecinos por lado (integrados) ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">1b·1c</span>Plano y vecinos por lado</h2>
+    <div class="subtitulo">Vista en planta con <b>norte arriba</b> y contexto en 25 m. Cada vecino colindante
+      tiene un <b>color propio</b> y se etiqueta dentro del plano. Haga clic sobre un lado para cambiar su
+      clasificaci&oacute;n (cicla: indefinido &rarr; v&iacute;a &rarr; v&iacute;a no frontal &rarr; predio/vecino &rarr; espacio p&uacute;blico &rarr; libre)
+      y sobre un vecino para ubicarlo. Los lados <b>v&iacute;a (no frontal)</b> y <b>espacio p&uacute;blico</b> se marcan como “sin altura”:</div>
+    <div id="plano"></div>
+    <div id="plano-leyenda" class="fuente" style="margin-top:8px;"></div>
+    <div id="vecinos-info" class="aviso info" style="margin-top:12px;">Seleccione un CHIP para ver los vecinos por lado.</div>
+    <div id="vecinos-detalle"></div>
+    <div id="vecinos-nota" class="fuente"></div>
+    <div style="margin-top:12px; display:none;" id="vecinos-acciones">
+      <button class="btn exito" id="btn-guardar-vecinos" type="button">Guardar vecinos/frentes (por CHIP)</button>
+      <button class="btn primario" id="btn-normativa" type="button">Generar JSON NORMATIVA (vecinos_por_lado_json)</button>
+      <button class="btn secundario" id="btn-normativa-copiar" type="button" style="display:none;">Copiar</button>
+      <span id="vecinos-aviso" class="fuente" style="margin-left:10px;"></span>
+    </div>
+    <pre id="vecinos-normativa" style="display:none; background:#0f172a; color:#e2e8f0; padding:12px; border-radius:8px; font-size:12px; overflow:auto; max-height:260px;"></pre>
+  </div>
+
+  <!-- ===== 2. Normativa y GFA ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">2</span>Normativa y generación de GFA</h2>
+    <div class="subtitulo">Parámetros normativos y de ocupación.</div>
+    <div id="vars-normativa"></div>
+    <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Completar norma (datos faltantes de la geobase)</h3>
+    <div class="ayuda" style="margin-bottom:8px;">La geobase POT no trae rango, altura, IO, IC ni antejard&iacute;n
+      para algunos tratamientos (p. ej. Renovaci&oacute;n). Complete aqu&iacute; los valores (fuente: ficha UPZ /
+      resoluci&oacute;n) y se fusionar&aacute;n al contexto del predio al re-fetchear.</div>
+    <div id="norma-override" class="grid-info"></div>
+    <div style="margin-top:12px;">
+      <button class="btn secundario" id="btn-guardar-norma" type="button">Guardar norma (override)</button>
+      <span id="norma-override-aviso" class="fuente" style="margin-left:10px;"></span>
+    </div>
+    <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Usos del proyecto</h3>
+    <div class="ayuda" style="margin-bottom:8px;">Marque los usos que desea incluir en el modelo. Los usos
+      principales y complementarios los define la reglamentación; los prohibidos se muestran para descartarlos.</div>
+    <div id="usos-info"></div>
+    <div id="usos-checks" class="checks"></div>
+  </div>
+
+  <!-- ===== 3. Financiero ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">3</span>Financiero</h2>
+    <div class="subtitulo">Modelo de negocio, escenarios y variables base de decisión.</div>
+    <h3 style="font-size:14px;color:#374151;margin:8px 0 4px;">Modo de negocio (puede marcar varios)</h3>
+    <div id="modos-checks" class="checks"></div>
+    <h3 style="font-size:14px;color:#374151;margin:12px 0 4px;">Aporte del lote (modo de vinculación)</h3>
+    <div id="vars-aporte"></div>
+    <h3 style="font-size:14px;color:#374151;margin:12px 0 4px;">Escenarios de mercado (puede marcar varios)</h3>
+    <div class="ayuda">La combinación de usos (oficinas + vivienda, comercio + servicios + vivienda, etc.)
+      se define con las casillas de usos de la sección anterior; aquí se elige el segmento de mercado.</div>
+    <div id="escenarios-checks" class="checks"></div>
+    <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Variables financieras y fuentes (base de decisión)</h3>
+    <div id="financiero-info" class="aviso info">Seleccione un CHIP para ver las variables financieras.</div>
+    <div id="financiero-detalle"></div>
+    <div style="margin-top:12px; display:none;" id="fin-guardar">
+      <button class="btn exito" id="btn-guardar-financiero" type="button">Guardar financiero (por CHIP)</button>
+      <span id="fin-aviso" class="fuente" style="margin-left:10px;"></span>
+    </div>
+    <div style="margin-top:12px;">
+      <label style="font-size:12.5px;color:#6b7280;">Valor del lote (COP) — opcional (override): </label>
+      <input type="number" id="costo-lote" placeholder="ej. 500000000" min="0" step="1000000" style="width:170px;">
+    </div>
+    <div style="margin-top:14px;">
+      <button class="btn primario" id="btn-calcular-f2" type="button">Calcular F2 (con aporte del lote)</button>
+    </div>
+    <div id="f2-resultado" class="aviso info" style="display:none;"></div>
+    <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #cbd5e1;">
+      <button class="btn secundario" id="btn-exportar-gfa" type="button">Exportar GFA (disparar en canvas)</button>
+      <span id="gfa-aviso" class="fuente" style="margin-left:10px;"></span>
+      <div class="ayuda" style="margin-top:4px;">Pone el flag <code>gfa-export-flag.json</code> en <code>true</code>; el componente F1_EXPORTAR_GFA_v02 lo consume, exporta y lo devuelve a <code>false</code> por omisión.</div>
+    </div>
+    <div style="margin-top:10px;">
+      <button class="btn secundario" id="btn-exportar-lados" type="button">Exportar diagnóstico lados+patio (canvas)</button>
+      <span id="lados-aviso" class="fuente" style="margin-left:10px;"></span>
+      <div class="ayuda" style="margin-top:4px;">Pone el flag <code>lados-export-flag.json</code>; el componente PATIO (v02.4) escribe <code>&lt;CHIP&gt;-lados.json</code> para verificación automática (F1.5) y lo devuelve a <code>false</code>.</div>
+    </div>
+  </div>
+
+  <!-- ===== 4. Modelado ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">4</span>Modelado (masa)</h2>
+    <div class="subtitulo">El modelado se genera a partir de lo solicitado en las secciones 2–3 (usos, normativa y escenarios). Aquí se ajustan núcleo, orientación de los bloques (paralelo/perpendicular a la calle de acceso o a un lindero; niveles automáticos Entrada→Salida con la topografía) y se lanza la generación.</div>
+    <div id="modelado-derivado" class="ayuda" style="margin-top:6px;"></div>
+    <div id="vars-modelado"></div>
+    <div id="caso-detalle" class="caso-titulo" style="display:none;"></div>
+    <div style="margin-top:14px;">
+      <button class="btn primario" id="btn-generar-f3" type="button">Generar masa (F3) para este CHIP</button>
+    </div>
+    <div id="f3-resultado" class="aviso info" style="display:none;"></div>
+    <div style="margin-top:14px;">
+      <button class="btn primario" id="btn-pipeline" type="button">Ejecutar pipeline completo (F1→F2→F3)</button>
+    </div>
+    <div id="pipeline-resultado" class="aviso info" style="display:none;"></div>
+  </div>
+
+  <!-- ===== Resultados ===== -->
+  <div class="card" id="card-resultados" style="display:none;">
+    <h2><span class="seccion-num">✓</span>Resultados del lote seleccionado</h2>
+    <div id="resultados"></div>
+  </div>
+
+  <!-- ===== Archivos de intercambio ===== -->
+  <div class="card">
+    <h2><span class="seccion-num">↔</span>Archivos de intercambio (canónicos)</h2>
+    <div class="subtitulo">Nombres canónicos para cablear el canvas una sola vez. <code>&lt;CHIP&gt;</code> y <code>&lt;CASO&gt;</code> se sustituyen por el valor real del predio/caso seleccionado.</div>
+    <div id="archivos-detalle"></div>
+  </div>
+
+  <!-- ===== Nota técnica ===== -->
+  <div class="card nota">
+    <h2 style="border-left:4px solid #b8860b; padding-left:10px;">Integración siguiente</h2>
+    <p>El cableado del canvas se hará <b>una sola vez</b> (parametrizado por el <code>proyecto.json</code>),
+       de modo que un clic — o una llamada vía <b>Tapir</b> desde ArchiCAD — ejecute el script con estas
+       variables. El <b>round-trip</b>: los cambios del operador en ArchiCAD vuelven por <b>GetElements</b>
+       y alimentan Ladybug.</p>
+  </div>
+
+</div>
+
+<script>
+let VARIABLES = [], CASO_CHIP = {}, CASO_TITULO = {}, MODOS = [], ESCENARIOS = [], VECINOS = null;
+
+function $(id){ return document.getElementById(id); }
+async function api(path, opts){
+  const r = await fetch(path, opts);
+  return r.json();
+}
+
+// ---------- init ----------
+async function init(){
+  const v = await api('/api/variables');
+  VARIABLES = v.variables || [];
+  CASO_CHIP = v.caso_chip || {};
+  CASO_TITULO = v.caso_titulo || {};
+  MODOS = v.modos || [];
+  ESCENARIOS = v.escenarios || [];
+
+  const lotes = await api('/api/lotes');
+  const sel = $('chip');
+  sel.innerHTML = '<option value="">— seleccione —</option>';
+  (lotes.lotes || []).forEach(c => {
+    const o = document.createElement('option'); o.value = c; o.textContent = c;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change', () => { activarChip(); cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); cargarNormaOverride(); });
+
+  renderSeccion('normativa', $('vars-normativa'));
+  renderNormaOverride();
+  $('btn-guardar-norma').addEventListener('click', guardarNormaOverride);
+  renderSeccion('modelado', $('vars-modelado'));
+  ['usos-checks','vars-modelado','escenarios-checks'].forEach(function(id){
+    const c = $(id); if(c) c.addEventListener('change', actualizarModeladoDerivado);
+  });
+  actualizarModeladoDerivado();
+  renderSeccion('aporte', $('vars-aporte'));
+  renderModos();
+  renderEscenarios();
+  cargarArchivos();
+  bindCaso();
+}
+
+function opcionValor(op){ return (op && typeof op === 'object') ? op.v : op; }
+function opcionLabel(op){ return (op && typeof op === 'object') ? op.label : String(op); }
+
+function renderSeccion(seccion, cont){
+  cont.innerHTML = '';
+  const campos = VARIABLES.filter(v => v.seccion === seccion);
+  const fila = document.createElement('div'); fila.className = 'fila';
+  campos.forEach(v => {
+    const div = document.createElement('div'); div.className = 'campo';
+    const lab = document.createElement('label'); lab.textContent = v.label; lab.htmlFor = 'var_' + v.id;
+    let input;
+    if (v.tipo === 'bool') {
+      input = document.createElement('select');
+      const on = document.createElement('option'); on.value='true'; on.textContent='Sí';
+      const off = document.createElement('option'); off.value='false'; off.textContent='No';
+      input.appendChild(off); input.appendChild(on);
+      input.value = String(!!v.default);
+    } else if (v.tipo === 'select') {
+      input = document.createElement('select');
+      (v.opciones || []).forEach(op => {
+        const o = document.createElement('option'); o.value = opcionValor(op); o.textContent = opcionLabel(op);
+        input.appendChild(o);
+      });
+      input.value = opcionValor(v.default);
+    } else {
+      input = document.createElement('input');
+      input.type = (v.tipo === 'number' || v.tipo === 'int') ? 'number' : 'text';
+      if (v.tipo === 'int') input.step = '1';
+      input.value = (v.default === null || v.default === undefined) ? '' : v.default;
+    }
+    input.id = 'var_' + v.id;
+    div.appendChild(lab); div.appendChild(input);
+    if (v.ayuda) { const a = document.createElement('div'); a.className='ayuda'; a.textContent = v.ayuda; div.appendChild(a); }
+    fila.appendChild(div);
+  });
+  cont.appendChild(fila);
+}
+
+function checkItem(id, label, desc, cat){
+  const div = document.createElement('div');
+  div.className = 'check-item' + (cat ? ' cat-' + cat : '');
+  const lab = document.createElement('label');
+  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = id; cb.id = 'chk_' + id;
+  const span = document.createElement('span'); span.textContent = label;
+  lab.appendChild(cb); lab.appendChild(span);
+  div.appendChild(lab);
+  if (desc) { const d = document.createElement('div'); d.className='desc'; d.textContent = desc; div.appendChild(d); }
+  return div;
+}
+
+function renderModos(){
+  const cont = $('modos-checks'); cont.innerHTML = '';
+  MODOS.forEach(m => cont.appendChild(checkItem('modo_' + m.id, m.label, m.descripcion)));
+}
+function renderEscenarios(){
+  const cont = $('escenarios-checks'); cont.innerHTML = '';
+  ESCENARIOS.forEach(e => cont.appendChild(checkItem('esc_' + e.id, e.label, e.descripcion)));
+}
+
+// ---------- acople §2/§3 -> modelado (2026-09-29) ----------
+function escenarioDerivado(){
+  const usos = [...document.querySelectorAll('#usos-checks input:checked')].map(x => x.value.replace('uso_',''));
+  const tieneSalud = usos.some(u => u.toLowerCase().indexOf('salud') >= 0);
+  return { escenario: tieneSalud ? 'D_MIXTO_SALUD' : 'D_MIXTO', usos };
+}
+function recolectarBloques(){
+  const g = id => { const el = $('var_' + id); return el ? el.value : null; };
+  const num = parseInt(g('bloques_num') || '1', 10) || 1;
+  const sep = parseFloat(g('bloques_separacion_m'));
+  const desn = g('bloques_desnivel_m');
+  const ang = parseFloat(g('bloques_angulo_grados'));
+  const autoRaw = g('bloques_desnivel_auto');
+  const desnAuto = (autoRaw === null || autoRaw === undefined) ? true : String(autoRaw) !== 'false';
+  return {
+    n: Math.max(1, Math.min(6, num)),
+    distribucion: g('bloques_distribucion') || 'automatico',
+    lindero: g('bloques_lindero') || null,
+    angulo_ref: g('bloques_angulo_ref') || 'calle_acceso',
+    angulo_grados: isNaN(ang) ? 0.0 : ang,
+    crujia: g('bloques_crujia') || 'doble',
+    nucleo_posicion: (g('alineacion_nucleo') === '0') ? 'centro' : 'extremo',
+    separacion_m: isNaN(sep) ? 6.0 : sep,
+    desnivel_auto: desnAuto,
+    desnivel_m: desnAuto ? null : ((desn === '' || desn === null || isNaN(parseFloat(desn))) ? 0.0 : parseFloat(desn))
+  };
+}
+let _propTimer = null, _propSeq = 0;
+function actualizarModeladoDerivado(){
+  const det = $('modelado-derivado');
+  if(!det) return;
+  const d = escenarioDerivado();
+  const b = recolectarBloques();
+  const chip = $('chip') ? $('chip').value : '';
+  const base = 'Se modelará según §2–§3: escenario <b>' + d.escenario + '</b> · usos: <b>' +
+    (d.usos.join(', ') || '—') + '</b> · bloques: <b>' + b.n + '</b>';
+  if(!chip){
+    det.innerHTML = base + ' <span class="fuente">(seleccione un predio para ver la propuesta de orientación y niveles)</span>';
+    return;
+  }
+  det.innerHTML = base + ' · <span class="fuente">calculando propuesta…</span>';
+  if(_propTimer) clearTimeout(_propTimer);
+  _propTimer = setTimeout(async function(){
+    const seq = ++_propSeq;
+    try{
+      const r = await api('/api/proponer-bloques', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ chip: chip, usos: d.usos, bloques: b }) });
+      if(seq !== _propSeq) return; // respuesta obsoleta
+      const p = (r && r.propuesta) || null;
+      const bl = (p && p.bloques) || null;
+      if(!r || !r.ok || !p || !p.ok || !bl){
+        const err = (p && p.error) || (r && r.error) || 'sin respuesta';
+        det.innerHTML = base + ' · <span class="fuente">orientación/niveles no disponibles (' + err + ')</span>';
+        return;
+      }
+      const o = bl.orientacion || {}; const ni = bl.niveles || {}; const am = bl.ancho_min || {};
+      let html = 'Se modelará según §2–§3: escenario <b>' + (p.escenario || d.escenario) + '</b> · usos: <b>' +
+        (p.usos_txt || d.usos.join(', ') || '—') + '</b>';
+      html += '<br>Bloques: <b>' + bl.n + '</b>';
+      if(bl.n_solicitado && bl.n_solicitado !== bl.n) html += ' <span style="color:#b45309;">(solicitados ' + bl.n_solicitado + ' → ajustado por ancho mínimo)</span>';
+      if(o.franja_descripcion) html += ' · ' + o.franja_descripcion;
+      if(o.reparto_descripcion) html += ' · ' + o.reparto_descripcion;
+      if(bl.nucleo_posicion) html += ' · núcleo: <b>' + (bl.nucleo_posicion === 'centro' ? 'centro de cada bloque' : 'en un extremo de cada bloque (lado según la orientación)') + '</b>';
+      if(bl.n > 1 && ni.modo === 'auto' && ni.delta_m != null){
+        html += '<br>Niveles: <b>B1 en ±0,00</b> (calle de acceso, Entrada) → <b>B' + bl.n + ' en ' +
+          (ni.delta_m >= 0 ? '+' : '') + Number(ni.delta_m).toFixed(2) + ' m</b> (nivel final del lote, Salida); paso ' +
+          Number(ni.desnivel_m).toFixed(2) + ' m/bloque <span class="fuente">[' + (ni.fuente || 'topografía') + ']</span>';
+      } else if(bl.n > 1){
+        html += '<br>Niveles: paso manual <b>' + Number(bl.desnivel_m || 0).toFixed(2) + ' m/bloque</b> (B1 en ±0,00).';
+      }
+      if(am.ancho_min_m){
+        const cru = (am.crujia_modo === 'unica')
+          ? 'crujía única ' + Number(am.crujia_m).toFixed(1) + ' + circulación ' + Number(am.circulacion_m).toFixed(1)
+          : '2×crujía ' + Number(am.crujia_m).toFixed(1) + ' + circulación ' + Number(am.circulacion_m).toFixed(1);
+        html += '<br><span class="fuente">Ancho mín. por bloque: <b>' + Number(am.ancho_min_m).toFixed(1) + ' m</b> = ' + cru +
+          ' (unidad máx. ' + am.unidad_max_m2 + ' m²) · máx. recomendado: <b>' + (bl.n_max_recomendado || bl.n) + ' bloques</b>.</span>';
+      }
+      (bl.avisos || []).forEach(function(a){ html += '<br><span style="color:#b45309;">⚠ ' + a + '</span>'; });
+      det.innerHTML = html;
+    }catch(e){
+      if(seq !== _propSeq) return;
+      det.innerHTML = base + ' · <span class="fuente">orientación/niveles no disponibles (' + e + ')</span>';
+    }
+  }, 350);
+}
+function renderUsos(usos){
+  const info = $('usos-info'); info.innerHTML = '';
+  if(usos.upz || usos.tratamiento){
+    info.innerHTML = '<div class="ayuda">UPZ: <b>'+(usos.upz||'—')+'</b> · Tratamiento: <b>'+(usos.tratamiento||'—')+'</b></div>';
+  }
+  const nota = document.createElement('div');
+  nota.className = 'aviso info';
+  nota.textContent = usos.nota || '';
+  info.appendChild(nota);
+  const cont = $('usos-checks'); cont.innerHTML = '';
+  const catLabel = {principal:'Principales', complementario:'Complementarios', restringido:'Restringidos', prohibido:'No permitidos'};
+  // agrupar por categoría en orden
+  ['principal','complementario','restringido','prohibido'].forEach(cat => {
+    const deEsta = (usos.catalogo || []).filter(u => u.categoria === cat);
+    if(!deEsta.length) return;
+    const h = document.createElement('div'); h.style.cssText='width:100%;margin:4px 0 0;';
+    const tag = document.createElement('span'); tag.className='cat-tag'; tag.style.color = cat==='prohibido' ? 'var(--falta)' : (cat==='principal' ? 'var(--ok)' : (cat==='restringido' ? '#d97706' : '#2563eb'));
+    tag.textContent = catLabel[cat] || cat;
+    h.appendChild(tag);
+    cont.appendChild(h);
+    deEsta.forEach(u => cont.appendChild(checkItem('uso_' + u.nombre, u.nombre, u.descripcion, cat)));
+  });
+}
+
+async function cargarUsos(){
+  const chip = $('chip').value;
+  if(!chip){ $('usos-checks').innerHTML=''; $('usos-info').innerHTML=''; return; }
+  const r = await api('/api/usos?chip=' + encodeURIComponent(chip));
+  if(r.ok){ renderUsos(r.usos); actualizarModeladoDerivado(); }
+}
+
+function finInput(id, label, val){
+  const v = (val == null || val === '') ? '' : val;
+  return '<div class="campo"><label for="'+id+'">'+label+'</label><input id="'+id+'" type="number" step="any" value="'+v+'"></div>';
+}
+async function cargarFinanciero(){
+  const chip = $('chip').value;
+  const info = $('financiero-info');
+  const det = $('financiero-detalle');
+  const saveWrap = $('fin-guardar');
+  if(!chip){ info.className='aviso info'; info.textContent='Seleccione un CHIP para ver las variables financieras.'; det.innerHTML=''; if(saveWrap) saveWrap.style.display='none'; return; }
+  info.className='aviso info'; info.textContent='Cargando variables financieras…';
+  const r = await api('/api/financiero?chip=' + encodeURIComponent(chip));
+  if(!r.ok || !r.financiero || !r.financiero.disponible){ info.className='aviso error'; info.textContent = (r.financiero && r.financiero.nota) || 'sin datos'; det.innerHTML=''; if(saveWrap) saveWrap.style.display='none'; return; }
+  info.style.display='none';
+  const f = r.financiero;
+  let html = '';
+  html += '<div class="fuente">Archivo de parámetros: <code>'+f.ruta_parametros+'</code>'+(f.tiene_override?' · override del operador':'')+'</div>';
+  html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Lote (punto de partida del análisis)</h3><div class="fila">';
+  html += finInput('fin_area_m2','Área lote (m²) — real del contexto', f.lote.area_m2);
+  html += finInput('fin_precio_suelo_m2','Precio suelo ($/m²)', f.lote.precio_suelo_m2);
+  html += finInput('fin_impuestos','Impuestos escritura (%)', f.lote.impuestos_escritura_pct);
+  html += finInput('fin_costo_total','Costo lote total (COP)', f.lote.costo_lote_total_cop);
+  html += '</div>';
+  if(f.lote.fuente) html += '<div class="fuente">Fuente lote: ' + f.lote.fuente + '</div>';
+  html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Costos y supuestos</h3><div class="fila">';
+  html += finInput('fin_costos_blandos','Costos blandos (%)', f.financiero.costos_blandos_pct);
+  html += finInput('fin_marketing','Marketing/ventas (%)', f.financiero.marketing_ventas_pct);
+  html += '</div>';
+  if(f.financiero.nota_costos_blandos) html += '<div class="fuente">' + f.financiero.nota_costos_blandos + '</div>';
+  if(f.escenarios && f.escenarios.length){
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Escenarios (valores de referencia de mercado — editables)</h3><table><tr><th>Escenario</th><th>Acabado</th><th>Venta $/m²</th><th>Costo $/m²</th></tr>';
+    f.escenarios.forEach(e => {
+      html += '<tr><td>'+e.nombre+'</td><td>'+ (e.nivel_acabados||'—') +'</td>' +
+        '<td><input type="number" step="any" id="fin_esc_'+e.id+'_precio" value="'+(e.precio_venta_m2!=null?e.precio_venta_m2:'')+'" style="width:110px;"></td>' +
+        '<td><input type="number" step="any" id="fin_esc_'+e.id+'_costo" value="'+(e.costo_construccion_m2!=null?e.costo_construccion_m2:'')+'" style="width:110px;"></td></tr>';
+      if(e.fuente_precio) html += '<tr><td colspan="4" class="fuente">Fuente: '+e.fuente_precio+'</td></tr>';
+    });
+    html += '</table>';
+  }
+  if(f.nota) html += '<div class="aviso info" style="margin-top:8px;">' + f.nota + '</div>';
+  det.innerHTML = html;
+  if(saveWrap) saveWrap.style.display='block';
+}
+async function guardarFinanciero(){
+  const chip = $('chip').value;
+  if(!chip){ alert('Seleccione un CHIP primero.'); return; }
+  const num = id => { const el = $(id); const v = el ? el.value : ''; return (v === '') ? null : parseFloat(v); };
+  const override = {
+    area_m2: num('fin_area_m2'),
+    precio_suelo_m2: num('fin_precio_suelo_m2'),
+    impuestos_escritura_pct: num('fin_impuestos'),
+    costo_lote_total_cop: num('fin_costo_total'),
+    costos_blandos_pct: num('fin_costos_blandos'),
+    marketing_ventas_pct: num('fin_marketing'),
+    escenarios: {},
+  };
+  document.querySelectorAll('input[id^="fin_esc_"]').forEach(el => {
+    const m = el.id.match(/^fin_esc_(.+)_(precio|costo)$/);
+    if(!m) return;
+    const eid = m[1], campo = (m[2] === 'precio') ? 'precio_venta_m2' : 'costo_construccion_m2';
+    override.escenarios[eid] = override.escenarios[eid] || {};
+    override.escenarios[eid][campo] = (el.value === '') ? null : parseFloat(el.value);
+  });
+  const aviso = $('fin-aviso');
+  const r = await api('/api/financiero', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip, override}) });
+  if(aviso){
+    aviso.textContent = r.ok ? ('Guardado. Parámetros F2 actualizados: ' + (r.ruta||'')) : ('Error: ' + (r.error||'desconocido'));
+    aviso.className = r.ok ? 'aviso ok' : 'aviso error';
+  }
+  if(r.ok) cargarFinanciero();
+}
+
+// ---------- vecinos por lado ----------
+const FRENTES = ['predio', 'via', 'via_no_frontal', 'espacio_publico', 'libre'];
+const CONFIRMACIONES = [
+  {v:'pendiente',   l:'— Confirme si los vecinos detectados corresponden a la realidad —'},
+  {v:'confirmado',  l:'Sí, corresponden'},
+  {v:'faltan',      l:'No, faltan vecinos'},
+  {v:'sobran',      l:'No, sobran / algunos no corresponden'},
+  {v:'no_es_predio',l:'Este lado no es predio (es vía / espacio público / libre)'},
+];
+
+async function cargarVecinos(){
+  const chip = $('chip').value;
+  const info = $('vecinos-info'), det = $('vecinos-detalle'), nota = $('vecinos-nota');
+  if(!chip){
+    info.className='aviso info'; info.textContent='Seleccione un CHIP para ver los vecinos por lado.'; info.style.display='block';
+    det.innerHTML=''; nota.textContent='';
+    $('vecinos-acciones').style.display='none'; $('vecinos-normativa').style.display='none';
+    return;
+  }
+  info.className='aviso info'; info.textContent='Cargando vecinos por lado…'; info.style.display='block';
+  const r = await api('/api/vecinos-por-lado?chip=' + encodeURIComponent(chip));
+  if(!r.ok || !r.vecinos_por_lado){
+    info.className='aviso error'; info.textContent = r.error || 'sin datos'; det.innerHTML=''; nota.textContent='';
+    $('vecinos-acciones').style.display='none';
+    return;
+  }
+  VECINOS = r.vecinos_por_lado;
+  construirVecinos();
+  info.style.display='none';
+  nota.textContent = (VECINOS.nota || '');
+  renderVecinos(VECINOS);
+}
+
+function renderVecinos(data){
+  const det = $('vecinos-detalle'); det.innerHTML = '';
+  const lados = (data && data.lados) || [];
+  if(!lados.length){ det.innerHTML = '<div class="aviso info">Sin lados clasificados.</div>'; $('vecinos-acciones').style.display='none'; return; }
+  const chips = Object.keys(NEIGHBOR_META).sort();
+  const opcionesLado = lados.map(l => ({ id: l.lado_id, label: l.cardinal_label || l.cardinal }));
+
+  const ayuda = document.createElement('div'); ayuda.className = 'ayuda';
+  ayuda.innerHTML = 'Cada vecino tiene un <b>color propio</b> (el mismo que en el plano). Use <b>Lado</b> para asignarlo al lado correcto, o <b>Sin asignar</b> para descartarlo. Complete <b>altura (m)</b> o <b>pisos</b> (uno de los dos): si da pisos, la altura se calcula con la altura de placa. En lados <b>v\u00eda (no frontal)</b> o <b>espacio p\u00fablico</b> la altura <b>no aplica</b> (no hay edificaci\u00f3n colindante).';
+  det.appendChild(ayuda);
+
+  const ladosSec = document.createElement('div'); ladosSec.className='lados-frente'; ladosSec.style.cssText='margin-bottom:10px;padding:8px 0;border-bottom:1px solid #e2e5ea;';
+  const hl = document.createElement('div'); hl.className='subtitulo'; hl.style.cssText='font-weight:600;color:#374151;'; hl.textContent='Clasificar y confirmar lados (frente)';
+  ladosSec.appendChild(hl);
+  const helpL = document.createElement('div'); helpL.className='ayuda';
+  helpL.textContent='Confirme el frente de cada lado. En el plano: azul = vía, verde = espacio público, ámbar = predio/vecino, gris = libre. Su confirmación prevalece sobre la detección automática.';
+  ladosSec.appendChild(helpL);
+  lados.forEach(lado => {
+    const row = document.createElement('div'); row.style.cssText='display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:4px 0;';
+    const nameB = document.createElement('b'); nameB.textContent = lado.cardinal_label || lado.cardinal; nameB.style.cssText='min-width:84px;font-size:13px;';
+    row.appendChild(nameB);
+    const sel = document.createElement('select'); sel.className='lado-frente'; sel.dataset.lado_id = String(lado.lado_id);
+    CICLO_FRENTE.forEach(f => { const o = document.createElement('option'); o.value=f; o.textContent = ETIQUETA_FRENTE[f] || f; sel.appendChild(o); });
+    sel.value = frenteEfectivo(lado);
+    const badge = document.createElement('span'); badge.className='badge';
+    pintarBadgeFrente(lado, badge);
+    const tag = document.createElement('span'); tag.className='frente-sin-altura'; tag.style.cssText='font-size:11px;color:#64748b;';
+    const refrescarTag = () => { tag.textContent = frenteSinAltura(sel.value) ? '(altura de vecinos: no aplica)' : ''; };
+    refrescarTag();
+    sel.addEventListener('change', () => { PLANO_OVERRIDES[lado.lado_id] = sel.value; if(PLANO_DATA) renderPlano(PLANO_DATA); pintarBadgeFrente(lado, badge); refrescarTag(); actualizarAlturasPorFrente(); });
+    row.appendChild(sel); row.appendChild(badge); row.appendChild(tag);
+    ladosSec.appendChild(row);
+  });
+  det.appendChild(ladosSec);
+
+  const nVec = chips.length;
+  const extra = document.createElement('div'); extra.id='vecinos-extra'; extra.style.display='none';
+  const toggle = document.createElement('button'); toggle.type='button'; toggle.className='btn secundario';
+  toggle.style.cssText='margin:4px 0 10px;';
+  const setToggle = (abierto) => { toggle.textContent = (abierto ? '▾ ' : '▸ ') + (nVec ? ('Detalle de vecinos (' + nVec + ' predios)') : 'Detalle de vecinos'); };
+  setToggle(false);
+  toggle.addEventListener('click', () => {
+    const abierto = extra.style.display !== 'none';
+    extra.style.display = abierto ? 'none' : 'block';
+    setToggle(!abierto);
+  });
+  det.appendChild(toggle);
+
+  if(!chips.length){
+    const p = document.createElement('div'); p.className='aviso info'; p.textContent='Sin vecinos colindantes detectados por la geometría.';
+    extra.appendChild(p);
+  } else {
+    chips.forEach(ch => extra.appendChild(cardVecino(ch, opcionesLado)));
+  }
+
+  const ctxChips = Object.keys(ALL_VECINOS).filter(chip => !(chip in NEIGHBOR_META)).sort();
+  if(ctxChips.length){
+    const sec = document.createElement('div'); sec.style.cssText='margin-top:14px;border-top:1px dashed #94a3b8;padding-top:10px;';
+    const hh = document.createElement('div'); hh.className='subtitulo'; hh.style.cssText='font-weight:600;color:#374151;'; hh.textContent='Contexto cercano (no colindantes) — CHIPs detectados';
+    sec.appendChild(hh);
+    const help2 = document.createElement('div'); help2.className='ayuda';
+    help2.textContent='Polígonos dentro de 25 m que el sistema NO marcó como colindantes. Si alguno sí toca el lote, márquelo como colindante (su decisión tiene prioridad).';
+    sec.appendChild(help2);
+    ctxChips.forEach(chip => {
+      const row = document.createElement('div'); row.className='contexto-card'; row.dataset.chip = chip;
+      row.style.cssText = 'display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:5px 0; border-bottom:1px solid #f1f5f9;';
+      const swc = document.createElement('span'); swc.style.cssText='display:inline-block;width:14px;height:14px;border-radius:3px;background:repeating-linear-gradient(45deg,#cbd5e1,#cbd5e1 2px,#eef2f7 2px,#eef2f7 4px);border:1px solid rgba(0,0,0,.2);';
+      row.appendChild(swc);
+      const cCtx = document.createElement('span'); cCtx.textContent = chip; cCtx.style.cssText='font-family:monospace;font-size:12px;';
+      row.appendChild(cCtx);
+      const aCtx = document.createElement('span'); aCtx.textContent = fmtArea(ALL_VECINOS[chip] && ALL_VECINOS[chip].area_m2); aCtx.style.cssText='font-size:11px;color:#64748b;';
+      row.appendChild(aCtx);
+      const bM = document.createElement('button'); bM.type='button'; bM.className='btn secundario'; bM.textContent='marcar colindante'; bM.style.cssText='padding:3px 8px;font-size:11px;';
+      bM.addEventListener('click', () => marcarColindante(chip));
+      row.appendChild(bM);
+      sec.appendChild(row);
+    });
+    extra.appendChild(sec);
+  }
+
+  const manuales = document.createElement('div'); manuales.style.cssText = 'margin-top:14px;';
+  const hm = document.createElement('div'); hm.className='subtitulo'; hm.style.cssText='font-weight:600;color:#374151;'; hm.textContent='Agregar vecino manual (si faltan)';
+  manuales.appendChild(hm);
+  lados.forEach((lado, li) => {
+    const g = document.createElement('div'); g.style.cssText = 'margin:8px 0;';
+    const hdr = document.createElement('div'); hdr.style.cssText = 'display:flex; align-items:center; gap:10px;';
+    hdr.innerHTML = '<b style="font-size:13px;">' + (lado.cardinal_label || lado.cardinal) + '</b>';
+    const btn = document.createElement('button'); btn.type='button'; btn.className='btn secundario'; btn.textContent='+ Agregar';
+    btn.addEventListener('click', () => agregarVecinoManual(lado, li));
+    hdr.appendChild(btn); g.appendChild(hdr);
+    const cont = document.createElement('div'); cont.className='manuales-cont'; cont.dataset.lado=String(li);
+    g.appendChild(cont);
+    (lado.vecinos_manuales || []).forEach((mv, mi) => agregarFilaManual(cont, li, lado, mv, mi));
+    manuales.appendChild(g);
+  });
+  extra.appendChild(manuales);
+
+  det.appendChild(extra);
+  $('vecinos-acciones').style.display = 'block';
+  actualizarAlturasPorFrente();
+}
+
+function cardVecino(chip, opcionesLado){
+  const meta = NEIGHBOR_META[chip] || {nombre: chip, altura_m: null, pisos: null};
+  const color = colorVecino(chip);
+  const fila = document.createElement('div'); fila.className='vecino-card'; fila.dataset.chip = chip;
+  fila.style.cssText = 'display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:7px 0; border-bottom:1px solid #f1f5f9;';
+
+  const sw = document.createElement('span'); sw.className='vecino-swatch';
+  sw.style.cssText = 'display:inline-block;width:15px;height:15px;border-radius:3px;background:'+color+';border:1px solid rgba(0,0,0,.25);flex:0 0 auto;';
+  fila.appendChild(sw);
+
+  const iNombre = document.createElement('input'); iNombre.type='text'; iNombre.className='vec-nombre'; iNombre.dataset.chip=chip;
+  iNombre.value = meta.nombre || ''; iNombre.placeholder='nombre'; iNombre.title='Renombrar vecino'; iNombre.style.cssText='width:92px;';
+  iNombre.addEventListener('change', () => { NEIGHBOR_META[chip].nombre = iNombre.value || chip; if(PLANO_DATA) renderPlano(PLANO_DATA); });
+  fila.appendChild(iNombre);
+
+  const cChip = document.createElement('span'); cChip.className='vec-chip'; cChip.textContent = chip;
+  cChip.style.cssText = 'font-family:monospace;font-size:11px;color:#64748b;';
+  fila.appendChild(cChip);
+
+  const areaTxt = document.createElement('span'); areaTxt.className='vec-area';
+  areaTxt.textContent = fmtArea(meta.area_m2);
+  areaTxt.style.cssText = 'font-size:11px;color:#64748b;min-width:72px;';
+  fila.appendChild(areaTxt);
+
+  const sel = document.createElement('select'); sel.className='vec-lado'; sel.dataset.chip=chip; sel.title='Asignar a un lado';
+  const opNone = document.createElement('option'); opNone.value=''; opNone.textContent='— Sin asignar —'; sel.appendChild(opNone);
+  opcionesLado.forEach(o => { const op = document.createElement('option'); op.value=String(o.id); op.textContent=o.label; sel.appendChild(op); });
+  const cur = NEIGHBOR_SIDE[chip];
+  sel.value = (cur != null && opcionesLado.some(o => String(o.id)===String(cur))) ? String(cur) : '';
+  sel.addEventListener('change', () => { NEIGHBOR_SIDE[chip] = sel.value === '' ? null : sel.value; if(PLANO_DATA) renderPlano(PLANO_DATA); actualizarAlturasPorFrente(); });
+  fila.appendChild(sel);
+
+  const ih = document.createElement('input'); ih.type='number'; ih.step='0.1'; ih.min='0'; ih.className='vec-altura'; ih.dataset.chip=chip;
+  ih.placeholder='altura_m'; ih.title='Altura (m) — opcional si da pisos'; ih.value=(meta.altura_m!=null?meta.altura_m:''); ih.style.cssText='width:80px;';
+  fila.appendChild(ih);
+
+  const ip = document.createElement('input'); ip.type='number'; ip.step='1'; ip.min='1'; ip.className='vec-pisos'; ip.dataset.chip=chip;
+  ip.placeholder='pisos'; ip.title='Pisos — la altura se calcula: pisos × altura de placa'; ip.value=(meta.pisos!=null?meta.pisos:''); ip.style.cssText='width:60px;';
+  ip.addEventListener('change', () => { const p = ip.value === '' ? null : parseInt(ip.value, 10); if(p && p > 0) ih.value = (p * alturaDePlaca()).toFixed(1); });
+  fila.appendChild(ip);
+
+  const bNo = document.createElement('button'); bNo.type='button'; bNo.className='btn secundario'; bNo.textContent='no colindante';
+  bNo.title='Marcar como NO colindante (prioridad del operador sobre el sistema)'; bNo.style.cssText='padding:3px 8px;font-size:11px;';
+  bNo.addEventListener('click', () => quitarColindante(chip));
+  fila.appendChild(bNo);
+
+  return fila;
+}
+
+function agregarVecinoManual(lado, li){
+  if(!lado.vecinos_manuales) lado.vecinos_manuales = [];
+  const idx = lado.vecinos_manuales.length;
+  const mv = {nombre: (lado.cardinal_label || lado.cardinal) + '_extra' + (idx + 1), chip: '', altura_m: null, pisos: null};
+  lado.vecinos_manuales.push(mv);
+  const cont = document.querySelector('.manuales-cont[data-lado="'+li+'"]');
+  if(cont) agregarFilaManual(cont, li, lado, mv, idx);
+}
+
+function agregarFilaManual(cont, li, lado, mv, idx){
+  const fila = document.createElement('div'); fila.className='manual-fila'; fila.dataset.lado = String(li);
+  fila.style.cssText = 'display:flex; gap:8px; align-items:center; margin-top:6px; flex-wrap:wrap;';
+  const iNombre = document.createElement('input'); iNombre.type='text'; iNombre.className='man-nombre'; iNombre.dataset.lado=String(li); iNombre.dataset.idx=String(idx); iNombre.value = mv.nombre || ''; iNombre.placeholder='nombre'; iNombre.style.cssText='width:110px;';
+  const iChip = document.createElement('input'); iChip.type='text'; iChip.className='man-chip'; iChip.dataset.lado=String(li); iChip.dataset.idx=String(idx); iChip.value = mv.chip || ''; iChip.placeholder='chip'; iChip.style.cssText='width:130px;';
+  const iH = document.createElement('input'); iH.type='number'; iH.step='0.1'; iH.min='0'; iH.className='man-altura'; iH.dataset.lado=String(li); iH.dataset.idx=String(idx); iH.value = (mv.altura_m != null ? mv.altura_m : ''); iH.placeholder='altura_m'; iH.style.cssText='width:90px;';
+  const iP = document.createElement('input'); iP.type='number'; iP.step='1'; iP.min='1'; iP.className='man-pisos'; iP.dataset.lado=String(li); iP.dataset.idx=String(idx); iP.value = (mv.pisos != null ? mv.pisos : ''); iP.placeholder='pisos'; iP.style.cssText='width:70px;';
+  const bQ = document.createElement('button'); bQ.type='button'; bQ.className='btn secundario'; bQ.textContent='×'; bQ.title='Quitar'; bQ.style.cssText='padding:4px 10px;';
+  bQ.addEventListener('click', () => { lado.vecinos_manuales.splice(idx, 1); const cc = document.querySelector('.manuales-cont[data-lado="'+li+'"]'); if(cc){ cc.innerHTML=''; (lado.vecinos_manuales||[]).forEach((m, i) => agregarFilaManual(cc, li, lado, m, i)); } });
+  [iNombre, iChip, iH, iP, bQ].forEach(el => fila.appendChild(el));
+  cont.appendChild(fila);
+  actualizarAlturasPorFrente();
+}
+
+function recolectarVecinos(){
+  if(!VECINOS) return null;
+  const clon = JSON.parse(JSON.stringify(VECINOS));
+  const meta = {}, side = {};
+  document.querySelectorAll('.vecino-card[data-chip]').forEach(card => {
+    const chip = card.dataset.chip;
+    const nEl = card.querySelector('.vec-nombre');
+    const sEl = card.querySelector('.vec-lado');
+    const hEl = card.querySelector('.vec-altura');
+    const pEl = card.querySelector('.vec-pisos');
+    const pisos = (pEl && pEl.value !== '') ? parseInt(pEl.value, 10) : null;
+    const alturaDirecta = (hEl && hEl.value !== '') ? parseFloat(hEl.value) : null;
+    const alturaFinal = (pisos != null && pisos > 0) ? Math.round(pisos * alturaDePlaca() * 10) / 10 : alturaDirecta;
+    meta[chip] = {
+      nombre: (nEl && nEl.value) || chip,
+      altura_m: alturaFinal,
+      pisos: pisos,
+    };
+    side[chip] = (sEl && sEl.value !== '') ? sEl.value : null;
+  });
+  const sideChips = {};
+  Object.keys(meta).forEach(chip => { const sid = side[chip]; if(sid != null) (sideChips[sid] = sideChips[sid] || []).push(chip); });
+  (clon.lados || []).forEach(lado => {
+    const lid = String(lado.lado_id);
+    const antiguos = {};
+    (lado.vecinos || []).forEach(v => { if(v.chip) antiguos[v.chip] = v; });
+    if(PLANO_OVERRIDES && PLANO_OVERRIDES[lado.lado_id]) lado.frente_override = PLANO_OVERRIDES[lado.lado_id];
+    const fLado = lado.frente_override || lado.frente;
+    const sinAlt = frenteSinAltura(fLado);
+    lado.vecinos = (sideChips[lid] || []).map(chip => {
+      const old = antiguos[chip] || {};
+      return { chip: chip, nombre: meta[chip].nombre || old.nombre || chip,
+               altura_m: sinAlt ? null : meta[chip].altura_m,
+               pisos: sinAlt ? null : meta[chip].pisos,
+               longitud_colindancia_m: old.longitud_colindancia_m };
+    });
+    lado.vecinos_manuales = [];
+  });
+  document.querySelectorAll('.manual-fila[data-lado]').forEach(row => {
+    const li = parseInt(row.dataset.lado, 10);
+    const lado = (clon.lados || [])[li];
+    if(!lado) return;
+    const nEl = row.querySelector('.man-nombre');
+    const cEl = row.querySelector('.man-chip');
+    const hEl = row.querySelector('.man-altura');
+    const pEl = row.querySelector('.man-pisos');
+    const mp = (pEl && pEl.value !== '') ? parseInt(pEl.value, 10) : null;
+    const mh = (hEl && hEl.value !== '') ? parseFloat(hEl.value) : null;
+    const sinAltM = frenteSinAltura(lado.frente_override || lado.frente);
+    lado.vecinos_manuales.push({
+      nombre: nEl ? nEl.value : '',
+      chip: cEl ? cEl.value : '',
+      altura_m: sinAltM ? null : ((mp != null && mp > 0) ? Math.round(mp * alturaDePlaca() * 10) / 10 : mh),
+      pisos: sinAltM ? null : mp,
+    });
+  });
+  return clon;
+}
+
+function generarNormativa(){
+  const clon = recolectarVecinos();
+  if(!clon){ return null; }
+  const out = {};
+  (clon.lados || []).forEach(lado => {
+    const frente = lado.frente_override || lado.frente;
+    if(frente !== 'predio') return;
+    if(lado.confirmacion === 'no_es_predio') return;
+    const alturaPorChip = {};
+    (lado.vecinos || []).forEach(v => {
+      if(v.corresponde === false) return;
+      const h = v.altura_m;
+      if(h !== null && h !== undefined && h !== '' && !isNaN(parseFloat(h))) alturaPorChip[v.chip] = parseFloat(h);
+    });
+    const manuales = [];
+    (lado.vecinos_manuales || []).forEach(v => {
+      const h = v.altura_m;
+      if(h !== null && h !== undefined && h !== '' && !isNaN(parseFloat(h))) manuales.push(parseFloat(h));
+    });
+    if(!Object.keys(alturaPorChip).length && !manuales.length) return;
+    const segVec = lado.segmentos_vecinos || {};
+    const segmentos = lado.segmentos || [];
+    segmentos.forEach(sid => {
+      const chips = segVec[String(sid)] || [];
+      const alturas = chips.filter(c => c in alturaPorChip).map(c => alturaPorChip[c]);
+      if(manuales.length) alturas.push.apply(alturas, manuales);
+      if(alturas.length) out[String(sid)] = alturas;
+    });
+  });
+  const sinAltura = [];
+  (clon.lados || []).forEach(l => {
+    const f = l.frente_override || l.frente;
+    if(f !== 'predio') return;
+    const tiene = (l.vecinos || []).some(v => v.altura_m != null && v.altura_m !== '' && !isNaN(parseFloat(v.altura_m)))
+                || (l.vecinos_manuales || []).some(v => v.altura_m != null && v.altura_m !== '' && !isNaN(parseFloat(v.altura_m)));
+    if(!tiene) sinAltura.push(l.cardinal_label || l.cardinal || '?');
+  });
+  const pre = $('vecinos-normativa');
+  NORMATIVA_JSON = JSON.stringify(out, null, 2);
+  const nSeg = Object.keys(out).length;
+  const alturas = [];
+  Object.values(out).forEach(arr => (arr || []).forEach(x => { if(alturas.indexOf(x) < 0) alturas.push(x); }));
+  if(nSeg){
+    pre.textContent = '✓ Empate lateral generado con éxito: ' + nSeg + ' segmento(s) con altura (' + alturas.join(', ') + ' m).';
+    pre.style.color = '#1a7f37'; pre.style.background = '#f0fdf4';
+  } else if(sinAltura.length){
+    pre.textContent = 'Sin empate lateral: complete la altura o pisos de los vecinos de: ' + sinAltura.join(', ') + '.';
+    pre.style.color = '#b45309'; pre.style.background = '#fffbeb';
+  } else {
+    pre.textContent = 'Sin lados predio: no aplica empate lateral.';
+    pre.style.color = '#b45309'; pre.style.background = '#fffbeb';
+  }
+  pre.style.display = 'block';
+  $('btn-normativa-copiar').style.display = nSeg ? 'inline-block' : 'none';
+  return out;
+}
+
+// ---------- plano SVG (lados + contexto) ----------
+const COLORES_FRENTE = {
+  via: '#2563eb', via_no_frontal: '#60a5fa', predio: '#d97706', espacio_publico: '#16a34a',
+  libre: '#9ca3af', indefinido: '#9ca3af',
+};
+const CICLO_FRENTE = ['indefinido', 'via', 'via_no_frontal', 'predio', 'espacio_publico', 'libre'];
+const ETIQUETA_FRENTE = {
+  via: 'v\u00eda', via_no_frontal: 'v\u00eda (no frontal)', predio: 'predio/vecino', espacio_publico: 'espacio p\u00fablico',
+  libre: 'libre', indefinido: 'indefinido',
+};
+// 2026-09-28: en estos frentes NO hay edificaci\u00f3n colindante -> no se especifica altura de vecinos
+const SIN_ALTURA_FRENTES = ['via_no_frontal', 'espacio_publico'];
+function frenteSinAltura(f){ return SIN_ALTURA_FRENTES.indexOf(f) >= 0; }
+function etiquetaFrenteTexto(f){ return (ETIQUETA_FRENTE[f] || f) + (frenteSinAltura(f) ? ' (sin altura)' : ''); }
+// ---------- vecinos: colores + asignacion de lados ----------
+const PALETA_VECINOS = ['#e6194b','#3cb44b','#ffe119','#4363d8','#f58231','#911eb4','#42d4f4','#f032e6','#bfef45','#fabed4','#469990','#dcbeff'];
+let NEIGHBOR_SIDE = {};    // chip -> lado_id (null = sin asignar / descartado)
+let NEIGHBOR_META = {};    // chip -> {nombre, altura_m, pisos}
+let NEIGHBOR_COLORS = {};  // chip -> color
+let PLANO_DATA = null;
+
+function asignarColoresVecinos(chips){
+  const m = {};
+  chips.slice().sort().forEach((ch, i) => m[ch] = PALETA_VECINOS[i % PALETA_VECINOS.length]);
+  return m;
+}
+function colorVecino(chip){ return NEIGHBOR_COLORS[chip] || '#cbd5e1'; }
+
+function construirVecinos(){
+  const areaPrev = {};
+  Object.keys(NEIGHBOR_META).forEach(chip => { areaPrev[chip] = NEIGHBOR_META[chip].area_m2; });
+  NEIGHBOR_SIDE = {}; NEIGHBOR_META = {};
+  const chips = [];
+  ((VECINOS && VECINOS.lados) || []).forEach(lado => {
+    (lado.vecinos || []).forEach(v => {
+      if(!v.chip) return;
+      if(!(v.chip in NEIGHBOR_META)){
+        NEIGHBOR_META[v.chip] = { nombre: v.nombre || v.chip, altura_m: v.altura_m, pisos: v.pisos, area_m2: areaPrev[v.chip] || null };
+        chips.push(v.chip);
+      }
+      if(NEIGHBOR_SIDE[v.chip] === undefined) NEIGHBOR_SIDE[v.chip] = lado.lado_id;
+    });
+  });
+  NEIGHBOR_COLORS = asignarColoresVecinos(chips);
+}
+
+let ALL_VECINOS = {};
+let NORMATIVA_JSON = null;  // chip -> {area_m2, polyline} (todo el contexto 25 m)
+let PLANO_OVERRIDES = {};
+
+async function cargarPlano(){
+  const chip = $('chip').value;
+  const cont = $('plano'), ley = $('plano-leyenda');
+  if(!chip){ cont.innerHTML=''; ley.textContent=''; return; }
+  cont.innerHTML = '<div class="aviso info">Cargando plano...</div>';
+  ley.textContent = '';
+  const r = await api('/api/plano?chip=' + encodeURIComponent(chip));
+  if(!r.ok || !r.plano){ cont.innerHTML = '<div class="aviso error">' + (r.error||'sin plano') + '</div>'; return; }
+  PLANO_DATA = r.plano;
+  PLANO_OVERRIDES = {};
+  renderPlano(r.plano);
+}
+
+function _perpOffset(pts, dist){
+  const mid = pts[Math.floor(pts.length / 2)];
+  const a = pts[0], b = pts[pts.length - 1];
+  let dx = b[0] - a[0], dy = b[1] - a[1];
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len, ny = dx / len;
+  return [mid[0] + nx * dist, mid[1] + ny * dist];
+}
+
+function _centroide(pts){
+  if(!pts || !pts.length) return [0, 0];
+  let x = 0, y = 0;
+  pts.forEach(q => { x += q[0]; y += q[1]; });
+  return [x / pts.length, y / pts.length];
+}
+
+function fmtArea(a){
+  if(a == null || a === '') return '';
+  const num = Number(a);
+  if(!isFinite(num)) return '';
+  return num.toLocaleString('es-CO', {maximumFractionDigits: 1}) + ' m²';
+}
+
+function anguloVecino(chip){
+  let h = 0;
+  for(let i=0;i<chip.length;i++) h = (h * 31 + chip.charCodeAt(i)) >>> 0;
+  return h % 180;
+}
+
+function _distPuntoSeg(px, py, ax, ay, bx, by){
+  const dx = bx - ax, dy = by - ay;
+  const l2 = dx*dx + dy*dy;
+  let t = l2 ? ((px-ax)*dx + (py-ay)*dy) / l2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  const cx = ax + t*dx, cy = ay + t*dy;
+  return Math.hypot(px-cx, py-cy);
+}
+
+function _puntoColindancia(np, lp){
+  let best = np[0], bestD = Infinity;
+  np.forEach(q => {
+    let dmin = Infinity;
+    for(let i=0;i<lp.length;i++){
+      const a = lp[i], b = lp[(i+1)%lp.length];
+      const d = _distPuntoSeg(q[0], q[1], a[0], a[1], b[0], b[1]);
+      if(d < dmin) dmin = d;
+    }
+    if(dmin < bestD){ bestD = dmin; best = q; }
+  });
+  return best;
+}
+
+function refrescarTodo(){
+  if(PLANO_DATA) renderPlano(PLANO_DATA);
+  if(VECINOS) renderVecinos(VECINOS);
+}
+
+function marcarColindante(chip){
+  if(!(chip in ALL_VECINOS)) return;
+  NEIGHBOR_META[chip] = { nombre: 'Vecino_' + String(chip).slice(-4), altura_m: null, pisos: null, area_m2: ALL_VECINOS[chip].area_m2 };
+  NEIGHBOR_SIDE[chip] = null; // sin asignar
+  NEIGHBOR_COLORS = asignarColoresVecinos(Object.keys(NEIGHBOR_META).sort());
+  refrescarTodo();
+}
+
+function quitarColindante(chip){
+  delete NEIGHBOR_META[chip];
+  delete NEIGHBOR_SIDE[chip];
+  NEIGHBOR_COLORS = asignarColoresVecinos(Object.keys(NEIGHBOR_META).sort());
+  refrescarTodo();
+}
+
+function frenteEfectivo(lado){
+  return (PLANO_OVERRIDES && PLANO_OVERRIDES[lado.lado_id]) || lado.frente_override || lado.frente || 'indefinido';
+}
+
+function pintarBadgeFrente(lado, badge){
+  const over = (PLANO_OVERRIDES && PLANO_OVERRIDES[lado.lado_id]) || lado.frente_override;
+  badge.textContent = over ? 'confirmado' : 'auto';
+  badge.style.background = over ? 'var(--ok)' : '#64748b';
+}
+
+// 2026-09-28: altura de vecinos solo aplica cuando el lado tiene edificaci\u00f3n colindante
+function frenteDeLadoId(id){
+  const lados = (VECINOS && VECINOS.lados) || [];
+  for(let i=0;i<lados.length;i++){ if(String(lados[i].lado_id) === String(id)) return lados[i]; }
+  return null;
+}
+
+function toggleAlturaInputs(hEl, pEl, permite){
+  [hEl, pEl].forEach(el => {
+    if(!el) return;
+    if(!permite){
+      el.disabled = true; el.value = '';
+      el.placeholder = 'no aplica';
+      el.title = 'No aplica: lado sin edificaci\u00f3n colindante (v\u00eda no frontal / espacio p\u00fablico).';
+      el.style.background = '#f1f5f9';
+    } else {
+      el.disabled = false;
+      el.placeholder = el.classList.contains('vec-altura') || el.classList.contains('man-altura') ? 'altura_m' : 'pisos';
+      el.title = '';
+      el.style.background = '';
+    }
+  });
+}
+
+function actualizarAlturasPorFrente(){
+  document.querySelectorAll('.vecino-card[data-chip]').forEach(card => {
+    const sEl = card.querySelector('.vec-lado');
+    const sid = (sEl && sEl.value !== '') ? sEl.value : null;
+    const lado = sid != null ? frenteDeLadoId(sid) : null;
+    const permite = !lado || !frenteSinAltura(frenteEfectivo(lado));
+    toggleAlturaInputs(card.querySelector('.vec-altura'), card.querySelector('.vec-pisos'), permite);
+  });
+  document.querySelectorAll('.manual-fila[data-lado]').forEach(row => {
+    const li = parseInt(row.dataset.lado, 10);
+    const lado = (VECINOS && VECINOS.lados) ? VECINOS.lados[li] : null;
+    const permite = !lado || !frenteSinAltura(frenteEfectivo(lado));
+    toggleAlturaInputs(row.querySelector('.man-altura'), row.querySelector('.man-pisos'), permite);
+  });
+}
+
+function alturaDePlaca(){
+  const el = $('var_floor_height_user');
+  const v = el ? parseFloat(el.value) : NaN;
+  return (isFinite(v) && v > 0) ? v : 3.0;
+}
+
+function renderPlano(p){
+  const cont = $('plano');
+  ALL_VECINOS = {};
+  (p.vecinos || []).forEach(v => { ALL_VECINOS[v.chip] = { area_m2: v.area_m2, polyline: v.polyline }; });
+  Object.keys(NEIGHBOR_META).forEach(chip => { if(ALL_VECINOS[chip] && ALL_VECINOS[chip].area_m2 != null) NEIGHBOR_META[chip].area_m2 = ALL_VECINOS[chip].area_m2; });
+  if(!Object.keys(NEIGHBOR_META).length && p.colindantes && p.colindantes.length){
+    NEIGHBOR_SIDE = {}; NEIGHBOR_META = {};
+    p.colindantes.forEach(cd => {
+      NEIGHBOR_META[cd.chip] = { nombre: cd.nombre || cd.chip, altura_m: null, pisos: null, area_m2: (ALL_VECINOS[cd.chip] && ALL_VECINOS[cd.chip].area_m2) || null };
+      NEIGHBOR_SIDE[cd.chip] = cd.lado_id;
+    });
+    NEIGHBOR_COLORS = asignarColoresVecinos(p.colindantes.map(cd => cd.chip));
+  }
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const xmin = p.viewport[0], ymin = p.viewport[1], xmax = p.viewport[2], ymax = p.viewport[3];
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', [xmin, -ymax, xmax - xmin, ymax - ymin].join(' '));
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  svg.setAttribute('width', '100%');
+  svg.style.cssText = 'border:1px solid var(--borde); border-radius:8px; background:#fbfcfe; max-height:560px;';
+  const P = pt => [pt[0], -pt[1]];
+
+  function path(pts, closed){
+    if(!pts || pts.length < 2) return '';
+    const d = pts.map(q => { const s = P(q); return s[0].toFixed(2) + ',' + s[1].toFixed(2); }).join(' L ');
+    return 'M' + d + (closed ? ' Z' : '');
+  }
+
+  const defs = document.createElementNS(NS, 'defs');
+  svg.appendChild(defs);
+  function hatch(id, color, ang){
+    const pat = document.createElementNS(NS, 'pattern');
+    pat.setAttribute('id', id);
+    pat.setAttribute('patternUnits', 'userSpaceOnUse');
+    pat.setAttribute('width', '2.2'); pat.setAttribute('height', '2.2');
+    pat.setAttribute('patternTransform', 'rotate(' + ang + ')');
+    const ln = document.createElementNS(NS, 'line');
+    ln.setAttribute('x1', '0'); ln.setAttribute('y1', '0'); ln.setAttribute('x2', '0'); ln.setAttribute('y2', '2.2');
+    ln.setAttribute('stroke', color); ln.setAttribute('stroke-width', '0.35');
+    pat.appendChild(ln); defs.appendChild(pat);
+  }
+  hatch('h-neutral', '#cbd5e1', 45);
+  Object.keys(NEIGHBOR_META).forEach(chip => hatch('h-' + chip, colorVecino(chip), anguloVecino(chip)));
+
+  const loteC = _centroide(p.lote);
+
+  // 1) contexto: EP verde, vecinos (rayado), vias azul
+  (p.espacios_publicos || []).forEach(e => {
+    const el = document.createElementNS(NS, 'path');
+    el.setAttribute('d', path(e.polyline, true));
+    el.setAttribute('fill', '#bbf7d0'); el.setAttribute('fill-opacity', '0.5');
+    el.setAttribute('stroke', '#16a34a'); el.setAttribute('stroke-width', '0.25');
+    svg.appendChild(el);
+  });
+  (p.vecinos || []).forEach(v => {
+    const esColindante = !!(v.chip && (v.chip in NEIGHBOR_META));
+    const el = document.createElementNS(NS, 'path');
+    el.setAttribute('d', path(v.polyline, true));
+    if(esColindante){
+      const col = colorVecino(v.chip);
+      el.setAttribute('fill', 'url(#h-' + v.chip + ')');
+      el.setAttribute('stroke', col); el.setAttribute('stroke-width', '0.4');
+    } else {
+      el.setAttribute('fill', 'url(#h-neutral)');
+      el.setAttribute('stroke', '#cbd5e1'); el.setAttribute('stroke-width', '0.25');
+    }
+    el.setAttribute('cursor', 'pointer');
+    el.dataset.chip = v.chip;
+    const ti = document.createElementNS(NS, 'title');
+    ti.textContent = (esColindante ? 'Clic para marcar como NO colindante' : 'Clic para marcar como colindante') + ' — ' + v.chip;
+    el.appendChild(ti);
+    el.addEventListener('click', () => { if(v.chip in NEIGHBOR_META) quitarColindante(v.chip); else marcarColindante(v.chip); });
+    svg.appendChild(el);
+
+    let labPt;
+    if(esColindante){
+      const pc = _puntoColindancia(v.polyline, p.lote);
+      let dx = pc[0] - loteC[0], dy = pc[1] - loteC[1];
+      const L = Math.hypot(dx, dy) || 1;
+      labPt = [pc[0] + dx/L*3.0, pc[1] + dy/L*3.0];
+    } else {
+      labPt = _centroide(v.polyline);
+    }
+    const ls = P(labPt);
+    const tl = document.createElementNS(NS, 'text');
+    tl.setAttribute('x', ls[0]); tl.setAttribute('y', ls[1]);
+    tl.setAttribute('text-anchor', 'middle');
+    tl.setAttribute('font-size', esColindante ? '2.0' : '1.6');
+    tl.setAttribute('font-weight', esColindante ? '600' : '400');
+    tl.setAttribute('fill', esColindante ? '#0f172a' : '#475569');
+    tl.setAttribute('paint-order', 'stroke'); tl.setAttribute('stroke', '#ffffff'); tl.setAttribute('stroke-width', '0.6');
+    const name = esColindante ? ((NEIGHBOR_META[v.chip] && NEIGHBOR_META[v.chip].nombre) || v.chip) : v.chip;
+    const tName = document.createElementNS(NS, 'tspan');
+    tName.setAttribute('x', ls[0]);
+    tName.textContent = name;
+    tl.appendChild(tName);
+    const area = (NEIGHBOR_META[v.chip] && NEIGHBOR_META[v.chip].area_m2 != null) ? NEIGHBOR_META[v.chip].area_m2 : (ALL_VECINOS[v.chip] ? ALL_VECINOS[v.chip].area_m2 : null);
+    if(area != null){
+      const tArea = document.createElementNS(NS, 'tspan');
+      tArea.setAttribute('x', ls[0]); tArea.setAttribute('dy', '2.2');
+      tArea.setAttribute('font-size', '1.6'); tArea.setAttribute('font-weight', '400');
+      tArea.textContent = fmtArea(area);
+      tl.appendChild(tArea);
+    }
+    svg.appendChild(tl);
+  });
+  (p.vias || []).forEach(v => {
+    (v.segmentos || []).forEach(seg => {
+      const el = document.createElementNS(NS, 'line');
+      const a = P([seg[0], seg[1]]), b = P([seg[2], seg[3]]);
+      el.setAttribute('x1', a[0]); el.setAttribute('y1', a[1]);
+      el.setAttribute('x2', b[0]); el.setAttribute('y2', b[1]);
+      el.setAttribute('stroke', '#2563eb'); el.setAttribute('stroke-width', '0.9');
+      svg.appendChild(el);
+    });
+  });
+
+  // 2) lote (fill blanco)
+  const loteEl = document.createElementNS(NS, 'path');
+  loteEl.setAttribute('d', path(p.lote, true));
+  loteEl.setAttribute('fill', '#ffffff'); loteEl.setAttribute('fill-opacity', '0.85');
+  loteEl.setAttribute('stroke', '#111827'); loteEl.setAttribute('stroke-width', '0.35');
+  svg.appendChild(loteEl);
+
+  // 3) lados (click = ciclar override)
+  (p.lados || []).forEach(lado => {
+    const frente = frenteEfectivo(lado);
+    const el = document.createElementNS(NS, 'path');
+    el.setAttribute('d', path(lado.polyline, false));
+    el.setAttribute('fill', 'none');
+    el.setAttribute('stroke', COLORES_FRENTE[frente] || '#9ca3af');
+    el.setAttribute('stroke-width', '2.2');
+    el.setAttribute('stroke-linecap', 'round');
+    el.setAttribute('cursor', 'pointer');
+    el.addEventListener('click', () => ciclarLado(lado, el));
+    svg.appendChild(el);
+
+    const cp = _perpOffset(lado.polyline, 2.4);
+    const cs = P(cp);
+    const t1 = document.createElementNS(NS, 'text');
+    t1.setAttribute('x', cs[0]); t1.setAttribute('y', cs[1]);
+    t1.setAttribute('text-anchor', 'middle'); t1.setAttribute('font-size', '2.4');
+    t1.setAttribute('font-weight', '600'); t1.setAttribute('fill', '#111827');
+    t1.textContent = lado.cardinal_label || lado.cardinal;
+    svg.appendChild(t1);
+
+    const fp = _perpOffset(lado.polyline, 4.2);
+    const fs = P(fp);
+    const t2 = document.createElementNS(NS, 'text');
+    t2.setAttribute('x', fs[0]); t2.setAttribute('y', fs[1]);
+    t2.setAttribute('text-anchor', 'middle'); t2.setAttribute('font-size', '1.9');
+    t2.setAttribute('fill', COLORES_FRENTE[frente] || '#9ca3af');
+    t2.dataset.etiqueta = String(lado.lado_id);
+    t2.textContent = etiquetaFrenteTexto(frente);
+    svg.appendChild(t2);
+  });
+
+  // 4) flecha norte (fija arriba)
+  const cx = (xmin + xmax) / 2, top = -ymax + 3.5;
+  const g = document.createElementNS(NS, 'g');
+  const ln = document.createElementNS(NS, 'line');
+  ln.setAttribute('x1', cx); ln.setAttribute('y1', top + 6);
+  ln.setAttribute('x2', cx); ln.setAttribute('y2', top);
+  ln.setAttribute('stroke', '#111827'); ln.setAttribute('stroke-width', '0.6');
+  g.appendChild(ln);
+  const tri = document.createElementNS(NS, 'polygon');
+  tri.setAttribute('points', (cx-1.1)+','+(top+1.4)+' '+cx+','+top+' '+(cx+1.1)+','+(top+1.4));
+  tri.setAttribute('fill', '#111827');
+  g.appendChild(tri);
+  const tn = document.createElementNS(NS, 'text');
+  tn.setAttribute('x', cx); tn.setAttribute('y', top - 1.2);
+  tn.setAttribute('text-anchor', 'middle'); tn.setAttribute('font-size', '3');
+  tn.setAttribute('font-weight', '700'); tn.setAttribute('fill', '#111827');
+  tn.textContent = 'N';
+  g.appendChild(tn);
+  svg.appendChild(g);
+
+  cont.innerHTML = '';
+  cont.appendChild(svg);
+  pintarLeyenda();
+}
+
+function ciclarLado(lado, el){
+  const actual = frenteEfectivo(lado);
+  const i = CICLO_FRENTE.indexOf(actual);
+  const sig = CICLO_FRENTE[(i + 1) % CICLO_FRENTE.length];
+  PLANO_OVERRIDES[lado.lado_id] = sig;
+  el.setAttribute('stroke', COLORES_FRENTE[sig]);
+  const t2 = el.parentNode.querySelector('text[data-etiqueta="' + lado.lado_id + '"]');
+  if(t2){ t2.textContent = etiquetaFrenteTexto(sig); t2.setAttribute('fill', COLORES_FRENTE[sig]); }
+  const selF = document.querySelector('.lado-frente[data-lado_id="'+lado.lado_id+'"]');
+  if(selF){ selF.value = sig; const bd = selF.parentNode.querySelector('.badge'); if(bd) pintarBadgeFrente(lado, bd);
+    const tagF = selF.parentNode.querySelector('.frente-sin-altura');
+    if(tagF) tagF.textContent = frenteSinAltura(sig) ? '(altura de vecinos: no aplica)' : '';
+  }
+  actualizarAlturasPorFrente();
+}
+
+function pintarLeyenda(){
+  const ley = $('plano-leyenda');
+  const items = [['via','v\u00eda'], ['via_no_frontal','v\u00eda (no frontal)'], ['predio','predio/vecino'], ['espacio_publico','espacio p\u00fablico'], ['libre','libre / indefinido']];
+  ley.innerHTML = items.map(it =>
+    '<span style="margin-right:14px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:' +
+    COLORES_FRENTE[it[0]] + ';margin-right:4px;vertical-align:middle;"></span>' + it[1] + '</span>'
+  ).join('') + ' &nbsp;\u00b7&nbsp; <span>contexto en 25 m: v\u00edas (azul), vecinos colindantes (color propio), resto (gris), espacio p\u00fablico (verde)</span>' +
+    ' &nbsp;\u00b7&nbsp; <span>“(sin altura)” = lados v\u00eda (no frontal) / espacio p\u00fablico: no se especifica altura de vecinos.</span>';
+}
+
+// ---------- predio ----------
+async function cargarPredio(){
+  const chip = $('chip').value;
+  const info = $('predio-info'), det = $('predio-detalle');
+  if(!chip){ info.className='aviso info'; info.textContent='Seleccione un CHIP para ver la información del predio.'; det.style.display='none'; return; }
+  info.className='aviso info'; info.textContent='Cargando información del predio ' + chip + ' …';
+  const r = await api('/api/contexto?chip=' + encodeURIComponent(chip));
+  if(!r.ok){ info.className='aviso error'; info.textContent = r.error || 'sin datos'; det.style.display='none'; return; }
+  info.style.display='none';
+  const c = r.contexto;
+  const kvs = [
+    ['Área lote (m²)', c.lote.area_m2 != null ? c.lote.area_m2 : '—'],
+    ['Perímetro (m)', c.lote.perimetro_m != null ? c.lote.perimetro_m : '—'],
+    ['Vértices', c.lote.n_vertices],
+    ['Vías', c.conteos.vias], ['Vecinos', c.conteos.vecinos], ['Espacios públicos', c.conteos.espacios_publicos],
+    ['Topografía', c.topografia.estado || '—'],
+    ['Desnivel (m)', c.topografia.desnivel_m != null ? c.topografia.desnivel_m : '—'],
+    ['UPZ', c.pot.upz || '—'], ['Tratamiento', c.pot.tratamiento || '—'],
+    ['Rango edificabilidad', c.pot.rango_edificabilidad || '—'],
+    ['Altura máxima (m)', c.pot.altura_maxima_m != null ? c.pot.altura_maxima_m : '—'],
+  ];
+  det.innerHTML = kvs.map(x => {
+    let extra = '';
+    if(x[0]==='Desnivel (m)' && parseFloat(x[1])>1) extra = ' <span class="badge desnivel">terreno con desnivel</span>';
+    return '<div class="kv"><div class="k">'+x[0]+'</div><div class="v">'+x[1]+extra+'</div></div>';
+  }).join('');
+  det.style.display='grid';
+}
+
+// ---------- norma override (completa datos faltantes de la geobase) ----------
+const NORMA_FIELDS = [
+  {id:'rango_edificabilidad', label:'Rango de edificabilidad', tipo:'select', opciones:['1','2','3','4','5']},
+  {id:'altura_maxima_pisos', label:'Altura máxima (pisos)', tipo:'int'},
+  {id:'io_maximo', label:'IO máximo', tipo:'number'},
+  {id:'ic_maximo', label:'IC máximo', tipo:'number'},
+  {id:'tipologia', label:'Tipología', tipo:'select', opciones:['Continua','Aislada']},
+  {id:'tratamiento', label:'Tratamiento urbanístico', tipo:'select', opciones:['Consolidación','Renovación urbana','Desarrollo','Mejoramiento integral']},
+  {id:'antejardin_min_m', label:'Antejardín frontal mínimo (m)', tipo:'number'},
+  {id:'semisotano_permitido', label:'Semisótano permitido', tipo:'bool'},
+  {id:'voladizo_permitido', label:'Voladizo permitido', tipo:'bool'},
+  {id:'subdivision_min_m2', label:'Subdivisión predial mínima (m²)', tipo:'number'},
+  {id:'frente_min_m', label:'Frente mínimo (m)', tipo:'number'},
+];
+function renderNormaOverride(){
+  const cont = $('norma-override'); cont.innerHTML = '';
+  NORMA_FIELDS.forEach(f => {
+    const div = document.createElement('div');
+    const lab = document.createElement('label'); lab.textContent = f.label; lab.htmlFor = 'no_'+f.id;
+    let inp;
+    if(f.tipo === 'bool'){
+      inp = document.createElement('select');
+      const off = document.createElement('option'); off.value='false'; off.textContent='No';
+      const on = document.createElement('option'); on.value='true'; on.textContent='Sí';
+      inp.appendChild(off); inp.appendChild(on);
+    } else if(f.tipo === 'select'){
+      inp = document.createElement('select');
+      const vacio = document.createElement('option'); vacio.value=''; vacio.textContent='—'; inp.appendChild(vacio);
+      f.opciones.forEach(o => { const op = document.createElement('option'); op.value=o; op.textContent=o; inp.appendChild(op); });
+    } else {
+      inp = document.createElement('input');
+      inp.type = (f.tipo==='number'||f.tipo==='int') ? 'number' : 'text';
+      if(f.tipo==='int') inp.step='1';
+    }
+    inp.id = 'no_'+f.id;
+    div.appendChild(lab); div.appendChild(inp);
+    cont.appendChild(div);
+  });
+}
+async function cargarNormaOverride(){
+  const chip = $('chip').value;
+  const aviso = $('norma-override-aviso');
+  if(!chip){ return; }
+  const r = await api('/api/norma-override?chip=' + encodeURIComponent(chip));
+  if(!r.ok){ return; }
+  const ctx = r.contexto_pot || {}, ov = r.override || {};
+  NORMA_FIELDS.forEach(f => {
+    const el = $('no_'+f.id); if(!el) return;
+    let v = ov[f.id];
+    if(v === undefined || v === null || v === '') v = ctx[f.id];
+    if(f.tipo === 'bool'){ el.value = String(!!v); }
+    else { el.value = (v === undefined || v === null) ? '' : v; }
+  });
+  const faltan = NORMA_FIELDS.filter(f => { const v = ov[f.id]; return v===undefined||v===null||v===''; }).length;
+  aviso.textContent = (ov && Object.keys(ov).length)
+    ? ('override guardado (' + Object.keys(ov).length + ' campos)' + (faltan ? (' · ' + faltan + ' sin completar') : ' · completo'))
+    : 'sin override (se muestra lo que trae la geobase)';
+}
+async function guardarNormaOverride(){
+  const chip = $('chip').value;
+  const aviso = $('norma-override-aviso');
+  if(!chip){ aviso.textContent='Seleccione un CHIP.'; return; }
+  const override = {};
+  NORMA_FIELDS.forEach(f => {
+    const el = $('no_'+f.id); if(!el) return;
+    let v = el.value;
+    if(f.tipo === 'bool') v = (v === 'true');
+    else if(f.tipo === 'number' || f.tipo === 'int') v = (v === '' ? null : parseFloat(v));
+    else if(v === '') v = null;
+    override[f.id] = v;
+  });
+  const r = await api('/api/norma-override', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({chip, override}) });
+  aviso.textContent = r.ok ? ('Norma guardada en ' + r.ruta) : ('Error: ' + (r.error || 'desconocido'));
+}
+
+// ---------- caso (escenario de modelado, atado al CHIP seleccionado) ----------
+function casosParaChip(chip){
+  return Object.keys(CASO_CHIP).filter(c => CASO_CHIP[c] === chip);
+}
+function updateCaso(){
+  const sel = $('var_caso');
+  const c = sel ? sel.value : '';
+  const det = $('caso-detalle');
+  const card = $('card-resultados');
+  if(c) activarCaso(c);
+  if(c && CASO_TITULO[c]){
+    det.style.display='block';
+    det.innerHTML = '<b>'+CASO_TITULO[c]+'</b>';
+    verResultados(c);
+  } else {
+    det.style.display='none';
+    if(card) card.style.display='none';
+  }
+}
+function syncCasoConChip(){
+  const chip = $('chip').value;
+  const sel = $('var_caso');
+  if(!sel) return;
+  const casos = chip ? casosParaChip(chip) : [];
+  const prev = sel.value;
+  sel.innerHTML = '';
+  if(!casos.length){
+    const o = document.createElement('option'); o.value=''; o.textContent='— sin escenario pre-generado para este CHIP —';
+    sel.appendChild(o);
+    sel.value = '';
+    updateCaso();
+    return;
+  }
+  casos.forEach(c => {
+    const o = document.createElement('option'); o.value = c;
+    o.textContent = c + ' · ' + (CASO_TITULO[c]||c);
+    sel.appendChild(o);
+  });
+  sel.value = (casos.indexOf(prev) >= 0) ? prev : casos[0];
+  updateCaso();
+}
+function bindCaso(){
+  const sel = $('var_caso');
+  if(!sel) return;
+  sel.addEventListener('change', updateCaso);
+  syncCasoConChip();
+}
+
+// ---------- guardar / crear ----------
+function recolectar(){
+  const nombre = $('nombre').value.trim();
+  const chip = $('chip').value;
+  const variables = {};
+  VARIABLES.forEach(v => {
+    const el = $('var_' + v.id);
+    let val = el ? el.value : null;
+    if(v.tipo === 'bool') val = (val === 'true');
+    else if(v.tipo === 'number' || v.tipo === 'int') val = (val === '' ? null : parseFloat(val));
+    variables[v.id] = val;
+  });
+  const usos = [...document.querySelectorAll('#usos-checks input:checked')].map(x => x.value.replace('uso_',''));
+  const modos = [...document.querySelectorAll('#modos-checks input:checked')].map(x => x.value.replace('modo_',''));
+  const escenarios = [...document.querySelectorAll('#escenarios-checks input:checked')].map(x => x.value.replace('esc_',''));
+  const modalidad = { tipo: variables.aporte_lote || 'participacion', pago_parcial_pct: variables.pago_parcial_pct };
+  delete variables.aporte_lote;
+  delete variables.pago_parcial_pct;
+  return { nombre, chip, variables, modalidad_dueno_lote: modalidad, usos, modos, escenarios, vecinos_por_lado: recolectarVecinos() };
+}
+
+async function guardar(crear){
+  const aviso = $('proyecto-aviso');
+  const data = recolectar();
+  data.crear_estructura = !!crear;
+  if(crear && !data.nombre){ aviso.className='aviso error'; aviso.textContent='Para crear la estructura escriba un nombre de proyecto.'; return; }
+  if(!data.nombre){ aviso.className='aviso info'; aviso.textContent='Guardando en el directorio provisional (_provisional)…'; }
+  const r = await api('/api/proyecto', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  if(r.ok){
+    if(r.estructura_creada){
+      aviso.className='aviso ok';
+      aviso.textContent = 'Estructura creada en ' + r.estructura_creada + ' (incluye Archicad/ para el .pln).';
+    } else {
+      aviso.className='aviso ok';
+      aviso.textContent = 'Guardado en ' + r.destino + (data.nombre ? '' : ' (provisional)');
+    }
+  } else { aviso.className='aviso error'; aviso.textContent = r.error || 'error'; }
+}
+
+// ---------- calcular F2 / generar F3 ----------
+async function calcularF2(){
+  const chip = $('chip').value;
+  if(!chip){ alert('Seleccione un CHIP primero.'); return; }
+  const aporte = $('var_aporte_lote') ? $('var_aporte_lote').value : 'participacion';
+  const pago = $('var_pago_parcial_pct') ? $('var_pago_parcial_pct').value : null;
+  const costoEl = $('costo-lote');
+  const costoLote = (costoEl && costoEl.value !== '') ? parseFloat(costoEl.value) : null;
+  const out = $('f2-resultado');
+  out.style.display='block'; out.className='aviso info'; out.textContent='Ejecutando F2...';
+  const r = await api('/api/calcular-f2', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, modalidad_dueno_lote:{tipo:aporte, pago_parcial_pct:pago}, costo_lote_cop:costoLote}) });
+  if(!r.ok || !r.f2 || !r.f2.ok){ out.className='aviso error'; out.textContent = (r.f2 && r.f2.salida) || r.error || 'error'; return; }
+  const f = r.f2;
+  let html = '<b>F2 calculado</b> · pago parcial <b>' + (f.modalidad_dueno_lote && f.modalidad_dueno_lote.pago_parcial_pct != null ? f.modalidad_dueno_lote.pago_parcial_pct : '\u2014') + '%</b> (aporte en especie ' + f.fraccion_aporte_pct + '%)';
+  if(f.resumen){
+    html += '<br>GFA máx: ' + (f.resumen.gfa_max_m2!=null ? f.resumen.gfa_max_m2 : '—') + ' m² · Recomendado: <b>' + (f.resumen.recomendado||'—') + '</b>';
+    if(f.resumen.veredicto) html += '<br>' + f.resumen.veredicto;
+  }
+  out.className='aviso ok'; out.innerHTML = html;
+}
+
+async function generarF3(){
+  const chip = $('chip').value;
+  if(!chip){ alert('Seleccione un CHIP primero.'); return; }
+  const out = $('f3-resultado');
+  const d = escenarioDerivado();
+  const bloques = recolectarBloques();
+  out.style.display='block'; out.className='aviso info';
+  out.textContent = 'Generando masa (F3) según §2–§3: ' + d.escenario + ' · usos: ' + (d.usos.join(', ') || '—') + ' · bloques: ' + bloques.n + '...';
+  const r = await api('/api/generar-f3', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, usos:d.usos, bloques:bloques}) });
+  if(!r.ok || !r.f3 || !r.f3.ok){ out.className='aviso error'; out.textContent = (r.f3 && r.f3.salida) || r.error || 'error'; return; }
+  const res = r.f3.resultados || {};
+  const br = r.f3.bloques_resumen || null;
+  let html = '<b>Masa generada para ' + chip + '</b> · escenario ' + (r.f3.escenario||'—') + ' · GFA ' + (res.gfa_total!=null ? res.gfa_total : '—') + ' m² · pisos ' + (res.pisos||'—');
+  if(br){
+    const o = br.orientacion || {}; const ni = br.niveles || {};
+    if(br.n > 1){
+      html += ' · <b>' + br.n + ' bloques</b> (sep ' + (br.separacion_m||0) + ' m';
+      if(ni.modo === 'auto' && ni.delta_m != null) html += ', B1 ±0,00 → B' + br.n + ' ' + (ni.delta_m>=0?'+':'') + Number(ni.delta_m).toFixed(2) + ' m';
+      html += ')';
+    }
+    if(o.franja_descripcion) html += '<br>' + o.franja_descripcion;
+    (br.avisos||[]).forEach(function(a){ html += '<br><span style="color:#b45309;">⚠ ' + a + '</span>'; });
+  } else if(bloques.n > 1){
+    html += ' · <b>' + bloques.n + ' bloques</b> (sep ' + bloques.separacion_m + ' m)';
+  }
+  out.className='aviso ok'; out.innerHTML = html;
+  verResultados(chip);
+}
+
+async function ejecutarPipeline(){
+  const chip = $('chip').value;
+  if(!chip){ alert('Seleccione un CHIP primero.'); return; }
+  const aporte = $('var_aporte_lote') ? $('var_aporte_lote').value : 'participacion';
+  const pago = $('var_pago_parcial_pct') ? $('var_pago_parcial_pct').value : null;
+  const out = $('pipeline-resultado');
+  out.style.display='block'; out.className='aviso info'; out.textContent='Ejecutando F1→F2→F3...';
+  const d = escenarioDerivado();
+  const bloques = recolectarBloques();
+  const r = await api('/api/pipeline', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip, modalidad_dueno_lote:{tipo:aporte, pago_parcial_pct:pago}, usos:d.usos, bloques:bloques}) });
+  const p = r.pipeline;
+  if(!r.ok || !p){ out.className='aviso error'; out.textContent = r.error || 'error'; return; }
+  const pasos = (p.pasos||[]).map(function(s){ return (s.salida&&s.salida.indexOf('omitido')===0?'⚠':(s.ok?'✓':'✗')) + ' ' + s.paso; }).join(' · ');
+  let html = '<b>' + (p.completado ? 'Pipeline completado' : 'Pipeline con fallos') + '</b> para ' + chip + '<br>' + pasos;
+  if(p.lados_patio){ html += '<br>F1.5 lados/patio: ' + (p.lados_patio.ok ? '<b>OK</b>' : 'pendiente') + ' — ' + (p.lados_patio.detalle||''); }
+  if(p.f2 && p.f2.resumen) html += '<br>F2: pago ' + (p.f2.modalidad_dueno_lote && p.f2.modalidad_dueno_lote.pago_parcial_pct != null ? p.f2.modalidad_dueno_lote.pago_parcial_pct : '\u2014') + '% / aporte ' + p.f2.fraccion_aporte_pct + '% · GFA ' + (p.f2.resumen.gfa_max_m2||'—') + ' m²';
+  if(p.f3 && p.f3.resultados) html += '<br>F3: ' + (p.f3.resultados.pisos||'—') + ' pisos, GFA ' + (p.f3.resultados.gfa_total||'—') + ' m²';
+  out.className = p.completado ? 'aviso ok' : 'aviso error';
+  out.innerHTML = html;
+  if(p.completado) verResultados(chip);
+}
+
+// ---------- resultados ----------
+async function verResultados(caso){
+  const c = caso || ($('var_caso') ? $('var_caso').value : 'A');
+  const r = await api('/api/resultados?caso=' + encodeURIComponent(c));
+  const card = $('card-resultados'), cont = $('resultados');
+  if(!r.ok){ return; }
+  const res = r.resultados;
+  let html = '<div class="grid-info">';
+  const kvs = [
+    ['Lote/caso', res.titulo || res.caso], ['CHIP', res.chip],
+    ['GFA total (m²)', res.gfa_total], ['Pisos', res.pisos], ['Área/piso (m²)', res.area_por_piso],
+    ['Usos', (res.usos||[]).join(', ') || '—'],
+    ['Núcleo hueco (m²/piso)', res.nucleo.hueco_m2_piso],
+    ['Circulación (m²)', res.nucleo.circulacion_m2],
+    ['Servicios (m²)', res.nucleo.servicios_m2],
+  ];
+  kvs.forEach(([k,v]) => { html += '<div class="kv"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; });
+  html += '</div>';
+  if(res.reparto_vertical && Object.keys(res.reparto_vertical).length){
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:14px 0 6px;">Reparto vertical</h3><table><tr><th>Uso</th><th>Pisos</th></tr>';
+    Object.keys(res.reparto_vertical).forEach(u => { html += '<tr><td>'+u+'</td><td>'+(res.reparto_vertical[u]||[]).join(', ')+'</td></tr>'; });
+    html += '</table>';
+  }
+  if(res.accesos && Object.keys(res.accesos).length){
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:14px 0 6px;">Accesos</h3><table>';
+    ['total_usos','usos_publicos','usos_privados','total_accesos','pares_incompatibles'].forEach(k => {
+      if(res.accesos[k] != null) html += '<tr><th>'+k+'</th><td>'+res.accesos[k]+'</td></tr>';
+    });
+    html += '</table>';
+  }
+  cont.innerHTML = html;
+  card.style.display='block';
+}
+
+async function guardarVecinos(){
+  const chip = $('chip').value;
+  if(!chip){ alert('Seleccione un CHIP primero.'); return; }
+  const clon = recolectarVecinos();
+  if(!clon){ alert('No hay vecinos por lado para guardar.'); return; }
+  const aviso = $('vecinos-aviso');
+  const r = await api('/api/vecinos-por-lado', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip, vecinos_por_lado: clon}) });
+  if(aviso){ aviso.textContent = r.ok ? ('Guardado en ' + (r.ruta||'')) : ('Error: ' + (r.error||'desconocido')); }
+}
+
+async function cargarArchivos(){
+  const r = await api('/api/archivos');
+  const cont = $('archivos-detalle');
+  if(!r.ok || !r.archivos){ return; }
+  const canvasFiles = r.archivos.filter(a => a.canvas);
+  const otros = r.archivos.filter(a => !a.canvas);
+  let html = '';
+  if(canvasFiles.length){
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:8px 0 4px;">Activos — el canvas lee/escribe estos (nombre literal CHIP/CASO)</h3>';
+    html += '<table><tr><th>ID</th><th>Activo (canvas)</th><th>Archivo por CHIP/CASO (historial)</th><th>Produce</th><th>Consume</th></tr>';
+    canvasFiles.forEach(a => {
+      html += '<tr><td><code>'+a.id+'</code></td><td><code>'+a.activo+'</code></td><td><code>'+(a.archivo||'—')+'</code></td><td>'+a.produce+'</td><td>'+a.consume+'</td></tr>';
+    });
+    html += '</table>';
+  }
+  if(otros.length){
+    html += '<h3 style="font-size:13.5px;color:#374151;margin:12px 0 4px;">Fuera del canvas — el orquestador los mantiene por CHIP</h3>';
+    html += '<table><tr><th>ID</th><th>Archivo</th><th>Produce</th><th>Consume</th></tr>';
+    otros.forEach(a => {
+      html += '<tr><td><code>'+a.id+'</code></td><td><code>'+(a.archivo||a.activo||'')+'</code></td><td>'+a.produce+'</td><td>'+a.consume+'</td></tr>';
+    });
+    html += '</table>';
+  }
+  cont.innerHTML = html;
+}
+
+async function activarChip(){
+  const chip = $('chip').value;
+  if(!chip) return;
+  try { await api('/api/activar-chip', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip}) }); } catch(e){}
+}
+
+async function activarCaso(caso){
+  if(!caso) return;
+  try { await api('/api/activar-caso', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({caso}) }); } catch(e){}
+}
+
+async function exportarGfa(){
+  const aviso = $('gfa-aviso');
+  const r = await api('/api/exportar-gfa', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({}) });
+  if(aviso){ aviso.textContent = r.ok ? (r.mensaje || 'Flag exportar=true escrito') : ('Error: ' + (r.error || 'desconocido')); }
+}
+
+async function exportarLados(){
+  const chip = $('chip').value;
+  const aviso = $('lados-aviso');
+  if(!chip){ if(aviso){ aviso.textContent = 'Seleccione un CHIP primero.'; } return; }
+  const r = await api('/api/exportar-lados', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip:chip}) });
+  if(aviso){ aviso.textContent = r.ok ? (r.mensaje || 'Flag lados-export escrito') : ('Error: ' + (r.error || 'desconocido')); }
+}
+
+// ---------- CHIP nuevo: disparador de un proceso nuevo (2026-09-28) ----------
+function chipFormatoOk(c){ return /^[A-Z]{3}[0-9]{4}[A-Z0-9]{4}$/.test(c); }
+
+async function procesarChipNuevo(){
+  const inp = $('chip-nuevo'), av = $('nuevo-chip-aviso');
+  const chip = (inp && inp.value || '').trim().toUpperCase();
+  if(!chip){ if(av){ av.textContent = 'Escriba un CHIP.'; } return; }
+  if(!chipFormatoOk(chip)){
+    if(av){ av.textContent = 'Formato esperado: 3 letras + 4 dígitos + 4 alfanuméricos (ej. AAA0240ZXJH).'; }
+    return;
+  }
+  if(av){ av.textContent = 'Procesando ' + chip + '… (contexto base + 50 m; puede tardar 1–3 min)'; }
+  try {
+    const r = await api('/api/nuevo-chip', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip: chip}) });
+    if(!r || !r.ok){
+      if(av){ av.textContent = 'Error: ' + ((r && r.mensaje) || (r && r.error) || 'no se pudo procesar'); }
+      return;
+    }
+    // refrescar la lista de CHIPs y seleccionar el nuevo (dispara la carga completa)
+    const lotes = await api('/api/lotes');
+    const sel = $('chip');
+    sel.innerHTML = '<option value="">— seleccione —</option>';
+    (lotes.lotes || []).forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+    sel.value = chip;
+    sel.dispatchEvent(new Event('change'));
+    const pasos = (r.pasos || []).map(s => ((s.salida&&s.salida.indexOf('omitido')===0) ? '⚠' : (s.ok ? '✓' : '✗')) + ' ' + s.paso).join(' · ');
+    if(av){ av.textContent = 'CHIP ' + chip + ' procesado. ' + pasos + (r.mensaje ? ' — ' + r.mensaje : ''); }
+  } catch(e) {
+    if(av){ av.textContent = 'Error: ' + e; }
+  }
+}
+
+$('btn-crear').addEventListener('click', () => guardar(true));
+$('btn-guardar').addEventListener('click', () => guardar(false));
+$('btn-guardar-financiero').addEventListener('click', () => guardarFinanciero());
+$('btn-guardar-vecinos').addEventListener('click', () => guardarVecinos());
+$('btn-calcular-f2').addEventListener('click', () => calcularF2());
+$('btn-exportar-gfa').addEventListener('click', () => exportarGfa());
+$('btn-exportar-lados').addEventListener('click', () => exportarLados());
+$('btn-nuevo-chip').addEventListener('click', () => procesarChipNuevo());
+$('chip-nuevo').addEventListener('keydown', (e) => { if(e.key === 'Enter'){ e.preventDefault(); procesarChipNuevo(); } });
+$('btn-generar-f3').addEventListener('click', () => generarF3());
+$('btn-pipeline').addEventListener('click', () => ejecutarPipeline());
+$('btn-normativa').addEventListener('click', () => generarNormativa());
+$('btn-normativa-copiar').addEventListener('click', () => {
+  const txt = NORMATIVA_JSON || '';
+  if(!txt) return;
+  navigator.clipboard.writeText(txt).then(() => {
+    $('btn-normativa-copiar').textContent = 'Copiado';
+    setTimeout(() => { $('btn-normativa-copiar').textContent = 'Copiar'; }, 1500);
+  }).catch(() => {});
+});
+init();
+</script>
+</body>
+</html>

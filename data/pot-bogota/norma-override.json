@@ -7,21 +7,34 @@
       "tratamiento": "Consolidación",
       "tipologia": "Continua",
       "rango_edificabilidad": "4",
-      "altura_maxima_pisos": 5,
+      "altura_maxima_pisos": 4,
       "io_maximo": 0.7,
       "fuente": "Decreto 492/07 (PZCB) - Planos 094 Usos/Edificabilidad + Nota N | altura 10 m confirmada por IDPC (visita fisica 2026-10-26)",
       "nota": "Nota N: +2 pisos sobre base 3 = 5 pisos; altura maxima 10 m. El 'CHB' de la GDB es error conocido (el predio NO es patrimonio) y su tabla hardcodeada devolvia 7,0 m: por eso el override fija altura_maxima_m = 10,0. Se conserva 7,0 m solo como referencia PZCB. Anteproyecto requiere aprobacion IDPC + MinCultura.",
-      "ultima_edicion": "2026-10-26 19:20",
+      "ultima_edicion": "2026-11-03 21:25",
       "altura_maxima_m": 10.0,
       "altura_maxima_m_referencia_pzcb": 7.0,
       "altura_maxima_fuente": "IDPC - visita fisica 2026-10-26 (confirmado en ventanilla) | coincide con la Nota N del PZCB ya registrada",
       "retiro_patrimonial_m": 3.0,
       "franja_patrimonial_longitud_m": 10.5,
-      "vecino_patrimonio_por_lado": [{"lado_id": 0, "nivel": 2, "patrimonio": true}],
-      "construccion_no_patrimonio_exenta": [{"lado_id": 5, "exenta": true}],
+      "vecino_patrimonio_por_lado": [
+        {
+          "lado_id": 0,
+          "nivel": 2,
+          "patrimonio": true
+        }
+      ],
+      "construccion_no_patrimonio_exenta": [
+        {
+          "lado_id": 5,
+          "exenta": true
+        }
+      ],
       "altura_vecino_derecha_m": 11.4,
       "empate_lateral_derecha_m": null,
-      "cota_terreno_central_m": 0.9
+      "cota_terreno_central_m": 0.9,
+      "semisotano_permitido": false,
+      "voladizo_permitido": false
     },
     "AAA0240ZXJH": {
       "tipologia": "Continua",

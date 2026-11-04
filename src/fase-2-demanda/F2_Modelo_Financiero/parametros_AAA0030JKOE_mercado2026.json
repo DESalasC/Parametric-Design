@@ -13,11 +13,11 @@
   "gfa_max_m2": 1200,
   "lote": {
     "area_m2": 946.45,
-    "precio_suelo_m2": 1500342,
-    "impuestos_escritura_pct": 0,
+    "precio_suelo_m2": 115000,
+    "impuestos_escritura_pct": 0.5,
     "fuente": "Supuesto de referencia: rango medio de suelo urbano residencial en Bogota segun Catastro Distrital (Visor Inmobiliario Bogota-Region) e IDECA (mediana del valor comercial por m2 de terreno por manzana). El dato real del lote debe reemplazar este valor.",
     "fuente_url": "https://www.catastrobogota.gov.co/",
-    "costo_lote_total_cop": 1420000000
+    "costo_lote_total_cop": 1100000000
   },
   "financiero": {
     "costos_blandos_pct": 15,
@@ -44,7 +44,7 @@
       "unidad_m2": 50.0,
       "eficiencia_nga": 0.8,
       "precio_venta_m2": 4727444,
-      "costo_construccion_m2": 2600000,
+      "costo_construccion_m2": 2400000,
       "absorcion_unid_mes": 5.0,
       "fuente_precio": "Derivado del tope legal VIS 2026: 135 SMMLV x $1.750.905 (Decreto 1469/2025, ratificado por Decreto 0159/2026) = $236.372.175 por unidad / 50 m2. Argos (2026) confirma tope cercano a $238 M.",
       "fuente_precio_url": "https://colombia.argos.co/autoconstructores/cuanto-cuesta-construir-tu-casa-en-colombia-este-2026/",

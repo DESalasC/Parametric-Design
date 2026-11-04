@@ -53,15 +53,15 @@
     },
     "AAA0030JKOE": {
       "area_m2": 946.45,
-      "precio_suelo_m2": 1500342,
-      "impuestos_escritura_pct": 0,
-      "costo_lote_total_cop": 1420000000,
+      "precio_suelo_m2": 115000,
+      "impuestos_escritura_pct": 0.5,
+      "costo_lote_total_cop": 1100000000,
       "costos_blandos_pct": 15,
       "marketing_ventas_pct": 4,
       "escenarios": {
         "A_VIS": {
           "precio_venta_m2": 4727444,
-          "costo_construccion_m2": 2600000
+          "costo_construccion_m2": 2400000
         },
         "B_ESTANDAR": {
           "precio_venta_m2": 7500000,
@@ -72,7 +72,7 @@
           "costo_construccion_m2": 4800000
         }
       },
-      "ultima_edicion": "2026-11-01 12:11"
+      "ultima_edicion": "2026-11-03 21:35"
     }
   }
 }

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluación profunda — DiseñoParamétrico (2026-11-01)</title>
+<style>
+  :root{
+    --ink:#14201f; --muted:#5b6b69; --line:#d8e2df; --paper:#ffffff; --bg:#f3f6f5;
+    --teal:#0f6b5f; --teal-soft:#e6f2ef; --amber:#9a6413; --amber-soft:#fdf2dd;
+    --red:#9b2c2c; --red-soft:#fbe9e9; --blue:#24527a; --blue-soft:#e8f0f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55}
+  .page{max-width:1080px;margin:0 auto;background:var(--paper);padding:54px 62px 70px;
+    box-shadow:0 1px 0 rgba(0,0,0,.04)}
+  header.top{border-bottom:3px solid var(--teal);padding-bottom:22px;margin-bottom:30px}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  h1{font-size:31px;line-height:1.15;margin:10px 0 8px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:15px;margin:0}
+  .meta{display:flex;gap:26px;flex-wrap:wrap;margin-top:18px;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--ink)}
+  h2{font-size:21px;margin:42px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line);letter-spacing:-.01em}
+  h3{font-size:16px;margin:24px 0 8px}
+  p{margin:9px 0}
+  ul,ol{margin:8px 0 8px 20px;padding:0}
+  li{margin:4px 0}
+  table{width:100%;border-collapse:collapse;margin:14px 0 18px;font-size:13.5px}
+  th{background:#eef3f2;text-align:left;padding:9px 10px;border:1px solid var(--line);font-size:12.5px;
+     text-transform:uppercase;letter-spacing:.04em;color:#344643}
+  td{padding:9px 10px;border:1px solid var(--line);vertical-align:top}
+  tr:nth-child(even) td{background:#fafcfb}
+  code{background:#eef3f2;padding:1px 5px;border-radius:4px;font-family:Consolas,"SF Mono",monospace;font-size:12.5px}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;
+    letter-spacing:.03em;white-space:nowrap}
+  .ok{background:var(--teal-soft);color:var(--teal)}
+  .warn{background:var(--amber-soft);color:var(--amber)}
+  .bad{background:var(--red-soft);color:var(--red)}
+  .info{background:var(--blue-soft);color:var(--blue)}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 8px}
+  .card{border:1px solid var(--line);border-radius:10px;padding:14px 15px;background:#fbfdfc}
+  .card .n{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+  .card .l{font-size:12px;color:var(--muted);margin-top:4px}
+  .callout{border-left:4px solid var(--teal);background:var(--teal-soft);padding:13px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout.warn{border-left-color:var(--amber);background:var(--amber-soft)}
+  .callout.bad{border-left-color:var(--red);background:var(--red-soft)}
+  .callout p{margin:4px 0}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .small{font-size:12.5px;color:var(--muted)}
+  .phase{border:1px solid var(--line);border-radius:10px;margin:14px 0;overflow:hidden}
+  .phase .ph{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:11px 15px;background:#f4f8f7;border-bottom:1px solid var(--line)}
+  .phase .ph strong{font-size:15px}
+  .phase .body{padding:12px 15px}
+  .phase ul{margin:6px 0 6px 18px}
+  .sprint{border-left:4px solid var(--blue);padding:2px 0 2px 15px;margin:18px 0}
+  .sprint h3{margin:0 0 4px}
+  .tag{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  footer{margin-top:46px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+  .mono{font-family:Consolas,monospace;font-size:12.5px}
+  @media print{body{background:#fff}.page{box-shadow:none;padding:0}h2{page-break-after:avoid}.phase{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <div class="kicker">Informe técnico · Evaluación profunda</div>
+  <h1>DiseñoParamétrico: estado, dificultades y plan para cerrar F0–F3</h1>
+  <p class="sub">Revisión del repositorio, del orquestador web y de los artefactos de las fases 0 a 3, con verificación de suite, estado del pipeline y trazabilidad de versiones.</p>
+  <div class="meta">
+    <span><b>Fecha:</b> 2026-11-01</span>
+    <span><b>Repositorio:</b> D:\Work\PROJECTS\DiseñoParametrico</span>
+    <span><b>Rama:</b> main (2c841a4e)</span>
+    <span><b>Alcance:</b> F0, F1, F2, F3 + orquestador</span>
+  </div>
+</header>
+
+<h2>1. Veredicto ejecutivo</h2>
+<p>El proyecto <strong>no está en fase de diseño: está en fase de integración y cierre</strong>. Los motores existen y la suite pasa (396 pruebas, 0 fallos), pero el flujo completo todavía no es reproducible de punta a punta sin intervención manual ni sin discrepancias de versión. El orquestador web funciona como formulario y API, aunque <strong>no tiene manual de usuario</strong> y su pipeline arrastra referencias a versiones anteriores.</p>
+
+<div class="grid">
+  <div class="card"><div class="n">396</div><div class="l">pruebas pasan · 0 fallos</div></div>
+  <div class="card"><div class="n">13</div><div class="l">pasos del pipeline<br>9 OK · 1 falta · 3 manuales</div></div>
+  <div class="card"><div class="n">5</div><div class="l">commits del worktree<br>sin integrar a main</div></div>
+  <div class="card"><div class="n">26</div><div class="l">rutas API del<br>orquestador web</div></div>
+</div>
+
+<table>
+  <thead><tr><th style="width:16%">Fase</th><th style="width:14%">Estado</th><th>Qué está resuelto</th><th>Qué falta para cerrar</th></tr></thead>
+  <tbody>
+    <tr><td><strong>F0 · Setup BIM</strong></td><td><span class="badge ok">Cerrada con verificación pendiente</span></td><td>Capas GuBIMclass, XML de capas, loader de proyecto, stories, estructura de carpetas.</td><td>Verificación automática de capas/plantilla en el .pln y acta de cierre formal.</td></tr>
+    <tr><td><strong>F1 · Contexto y normativa</strong></td><td><span class="badge warn">Validación viva</span></td><td>Pipeline modular, LADOS v06.8, PATIO v03.4, NORMATIVA v10, EXPORTAR GFA v02.4, contexto 50 m con cotas MDT 90/90.</td><td>Corrida limpia del canvas v13.7, censo 20/20 en ArchiCAD, drape de vías/EP, corrección <code>z_origen</code>, GFA aprobado.</td></tr>
+    <tr><td><strong>F2 · Demanda y financiero</strong></td><td><span class="badge warn">Motores listos, datos obsoletos</span></td><td>Motor venta v03, motor renta v03, KPIs, alertas, sensibilidad, escenarios, informe HTML.</td><td>Re-ejecutar con el GFA vigente; unificar resultados; completar financiación del saldo y mercado zonal en la UI.</td></tr>
+    <tr><td><strong>F3 · Masa y BIM</strong></td><td><span class="badge warn">Avanzada, bloqueada</span></td><td>Distribución v03.6, volumetría v08, unidades, accesos, StorySync v02, zonas BEP.</td><td>Integrar v03 en el pipeline, generar <code>barras.json</code>, plan y check 8/8, conectar <code>zgf_m</code>, masa + Morphs, censo de zonas.</td></tr>
+  </tbody>
+</table>
+
+<div class="callout bad">
+  <p><strong>Riesgo principal:</strong> las conclusiones financieras que hoy muestra el sistema se apoyan en un GFA de <strong>1.845,35 m²</strong> exportado el <strong>22-08-2026</strong> desde un canvas v02, mientras el modelo de renta usa <strong>3.312,58 m²</strong> de una norma manual anterior. Ninguno coincide con el canvas vigente v13.7 ni con NORMATIVA v10. Cualquier decisión de compra, venta o arriendo basada en esos informes es provisional.</p>
+</div>
+
+<h2>2. Método y evidencia</h2>
+<table>
+  <thead><tr><th>Comprobación</th><th>Resultado</th><th>Evidencia</th></tr></thead>
+  <tbody>
+    <tr><td>Suite de pruebas</td><td><span class="badge ok">396 passed</span> · 4 warnings · 8,82 s</td><td><code>pytest tests -q</code>, 2026-11-01</td></tr>
+    <tr><td>Estado del pipeline</td><td><span class="badge ok">9 OK</span> · <span class="badge bad">1 falta</span> · <span class="badge warn">3 manuales</span></td><td><code>run_pipeline_v01.py --status</code></td></tr>
+    <tr><td>Última corrida registrada</td><td>Falla en <code>F3_DISTRIBUCION_v03</code>: exige <code>--base-normativa-json</code></td><td><code>logs/pipeline_run_2026-10-31c.log</code></td></tr>
+    <tr><td>Git</td><td>main en <code>2c841a4e</code>; worktree <code>fetch-v10-mapeo</code> 5 commits adelante</td><td><code>git log main..fetch-v10-mapeo</code></td></tr>
+    <tr><td>Servicios</td><td>Puerto 19723 escuchando (work-around); 8900, 19724 sin proceso; ArchiCAD/Rhino cerrados</td><td><code>Get-NetTCPConnection</code></td></tr>
+    <tr><td>Artefactos F3 caso B</td><td><code>barras.json</code> y <code>niveles_deseados.json</code> ausentes en main</td><td>verificación de rutas</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Estado por fase</h2>
+
+<div class="phase">
+  <div class="ph"><strong>F0 · Setup BIM y estructura de proyecto</strong><span class="badge ok">≈95%</span></div>
+  <div class="body">
+    <p><strong>Resuelto.</strong> El XML de capas existe (<code>src/interfases-archicad/F1_Layers_Proyecto_v01.xml</code> y <code>data/GuBIMclass_Layers_v3.xml</code>), el orquestador crea la estructura del proyecto y guarda <code>data/activo/proyecto.json</code>, y el loader <code>F0_LOAD_PROYECTO_v01.py</code> expone las variables al canvas. <code>F0_STORIES_v01.py</code> y el checklist están operativos.</p>
+    <p><strong>Falta.</strong> Verificar en vivo que el .pln recibe todas las capas y que el proyecto nuevo nace con la plantilla correcta; dejar un acta de cierre F0 con evidencia. No hay prueba automática que compare el XML con las capas realmente presentes en ArchiCAD.</p>
+  </div>
+</div>
+
+<div class="phase">
+  <div class="ph"><strong>F1 · Contexto normativo y GFA</strong><span class="badge warn">≈85%</span></div>
+  <div class="body">
+    <p><strong>Resuelto.</strong> Pipeline modular ETAPA1/ETAPA2; LADOS v06.8; PATIO v03.4; NORMATIVA v10 con patrimonio por franja y empates diferenciales; EXPORTAR GFA v02.4 en modo APROBADO; contexto 50 m con <code>z_base_m</code> por huella (90/90, 450 puntos). El canvas vigente es <code>F1_CONTEXTO_v13.7.ghx</code>.</p>
+    <p><strong>Falta.</strong></p>
+    <ul>
+      <li>Corrida limpia del canvas v13.7 y censo 20/20 de zonas en ArchiCAD (DP-P-004).</li>
+      <li>Drape o exclusión de vías y espacios públicos, que hoy entran a <code>z=0</code> y contaminan el diagnóstico de cotas (DP-P-009).</li>
+      <li>Corrección del cableado <code>z_origin</code> → <code>z_origen</code> en el componente #201 (DP-P-014).</li>
+      <li>Generar y verificar el GFA aprobado con <code>valido=True</code>, <code>io_real ≤ 0,70</code> y <code>gfa_aprobado_m2 &gt; 0</code>; el JSON vigente es del 22-08 y proviene de un canvas v02.</li>
+    </ul>
+    <p><strong>Riesgo.</strong> El README, la tabla de versiones y el <code>MANUAL_DE_EJECUCION.md</code> describen versiones anteriores (v13.1, v12.1, NORMATIVA v09). La documentación no es confiable como fuente de estado.</p>
+  </div>
+</div>
+
+<div class="phase">
+  <div class="ph"><strong>F2 · Demanda y modelos financieros</strong><span class="badge warn">≈85%</span></div>
+  <div class="body">
+    <p><strong>Resuelto.</strong> Motores v03 de venta y renta con KPIs, alertas, sensibilidad ±10 %, escenarios D/E, flujo de caja, suelo soportable y ganchos de GFA. El orquestador calcula F2 y guarda overrides financieros por CHIP.</p>
+    <p><strong>Falta.</strong></p>
+    <ul>
+      <li>Re-ejecutar venta y renta con el GFA aprobado del canvas v13.7. Hoy: venta usa 1.845,35 m² (modelo v02.2, ejecución 12-08) y renta usa 3.312,58 m² (modelo v02.0, 14-08). El informe de renta disponible es de <strong>AAA0240ZXJH</strong>, no del caso B.</li>
+      <li>Completar en la UI el módulo de financiación del saldo (cuotas iniciales, préstamo constructor, préstamo bancario) y el bloque de mercado zonal que quedó diseñado en la nota de interfaz.</li>
+      <li>Publicar un resultado único y fechado por CHIP/escenario, con hash del GFA de entrada.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="phase">
+  <div class="ph"><strong>F3 · Distribución, masa y BIM</strong><span class="badge bad">≈70%</span></div>
+  <div class="body">
+    <p><strong>Resuelto.</strong> Distribución v03.6 (presupuesto IO, crujía, entrepiso adaptativo, bloques), volumetría v08.1 con zonas BEP y stories, unidades v02.2, accesos v02.2, <code>F3_StorySync_v02</code> con <code>--plan/--check/--list</code>, paridad canvas↔src 7/7 en los componentes sincronizados.</p>
+    <p><strong>Falta.</strong></p>
+    <ul>
+      <li><span class="badge bad">Bloqueante</span> El pipeline estándar sigue llamando a <code>F3_DISTRIBUCION_v02.py</code>; la versión vigente es v03 y exige <code>--base-normativa-json</code>. En main nadie lo pasa → el paso falla. El worktree ya lo corrige, pero no se ha integrado.</li>
+      <li>Generar <code>casos/B/barras.json</code> y <code>niveles_deseados.json</code>; sin ellos no hay validación de stories ni masa coherente.</li>
+      <li>Conectar <code>zgf_m</code> al canvas y a <code>F3_VOLUM_GENERADOR</code> (DP-P-007).</li>
+      <li>Masa en Rhino + Morphs en ArchiCAD, censo 20/20 de zonas y validación viva de las 8 stories (DP-P-005/006).</li>
+      <li>Regenerar el plan de stories tras el cambio de cota de arranque de bloques (v03.10).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. El orquestador web</h2>
+<p>Es una aplicación local de una sola página servida por <code>src/orquestador/servidor.py</code> en <code>http://127.0.0.1:8900</code>. Tiene cinco secciones (0 Proyecto, 1 Predio, 1b–1c Plano y vecinos, 2 Normativa/GFA, 3 Financiero, 4 Modelado), una tarjeta de resultados y otra de archivos de intercambio. Expone 26 rutas API y escribe los archivos canónicos que lee el canvas.</p>
+
+<div class="two">
+  <div>
+    <h3>Lo que sí hace</h3>
+    <ul>
+      <li>Seleccionar o crear CHIP y activar contexto base + 50 m.</li>
+      <li>Editar norma y overrides por CHIP; clasificar lados y vecinos sobre plano.</li>
+      <li>Calcular F2 y generar F3 (distribución, accesos, propuesta de bloques).</li>
+      <li>Disparar flags de exportación GFA y lados.</li>
+      <li>Persistir proyecto activo en <code>data/activo/proyecto.json</code>.</li>
+    </ul>
+  </div>
+  <div>
+    <h3>Lo que no hace todavía</h3>
+    <ul>
+      <li>No tiene manual de usuario: solo README técnico y <code>ARCHIVOS_INTERCAMBIO.md</code>.</li>
+      <li>No muestra datum <code>z0</code>/<code>zgf</code> ni grilla de niveles (DP-P-008).</li>
+      <li>No ejecuta los pasos manuales: los convierte en checklist.</li>
+      <li>No valida frescura ni versión de los artefactos que muestra.</li>
+      <li>Su flujo estándar usa F3 v02, no v03.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Hallazgo de documentación:</strong> se buscó un “manual de usuario del orquestador web” en el repositorio y en el vault. No existe. Lo más cercano es el README de <code>src/orquestador</code> (técnico, no de usuario) y <code>ARCHIVOS_INTERCAMBIO.md</code> (contratos de archivos). El <code>MANUAL_DE_EJECUCION.md</code> de la raíz está fechado 2026-09-07, declara canvas v12.1 y está obsoleto. Por eso este turno entrega un manual nuevo, construido sobre la UI y los endpoints reales.</p>
+</div>
+
+<h2>5. Dificultades, ordenadas por impacto</h2>
+<table>
+  <thead><tr><th style="width:4%">#</th><th style="width:26%">Dificultad</th><th>Causa raíz</th><th style="width:30%">Impacto</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><strong>Deriva worktree ↔ main</strong></td><td>Cinco commits con el arreglo de <code>base_normativa</code>, canvas v13.7 y generador quedaron en <code>fetch-v10-mapeo</code>; main conserva el pipeline roto.</td><td>El pipeline “oficial” falla en F3_BARRAS; cualquier corrida desde main repite el error.</td></tr>
+    <tr><td>2</td><td><strong>Doble fuente de verdad normativa</strong></td><td><code>generar_base_normativa.py</code> reconstruye la base desde <code>contexto.json</code>, <code>z0.json</code> y <code>lados.json</code> con valores por defecto (retiro 3,0 m, <em>floor_h</em> 3,0 m). NORMATIVA v10 no publica un <code>base_json</code>.</td><td>La distribución puede separarse del retiro/patrimonio aprobado en el canvas. Los defectos aparecen tarde, en ArchiCAD.</td></tr>
+    <tr><td>3</td><td><strong>Artefactos obsoletos</strong></td><td>GFA del 22-08 (canvas v02); resultados F2 de agosto; renta del caso A/AAA0240ZXJH; falta <code>niveles_deseados.json</code> y <code>barras.json</code>.</td><td>Decisiones financieras y de masa sobre bases que ya no corresponden al predio ni a la norma vigente.</td></tr>
+    <tr><td>4</td><td><strong>Pasos manuales no verificables</strong></td><td>NORMATIVA aprobada, GFA aprobado y masa/Morphs dependen de Rhino + Live Connection; el checklist no siempre detecta el artefacto.</td><td>El operador no sabe si el paso quedó bien; el pipeline avanza con estados “hecho” dudosos.</td></tr>
+    <tr><td>5</td><td><strong>Puerto 19723</strong></td><td>AutoClaw y ArchiCAD compiten por el puerto de Live Connection; se usa <code>portproxy</code> como work-around.</td><td>La conexión en vivo es frágil tras reinicios; bloquea la validación de F3/F5.</td></tr>
+    <tr><td>6</td><td><strong>Documentación desalineada</strong></td><td>README v13.1/NORMATIVA v09; manual v12.1; tabla de vigentes del 12-10; nombres y versiones dispersos.</td><td>El operador y los agentes trabajan con supuestos distintos; se pierden horas en reconciliaciones.</td></tr>
+    <tr><td>7</td><td><strong>Higiene de repositorio</strong></td><td>Cuatro archivos de test borrados sin commit; <code>.ghx</code> y <code>.3dm</code> modificados sin commit; muchos scripts F1 duplicados.</td><td>La suite pasa por omisión, no por cobertura real; el diff de cierre es ambiguo.</td></tr>
+    <tr><td>8</td><td><strong>Sin prueba end-to-end</strong></td><td>Hay 396 pruebas unitarias/de contrato, pero ninguna que ejecute el pipeline completo sobre un chip de fixture y compare artefactos.</td><td>Los errores de integración (como F3_BARRAS) solo aparecen en la corrida real del operador.</td></tr>
+  </tbody>
+</table>
+
+<h2>6. Oportunidades de mejora</h2>
+
+<h3>6.1 Quick wins (1–2 días)</h3>
+<ul>
+  <li><strong>Integrar el worktree a main</strong> y borrar la rama muerta: recupera el arreglo de <code>--base-normativa-json</code>, las referencias a v13.7 y el generador.</li>
+  <li><strong>Publicar un manifiesto de corrida</strong> (<code>run_manifest.json</code>) con chip, caso, versiones de scripts, hash del GFA y fecha; el orquestador lo muestra como sello de frescura.</li>
+  <li><strong>Un solo camino F3</strong>: eliminar la llamada a v02 del pipeline y dejar v03 como única ruta, con <code>base_normativa</code> obligatoria.</li>
+  <li><strong>Commit de cierre</strong> con los tests borrados, el <code>.ghx</code> v13.7 y el <code>.3dm</code>, para que el estado deje de ser ambiguo.</li>
+</ul>
+
+<h3>6.2 Mejoras estructurales (1–2 semanas)</h3>
+<ul>
+  <li><strong>Fuente única normativa:</strong> que NORMATIVA v10 emita <code>base_json</code> (polígono, retiros, patrimonio, IO/IC, cotas) y que F3 lo consuma tal cual. Elimina el generador con defaults.</li>
+  <li><strong>Contratos versionados:</strong> esquemas JSON con <code>schema_version</code> para <code>base_normativa</code>, <code>barras</code>, <code>gfa</code>, <code>niveles</code> y <code>stories</code>; validación en el servidor antes de ejecutar.</li>
+  <li><strong>Preflight del orquestador:</strong> antes de correr, verificar geobase, <code>contexto.json</code>, <code>z0.json</code>, <code>lados.json</code>, versión del canvas y puerto 19723. Mostrar bloqueos en una banda superior, no en un log.</li>
+  <li><strong>Prueba E2E con fixture:</strong> chip de prueba + contexto sintético → F1 → F2 → F3 → artefactos esperados. Debe correr en CI local sin Rhino.</li>
+  <li><strong>Automatización BIM donde sea posible:</strong> Tapir/JSON API para stories (solo lectura hoy), Morphs y zonas; lo que no se pueda, checklist con verificación de artefacto y firma del operador.</li>
+  <li><strong>Observabilidad:</strong> log estructurado por paso (inicio, fin, duración, salida, error) y una vista de “última corrida” en la UI.</li>
+  <li><strong>Limpieza de linaje:</strong> retirar variantes F1_ETAPA1 v02.1/v02.2/v03/v04.x/v05 y F3 v01/v02 del árbol activo; dejar solo vigentes y archivar el resto.</li>
+</ul>
+
+<h2>7. Plan para completar F0–F3</h2>
+<p>Secuencia propuesta en cuatro sprints. Los tiempos son estimaciones de trabajo efectivo y suponen al operador disponible para las validaciones en Rhino/ArchiCAD.</p>
+
+<div class="sprint">
+  <div class="tag">Sprint 0 · Estabilización · 0,5–1 día</div>
+  <h3>Repositorio y verdad única</h3>
+  <ul>
+    <li>Integrar <code>fetch-v10-mapeo</code> a main; resolver el diff de <code>.ghx</code>, <code>.3dm</code> y <code>run_pipeline</code>; commit de cierre.</li>
+    <li>Restaurar o eliminar formalmente los 4 tests borrados; actualizar la tabla de versiones vigentes.</li>
+    <li>Corregir README y retirar el <code>MANUAL_DE_EJECUCION.md</code> obsoleto (o reescribirlo como índice).</li>
+    <li><strong>Criterio de salida:</strong> <code>pytest</code> 396+ verdes, <code>git status</code> limpio, pipeline main ejecuta F3_BARRAS sin error de argumentos.</li>
+  </ul>
+</div>
+
+<div class="sprint">
+  <div class="tag">Sprint 1 · Cierre F1 · 2–3 días</div>
+  <h3>Contexto y GFA aprobado</h3>
+  <ul>
+    <li>Corrida limpia de <code>F1_CONTEXTO_v13.7.ghx</code> con ETAPA1 → LADOS v06.8 → PATIO v03.4 → NORMATIVA v10 → EXPORTAR GFA v02.4 (APROBADO).</li>
+    <li>Censo 20/20 de zonas en ArchiCAD; registrar evidencia (captura + CSV).</li>
+    <li>Drape o exclusión de vías/EP (decisión C1/C2) y corrección <code>z_origen</code>.</li>
+    <li>Verificar patrimonio en la franja [0, t1] del lado 0 y empates laterales.</li>
+    <li><strong>Criterio de salida:</strong> GFA aprobado con <code>valido=True</code>, <code>io_real ≤ 0,70</code>, 20/20 zonas, acta F1 firmada.</li>
+  </ul>
+</div>
+
+<div class="sprint">
+  <div class="tag">Sprint 2 · Cierre F2 · 2 días</div>
+  <h3>Financiero sobre el GFA vigente</h3>
+  <ul>
+    <li>Re-ejecutar <code>F2_DEMANDA_MOTOR_v03</code> y <code>F2_RENTA_MOTOR_v03</code> con el GFA aprobado, para A/B/B_SALUD/C.</li>
+    <li>Publicar un resultado por CHIP/escenario con sello de GFA y fecha; eliminar los JSON de agosto del directorio de resultados activo.</li>
+    <li>Completar en la UI la financiación del saldo y el bloque de mercado zonal; exportar informe HTML/PDF desde el botón.</li>
+    <li><strong>Criterio de salida:</strong> cada cifra del informe se puede rastrear al GFA y a los parámetros usados; venta y renta del caso B actualizadas.</li>
+  </ul>
+</div>
+
+<div class="sprint">
+  <div class="tag">Sprint 3 · Cierre F3 y gates · 2–3 días</div>
+  <h3>Masa, stories y BIM</h3>
+  <ul>
+    <li>Que NORMATIVA v10 publique <code>base_json</code>; F3_DISTRIBUCION_v03 lo consume; generar <code>barras.json</code> y <code>niveles_deseados.json</code> del caso B.</li>
+    <li><code>F3_StorySync_v02 --plan --check</code> → 8/8 niveles, 0 faltantes.</li>
+    <li>Conectar <code>zgf_m</code>; generar masa + Morphs; censo 20/20; validación viva en ArchiCAD.</li>
+    <li>Ejecutar gates PC-2 (GFA aprobado), PC-3 (F3 en ArchiCAD) y PC-4 (F5 inyección) con acta y evidencia.</li>
+    <li><strong>Criterio de salida:</strong> un solo comando del orquestador produce GFA → F2 → F3 → stories sin intervención no documentada; checklist completo.</li>
+  </ul>
+</div>
+
+<h3>Resumen de esfuerzo</h3>
+<table>
+  <thead><tr><th>Sprint</th><th>Foco</th><th>Esfuerzo</th><th>Dependencia</th></tr></thead>
+  <tbody>
+    <tr><td>0</td><td>Repositorio y verdad única</td><td>0,5–1 día</td><td>Ninguna</td></tr>
+    <tr><td>1</td><td>Cierre F1 + GFA aprobado</td><td>2–3 días</td><td>Rhino/Grasshopper abiertos</td></tr>
+    <tr><td>2</td><td>Cierre F2 con GFA vigente</td><td>2 días</td><td>Sprint 1</td></tr>
+    <tr><td>3</td><td>Cierre F3 + gates</td><td>2–3 días</td><td>Sprint 1 y 2; ArchiCAD</td></tr>
+    <tr><td colspan="2"><strong>Total</strong></td><td><strong>6,5–9 días efectivos</strong></td><td>≈2 semanas calendario con validaciones</td></tr>
+  </tbody>
+</table>
+
+<h2>8. Riesgos y mitigaciones</h2>
+<table>
+  <thead><tr><th>Riesgo</th><th>Prob.</th><th>Mitigación</th></tr></thead>
+  <tbody>
+    <tr><td>El merge del worktree rompe el canvas o los tests</td><td>Media</td><td>Merge por archivo con backup fechado; correr suite y una corrida E2E antes de tocar main.</td></tr>
+    <tr><td>La corrida viva vuelve a fallar por entradas de curvas en LADOS</td><td>Alta</td><td>Aplicar la corrección documentada (Type Hint Curve, List+Flatten, salida C directa) antes de la corrida; tener el runbook a mano.</td></tr>
+    <tr><td>El GFA aprobado difiere del potencial y cambia las conclusiones F2</td><td>Alta</td><td>Tratar F2 como provisional hasta el cierre de Sprint 1; congelar versiones y comparar ambos escenarios.</td></tr>
+    <tr><td>El puerto 19723 se pierde tras reiniciar</td><td>Media</td><td>Mantener el <code>portproxy</code> documentado y un script de verificación al inicio de sesión.</td></tr>
+    <tr><td>Los defaults de <code>generar_base_normativa</code> divergen de la norma</td><td>Alta</td><td>Sprint 3: reemplazar por salida de NORMATIVA v10; mientras tanto, prohibir su uso para decisiones finales.</td></tr>
+  </tbody>
+</table>
+
+<h2>9. Próximas siete acciones</h2>
+<ol>
+  <li>Integrar los cinco commits del worktree a main y verificar el pipeline.</li>
+  <li>Commit del estado actual (<code>.ghx</code> v13.7, <code>.3dm</code>, tests borrados) con backup.</li>
+  <li>Ejecutar la corrida limpia del canvas v13.7 y registrar 20/20 zonas.</li>
+  <li>Generar el GFA aprobado y sellarlo con hash y fecha.</li>
+  <li>Re-ejecutar F2 venta y renta del caso B con ese GFA.</li>
+  <li>Producir <code>barras.json</code> y <code>niveles_deseados.json</code>; correr StorySync <code>--check</code>.</li>
+  <li>Conectar <code>zgf_m</code> y validar masa/Morphs en ArchiCAD; cerrar PC-2 y PC-3.</li>
+</ol>
+
+<h2>Anexo · Evidencia puntual</h2>
+<table>
+  <thead><tr><th>Dato</th><th>Valor verificado</th></tr></thead>
+  <tbody>
+    <tr><td>Canvas vigente</td><td><code>gh-definitions/F1_CONTEXTO_v13.7.ghx</code> (modificado, sin commit)</td></tr>
+    <tr><td>GFA activo</td><td><code>data/fase-2-demanda/AAA0030JKOE-gfa-gh.json</code> · 1.845,35 m² · 22-08-2026 · fuente canvas v02</td></tr>
+    <tr><td>F2 venta caso B</td><td><code>resultados_AAA0030JKOE.json</code> · modelo v02.2 · 1.845,35 m² · veredicto NO VIABLE · mejor ROI 12,0 % (B_ESTANDAR)</td></tr>
+    <tr><td>F2 renta caso B</td><td><code>resultados_AAA0030JKOE.json</code> · modelo v02.0 · 3.312,58 m² · 14-08-2026</td></tr>
+    <tr><td>F3 caso B</td><td><code>programa-areas.json</code>, <code>accesos.json</code> y <code>layout_espacial.json</code> del 28-09; faltan <code>barras.json</code> y <code>niveles_deseados.json</code></td></tr>
+    <tr><td>StorySync</td><td><code>src/interfases-archicad/F3_StorySync_v02.py</code> · 20.828 B · 25-10-2026</td></tr>
+    <tr><td>Orquestador</td><td><code>servidor.py</code> 26 rutas API · <code>index.html</code> 9 secciones visibles · puerto 8900</td></tr>
+    <tr><td>Puerto 19723</td><td>Dos sockets en escucha (127.0.0.1 y 192.168.100.1) al momento de la revisión</td></tr>
+  </tbody>
+</table>
+
+<footer>
+  Informe generado el 2026-11-01 para el proyecto DiseñoParamétrico. Las cifras de estado corresponden a la revisión del repositorio en esa fecha; las estimaciones de esfuerzo son rangos de planificación, no compromisos.
+</footer>
+
+</div>
+</body>
+</html>

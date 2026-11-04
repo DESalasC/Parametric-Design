@@ -6,8 +6,8 @@
   "gfa_m2": null,
   "costo_lote_cop": null,
   "z0_modo": "manual",
-  "z0_m": 0.3924,
-  "z0_abs_m": 2634.9134,
+  "z0_m": 0.2959,
+  "z0_abs_m": 2634.8169,
   "origen_z_m": 2634.521,
   "parametros_f2_venta": "D:\\Work\\PROJECTS\\DiseñoParametrico\\src\\fase-2-demanda\\F2_Modelo_Financiero\\parametros_AAA0030JKOE_mercado2026.json",
   "parametros_f2_renta": "D:\\Work\\PROJECTS\\DiseñoParametrico\\src\\fase-2-demanda\\F2_Modelo_Renta\\parametros_AAA0030JKOE_renta.json"

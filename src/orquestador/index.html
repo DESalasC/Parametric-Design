@@ -58,6 +58,7 @@
   @media (max-width:560px) { header h1 { font-size:18px; } .fila { flex-direction:column; } .check-item { flex:1 1 100%; } }
 </style>
 <link rel="stylesheet" href="/frontal.css">
+<link rel="stylesheet" href="/planta.css">
 </head>
 <body>
 <header>
@@ -184,7 +185,7 @@
       <label style="font-size:12.5px;color:#6b7280;">Valor del lote (COP) — opcional (override): </label>
       <input type="number" id="costo-lote" placeholder="ej. 500000000" min="0" step="1000000" style="width:170px;">
     </div>
-    <div style="margin-top:14px;">
+    <<div style="margin-top:14px;">
       <button class="btn primario" id="btn-calcular-f2" type="button">Calcular F2 (con aporte del lote)</button>
     </div>
     <div id="f2-resultado" class="aviso info" style="display:none;"></div>
@@ -202,49 +203,76 @@
 
   <!-- ===== 4. Modelado ===== -->
   <div class="card">
-    <h2><span class="seccion-num">4</span>Modelado (masa)</h2>
+    <h2><span class="seccion-num">4a</span>Modelado (masa)</h2>
     <div class="subtitulo">El modelado se genera a partir de lo solicitado en las secciones 2–3 (usos, normativa y escenarios). Aquí se ajustan núcleo, orientación de los bloques (paralelo/perpendicular a la calle de acceso o a un lindero; niveles automáticos Entrada→Salida con la topografía) y se lanza la generación.</div>
     <div id="modelado-derivado" class="ayuda" style="margin-top:6px;"></div>
     <div id="vars-modelado"></div>
     <div id="caso-detalle" class="caso-titulo" style="display:none;"></div>
-    <div id="niveles-bloque-card" style="margin-top:14px; display:none;">
-      <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Alturas de entrepiso por bloque (por CHIP)</h3>
-      <div class="ayuda" style="margin-bottom:10px;">
-        Defina la altura de entrepiso de cada bloque (m). M&aacute;ximo 3,80 m en Bogot&aacute;.
-        <b>Iguales</b>: una altura para todos los pisos de todos los bloques seleccionados.
-        <b>Diferentes</b>: cada piso puede tener su propia altura; si varios bloques se marcan como iguales,
-        se edita la altura de uno y se replica en los dem&aacute;s del mismo grupo.
+      <h3 style="font-size:15px;color:#374151;margin:18px 0 6px;">
+    4b. Bloques y alturas de entrepiso
+  </h3>
+  <div class="ayuda" style="margin-bottom:10px;">
+    Defina cuántos bloques tiene el predio, asigne cada uno a un grupo de altura (G1, G2, ...) y defina la altura de entrepiso por grupo.
+  </div>
+
+  
+
+<div id="niveles-bloque-card" style="margin-top:14px; display:none;">
+  <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Alturas de entrepiso por bloque (por CHIP)</h3>
+  <div class="ayuda" style="margin-bottom:10px;">
+    Asigne cada bloque a un grupo de altura (G1, G2, ...). Los bloques de un mismo grupo comparten la misma altura de entrepiso.
+  </div>
+
+  <div class="fila" style="margin-bottom:14px;">
+    <div class="campo" style="flex:1 1 260px;">
+      <label>Modo</label>
+      <select id="nb_modo" style="width:100%;">
+        <option value="iguales">Iguales para todos los pisos y bloques del grupo</option>
+        <option value="diferentes">Cada piso / bloque distinto (por grupo)</option>
+      </select>
+    </div>
+    <div class="campo" style="flex:1 1 200px;">
+      <label>N&uacute;mero de pisos (max)</label>
+      <input type="number" id="nb_pisos" placeholder="ej. 5" min="1" max="12" value="5" style="width:100%;">
+    </div>
+    <div class="campo" style="flex:1 1 200px;">
+      <label>Altura m&aacute;xima entrepiso (m)</label>
+      <input type="number" id="nb_altura_max" placeholder="3.80" min="0.5" max="3.80" step="0.05" value="3.80" style="width:100%;">
+    </div>
+    <div class="campo" style="flex:1 1 200px;">
+      <label>N&uacute;mero de bloques</label>
+      <input type="number" id="nb_n_bloques" placeholder="ej. 4" min="1" max="20" value="4" style="width:100%;">
+    </div>
+  </div>
+
+  <!-- Flujo progresivo de grupos Gnn -->
+  <div id="nb_grupo_flujo" style="margin-bottom:10px;">
+    <div id="nb_grupo_actual_box" style="border:1px dashed #cbd5e1; border-radius:8px; padding:12px; background:#fbfcfe; margin-bottom:8px;">
+      <div style="font-weight:700; color:#374151; margin-bottom:6px;">Grupo actual:
+        <span id="nb_grupo_nombre">G1</span>
+        <span id="nb_grupo_contador" style="font-weight:normal; color:#6b7280;">(0 bloques asignados)</span>
       </div>
-      <div class="fila">
-        <div class="campo" style="flex:1 1 260px;">
-          <label>Modo</label>
-          <select id="nb_modo" style="width:100%;">
-            <option value="iguales">Iguales para todos los pisos y bloques</option>
-            <option value="diferentes">Cada piso / bloque distinto</option>
-          </select>
-        </div>
-        <div class="campo" style="flex:1 1 200px;">
-          <label>N&uacute;mero de pisos (max)</label>
-          <input type="number" id="nb_pisos" placeholder="ej. 5" min="1" max="12" value="5" style="width:100%;">
-        </div>
-        <div class="campo" style="flex:1 1 200px;">
-          <label>Altura m&aacute;xima entrepiso (m)</label>
-          <input type="number" id="nb_altura_max" placeholder="3.80" min="0.5" max="3.80" step="0.05" value="3.80" style="width:100%;">
-        </div>
-      </div>
-      <div class="campo" style="margin-top:8px;">
-        <label>Grupos de bloques con mismas alturas</label>
-        <div id="nb_grupos" class="checks" style="margin-top:6px;"></div>
-        <div class="ayuda" style="margin-top:4px;">Marque los bloques que comparten la misma altura de entrepiso. Si marca dos bloques iguales, solo se pide la altura de uno.</div>
-      </div>
-      <div id="nb_alturas_ui" style="margin-top:10px;"></div>
-      <div id="nb_reporte" style="margin-top:12px; border:1px dashed #cbd5e1; border-radius:8px; padding:12px; background:#fbfcfe; display:none;"></div>
+      <div id="nb_grupo_bloques" class="checks" style="margin-top:6px;"></div>
+      <div class="ayuda" style="font-size:11px; color:#6b7280; margin-top:4px;">Marque los bloques que pertenecen a este grupo.</div>
       <div style="margin-top:10px;">
-        <button class="btn exito" id="btn-guardar-niveles-bloque" type="button">Guardar alturas (por CHIP)</button>
-        <span id="nb-aviso" class="fuente" style="margin-left:10px;"></span>
+        <button class="btn exito" id="btn_confirmar_grupo" type="button">Confirmar grupo y pasar al siguiente</button>
+        <button class="btn secundario" id="btn-reset-grupos" type="button">Reset grupos</button>
+        <span id="nb_grupo_aviso" class="fuente" style="margin-left:10px; color:#dc2626;"></span>
       </div>
     </div>
-    <div style="margin-top:14px;">
+    <div id="nb_grupos_creados" style="margin-top:10px; font-size:12px; color:#6b7280;"></div>
+  </div>
+
+  <!-- Alturas por grupo (se muestra tras crear todos los grupos) -->
+  <div id="nb_alturas_ui" style="margin-top:14px; display:none;"></div>
+
+  <div id="nb_reporte" style="margin-top:12px; border:1px dashed #cbd5e1; border-radius:8px; padding:12px; background:#fbfcfe; display:none;"></div>
+
+  <div style="margin-top:10px;">
+    <button class="btn exito" id="btn-guardar-niveles-bloque" type="button">Guardar alturas (por CHIP)</button>
+    <span id="nb-aviso" class="fuente" style="margin-left:10px;"></span>
+  </div>
+</div><div style="margin-top:14px;">
     <div id="elevaciones-zonas-card" style="margin-top:14px; display:none;">
       <h3 style="font-size:14px;color:#374151;margin:16px 0 4px;">Elevaciones de zonas por bloque (por CHIP)</h3>
       <div class="ayuda" style="margin-bottom:10px;">
@@ -282,13 +310,23 @@
       <button class="btn primario" id="btn-generar-f3" type="button">Generar masa (F3) para este CHIP</button>
     </div>
     <div id="f3-resultado" class="aviso info" style="display:none;"></div>
-    <div style="margin-top:14px;">
+    <<div style="margin-top:14px;">
       <button class="btn primario" id="btn-pipeline" type="button">Ejecutar pipeline completo (F1→F2→F3)</button>
     </div>
     <div id="pipeline-resultado" class="aviso info" style="display:none;"></div>
   </div>
 
-  <!-- ===== Resultados ===== -->
+    <!-- ===== 4b (cont.). Planta y corte transversal ===== -->
+  <div class="card card-planta">
+    <h3 style="font-size:15px;color:#374151;margin:0 0 6px;"><span class="seccion-num">4b</span>Planta y corte transversal</h3>
+    <div class="subtitulo">Planta del lote con los bloques B1..Bn sobre las cotas del MDT y, a la derecha, el <b>corte
+      transversal</b> perpendicular a la calle, con las alturas de cada bloque medidas desde el terreno
+      en sus extremos norte (N), centro (C) y sur (S). Se alimenta de las alturas de entrepiso
+      definidas en la seccion 4b, por lo que aparece despues de ellas.</div>
+    <div id="planta"></div>
+  </div>
+
+<!-- ===== Resultados ===== -->
   <div class="card" id="card-resultados" style="display:none;">
     <h2><span class="seccion-num">✓</span>Resultados del lote seleccionado</h2>
     <div id="resultados"></div>
@@ -312,6 +350,7 @@
 
 </div>
 
+<script src="/planta.js"></script>
 <script src="/frontal.js"></script>
 <script>
 let VARIABLES = [], CASO_CHIP = {}, CASO_TITULO = {}, MODOS = [], ESCENARIOS = [], VECINOS = null;
@@ -339,7 +378,8 @@ async function init(){
     sel.appendChild(o);
   });
   sel.addEventListener('change', () => { activarChip(); cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); if(window.cargarNivelesBloque) cargarNivelesBloque(sel.value);
-    if(window.cargarElevacionesZonas) cargarElevacionesZonas(sel.value); cargarNormaOverride(); if(window.Frontal) Frontal.setChip(sel.value); });
+    if(window.cargarElevacionesZonas) cargarElevacionesZonas(sel.value); cargarNormaOverride(); if(window.Planta) Planta.setChip(sel.value);
+    if(window.Frontal) Frontal.setChip(sel.value); });
 
   renderSeccion('normativa', $('vars-normativa'));
   renderNormaOverride();
@@ -354,7 +394,8 @@ async function init(){
   renderEscenarios();
   cargarArchivos();
   bindCaso();
-  if(window.Frontal) Frontal.montar('frontal', {});
+  if(window.Frontal) Frontal.montar('frontal', {chip: sel.value || ''});
+  if(window.Planta) Planta.montar('planta', {chip: sel.value || ''});
 
   // 2026-11-01: enlace directo /?chip=AAA... (util para presentar y capturar)
   var _pre = new URLSearchParams(location.search).get('chip');
@@ -1548,139 +1589,327 @@ async function calcularF2(){
 }
 
 // ---------- alturas de entrepiso por bloque (niveles-bloque) ----------
-function _nb_grupos_html(n){
-  // Crea n checkboxes de grupo (g1..gn) para marcar bloques con mismas alturas
-  let html = '';
-  for(let i=1;i<=n;i++){
-    html += '<div class="check-item"><label><input type="checkbox" id="nb_grupo_'+i+'"> <b>Grupo '+i+'</b></label></div>';
+// Estado del flujo progresivo de grupos Gnn
+var nb_estado = {
+  chip: null,
+  nBloques: 1,
+  modo: 'iguales',
+  pisos: 5,
+  alturaMax: 3.80,
+  bloquesDisponibles: [],
+  grupos: [],
+  grupoActualIdx: 0
+};
+
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function _nb_bloques_html(disponibles) {
+  var html = '';
+  if (!disponibles || disponibles.length === 0) {
+    html += '<div class="fuente" style="color:#6b7280;">No quedan bloques disponibles.</div>';
+    return html;
   }
+  disponibles.forEach(function(bid) {
+    html += '<div class="check-item"><label><input type="checkbox" id="nb_bloque_' + escHtml(bid) + '"> <b>' + escHtml(bid) + '</b></label></div>';
+  });
   return html;
 }
 
-function _nb_alturas_html(modo, pisos, alturas){
-  // Construye los inputs de altura por piso o por grupo
-  let html = '';
-  if(modo === 'iguales'){
-    const v = (alturas && alturas[0] != null) ? alturas[0] : '3.05';
-    html += '<label style="font-weight:600;">Altura de entrepiso (todos los pisos y bloques)</label>';
-    html += '<input type="number" id="nb_altura_igual" min="0.5" max="3.80" step="0.05" value="'+v+'" style="width:140px; margin-left:8px;"> m';
+function _nb_grupos_creados_html() {
+  var html = '<div style="font-weight:700; color:#374151; margin-bottom:6px;">Grupos creados</div>';
+  if (!nb_estado.grupos || nb_estado.grupos.length === 0) {
+    html += '<div class="fuente" style="color:#6b7280;">Aún no hay grupos creados.</div>';
+    return html;
+  }
+  nb_estado.grupos.forEach(function(g) {
+    html += '<div style="margin-bottom:6px; padding:4px 8px; background:#f3f4f6; border-radius:4px;">';
+    html += '<strong>' + escHtml(g.nombre) + ':</strong> ' + escHtml(g.bloques.join(', '));
+    html += ' &rarr; altura de entrepiso: ';
+    if (g.alturas && g.alturas.length) {
+      html += g.alturas.map(function(a){ return a.toFixed(2) + ' m'; }).join(', ');
+    } else {
+      html += '<span style="color:#dc2626;">sin definir</span>';
+    }
+    html += '</div>';
+  });
+  return html;
+}
+
+function _nb_alturas_html(modo, pisos, alturas) {
+  var html = '';
+  if (modo === 'iguales') {
+    var v = (alturas && alturas[0] != null) ? alturas[0] : '3.05';
+    html += '<label style="font-weight:600;">Altura de entrepiso (todos los pisos y bloques del grupo)</label>';
+    html += '<input type="number" class="nb_altura_igual" min="0.5" max="3.80" step="0.05" value="' + v + '" style="width:140px; margin-left:8px;"> m';
   } else {
     html += '<table style="width:100%; border-collapse:collapse; margin-top:6px;"><thead><tr><th style="text-align:left;">Piso</th><th style="text-align:left;">Altura (m)</th></tr></thead><tbody>';
-    for(let i=1;i<=pisos;i++){
-      const v = (alturas && alturas[i-1] != null) ? alturas[i-1] : (i===1 ? '3.05' : '3.00');
-      html += '<tr><td><b>Piso '+i+'</b></td><td><input type="number" id="nb_altura_p'+i+'" min="0.5" max="3.80" step="0.05" value="'+v+'" style="width:120px;"></td></tr>';
+    for (var i = 1; i <= pisos; i++) {
+      var v = (alturas && alturas[i-1] != null) ? alturas[i-1] : (i===1 ? '3.05' : '3.00');
+      html += '<tr><td><b>Piso ' + i + '</b></td><td><input type="number" class="nb_altura_p' + i + '" min="0.5" max="3.80" step="0.05" value="' + v + '" style="width:120px;"></td></tr>';
     }
     html += '</tbody></table>';
   }
   return html;
 }
 
-async function cargarNivelesBloque(chip){
-  const card = $('niveles-bloque-card');
-  const grupos = $('nb_grupos');
-  const ui = $('nb_alturas_ui');
-  const reporte = $('nb_reporte');
-  const btn = $('btn-guardar-niveles-bloque');
-  if(!chip){ card.style.display='none'; return; }
-  card.style.display='block';
-  const r = await api('/api/niveles-bloque?chip=' + encodeURIComponent(chip));
-  let nb = {};
-  if(r.ok && r.niveles_bloque) nb = r.niveles_bloque;
-  const nBloques = parseInt($('bloques_num') ? $('bloques_num').value : '1', 10) || 1;
-  const pisos = parseInt($('nb_pisos') ? $('nb_pisos').value : '5', 10) || 5;
-  $('nb_modo').value = nb.modo || 'iguales';
-  $('nb_pisos').value = nb.pisos || pisos;
-  $('nb_altura_max').value = nb.altura_maxima_msnm != null ? nb.altura_maxima_msnm : '3.80';
-  grupos.innerHTML = _nb_grupos_html(nBloques);
-  // Pintar grupos guardados
-  const gruposGuardados = nb.grupos || {};
-  Object.keys(gruposGuardados).forEach(function(gid){
-    const el = $('nb_grupo_'+gid.replace('g',''));
-    if(el) el.checked = true;
-  });
-  ui.innerHTML = _nb_alturas_html($('nb_modo').value, parseInt($('nb_pisos').value), nb.alturas_por_grupo && nb.alturas_por_grupo['g1']);
-  reporte.style.display='none';
-  btn.onclick = function(){ guardarNivelesBloque(chip); };
-  $('nb_modo').onchange = function(){
-    ui.innerHTML = _nb_alturas_html($('nb_modo').value, parseInt($('nb_pisos').value), nb.alturas_por_grupo && nb.alturas_por_grupo['g1']);
-  };
-  $('nb_pisos').onchange = function(){
-    ui.innerHTML = _nb_alturas_html($('nb_modo').value, parseInt($('nb_pisos').value), nb.alturas_por_grupo && nb.alturas_por_grupo['g1']);
-  };
+function mostrarGrupoActual() {
+  var box = $('nb_grupo_actual_box');
+  var nombre = $('nb_grupo_nombre');
+  var contador = $('nb_grupo_contador');
+  var bloquesDiv = $('nb_grupo_bloques');
+  var btn = $('btn_confirmar_grupo');
+  var aviso = $('nb_grupo_aviso');
+  var gruposCreados = $('nb_grupos_creados');
+
+  if (!box) return;
+
+  if (nb_estado.bloquesDisponibles.length === 0) {
+    box.style.display = 'none';
+    btn.style.display = 'none';
+    aviso.textContent = '';
+    gruposCreados.innerHTML = _nb_grupos_creados_html();
+
+    var alturasUI = $('nb_alturas_ui');
+    if (alturasUI) {
+      alturasUI.style.display = 'block';
+      alturasUI.innerHTML = '';
+      nb_estado.grupos.forEach(function(g, gi) {
+        var div = document.createElement('div');
+        div.style.marginBottom = '12px';
+        div.style.padding = '8px';
+        div.style.border = '1px solid #e5e7eb';
+        div.style.borderRadius = '6px';
+        div.innerHTML =
+          '<div style="font-weight:700; color:#374151; margin-bottom:4px;">' + escHtml(g.nombre) + ' (' + escHtml(g.bloques.join(', ')) + ')</div>' +
+          _nb_alturas_html(nb_estado.modo, nb_estado.pisos, g.alturas || []);
+        alturasUI.appendChild(div);
+
+        var cont = div;
+        var inputs = cont.querySelectorAll('input[type="number"]');
+        inputs.forEach(function(inp, iInp) {
+          // El id se deriva de la CLASE del input (_nb_alturas_html los crea sin id).
+          var cls = inp.getAttribute('class') || '';
+          var mP = cls.match(/nb_altura_p(\d+)/);
+          if (cls.indexOf('nb_altura_igual') !== -1) {
+            inp.id = 'nb_altura_g' + gi + '_igual';
+          } else if (mP) {
+            inp.id = 'nb_altura_g' + gi + '_p' + mP[1];
+          } else {
+            inp.id = 'nb_altura_g' + gi + '_x' + (iInp + 1);
+          }
+        });
+      });
+    }
+    return;
+  }
+
+  box.style.display = 'block';
+  btn.style.display = 'inline-block';
+  var gIdx = nb_estado.grupoActualIdx;
+  var nombreGrupo = 'G' + (gIdx + 1);
+  nombre.textContent = nombreGrupo;
+  contador.textContent = '(' + nb_estado.bloquesDisponibles.length + ' bloques disponibles)';
+  bloquesDiv.innerHTML = _nb_bloques_html(nb_estado.bloquesDisponibles);
+  gruposCreados.innerHTML = _nb_grupos_creados_html();
+  aviso.textContent = '';
 }
 
-function recolectarNivelesBloque(chip){
-  const modo = $('nb_modo').value;
-  const pisos = parseInt($('nb_pisos').value || '5', 10) || 5;
-  const altura_max = parseFloat($('nb_altura_max').value || '3.80') || 3.80;
-  const nBloques = parseInt($('bloques_num') ? $('bloques_num').value : '1', 10) || 1;
-  const grupos = {};
-  const alturas_por_grupo = {};
-  for(let i=1;i<=nBloques;i++){
-    const el = $('nb_grupo_'+i);
-    if(el && el.checked){
-      const gid = 'g'+i;
-      grupos[gid] = ['B'+i];
-      if(modo === 'iguales'){
-        alturas_por_grupo[gid] = [parseFloat($('nb_altura_igual').value || '3.05') || 3.05];
+function cargarNivelesBloque(chip) {
+  var card = $('niveles-bloque-card');
+  var reporte = $('nb_reporte');
+  var btn = $('btn-guardar-niveles-bloque');
+  if (!chip) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  reporte.style.display = 'none';
+
+  fetch('/api/niveles-bloque?chip=' + encodeURIComponent(chip))
+    .then(function(x){ return x.json(); })
+    .then(function(r) {
+      var nb = {};
+      if (r && r.ok && r.niveles_bloque) nb = r.niveles_bloque;
+
+      nb_estado.chip = chip;
+      nb_estado.modo = nb.modo || 'iguales';
+      nb_estado.pisos = parseInt(nb.pisos || $('nb_pisos') ? $('nb_pisos').value : '5', 10) || 5;
+      nb_estado.alturaMax = nb.altura_maxima_msnm != null ? nb.altura_maxima_msnm : 3.80;
+
+      $('nb_modo').value = nb_estado.modo;
+      $('nb_pisos').value = nb_estado.pisos;
+      $('nb_altura_max').value = nb_altura_max;
+
+      var nBloques = parseInt($('nb_n_bloques') ? $('nb_n_bloques').value : '4', 10) || 4;
+      nb_estado.nBloques = nBloques;
+      var bloquesTodos = [];
+      for (var k = 1; k <= nBloques; k++) bloquesTodos.push('B' + k);
+
+      var gruposGuardados = nb.grupos || {};
+      var bloquesAsignados = [];
+      nb_estado.grupos = [];
+      if (Object.keys(gruposGuardados).length > 0) {
+        Object.keys(gruposGuardados).forEach(function(gid, gi) {
+          var bl = gruposGuardados[gid] || [];
+          nb_estado.grupos.push({
+            gid: gid,
+            nombre: 'G' + (gi + 1),
+            bloques: bl.slice(),
+            alturas: (nb.alturas_por_grupo && nb.alturas_por_grupo[gid]) || []
+          });
+          bl.forEach(function(b){ bloquesAsignados.push(b); });
+        });
+        nb_estado.bloquesDisponibles = bloquesTodos.filter(function(b){ return bloquesAsignados.indexOf(b) === -1; });
+        nb_estado.grupoActualIdx = nb_estado.grupos.length;
       } else {
-        const arr = [];
-        for(let p=1;p<=pisos;p++){
-          arr.push(parseFloat($('nb_altura_p'+p).value || '3.00') || 3.00);
-        }
-        alturas_por_grupo[gid] = arr;
+        nb_estado.bloquesDisponibles = bloquesTodos.slice();
+        nb_estado.grupoActualIdx = 0;
       }
-    }
-  }
-  // Si no hay grupos marcados, crear uno por defecto con todos los bloques
-  if(Object.keys(grupos).length === 0){
-    grupos['g1'] = [];
-    for(let i=1;i<=nBloques;i++) grupos['g1'].push('B'+i);
-    if(modo === 'iguales'){
-      alturas_por_grupo['g1'] = [parseFloat($('nb_altura_igual').value || '3.05') || 3.05];
-    } else {
-      const arr = [];
-      for(let p=1;p<=pisos;p++) arr.push(parseFloat($('nb_altura_p'+p).value || '3.00') || 3.00);
-      alturas_por_grupo['g1'] = arr;
-    }
-  }
-  // Generar reporte legible
-  let reporteHtml = '<h4 style="margin:0 0 8px; font-size:13px;">Niveles que se generaran (por bloque)</h4><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="text-align:left;">Bloque</th><th style="text-align:left;">Grupo</th><th style="text-align:left;">Pisos</th><th style="text-align:left;">Alturas de entrepiso (m)</th><th style="text-align:left;">Altura acumulada (m)</th></tr></thead><tbody>';
-  Object.keys(grupos).forEach(function(gid){
-    const arr = alturas_por_grupo[gid] || [];
-    let acum = 0;
-    const filas = arr.map(function(h){ acum += h; return h.toFixed(2); }).join(', ');
-    const acumStr = acum.toFixed(2);
-    grupos[gid].forEach(function(bid, idx){
-      reporteHtml += '<tr><td><b>'+bid+'</b></td><td>'+gid.toUpperCase()+'</td><td>'+arr.length+'</td><td>'+filas+'</td><td>'+acumStr+'</td></tr>';
+
+      $('nb_modo').onchange = function(){ nb_estado.modo = $('nb_modo').value; };
+      $('nb_pisos').onchange = function(){ nb_estado.pisos = parseInt($('nb_pisos').value || '5', 10) || 5; };
+      $('nb_altura_max').onchange = function(){ nb_estado.alturaMax = parseFloat($('nb_altura_max').value || '3.80') || 3.80; };
+      $('nb_n_bloques').onchange = function(){ nb_estado.nBloques = parseInt($('nb_n_bloques').value || '4', 10) || 4; mostrarGrupoActual(); };
+
+      btn.onclick = function(){ guardarNivelesBloque(chip); };
+
+      var btnConf = $('btn_confirmar_grupo');
+      if (btnConf) {
+        btnConf.onclick = function() {
+          var aviso = $('nb_grupo_aviso');
+          aviso.textContent = '';
+          var marcados = [];
+          nb_estado.bloquesDisponibles.forEach(function(bid) {
+            var el = $('nb_bloque_' + escHtml(bid));
+            if (el && el.checked) marcados.push(bid);
+          });
+          if (marcados.length === 0) {
+            aviso.textContent = 'Marque al menos un bloque antes de confirmar.';
+            return;
+          }
+          var gIdx = nb_estado.grupoActualIdx;
+          var gid = 'g' + (gIdx + 1);
+          var alturasIniciales;
+          if (nb_estado.modo === 'iguales') {
+            alturasIniciales = [3.05];
+          } else {
+            alturasIniciales = [];
+            for (var pp = 1; pp <= nb_estado.pisos; pp++) alturasIniciales.push(3.00);
+          }
+          nb_estado.grupos.push({
+            gid: gid,
+            nombre: 'G' + (gIdx + 1),
+            bloques: marcados.slice(),
+            alturas: alturasIniciales
+          });
+          nb_estado.bloquesDisponibles = nb_estado.bloquesDisponibles.filter(function(b){ return marcados.indexOf(b) === -1; });
+          nb_estado.grupoActualIdx++;
+          mostrarGrupoActual();
+        };
+      }
+
+      mostrarGrupoActual();
+      })
+    .catch(function(e) {
+      $('nb-aviso').textContent = 'Error cargando niveles-bloque: ' + String(e);
     });
-  });
-  reporteHtml += '</tbody></table>';
-  reporteHtml += '<p class="fuente" style="margin-top:8px;">Altura maxima entrepiso: '+altura_max.toFixed(2)+' m (norma Bogota: no superior a 3,80 m). Si se excede, ajuste antes de generar.</p>';
-  $('nb_reporte').innerHTML = reporteHtml;
-  $('nb_reporte').style.display='block';
-  return { chip: chip, modo: modo, pisos: pisos, altura_maxima_msnm: altura_max, grupos: grupos, alturas_por_grupo: alturas_por_grupo };
 }
 
-async function guardarNivelesBloque(chip){
-  const payload = recolectarNivelesBloque(chip);
-  const aviso = $('nb-aviso');
-  const r = await api('/api/niveles-bloque', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({chip: chip, niveles_bloque: payload})
-  });
-  if(r.ok){
-    aviso.className='fuente'; aviso.style.color='#166534';
-    aviso.textContent='Guardado: ' + r.ruta;
-  } else {
-    aviso.className='fuente'; aviso.style.color='#991b1b';
-    aviso.textContent = (r.error && r.error.problemas ? r.error.problemas.join('; ') : (r.error||'error'));
+
+function recolectarNivelesBloque(chip) {
+  var modo = $('nb_modo').value;
+  var pisos = parseInt($('nb_pisos').value || '5', 10) || 5;
+  var altura_max = parseFloat($('nb_altura_max').value || '3.80') || 3.80;
+
+  var grupos = {};
+  var alturas_por_grupo = {};
+
+  if (nb_estado.grupos && nb_estado.grupos.length > 0) {
+    nb_estado.grupos.forEach(function(g, gi) {
+      grupos[g.gid] = g.bloques.slice();
+      var arr = [];
+      if (modo === 'iguales') {
+        var inp = $('nb_altura_g' + gi + '_igual');
+        if (!inp) {
+          // respaldo: el input del grupo gi por orden de aparicion
+          var todosIgual = document.querySelectorAll('input.nb_altura_igual');
+          inp = todosIgual[gi] || null;
+        }
+        var vDef = (g.alturas && g.alturas[0] != null) ? g.alturas[0] : '3.00';
+        arr.push(inp ? (parseFloat(inp.value) || parseFloat(vDef) || 3.0)
+                     : (parseFloat(vDef) || 3.0));
+      } else {
+        for (var pp = 1; pp <= pisos; pp++) {
+          var inpp = $('nb_altura_g' + gi + '_p' + pp);
+          if (!inpp) {
+            inpp = document.querySelector('input.nb_altura_p' + pp) || null;
+          }
+          var vP = (g.alturas && g.alturas[pp-1] != null) ? g.alturas[pp-1] : '3.00';
+          arr.push(inpp ? (parseFloat(inpp.value) || parseFloat(vP) || 3.0)
+                        : (parseFloat(vP) || 3.0));
+        }
+      }
+      alturas_por_grupo[g.gid] = arr;
+    });
   }
+
+  if (Object.keys(grupos).length === 0) {
+    var nBloques = parseInt($('nb_n_bloques') ? $('nb_n_bloques').value : '4', 10) || 4;
+    var todos = [];
+    for (var k = 1; k <= nBloques; k++) todos.push('B' + k);
+    grupos['g1'] = todos;
+    var arr = [];
+    if (modo === 'iguales') {
+      arr.push(parseFloat($('nb_altura_igual').value || '3.05') || 3.05);
+    } else {
+      for (var pp = 1; pp <= pisos; pp++) arr.push(parseFloat($('nb_altura_p' + pp).value || '3.00') || 3.00);
+    }
+    alturas_por_grupo['g1'] = arr;
+  }
+
+  var problemas = [];
+  for (var gid in alturas_por_grupo) {
+    var arr = alturas_por_grupo[gid];
+    arr.forEach(function(a, ii) {
+      if (a == null || isNaN(a) || a < 0.5 || a > 3.80) {
+        problemas.push('grupo ' + gid + ': altura inválida en posición ' + ii);
+      }
+    });
+  }
+  if (problemas.length) {
+    $('nb-aviso').textContent = 'Error: ' + problemas.join(', ');
+    return null;
+  }
+
+  var nb = {
+    chip: chip,
+    modo: modo,
+    pisos: pisos,
+    altura_maxima_msnm: altura_max,
+    grupos: grupos,
+    alturas_por_grupo: alturas_por_grupo
+  };
+  $('nb-aviso').textContent = 'Entrepiso a guardar: ' +
+    Object.keys(alturas_por_grupo).map(function(gid){
+      return gid.toUpperCase() + ' ' + alturas_por_grupo[gid].map(function(a){ return a.toFixed(2); }).join('/');
+    }).join(' · ') + ' m';
+  return nb;
 }
 
-// Integrar con cambio de chip
-const _chipSelOrig = $('chip') && $('chip').onchange;
-// ---------- elevaciones de zonas por bloque ----------
+async function guardarNivelesBloque(chip) {
+  var nb = recolectarNivelesBloque(chip);
+  if (!nb) return;
+  var r = await api('/api/niveles-bloque', { method: 'POST', body: JSON.stringify({chip: chip, niveles_bloque: nb}) });
+  var reporte = $('nb_reporte');
+  if (r.ok) {
+    reporte.style.display = 'block';
+    var html = '<h4 style="margin:0 0 8px; font-size:13px;">Guardado correctamente (por CHIP)</h4>';
+    html += '<div style="font-size:12px; color:#374151;">Grupo(s): ' + Object.keys(nb.grupos).join(', ') + '</div>';
+    reporte.innerHTML = html;
+    $('nb-aviso').textContent = 'Alturas guardadas por CHIP.';
+  } else {
+    $('nb-aviso').textContent = 'Error al guardar: ' + ((r && r.error) || 'desconocido');
+  }
+}// ---------- elevaciones de zonas por bloque ----------
 async function cargarElevacionesZonas(chip){
   const card = $('elevaciones-zonas-card');
   const cotas = $('ez_cotas');
@@ -1776,6 +2005,8 @@ async function generarF3(){
   if(!r.ok || !r.f3 || !r.f3.ok){ out.className='aviso error'; out.textContent = (r.f3 && r.f3.salida) || r.error || 'error'; return; }
   const res = r.f3.resultados || {};
   const br = r.f3.bloques_resumen || null;
+  const dat = r.f3.datos || {};
+  const f2n = function(v, d){ return (v==null || isNaN(v)) ? '—' : Number(v).toFixed(d==null?2:d).replace('.', ','); };
   let html = '<b>Masa generada para ' + chip + '</b> · escenario ' + (r.f3.escenario||'—') + ' · GFA ' + (res.gfa_total!=null ? res.gfa_total : '—') + ' m² · pisos ' + (res.pisos||'—');
   if(br){
     const o = br.orientacion || {}; const ni = br.niveles || {};
@@ -1785,6 +2016,47 @@ async function generarF3(){
       html += ')';
     }
     if(o.franja_descripcion) html += '<br>' + o.franja_descripcion;
+
+    // --- Retroalimentacion directa: 0,00 del proyecto + entrepiso + topes ---
+    let linea2 = [];
+    linea2.push('<b>0,00 (L01)</b> = ' + f2n(dat.z0_msnm) + ' msnm' +
+      (dat.z0_modo ? ' <span style="color:#6b7280">(' + dat.z0_modo + ')</span>' : ''));
+    if(dat.entrepiso_m != null){
+      let ent = '<b>entrepiso</b> ' + f2n(dat.entrepiso_m) + ' m';
+      const idsReales = new Set(((br.bloques)||[]).map(function(b){ return b.id; }));
+      const gg = (dat.entrepiso_grupos || []).map(function(g){
+        const propios = (g.bloques || []).filter(function(x){ return idsReales.has(x); });
+        return g.grupo.toUpperCase() + ' ' + f2n(g.entrepiso) + ' m' +
+          (propios.length ? ' [' + propios.join(', ') + ']' : '');
+      });
+      if(gg.length) ent += ' <span style="color:#6b7280">(' + gg.join(' · ') + ')</span>';
+      linea2.push(ent);
+    } else {
+      linea2.push('<span style="color:#b45309;"><b>entrepiso</b> sin configurar en 4b</span>');
+    }
+    if(dat.pisos_max != null || dat.altura_max_m != null){
+      let nr = '<b>norma</b> ';
+      const pp = [];
+      if(dat.pisos_max != null) pp.push(dat.pisos_max + ' pisos');
+      if(dat.altura_max_m != null) pp.push(f2n(dat.altura_max_m,1) + ' m sobre MDT');
+      nr += pp.join(' / ');
+      linea2.push(nr);
+    }
+    html += '<br>' + linea2.join(' · ');
+
+    // --- Topes por bloque en MSNM ---
+    const z0 = (dat.z0_msnm != null) ? Number(dat.z0_msnm) : null;
+    const ent = (dat.entrepiso_m != null) ? Number(dat.entrepiso_m) : 3.0;
+    const bl = br.bloques || [];
+    if(bl.length && z0 != null){
+      let filas = bl.map(function(b){
+        const base = (b.z_base_m != null) ? Number(b.z_base_m) : 0;
+        const baseMsnm = z0 + base;
+        const topeMsnm = baseMsnm + (Number(b.pisos||0) * ent);
+        return b.id + ': base ' + f2n(baseMsnm) + ' → tope ' + f2n(topeMsnm) + ' msnm';
+      });
+      html += '<br><span style="color:#374151"><b>Topes de bloque</b> \u00b7 ' + filas.join(' · ') + '</span>';
+    }
     (br.avisos||[]).forEach(function(a){ html += '<br><span style="color:#b45309;">⚠ ' + a + '</span>'; });
   } else if(bloques.n > 1){
     html += ' · <b>' + bloques.n + ' bloques</b> (sep ' + bloques.separacion_m + ' m)';

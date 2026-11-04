@@ -9,4 +9,4 @@ Pares incompatibles (segregar): 0
 
 ACCESOS POR USO:
 ----------------------------------------
-  Vivienda           [privado] pisos=[1, 2, 3, 4, 5] -> independiente_nucleo (Frontal)
+  Vivienda           [privado] pisos=[1, 2, 3, 4] -> independiente_nucleo (Frontal)

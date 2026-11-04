@@ -98,7 +98,13 @@ OUT = os.path.join(BASE, "casos")
 
 # ------------------------------------------------------------------ parametros
 ALTURA_PISO = 3.0          # m, vivienda tipica
+ALTURA_ENTREPISO_MAX_M = 3.80   # Bogota: altura maxima de entrepiso
+ALTURA_ENTREPISO_MIN_M = 2.20   # Bogota: altura minima de entrepiso
 ALTURA_PISO_1 = 3.6        # m, primer piso (usos publicos)
+# Configuracion del operador (se sobreescribe con los argumentos CLI).
+_ALT_ENTREPISO = None      # m; None -> ALTURA_PISO
+_ALT_PRIMERO = None        # m; None -> ALTURA_PISO_1
+_PISOS_MAX = None          # tope de pisos (rango de edificabilidad)
 OCUPACION_POT = 0.70       # ocupacion maxima (tratamiento Consolidacion)
 NUCLEO_M2 = 28.0           # nucleo tipico por piso (2 escaleras + 2 asc + ductos)
 ESCALERA_M2 = 13.5         # modulo de escalera (3.0 x 4.5 m)
@@ -289,15 +295,38 @@ def _titulo(caso_id):
     return (CASOS.get(caso_id) or {}).get("titulo", str(caso_id))
 
 
-def distribuir_niveles(prog):
+def distribuir_niveles(prog, altura_entrepiso=None, altura_primero=None, pisos_max=None):
     """Huella = ocupacion x lote (o huella_m2 real de Fase 1 si viene en el caso);
-    niveles = ceil(GFA/huella); reparto de usos."""
+    niveles = ceil(GFA/huella) acotado por el rango de edificabilidad; reparto de usos.
+
+    altura_entrepiso / altura_primero: alturas configurables (m). Si no se pasan,
+    se usan ALTURA_PISO / ALTURA_PISO_1.
+    pisos_max: tope de pisos del rango de edificabilidad (POT). La altura
+    reglamentaria NO limita el numero de pisos: se controla aguas abajo como
+    advertencia sobre el MDT.
+    """
+    _alt_piso = float(altura_entrepiso) if altura_entrepiso else ALTURA_PISO
+    _alt_piso1 = float(altura_primero) if altura_primero else ALTURA_PISO_1
+    if _alt_piso <= 0 or _alt_piso > ALTURA_ENTREPISO_MAX_M:
+        raise SystemExit("altura de entrepiso fuera de rango (0 < h <= %.2f m): %.2f"
+                         % (ALTURA_ENTREPISO_MAX_M, _alt_piso))
+    if _alt_piso1 <= 0 or _alt_piso1 > ALTURA_ENTREPISO_MAX_M:
+        raise SystemExit("altura de primer piso fuera de rango (0 < h <= %.2f m): %.2f"
+                         % (ALTURA_ENTREPISO_MAX_M, _alt_piso1))
     # 2026-09-28: sin redondeo a 1 decimal. Caso B: 946,45*0,70 = 662,515 -> x5 = 3312,575
     # = GFA exacto; el redondeo a 662,5 hacia que ceil() diera 6 niveles (0,075 m2 de ruido).
     huella = prog.get("huella_m2") or (prog["lote_m2"] * OCUPACION_POT)
     # tolerancia 1e-6: un cociente casi entero no debe redondear al piso siguiente
     # por ruido de punto flotante/redondeo de areas (2026-09-28: B daba 6 por 0,075 m2)
     niveles = max(2, math.ceil(prog["gfa_total"] / huella - 1e-6))
+    # El rango de edificabilidad (pisos) SI limita; la altura reglamentaria no.
+    if pisos_max:
+        try:
+            _pmax = int(pisos_max)
+        except Exception:
+            _pmax = None
+        if _pmax and _pmax >= 1:
+            niveles = min(niveles, _pmax)
     # Reparto vertical: usos publicos/salud abajo, vivienda arriba
     orden = {"Local comercial": 0, "Consultorios": 1, "Institucional salud": 1,
              "Hogar geriatrico": 2, "Oficinas": 2, "Vivienda": 9}
@@ -393,7 +422,8 @@ def layout_espacial(prog, huella, niveles, niveles_uso):
         usos_nv = [u for u, ns in niveles_uso.items() if nv in ns]
         # GFA del nivel: huella si no es el ultimo (ajuste al GFA real)
         gfa_nv = huella if nv < niveles else round(prog["gfa_total"] - huella * (niveles - 1), 1)
-        alt_nv = ALTURA_PISO_1 if nv == 1 else ALTURA_PISO
+        alt_nv = ((_ALT_PRIMERO or ALTURA_PISO_1) if nv == 1
+                  else (_ALT_ENTREPISO or ALTURA_PISO))
         niveles_out.append({
             "nivel": nv,
             "z_base_m": round(z_acum, 2),
@@ -1415,7 +1445,9 @@ def _computar(args):
     if aviso_usos:
         print("  [usos]", aviso_usos)
 
-    huella, niveles, niveles_uso = distribuir_niveles(prog)
+    huella, niveles, niveles_uso = distribuir_niveles(
+        prog, altura_entrepiso=_ALT_ENTREPISO, altura_primero=_ALT_PRIMERO,
+        pisos_max=_PISOS_MAX)
     usos = sorted(set(c["uso"] for c in prog["componentes"]))
     matriz = matriz_adyacencias(usos)
     layout = layout_espacial(prog, huella, niveles, niveles_uso)
@@ -1493,7 +1525,17 @@ def main():
                         help="No escribe archivos; solo calcula e imprime el resumen")
     parser.add_argument("--json", action="store_true",
                         help="Imprime SOLO el resumen JSON (impli-cito: --dry-run)")
+    parser.add_argument("--altura-entrepiso", type=float, default=None,
+                        help="altura de entrepiso en m (pisos 2+, rango Bogota 2.20-3.80)")
+    parser.add_argument("--altura-primero", type=float, default=None,
+                        help="altura del primer piso en m (rango Bogota 2.20-3.80)")
+    parser.add_argument("--pisos-max", type=int, default=None,
+                        help="tope de pisos del rango de edificabilidad (POT)")
     args = parser.parse_args()
+    global _ALT_ENTREPISO, _ALT_PRIMERO, _PISOS_MAX
+    _ALT_ENTREPISO = getattr(args, "altura_entrepiso", None)
+    _ALT_PRIMERO = getattr(args, "altura_primero", None)
+    _PISOS_MAX = getattr(args, "pisos_max", None)
     if args.json:
         args.dry_run = True
 

@@ -1,0 +1,117 @@
+/* planta.css - Sección 1e Planta (bloques y cotas MDT)
+   Mismo estilo, escala y distribución que la sección 1d (frontal.css). */
+:root {
+  --pl-ink: #15201f;
+  --pl-muted: #5c6b69;
+  --pl-line: #d9e3e0;
+  --pl-paper: #ffffff;
+  --pl-bg: #f6f8f7;
+  --pl-teal: #0f6b5f;
+  --pl-teal-soft: #e7f2ef;
+  --pl-amber: #96620f;
+  --pl-amber-soft: #fdf3de;
+  --pl-red: #992e2e;
+  --pl-red-soft: #fbeaea;
+  --pl-blue: #25527a;
+}
+#planta, .pl-shell { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--pl-ink); }
+.pl-shell * { box-sizing: border-box; }
+
+.pl-toolbar {
+  display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end;
+  background: #f8faf9; border: 1px solid var(--pl-line); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 14px;
+}
+.pl-tool { display: flex; flex-direction: column; gap: 4px; min-width: 130px; }
+.pl-tool > label { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--pl-muted); font-weight: 700; }
+.pl-tool select, .pl-tool input[type=number], .pl-tool input[type=text] {
+  padding: 7px 9px; border: 1px solid #c7d3d0; border-radius: 7px; font-size: 13px;
+  background: #fff; color: var(--pl-ink);
+}
+.pl-tool input[type=number], .pl-tool input[type=text] { width: 120px; font-variant-numeric: tabular-nums; }
+.pl-grow { flex: 1 1 260px; }
+.pl-badge {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px;
+  background: var(--pl-teal-soft); color: var(--pl-teal); border-radius: 999px;
+  padding: 4px 11px; font-weight: 600; width: fit-content;
+}
+.pl-src { font-size: 11.5px; color: var(--pl-muted); }
+.pl-inline { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.pl-btn, .pl-ghost {
+  border: 1px solid #c7d3d0; background: #fff; color: var(--pl-ink);
+  border-radius: 7px; padding: 7px 12px; font-size: 12.5px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+.pl-btn:hover, .pl-ghost:hover { background: #f1f5f4; }
+.pl-btn.primary { background: var(--pl-teal); border-color: var(--pl-teal); color: #fff; }
+.pl-btn.primary:hover { background: #0b574e; }
+.pl-btn.danger { color: var(--pl-red); border-color: #e5b9b9; background: #fffafa; }
+.pl-btn.danger:hover { background: var(--pl-red-soft); }
+.pl-btn:disabled { opacity: .5; cursor: wait; }
+.pl-check { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--pl-ink); cursor: pointer; }
+.pl-check input { accent-color: var(--pl-teal); }
+
+.pl-grid { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 14px; align-items: start; }
+.pl-card { background: var(--pl-paper); border: 1px solid var(--pl-line); border-radius: 11px; padding: 12px 13px; }
+.pl-card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.pl-card-head h4 { margin: 0; font-size: 13px; letter-spacing: .02em; }
+.pl-chip { font-size: 10.5px; background: #eef2f1; color: var(--pl-muted); border-radius: 999px; padding: 2px 8px; font-weight: 700; }
+.pl-plano { border: 1px solid var(--pl-line); border-radius: 8px; background: #fbfcfc; overflow: hidden; }
+.pl-plano svg { display: block; width: 100%; height: auto; cursor: crosshair; }
+.pl-hint { font-size: 11.5px; color: var(--pl-muted); margin-top: 7px; line-height: 1.45; }
+.pl-actions { margin-top: 9px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+.pl-tabla-msnm { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 8px; overflow-x: auto; display: block; }
+.pl-tabla-msnm th { text-align: left; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--pl-muted); padding: 4px 5px; border-bottom: 1px solid var(--pl-line); white-space: nowrap; }
+.pl-tabla-msnm td { padding: 4px 5px; border-bottom: 1px solid #eef2f1; vertical-align: middle; white-space: nowrap; }
+.pl-tabla-msnm td.num { font-variant-numeric: tabular-nums; text-align: right; }
+
+.pl-col-alz .pl-card { padding-bottom: 10px; }
+.pl-svg { border: 1px solid var(--pl-line); border-radius: 8px; background: #fff; overflow: hidden; }
+.pl-svg svg { display: block; width: 100%; height: auto; }
+.pl-readout { font-size: 11.5px; color: var(--pl-muted); font-variant-numeric: tabular-nums; }
+.pl-readout b { color: var(--pl-ink); }
+.pl-leyenda { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--pl-muted); margin-top: 8px; }
+.pl-leyenda span { display: inline-flex; align-items: center; gap: 5px; }
+.pl-sw { display: inline-block; width: 15px; height: 3px; border-radius: 2px; }
+.pl-notes { font-size: 11.5px; color: var(--pl-muted); margin-top: 8px; line-height: 1.5; }
+.pl-notes b { color: var(--pl-ink); }
+.pl-err { border-left: 3px solid var(--pl-red); background: var(--pl-red-soft); padding: 8px 10px; border-radius: 0 6px 6px 0; font-size: 12px; }
+.pl-loading { padding: 26px 10px; text-align: center; font-size: 12.5px; color: var(--pl-muted); }
+.pl-spin { display: inline-block; width: 14px; height: 14px; border: 2px solid #cfe0dc; border-top-color: var(--pl-teal); border-radius: 50%; animation: plspin .8s linear infinite; vertical-align: -2px; margin-right: 6px; }
+@keyframes plspin { to { transform: rotate(360deg); } }
+
+
+/* Lista de linderos y vecinos debajo de la planta (HTML, nunca desborda) */
+.pl-lados-lista { margin-top: 9px; border-top: 1px solid var(--pl-line); padding-top: 8px; }
+.pl-lados-tit { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--pl-muted); font-weight: 700; margin-bottom: 5px; }
+.pl-lados-ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.pl-lados-ul li { font-size: 11px; color: var(--pl-ink); line-height: 1.35; padding: 3px 0 3px 0; border-bottom: 1px dotted #eef2f1; word-break: break-word; overflow-wrap: anywhere; }
+.pl-lados-ul li:last-child { border-bottom: none; }
+.pl-lados-sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.pl-lados-tag { display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; background: var(--pl-teal-soft); color: var(--pl-teal); border-radius: 3px; padding: 0 4px; margin-left: 3px; }
+.pl-lados-vec { color: var(--pl-muted); font-size: 10.5px; }
+
+/* Tabla MSN acotada al ancho del panel */
+.pl-tabla { margin-top: 10px; max-width: 100%; overflow-x: auto; }
+.pl-tabla .pl-ptab { width: 100%; border-collapse: collapse; font-size: 11px; }
+.pl-tabla .pl-ptab th { text-align: left; font-size: 9.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--pl-muted); padding: 4px 4px; border-bottom: 1px solid var(--pl-line); white-space: nowrap; font-weight: 700; }
+.pl-tabla .pl-ptab td { padding: 4px 4px; border-bottom: 1px solid #eef2f1; white-space: nowrap; }
+.pl-tabla .pl-ptab td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+
+/* Tarjeta de cotas a ancho completo (debajo del grid) */
+.pl-card-tabla { margin-top: 14px; }
+.pl-card-tabla .pl-card-head { margin-bottom: 10px; }
+.pl-card-tabla .pl-tabla { max-width: 100%; overflow-x: auto; }
+.pl-card-tabla .pl-ptab { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.pl-card-tabla .pl-ptab th { text-align: left; font-size: 10px; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--pl-muted); padding: 7px 10px; border-bottom: 1px solid var(--pl-line); white-space: nowrap; font-weight: 700; }
+.pl-card-tabla .pl-ptab td { padding: 7px 10px; border-bottom: 1px solid #eef2f1; white-space: nowrap; }
+.pl-card-tabla .pl-ptab td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.pl-card-tabla .pl-ptab tbody tr:hover { background: #f8faf9; }
+.pl-nota-tabla { font-size: 11.5px; color: var(--pl-muted); margin-top: 8px; line-height: 1.5; }
+
+/* La sección 1e necesita ancho de dibujo: rompe el ancho del formulario, igual que la frontal. */
+.card.card-planta { width: min(1240px, calc(100vw - 32px)); margin-left: 50%; transform: translateX(-50%); }
+@media (max-width: 1100px) { .card.card-planta { width: calc(100vw - 24px); } }

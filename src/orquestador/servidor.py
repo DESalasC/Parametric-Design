@@ -836,6 +836,36 @@ def _cmd_f3_dist(chip, escenario, usos, bloques, dry_run=False):
             cmd += ["--bloques-desnivel-m", str(float(bloques["desnivel_m"]))]
         if bloques.get("azimut_grados") is not None:
             cmd += ["--bloques-azimut", str(float(bloques["azimut_grados"]))]
+    # --- Entrepiso configurado por el operador y tope de pisos del POT ---
+    try:
+        nb = _niveles_bloque_chip(chip) or {}
+        grupos = nb.get("grupos") or {}
+        por_grupo = nb.get("alturas_por_grupo") or {}
+        alturas = []
+        for gid in grupos.keys():
+            alturas += [float(a) for a in (por_grupo.get(gid) or []) if a]
+        if not alturas:  # modo sin grupos: toma el primer grupo disponible
+            for lst in por_grupo.values():
+                alturas += [float(a) for a in (lst or []) if a]
+        if alturas:
+            _ent = sum(alturas) / len(alturas)
+            cmd += ["--altura-entrepiso", "%.3f" % _ent]
+        # primer piso = primera altura configurada (si hay varias)
+        if alturas:
+            cmd += ["--altura-primero", "%.3f" % alturas[0]]
+    except Exception:
+        pass
+    try:
+        ctx = _contexto(chip) or {}
+        pot = ctx.get("pot_data") or ctx.get("pot") or {}
+        _rango = pot.get("rango_edificabilidad")
+        if _rango is not None:
+            import re as _re
+            _nums = _re.findall(r"\d+", str(_rango))
+            if _nums:
+                cmd += ["--pisos-max", str(max(int(n) for n in _nums))]
+    except Exception:
+        pass
     if dry_run:
         cmd += ["--dry-run", "--json"]
     return cmd
@@ -893,6 +923,73 @@ def _proponer_bloques(chip, escenario, usos, bloques):
     return dict(prop)
 
 
+
+def _datos_mensaje_f3(chip):
+    """Datos de contexto para el mensaje de salida de "Generar masa (F3)".
+
+    Devuelve el 0,00 del proyecto (Nivel L01) en MSNM, el entrepiso configurado
+    en la seccion 4b y el tope normativo del POT. Alimenta la retroalimentacion
+    directa al operador.
+    """
+    datos = {"chip": chip, "z0_msnm": None, "z0_modo": None, "z0_fecha": None,
+             "z_ref": None, "entrepiso_m": None, "alturas_entrepiso": [],
+             "entrepiso_fuente": None, "pisos_config": None,
+             "pisos_max": None, "altura_max_m": None, "rango_edificabilidad": None,
+             "entrepiso_grupos": []}
+    # --- 0,00 del proyecto (L01) ---
+    try:
+        with io.open(_z0_ruta(chip), "r", encoding="utf-8") as f:
+            z0 = json.load(f) or {}
+        datos["z0_msnm"] = z0.get("z0_abs_m")
+        datos["z0_modo"] = z0.get("modo")
+        datos["z0_fecha"] = z0.get("fecha")
+    except Exception:
+        pass
+    # --- z_ref del marco y fallback del 0,00 al minimo del lote ---
+    try:
+        with io.open(os.path.join(POT_CACHE, chip + "-contexto.json"), "r",
+                     encoding="utf-8") as f:
+            ctx = json.load(f) or {}
+        z_ref = float(((ctx.get("metadata") or {}).get("origen_sirgas") or {}).get("z", 0.0))
+        datos["z_ref"] = round(z_ref, 3)
+        if datos.get("z0_msnm") is None:
+            verts = ((ctx.get("lote_objetivo") or {}).get("vertices_3d_local") or [])
+            zs = [float(v[2]) for v in verts if len(v) > 2 and v[2] is not None]
+            datos["z0_msnm"] = round(z_ref + (min(zs) if zs else 0.0), 2)
+            datos["z0_modo"] = "min_lote"
+        pot = ctx.get("pot_data") or ctx.get("pot") or {}
+        datos["altura_max_m"] = pot.get("altura_maxima_m")
+        datos["rango_edificabilidad"] = pot.get("rango_edificabilidad")
+        if pot.get("rango_edificabilidad") is not None:
+            nums = re.findall(r"\d+", str(pot["rango_edificabilidad"]))
+            if nums:
+                datos["pisos_max"] = max(int(n) for n in nums)
+    except Exception:
+        pass
+    # --- entrepiso configurado en 4b ---
+    try:
+        nb = _niveles_bloque_chip(chip) or {}
+        grupos = nb.get("grupos") or {}
+        por_grupo = nb.get("alturas_por_grupo") or {}
+        grupos_out = []
+        for gid, lst in por_grupo.items():
+            vals = [float(a) for a in (lst or []) if a]
+            if vals:
+                grupos_out.append({"grupo": gid, "bloques": grupos.get(gid) or [],
+                                   "alturas": vals,
+                                   "entrepiso": round(sum(vals) / len(vals), 3)})
+        datos["entrepiso_grupos"] = grupos_out
+        todos = [a for g in grupos_out for a in g["alturas"]]
+        if todos:
+            datos["alturas_entrepiso"] = todos
+            datos["entrepiso_m"] = round(sum(todos) / len(todos), 3)
+            datos["entrepiso_fuente"] = "seccion 4b (niveles-bloque-override.json)"
+        datos["pisos_config"] = nb.get("pisos")
+    except Exception:
+        pass
+    return datos
+
+
 def _generar_f3(chip, escenario="D_MIXTO", usos=None, bloques=None):
     """Ejecuta F3 (distribución + accesos) para un CHIP y devuelve el resumen.
 
@@ -925,8 +1022,17 @@ def _generar_f3(chip, escenario="D_MIXTO", usos=None, bloques=None):
                 res = alt
     if isinstance(res, dict):
         res["chip"] = chip
+    if ok:
+        # los bloques cambiaron: la planta debe recalcularse
+        try:
+            _planta_cache_limpiar(chip)
+            _PROP_CACHE["clave"] = None
+            _PROP_CACHE["valor"] = None
+        except Exception:
+            pass
     return {"ok": ok, "chip": chip, "salida": salida[-1500:], "resultados": res,
-            "bloques_resumen": (_bloques_resumen_leer(chip) if ok else None)}
+            "bloques_resumen": (_bloques_resumen_leer(chip) if ok else None),
+            "datos": _datos_mensaje_f3(chip)}
 
 
 def _salida_con_error(salida):
@@ -1733,6 +1839,116 @@ def _gen_alzado():
     return _ALZADO_MOD
 
 
+_FRONTAL_MOD = None
+_FRONTAL_CACHE = {}
+
+def _gen_frontal():
+    """Carga perezosa del generador de la vista FRONTAL (F1_FRONTAL_NIVEL_v01)."""
+    global _FRONTAL_MOD
+    if _FRONTAL_MOD is None:
+        import importlib.util
+        ruta = os.path.join(ROOT, "scripts", "utilities", "F1_FRONTAL_NIVEL_v01.py")
+        spec = importlib.util.spec_from_file_location("f1_frontal_nivel", ruta)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _FRONTAL_MOD = mod
+    return _FRONTAL_MOD
+
+
+_PLANTA_MOD = None
+_PLANTA_CACHE = {}
+
+def _gen_planta():
+    """Carga perezosa del generador de la vista EN PLANTA (F1_PLANTA_NIVEL_v01)."""
+    global _PLANTA_MOD
+    if _PLANTA_MOD is None:
+        import importlib.util
+        ruta = os.path.join(ROOT, "scripts", "utilities", "F1_PLANTA_NIVEL_v01.py")
+        spec = importlib.util.spec_from_file_location("f1_planta_nivel", ruta)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _PLANTA_MOD = mod
+    return _PLANTA_MOD
+
+
+def _firma_planta(chip):
+    """Firma de los archivos que alimentan la planta (bloques + entrepisos).
+
+    2026-11-03: sin esto la cache devolvia bloques viejos tras regenerar F3
+    (p.ej. 2 bloques cuando bloques.json ya tenia 4)."""
+    firma = []
+    for r in (os.path.join(F3_CASOS, chip, "bloques.json"),
+              os.path.join(POT_CACHE, chip + "-bloques.json"),
+              NIVELES_BLOQUE_RUTA,
+              _z0_ruta(chip)):
+        try:
+            firma.append(int(os.path.getmtime(r)))
+        except Exception:
+            firma.append(0)
+    return tuple(firma)
+
+
+def _planta_cache_limpiar(chip=None):
+    """Invalida la cache de planta (total o solo de un chip)."""
+    if chip is None:
+        _PLANTA_CACHE.clear()
+        return
+    for k in list(_PLANTA_CACHE.keys()):
+        if k and k[0] == chip:
+            _PLANTA_CACHE.pop(k, None)
+
+
+def _planta_datos(chip, lado=None, mdt="malla", regen=False):
+    """Payload de la vista en planta (cacheado por chip/lado/mdt + firma de archivos)."""
+    mod = _gen_planta()
+    clave = (chip, lado, mdt, _firma_planta(chip))
+    if not regen and clave in _PLANTA_CACHE:
+        return _PLANTA_CACHE[clave]
+    datos = mod.construir(chip, lado_id=lado, mdt=mdt)
+    if len(_PLANTA_CACHE) > 8:
+        _PLANTA_CACHE.clear()
+    _PLANTA_CACHE[clave] = datos
+    return datos
+
+
+def _frontal_datos(chip, lado=None, mdt="malla", regen=False):
+    """Payload de la vista frontal (cacheado por chip/lado/mdt y firma de archivos)."""
+    mod = _gen_frontal()
+    firma = []
+    for r in (mod.ruta_puntos(chip), mod.ruta_z0(chip)):
+        try:
+            firma.append(int(os.path.getmtime(r)))
+        except Exception:
+            firma.append(0)
+    clave = (chip, lado, mdt, tuple(firma))
+    if not regen and clave in _FRONTAL_CACHE:
+        return _FRONTAL_CACHE[clave]
+    datos = mod.construir(chip, lado_id=lado, mdt=mdt)
+    if len(_FRONTAL_CACHE) > 8:
+        _FRONTAL_CACHE.clear()
+    _FRONTAL_CACHE[clave] = datos
+    return datos
+
+
+def _frontal_pagina(chip):
+    """Pagina independiente de la vista FRONTAL (presentacion / captura)."""
+    return """<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FRONTAL - %(chip)s</title>
+<link rel="stylesheet" href="/frontal.css">
+</head><body class="fr-standalone">
+<header class="fr-top"><div>
+<div class="fr-kicker">Diseño paramétrico · F1 contexto</div>
+<h1>Vista FRONTAL desde la calle</h1>
+<p>Nivel 0,00 del proyecto y altura reglamentaria sobre el terreno</p>
+</div><a class="fr-back" href="/">Volver al orquestador</a></header>
+<main class="fr-main"><div id="frontal"></div></main>
+<script src="/frontal.js"></script>
+<script>Frontal.montar('frontal', {chip: '%(chip)s', standalone: true});</script>
+</body></html>""" % {"chip": chip}
+
+
 def _alzado_datos(chip, regen=False):
     """Payload del alzado (cacheado por chip; `regen` fuerza recalculo)."""
     if not regen and chip in _ALZADO_CACHE:
@@ -1790,7 +2006,12 @@ class Handler(BaseHTTPRequestHandler):
     def _send(self, code, body, ctype="application/json; charset=utf-8"):
         if isinstance(body, (dict, list)):
             body = json.dumps(body, ensure_ascii=False)
-        data = body.encode("utf-8")
+        if isinstance(body, str):
+            data = body.encode("utf-8")
+        elif isinstance(body, bytes):
+            data = body
+        else:
+            data = str(body).encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
@@ -1827,6 +2048,56 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as e:
                 self._json_error(str(e), 500)
             return
+        if parsed.path == "/frontal":
+            chip = (q.get("chip") or [""])[0].strip().upper()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            self._send(200, _frontal_pagina(chip), "text/html; charset=utf-8")
+            return
+        if parsed.path == "/api/frontal":
+            chip = (q.get("chip") or [""])[0].strip().upper()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            try:
+                self._send(200, {"ok": True, "frontal": _frontal_datos(chip)})
+            except SystemExit as e:
+                self._json_error(str(e), 404)
+            except Exception as e:
+                self._json_error(str(e), 500)
+            return
+        if parsed.path == "/api/frontal/puntos":
+            chip = (q.get("chip") or [""])[0].strip().upper()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            try:
+                self._send(200, {"ok": True, "estado": _gen_frontal().leer_puntos(chip)})
+            except SystemExit as e:
+                self._json_error(str(e), 404)
+            except Exception as e:
+                self._json_error(str(e), 500)
+            return
+
+        if parsed.path == "/api/planta":
+            chip = (q.get("chip") or [""])[0].strip().upper()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            lado = q.get("lado")
+            lado_id = int(lado[0]) if lado and lado[0] else None
+            mdt = (q.get("mdt") or ["malla"])[0]
+            regen = (q.get("regen") or ["0"])[0] in ("1", "true", "yes")
+            try:
+                self._send(200, {"ok": True,
+                                 "planta": _planta_datos(chip, lado=lado_id, mdt=mdt, regen=regen)})
+            except SystemExit as e:
+                self._json_error(str(e), 404)
+            except Exception as e:
+                self._json_error(str(e), 500)
+            return
+
         if parsed.path == "/api/alzado":
             chip = (q.get("chip") or [""])[0].strip().upper()
             if not chip:
@@ -1935,6 +2206,269 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, {"ok": True, "chip": chip, "niveles_bloque": nb or {}})
             return
 
+
+        if parsed.path == "/api/elevaciones-zonas":
+            chip = (q.get("chip") or [""])[0]
+            if not chip:
+                self._json_error("chip requerido", 400)
+                return
+            nb = _niveles_bloque_chip(chip)
+            if not nb:
+                self._json_error("chip no tiene niveles-bloque configurados", 400)
+                return
+            cfg = _elevaciones_zonas_chip(chip) or {}
+            res = _calcular_elevaciones_zonas(nb, cfg)
+            self._send(200, {"ok": res.get("ok"), "chip": chip, "elevaciones": res})
+            return
+
+
+        # Servir archivos estaticos (css, js, png, etc.) desde ORQ_DIR (frontal.css, frontal.js, ...)
+        if not parsed.path.startswith("/api") and parsed.path not in ("/", "/index.html", "/alzado"):
+            nombre = parsed.path.lstrip("/")
+            if nombre:
+                ruta_static = os.path.join(ORQ_DIR, nombre)
+                if os.path.isfile(ruta_static):
+                    ext = os.path.splitext(ruta_static)[1].lower()
+                    ctype = {
+                        ".css": "text/css; charset=utf-8",
+                        ".js": "application/javascript; charset=utf-8",
+                        ".png": "image/png",
+                        ".jpg": "image/jpeg",
+                        ".jpeg": "image/jpeg",
+                        ".gif": "image/gif",
+                        ".svg": "image/svg+xml",
+                        ".ico": "image/x-icon",
+                    }.get(ext, "application/octet-stream")
+                    with io.open(ruta_static, "rb") as f:
+                        self._send(200, f.read(), ctype)
+                    return
+
+        self._json_error("ruta no encontrada", 404)
+    def do_POST(self):
+        parsed = urlparse(self.path)
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length).decode("utf-8", errors="replace")
+        try:
+            data = json.loads(body) if body else {}
+        except Exception:
+            self._json_error("JSON inválido")
+            return
+
+        if parsed.path == "/api/z0":
+            chip = (data.get("chip") or "").strip().upper()
+            z0 = data.get("z0_m")
+            if not chip or z0 is None:
+                self._json_error("chip y z0_m son requeridos")
+                return
+            try:
+                datos = _z0_guardar(chip, z0, modo=(data.get("modo") or "manual"),
+                                    origen=(data.get("origen") or "alzado"))
+            except Exception as e:
+                self._json_error(str(e), 500)
+                return
+            self._send(200, {"ok": True, "z0_m": datos["z0_m"], "modo": datos["modo"],
+                             "ruta": _z0_ruta(chip)})
+            return
+        if parsed.path == "/api/frontal/puntos":
+            chip = (data.get("chip") or "").strip().upper()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            try:
+                self._send(200, {"ok": True, "estado": _gen_frontal().guardar_puntos(chip, data.get("puntos", []))})
+            except SystemExit as e:
+                self._json_error(str(e), 404)
+            except Exception as e:
+                self._json_error(str(e), 500)
+            return
+
+
+        if parsed.path == "/api/proyecto":
+            nombre = data.get("nombre", "").strip()
+            crear = bool(data.get("crear_estructura", False))
+            if crear and not nombre:
+                self._json_error("Para crear la estructura escriba un nombre de proyecto.")
+                return
+            ruta, destino = _guardar_proyecto(nombre, data)
+            creado = None
+            if crear:
+                ok, carpeta = _crear_estructura(nombre)
+                if ok:
+                    creado = carpeta
+            self._send(200, {"ok": True, "ruta": ruta, "destino": destino, "estructura_creada": creado, "ruta_activa": ACTIVO_PROYECTO})
+            return
+
+        if parsed.path == "/api/calcular-f2":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            res = _calcular_f2(chip, _modalidad_desde_data(data), data.get("gfa_m2"),
+                               data.get("costo_lote_cop"))
+            self._send(200, {"ok": True, "f2": res})
+            return
+
+        if parsed.path == "/api/generar-f3":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            usos = data.get("usos") or None
+            bloques = data.get("bloques") or None
+            escenario = _derivar_escenario_f3(usos, data.get("escenario"))
+            res = _generar_f3(chip, escenario, usos=usos, bloques=bloques)
+            res["escenario"] = escenario
+            res["usos"] = usos
+            self._send(200, {"ok": True, "f3": res})
+            return
+
+        if parsed.path == "/api/proponer-bloques":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            usos = data.get("usos") or None
+            bloques = data.get("bloques") or None
+            escenario = _derivar_escenario_f3(usos, data.get("escenario"))
+            prop = _proponer_bloques(chip, escenario, usos, bloques)
+            self._send(200, {"ok": True, "propuesta": prop, "error": prop.get("error")})
+            return
+
+        if parsed.path == "/api/pipeline":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            caso = (data.get("caso") or "").strip() or None
+            modo = (data.get("modo") or "venta").strip()
+            usos = data.get("usos") or None
+            bloques = data.get("bloques") or None
+            escenario = _derivar_escenario_f3(usos, data.get("escenario"))
+            res = _pipeline(chip, _modalidad_desde_data(data), escenario,
+                            caso=caso, modo=modo, usos=usos, bloques=bloques)
+            self._send(200, {"ok": True, "pipeline": res})
+            return
+
+        if parsed.path == "/api/nuevo-chip":
+            chip = (data.get("chip") or "").strip().upper()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            res = _nuevo_chip(chip)
+            self._send(200 if res.get("ok") else 200, res)
+            return
+
+        if parsed.path == "/api/norma-override":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            ok, ruta = _norma_override_guardar(chip, data.get("override") or {})
+            self._send(200, {"ok": ok, "ruta": ruta,
+                             "override": _norma_override_chip(chip)})
+            return
+
+        if parsed.path == "/api/financiero":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            ok, detalle = _financiero_override_guardar(chip, data.get("override") or {})
+            self._send(200, {"ok": ok, "ruta": detalle,
+                             "financiero": _financiero(chip) if ok else None})
+            return
+
+        if parsed.path == "/api/setback-override":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            ok, ruta = _setback_override_guardar(chip, data.get("override") or {})
+            self._send(200, {"ok": ok, "ruta": ruta,
+                             "setback_override": _setback_override_chip(chip)})
+            return
+
+        if parsed.path == "/api/vecinos-por-lado":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            vpl = data.get("vecinos_por_lado")
+            if not isinstance(vpl, dict):
+                self._json_error("vecinos_por_lado requerido")
+                return
+            vpl["chip"] = chip
+            # 2026-09-28: en lados 'via_no_frontal' / 'espacio_publico' la altura de
+            # vecinos no aplica (no hay edificacion colindante) -> se limpia al guardar
+            for _lado in (vpl.get("lados") or []):
+                _f = _lado.get("frente_override") or _lado.get("frente")
+                if _f in ("via_no_frontal", "espacio_publico"):
+                    for _v in (_lado.get("vecinos") or []):
+                        _v["altura_m"] = None
+                        _v["pisos"] = None
+                    for _v in (_lado.get("vecinos_manuales") or []):
+                        _v["altura_m"] = None
+                        _v["pisos"] = None
+            vpl["_schema"] = "vecinos_por_lado_override_v01"
+            vpl["_saved_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            ruta = _vecinos_override_ruta(chip)
+            try:
+                with io.open(ruta, "w", encoding="utf-8") as f:
+                    json.dump(vpl, f, indent=2, ensure_ascii=False)
+                # refrescar el ACTIVO que lee el canvas
+                with io.open(ACTIVO_VECINOS, "w", encoding="utf-8") as f:
+                    json.dump(vpl, f, indent=2, ensure_ascii=False)
+                self._send(200, {"ok": True, "ruta": ruta, "activo": ACTIVO_VECINOS})
+            except Exception as e:
+                self._json_error(str(e), 500)
+            return
+
+        if parsed.path == "/api/activar-chip":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            activados = _activar_chip(chip)
+            self._send(200, {"ok": True, "chip": chip, "activados": activados})
+            return
+
+        if parsed.path == "/api/activar-caso":
+            caso = (data.get("caso") or "").strip()
+            if not caso:
+                self._json_error("caso requerido")
+                return
+            activados = _activar_caso(caso)
+            self._send(200, {"ok": True, "caso": caso, "activados": activados})
+            return
+
+        if parsed.path == "/api/exportar-gfa":
+            ruta = _gfa_flag_poner(True)
+            if ruta is None:
+                self._json_error("no se pudo escribir el flag de exportación", 500)
+                return
+            self._send(200, {"ok": True, "flag": ruta,
+                             "mensaje": "Flag exportar=true escrito. El canvas exportará y lo devolverá a false."})
+            return
+
+        if parsed.path == "/api/exportar-lados":
+            chip = (data.get("chip") or "").strip()
+            if not chip:
+                self._json_error("chip requerido")
+                return
+            try:
+                os.makedirs(os.path.dirname(LADOS_FLAG_RUTA), exist_ok=True)
+                with io.open(LADOS_FLAG_RUTA, "w", encoding="utf-8") as f:
+                    json.dump({"exportar": True, "chip": chip,
+                               "origen_solicitud": "servidor",
+                               "ts": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")},
+                              f, indent=2, ensure_ascii=False)
+                self._send(200, {"ok": True, "flag": LADOS_FLAG_RUTA,
+                                 "mensaje": ("Flag lados-export escrito. El canvas (PATIO v02.4) "
+                                             "exportará <CHIP>-lados.json y lo devolverá a false.")})
+            except Exception as e:
+                self._json_error(str(e), 500)
+            return
+
         if parsed.path == "/api/niveles-bloque":
             chip = (data.get("chip") or "").strip().upper()
             if not chip:
@@ -1957,20 +2491,6 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/api/elevaciones-zonas":
-            chip = (q.get("chip") or [""])[0]
-            if not chip:
-                self._json_error("chip requerido", 400)
-                return
-            nb = _niveles_bloque_chip(chip)
-            if not nb:
-                self._json_error("chip no tiene niveles-bloque configurados", 400)
-                return
-            cfg = _elevaciones_zonas_chip(chip) or {}
-            res = _calcular_elevaciones_zonas(nb, cfg)
-            self._send(200, {"ok": res.get("ok"), "chip": chip, "elevaciones": res})
-            return
-
-        if parsed.path == "/api/elevaciones-zonas":
             chip = (data.get("chip") or "").strip().upper()
             if not chip:
                 self._json_error("chip requerido", 400)
@@ -1987,6 +2507,8 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         self._json_error("ruta no encontrada", 404)
+
+
 
 
 
@@ -2200,220 +2722,6 @@ def _validar_alturas(alturas):
             problemas.append("piso %d: %.2f m (debe estar entre 0 y %.2f m)" % (i + 1, v, ALTURA_ENTREPISO_MAX_M))
     return problemas
 
-    def do_POST(self):
-        parsed = urlparse(self.path)
-        length = int(self.headers.get("Content-Length", 0))
-        body = self.rfile.read(length).decode("utf-8", errors="replace")
-        try:
-            data = json.loads(body) if body else {}
-        except Exception:
-            self._json_error("JSON inválido")
-            return
-
-        if parsed.path == "/api/z0":
-            chip = (data.get("chip") or "").strip().upper()
-            z0 = data.get("z0_m")
-            if not chip or z0 is None:
-                self._json_error("chip y z0_m son requeridos")
-                return
-            try:
-                datos = _z0_guardar(chip, z0, modo=(data.get("modo") or "manual"),
-                                    origen=(data.get("origen") or "alzado"))
-            except Exception as e:
-                self._json_error(str(e), 500)
-                return
-            self._send(200, {"ok": True, "z0_m": datos["z0_m"], "modo": datos["modo"],
-                             "ruta": _z0_ruta(chip)})
-            return
-
-        if parsed.path == "/api/proyecto":
-            nombre = data.get("nombre", "").strip()
-            crear = bool(data.get("crear_estructura", False))
-            if crear and not nombre:
-                self._json_error("Para crear la estructura escriba un nombre de proyecto.")
-                return
-            ruta, destino = _guardar_proyecto(nombre, data)
-            creado = None
-            if crear:
-                ok, carpeta = _crear_estructura(nombre)
-                if ok:
-                    creado = carpeta
-            self._send(200, {"ok": True, "ruta": ruta, "destino": destino, "estructura_creada": creado, "ruta_activa": ACTIVO_PROYECTO})
-            return
-
-        if parsed.path == "/api/calcular-f2":
-            chip = (data.get("chip") or "").strip()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            res = _calcular_f2(chip, _modalidad_desde_data(data), data.get("gfa_m2"),
-                               data.get("costo_lote_cop"))
-            self._send(200, {"ok": True, "f2": res})
-            return
-
-        if parsed.path == "/api/generar-f3":
-            chip = (data.get("chip") or "").strip()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            usos = data.get("usos") or None
-            bloques = data.get("bloques") or None
-            escenario = _derivar_escenario_f3(usos, data.get("escenario"))
-            res = _generar_f3(chip, escenario, usos=usos, bloques=bloques)
-            res["escenario"] = escenario
-            res["usos"] = usos
-            self._send(200, {"ok": True, "f3": res})
-            return
-
-        if parsed.path == "/api/proponer-bloques":
-            chip = (data.get("chip") or "").strip()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            usos = data.get("usos") or None
-            bloques = data.get("bloques") or None
-            escenario = _derivar_escenario_f3(usos, data.get("escenario"))
-            prop = _proponer_bloques(chip, escenario, usos, bloques)
-            self._send(200, {"ok": True, "propuesta": prop, "error": prop.get("error")})
-            return
-
-        if parsed.path == "/api/pipeline":
-            chip = (data.get("chip") or "").strip()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            caso = (data.get("caso") or "").strip() or None
-            modo = (data.get("modo") or "venta").strip()
-            usos = data.get("usos") or None
-            bloques = data.get("bloques") or None
-            escenario = _derivar_escenario_f3(usos, data.get("escenario"))
-            res = _pipeline(chip, _modalidad_desde_data(data), escenario,
-                            caso=caso, modo=modo, usos=usos, bloques=bloques)
-            self._send(200, {"ok": True, "pipeline": res})
-            return
-
-        if parsed.path == "/api/nuevo-chip":
-            chip = (data.get("chip") or "").strip().upper()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            res = _nuevo_chip(chip)
-            self._send(200 if res.get("ok") else 200, res)
-            return
-
-        if parsed.path == "/api/norma-override":
-            chip = (data.get("chip") or "").strip()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            ok, ruta = _norma_override_guardar(chip, data.get("override") or {})
-            self._send(200, {"ok": ok, "ruta": ruta,
-                             "override": _norma_override_chip(chip)})
-            return
-
-        if parsed.path == "/api/financiero":
-            chip = (data.get("chip") or "").strip()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            ok, detalle = _financiero_override_guardar(chip, data.get("override") or {})
-            self._send(200, {"ok": ok, "ruta": detalle,
-                             "financiero": _financiero(chip) if ok else None})
-            return
-
-        if parsed.path == "/api/setback-override":
-            chip = (data.get("chip") or "").strip()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            ok, ruta = _setback_override_guardar(chip, data.get("override") or {})
-            self._send(200, {"ok": ok, "ruta": ruta,
-                             "setback_override": _setback_override_chip(chip)})
-            return
-
-        if parsed.path == "/api/vecinos-por-lado":
-            chip = (data.get("chip") or "").strip()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            vpl = data.get("vecinos_por_lado")
-            if not isinstance(vpl, dict):
-                self._json_error("vecinos_por_lado requerido")
-                return
-            vpl["chip"] = chip
-            # 2026-09-28: en lados 'via_no_frontal' / 'espacio_publico' la altura de
-            # vecinos no aplica (no hay edificacion colindante) -> se limpia al guardar
-            for _lado in (vpl.get("lados") or []):
-                _f = _lado.get("frente_override") or _lado.get("frente")
-                if _f in ("via_no_frontal", "espacio_publico"):
-                    for _v in (_lado.get("vecinos") or []):
-                        _v["altura_m"] = None
-                        _v["pisos"] = None
-                    for _v in (_lado.get("vecinos_manuales") or []):
-                        _v["altura_m"] = None
-                        _v["pisos"] = None
-            vpl["_schema"] = "vecinos_por_lado_override_v01"
-            vpl["_saved_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-            ruta = _vecinos_override_ruta(chip)
-            try:
-                with io.open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(vpl, f, indent=2, ensure_ascii=False)
-                # refrescar el ACTIVO que lee el canvas
-                with io.open(ACTIVO_VECINOS, "w", encoding="utf-8") as f:
-                    json.dump(vpl, f, indent=2, ensure_ascii=False)
-                self._send(200, {"ok": True, "ruta": ruta, "activo": ACTIVO_VECINOS})
-            except Exception as e:
-                self._json_error(str(e), 500)
-            return
-
-        if parsed.path == "/api/activar-chip":
-            chip = (data.get("chip") or "").strip()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            activados = _activar_chip(chip)
-            self._send(200, {"ok": True, "chip": chip, "activados": activados})
-            return
-
-        if parsed.path == "/api/activar-caso":
-            caso = (data.get("caso") or "").strip()
-            if not caso:
-                self._json_error("caso requerido")
-                return
-            activados = _activar_caso(caso)
-            self._send(200, {"ok": True, "caso": caso, "activados": activados})
-            return
-
-        if parsed.path == "/api/exportar-gfa":
-            ruta = _gfa_flag_poner(True)
-            if ruta is None:
-                self._json_error("no se pudo escribir el flag de exportación", 500)
-                return
-            self._send(200, {"ok": True, "flag": ruta,
-                             "mensaje": "Flag exportar=true escrito. El canvas exportará y lo devolverá a false."})
-            return
-
-        if parsed.path == "/api/exportar-lados":
-            chip = (data.get("chip") or "").strip()
-            if not chip:
-                self._json_error("chip requerido")
-                return
-            try:
-                os.makedirs(os.path.dirname(LADOS_FLAG_RUTA), exist_ok=True)
-                with io.open(LADOS_FLAG_RUTA, "w", encoding="utf-8") as f:
-                    json.dump({"exportar": True, "chip": chip,
-                               "origen_solicitud": "servidor",
-                               "ts": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")},
-                              f, indent=2, ensure_ascii=False)
-                self._send(200, {"ok": True, "flag": LADOS_FLAG_RUTA,
-                                 "mensaje": ("Flag lados-export escrito. El canvas (PATIO v02.4) "
-                                             "exportará <CHIP>-lados.json y lo devolverá a false.")})
-            except Exception as e:
-                self._json_error(str(e), 500)
-            return
-
-        self._json_error("ruta no encontrada", 404)
-
     def log_message(self, fmt, *args):
         sys.stderr.write("[servidor] " + (fmt % args) + "\n")
 
@@ -2441,3 +2749,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
