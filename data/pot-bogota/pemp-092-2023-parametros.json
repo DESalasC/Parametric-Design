@@ -1,0 +1,154 @@
+{
+  "_schema": "pemp_parametros_v01",
+  "_desc": "Parámetros normativos del PEMP del Centro Histórico de Bogotá (CHB) vigentes tras la Resolución 092 de 2023 del Ministerio de Cultura, que modifica la Resolución 88 de 2021. Dato derivado de la transcripción del articulado; NO sustituye el texto oficial. Ámbito: únicamente predios dentro del área afectada o la zona de influencia del PEMP - CHB.",
+  "_fuente": {
+    "norma": "Resolución DM 0092 del 24 de febrero de 2023 (Ministerio de Cultura)",
+    "publicacion": "Diario Oficial N.º 52.336 del 14 de marzo de 2023",
+    "modifica": "Resolución 88 del 6 de abril de 2021",
+    "texto_md": "D:\\Work\\NOTES\\obsidian-vault\\30-referencia\\pot-bogota\\reglamentacion-base\\DP-00-referencia-resolucion-0092-2023-pemp.md",
+    "pdf": "D:\\Work\\NOTES\\obsidian-vault\\30-referencia\\pot-bogota\\reglamentacion-base\\resolucion-0092-2023-pemp.pdf",
+    "fecha_extraccion": "2026-11-05"
+  },
+  "ambito": {
+    "aplica_a": ["area_afectada", "zona_influencia"],
+    "prevalencia": "Decreto 1080 de 2015, art. 2.4.1.1: las disposiciones de conservación del patrimonio prevalecen sobre el POT.",
+    "zona_influencia_bic_nacional_decreto_1080": "no_aplica_dentro_del_pemp_chb",
+    "articulo_zi": "85 parágrafo 2"
+  },
+  "indice_ocupacion_max": {
+    "area_afectada": 0.65,
+    "zona_influencia": 0.70,
+    "articulo": "43",
+    "nota": "Se respeta la ocupación del tipo arquitectónico de referencia; para N1-N3 el IO es el original del inmueble (valoración)."
+  },
+  "indice_ocupacion_excepciones": {
+    "integracion_n4_con_n1_n2_n3": { "area_afectada": 0.75, "zona_influencia": 0.80, "articulo": "43 parágrafo 2" },
+    "integracion_n4_con_n2_n3": { "area_afectada": 0.70, "zona_influencia": 0.75, "articulo": "70, Tabla 45" },
+    "ru3_planes_parciales": { "zona_influencia_max": 0.80, "articulo": "43 parágrafo 3" },
+    "predios_perdida_valores": { "ocupacion_max_frac": 0.50, "articulo": "74 numeral 2" }
+  },
+  "altura": {
+    "fuente": "Plano N.º 26 Alturas permitidas",
+    "nivel_1_y_2": "altura original del inmueble",
+    "nivel_3": "puede acceder a la altura de N4 con estudio de valoración y respetando empates con N1 y N2",
+    "nivel_4_tramo_frontero_m": { "area_afectada": 15, "zona_influencia": 20 },
+    "aislamiento_ru3_tramo_frontero_m": 12,
+    "torre_sobre_plataforma_profundidad_max_m": 15,
+    "plataforma_altura_max_m": 10,
+    "pisos_adicionales": {
+      "max_pisos": 2,
+      "max_metros": 7,
+      "tratamientos": ["CO2", "RU1", "RU2"],
+      "condiciones": [
+        "1 piso por frente a espacio público efectivo, corredores de comercio y servicios, vías peatonales restringidas o malla vial arterial, con al menos 20% del área construida en primer piso de acceso libre y afecta al uso público",
+        "1 piso por destinar al menos 20% del área construida en primer piso a industria artesanal (IA) y/o servicios artísticos y recreativos (SAR)"
+      ],
+      "pago_compensatorio": "Fondo Cuenta para el Cumplimiento o Compensación de Cargas Urbanísticas por Edificabilidad (Acuerdo 682 de 2017)",
+      "articulo": "45"
+    },
+    "nivel_cero": {
+      "terreno_plano": "punto más bajo del predio medido en el plano de fachada y sobre el espacio público",
+      "pendiente_o_mas_de_un_frente": "cota natural del terreno en toda la extensión del lote",
+      "articulo": "44 parágrafo"
+    }
+  },
+  "aislamientos": {
+    "lateral_y_posterior_exigido_m": 0,
+    "condicion": "no se exigen si se cumplen las condiciones de habitabilidad del PEMP",
+    "retroceso_contra_bic_obra_nueva_m": 3,
+    "servidumbre_de_vistas_m": 3,
+    "articulo": "46"
+  },
+  "culatas": {
+    "max_area_afectada_m": 3,
+    "max_zona_influencia_m": 7,
+    "pendiente_mayor_12_por_ciento_max_m": 3,
+    "articulo": "46"
+  },
+  "aleros_y_voladizos": {
+    "nivel_4_max_m": 0.70,
+    "ejes_especiales": ["avenida Caracas", "carrera décima", "calle 19", "carrera séptima"],
+    "ejes_especiales_max_m": 1.50,
+    "ejes_especiales_desde_altura_m": 8,
+    "articulo": "46"
+  },
+  "altura_libre_entre_placas_m": {
+    "obra_nueva": 2.40,
+    "modificacion_interior_o_subdivision": 2.25,
+    "bajo_cubierta_inclinada_habitable": 2.20,
+    "articulo": "46"
+  },
+  "patios": {
+    "lado_minimo_m": 3.0,
+    "permeabilidad_min_frac": 0.80,
+    "arborizacion_nativa_min_frac": 0.40,
+    "articulo": "46"
+  },
+  "vivienda": {
+    "area_minima_m2": { "N2": 25, "N3": 25, "N4": 36, "RE3": 18 },
+    "articulo": "54A",
+    "vip_vis": "no se exige provisión de suelo para tratamientos distintos al de desarrollo"
+  },
+  "industria_artesanal": {
+    "area_max_m2": 200,
+    "area_max_excepcional_corredor_m2": 600,
+    "articulo": "60"
+  },
+  "estacionamientos": {
+    "area_afectada_n1_n2_n3": "sin exigencia",
+    "area_afectada_n4_residencial_obra_nueva": "Tabla 43",
+    "zona_influencia_n1_n2_n3": "se mantiene la exigencia de la licencia original del inmueble",
+    "usos_complementarios": "sin exigencia",
+    "primer_piso_n4": "permitido con franja de comercio y servicios de mínimo 6 m de profundidad sobre fachada",
+    "articulo": "64"
+  },
+  "niveles_intervencion": {
+    "N1": "Conservación Integral",
+    "N2": "Conservación del Tipo Arquitectónico",
+    "N3": "Conservación Contextual",
+    "N4": "Sin valores y lotes sin edificar",
+    "articulo": "37"
+  },
+  "tipos_arquitectonicos": {
+    "T0": "Indefinido",
+    "T1": "Casa patio",
+    "T2": "Casa compacta",
+    "T3": "Pasaje residencial",
+    "T4": "Pasaje comercial",
+    "T5": "Edificio convencional",
+    "T6": "Torre plataforma",
+    "T7": "Especial",
+    "articulo": "49"
+  },
+  "grupos_arquitectonicos": {
+    "G0": "sin lenguaje definido",
+    "G1": "colonial",
+    "G2": "republicano doméstico y nacionalista",
+    "G3": "republicano institucional",
+    "G4": "premoderno",
+    "G5": "moderno",
+    "G6": "contemporáneo",
+    "G7": "mixto (dos o más grupos)",
+    "articulo": "50"
+  },
+  "clasificacion_de_oficio": {
+    "restitucion_parcial_o_total": "N2",
+    "perdida_de_valores_patrimoniales": "N2",
+    "articulos": ["73", "74"]
+  },
+  "instrumentos": {
+    "plan_manzana": "permite traslado de potencial de construcción de N1-N3 a otros predios de la manzana",
+    "herramienta_consulta_predial": "a cargo de la administración distrital en máximo 2 años",
+    "fichas_integrales": 507,
+    "articulos": ["105", "35 parágrafo", "49"]
+  },
+  "_faltantes": [
+    "Anexo 8 Cuadro 1: usos del suelo, acciones de mitigación y estacionamientos",
+    "Anexo 9 Cuadro 2: correspondencia usos - CIIU",
+    "Anexo 1: listado y código normativo por inmueble",
+    "Plano 2: delimitación del área afectada",
+    "Plano 3: delimitación de la zona de influencia",
+    "Plano 26: alturas permitidas",
+    "Anexo 10: 507 fichas de valoración e inventario"
+  ]
+}
