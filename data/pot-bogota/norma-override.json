@@ -11,10 +11,32 @@
       "io_maximo": 0.7,
       "fuente": "Decreto 492/07 (PZCB) - Planos 094 Usos/Edificabilidad + Nota N | altura 10 m confirmada por IDPC (visita fisica 2026-10-26)",
       "nota": "Nota N: +2 pisos sobre base 3 = 5 pisos; altura maxima 10 m. El 'CHB' de la GDB es error conocido (el predio NO es patrimonio) y su tabla hardcodeada devolvia 7,0 m: por eso el override fija altura_maxima_m = 10,0. Se conserva 7,0 m solo como referencia PZCB. Anteproyecto requiere aprobacion IDPC + MinCultura.",
-      "ultima_edicion": "2026-11-03 21:25",
+      "ultima_edicion": "2026-11-05 21:30",
       "altura_maxima_m": 10.0,
       "altura_maxima_m_referencia_pzcb": 7.0,
       "altura_maxima_fuente": "IDPC - visita fisica 2026-10-26 (confirmado en ventanilla) | coincide con la Nota N del PZCB ya registrada",
+      "pemp": {
+        "altura_base_m": 10,
+        "altura_maxima_m": null,
+        "nivel_intervencion": null,
+        "area_afectada": null,
+        "zona_influencia": null,
+        "tramo_fronterizo_max_m": null,
+        "bic_colindante_altura_m": null,
+        "bic_colindante_lado": "norte",
+        "bic_nivel_conservacion": 2,
+        "es_esquinero": false,
+        "espacio_publico_por": ["posterior", "lateral"],
+        "nivel_cero_regla": "Art. 44: punto más bajo de fachada sobre espacio público (terreno plano) o cota natural del terreno en toda la extensión (pendiente/varios frentes)",
+        "fuente": "Plano 26 Alturas PEMP 092/2023 (IDPC Drive) + visita fisica 2026-10-26",
+        "pendiente_validacion": [
+          "altura_maxima_m (BIC colindante norte puede elevar el tope sobre 10 m)",
+          "area_afectada vs zona_influencia (tramo frontero 15 m / 20 m e IO 65 % / 70 %)",
+          "nivel_intervencion (N1-N4)",
+          "altura del BIC colindante norte"
+        ],
+        "estado": "pendiente_validacion_presencial"
+      },
       "retiro_patrimonial_m": 3.0,
       "franja_patrimonial_longitud_m": 10.5,
       "vecino_patrimonio_por_lado": [

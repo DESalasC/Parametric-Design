@@ -1,0 +1,47 @@
+{
+  "_schema": "pemp_lookup_v01",
+  "_desc": "Tabla de lookup PEMP Centro Histórico de Bogotá (Resolución 092/2023). Extraída de los planos oficiales del IDPC (Google Drive IDPC: 26_ALTURAS PERMITIDAS, 13_CP3 ESPACIO PÚBLICO, 26_TIPOS ARQUITECTÓNICOS). Indexada por código catastral (chip). Los campos con null son pendientes de validación en consulta presencial IDPC.",
+  "_fuentes": {
+    "alturas": "Plano 26 Alturas (092/2023), escala 1:15.000, julio 2022, autorizado mediante 0092 del 24-02-2023",
+    "espacio_publico": "Plano 13 Espacio Público (092/2023)",
+    "tipos_arquitectonicos": "Plano 26 Tipos Arquitectónicos (092/2023)",
+    "area_afectada_zona_influencia": "Planos 2 y 3 PEMP (pendiente de cruce)",
+    "archivos_fuente": [
+      "D:\\Work\\NOTES\\obsidian-vault\\30-referencia\\pot-bogota\\reglamentacion-base\\pemp-plano-26-alturas-permitidas-092-2023.jpg",
+      "D:\\Work\\NOTES\\obsidian-vault\\30-referencia\\pot-bogota\\reglamentacion-base\\pemp-plano-26-tipos-arquitectonicos-092-2023.jpg",
+      "D:\\Work\\NOTES\\obsidian-vault\\30-referencia\\pot-bogota\\reglamentacion-base\\pemp-plano-13-espacio-publico-092-2023.jpg"
+    ]
+  },
+  "lotes": {
+    "AAA0030JKOE": {
+      "upz": "94 - La Candelaria",
+      "manzana_catastral": null,
+      "nivel_intervencion": null,
+      "altura_base_m": 10,
+      "altura_maxima_m": null,
+      "altura_base_fuente": "Plano 26 Alturas (número en círculo = 10)",
+      "altura_maxima_fuente": null,
+      "bic_colindante": {
+        "lado": "norte",
+        "nivel_conservacion": 2,
+        "altura_m": null,
+        "borde_negro": true,
+        "nota": "El vecino colindante por el norte es N2 y, según el usuario, el borde negro indica 'Altura BIC Colindante'. Altura específica del BIC pendiente de validación en consulta presencial (semana del 2026-11-09)."
+      },
+      "area_afectada": null,
+      "zona_influencia": null,
+      "tramo_fronterizo_max_m": null,
+      "es_esquinero": false,
+      "espacio_publico_por": ["posterior", "lateral"],
+      "nivel_cero_regla": "Art. 44: punto más bajo de fachada sobre espacio público (terreno plano) o cota natural del terreno en toda la extensión (pendiente/varios frentes). Pendiente de medición in situ.",
+      "pendiente_validacion": [
+        "altura_maxima_m (definir si el BIC colindante eleva el tope sobre 10 m)",
+        "area_afectada vs zona_influencia (define tramo frontero 15 m / 20 m e IO 65 % / 70 %)",
+        "nivel_intervencion (N1-N4)",
+        "altura del BIC colindante norte"
+      ],
+      "ultima_edicion": "2026-11-05 21:30",
+      "estado": "pendiente_validacion_presencial"
+    }
+  }
+}
