@@ -5,9 +5,9 @@
   "modo": "mixto",
   "gfa_m2": null,
   "costo_lote_cop": null,
-  "z0_modo": "manual",
-  "z0_m": 0.501,
-  "z0_abs_m": 2635.022,
+  "z0_modo": "min_lote",
+  "z0_m": 0.2661,
+  "z0_abs_m": 2634.7871,
   "origen_z_m": 2634.521,
   "parametros_f2_venta": "D:\\Work\\PROJECTS\\DiseñoParametrico\\src\\fase-2-demanda\\F2_Modelo_Financiero\\parametros_AAA0030JKOE_mercado2026.json",
   "parametros_f2_renta": "D:\\Work\\PROJECTS\\DiseñoParametrico\\src\\fase-2-demanda\\F2_Modelo_Renta\\parametros_AAA0030JKOE_renta.json"

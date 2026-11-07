@@ -7,8 +7,20 @@
     "moneda": "COP",
     "fecha_ejecucion": "2026-08-12",
     "chip": "AAA0030JKOE",
+    "upz": {
+        "numero": 94,
+        "nombre": "La Candelaria",
+        "tipo": "PEMP",
+        "descripcion": "Plan Especial de Manejo y Proteccion del Centro Historico de Bogota (Decreto 492/07)",
+        "fuente": "Geobase SDP - UPZ y PEMP del Centro Historico"
+    },
     "ciclo_desarrollo_anios": 2,
-    "nota_general": "Los valores de mercado provienen de fuentes publicas consultadas el 2026-08-12 (ver seccion 'fuentes' por escenario y parametro). Antes de uso comercial, reemplazar el precio de suelo con el dato real del lote y validar precios de venta con comparables de radio 5 km."
+    "nota_general": "Los valores de mercado provienen de fuentes publicas consultadas el 2026-08-12 (ver seccion 'fuentes' por escenario y parametro). Antes de uso comercial, reemplazar el precio de suelo con el dato real del lote y validar precios de venta con comparables de radio 5 km.",
+    "estado_vigencia": "VENCIDO",
+    "requiere_actualizacion_mercado": true,
+    "umbral_dias_validacion": 14,
+    "fecha_validacion": "2026-11-06",
+    "dias_transcurridos_validacion": 86
   },
   "gfa_max_m2": 1200,
   "lote": {
@@ -57,7 +69,7 @@
       "nivel_acabados": "Medio",
       "unidad_m2": 90.0,
       "eficiencia_nga": 0.75,
-      "precio_venta_m2": 7500000,
+      "precio_venta_m2": 9500000,
       "costo_construccion_m2": 3400000,
       "absorcion_unid_mes": 2.5,
       "fuente_precio": "Precio medio-alto Bogota 2026: Terraes estima $6,0 M/m2 promedio en venta (50% del mercado entre $4,5 y $7,9 M/m2); Ciencuadras Q1-2026 reporta $7,42 M/m2 promedio para apartamentos; DANE IPVN Q1-2026 +8,47% anual vivienda nueva. Se toma $7,2 M/m2 para zona media-alta.",
@@ -71,7 +83,7 @@
       "nivel_acabados": "Premium",
       "unidad_m2": 150.0,
       "eficiencia_nga": 0.68,
-      "precio_venta_m2": 10500000,
+      "precio_venta_m2": 12500000,
       "costo_construccion_m2": 4800000,
       "absorcion_unid_mes": 1.0,
       "fuente_precio": "Barrios premium de Bogota (La Cabrera, El Retiro) superan $11 M/m2 (Metrocuadrado 2026); Terraes ubica el rango amplio hasta $10,2 M/m2. Se toma $12 M/m2 para producto premium en zona de alto valor.",

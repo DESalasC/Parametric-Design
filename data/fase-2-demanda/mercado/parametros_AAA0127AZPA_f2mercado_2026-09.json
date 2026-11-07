@@ -69,7 +69,12 @@
       "vencido": false,
       "validado": true,
       "sincronizador": "F2_SINCRONIZAR_MERCADO_v01"
-    }
+    },
+    "estado_vigencia": "VENCIDO",
+    "requiere_actualizacion_mercado": true,
+    "umbral_dias_validacion": 14,
+    "fecha_validacion": "2026-11-06",
+    "dias_transcurridos_validacion": 64
   },
   "gfa_max_m2": 632.695061,
   "lote": {

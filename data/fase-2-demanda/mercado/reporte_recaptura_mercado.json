@@ -1,0 +1,54 @@
+{
+  "fecha": "2026-11-06",
+  "chip": "AAA0030JKOE",
+  "umbral_dias": 14,
+  "total_archivos": 3,
+  "vencidos": 3,
+  "frescos": 0,
+  "invalidos": 0,
+  "archivos": [
+    {
+      "ruta": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\mercado\\parametros_AAA0127AZPA_f2mercado_2026-09.json",
+      "existe": true,
+      "valido": true,
+      "fecha_datos": "2026-09-03",
+      "dias_transcurridos": 64,
+      "vencido": true,
+      "error": null
+    },
+    {
+      "ruta": "D:\\Work\\PROJECTS\\DiseñoParametrico\\src\\fase-2-demanda\\F2_Modelo_Financiero\\parametros_entrada.json",
+      "existe": true,
+      "valido": true,
+      "fecha_datos": "2026-08-12",
+      "dias_transcurridos": 86,
+      "vencido": true,
+      "error": null
+    },
+    {
+      "ruta": "D:\\Work\\PROJECTS\\DiseñoParametrico\\src\\fase-2-demanda\\F2_Modelo_Renta\\parametros_entrada.json",
+      "existe": true,
+      "valido": true,
+      "fecha_datos": "2026-08-13",
+      "dias_transcurridos": 85,
+      "vencido": true,
+      "error": null
+    }
+  ],
+  "acciones": [
+    {
+      "ok": false,
+      "accion": "sincronizar_mvb",
+      "chip": "AAA0030JKOE",
+      "detalle": "Sin export de mercado para el chip AAA0030JKOE en:\n  D:\\Work\\PROJECTS\\MercadoViviendaBogota\\data\\normalized\\fase2_export\\parametros_f2",
+      "codigo": 3
+    },
+    {
+      "accion": "pendiente_nivel2",
+      "detalle": "Recaptura pendiente en MercadoViviendaBogota desde portales (nivel 2). Ver D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\mercado\\pendiente_mercado.json."
+    }
+  ],
+  "nivel_alcanzado": 2,
+  "codigo_salida": 2,
+  "pendiente_nivel2": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\mercado\\pendiente_mercado.json"
+}

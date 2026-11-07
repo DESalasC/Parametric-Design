@@ -45,6 +45,7 @@ import shutil
 import subprocess
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 try:
@@ -58,8 +59,11 @@ POT_CACHE = os.path.join(ROOT, "data", "pot-cache")
 F3_CASOS = os.path.join(ROOT, "src", "fase-3-masa", "casos")
 F2_VENTA_DIR = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Financiero")
 F2_RENTA_DIR = os.path.join(ROOT, "src", "fase-2-demanda", "F2_Modelo_Renta")
+F2_DEMANDA_DIR = os.path.join(ROOT, "src", "fase-2-demanda")
 F3_DIR = os.path.join(ROOT, "src", "fase-3-masa")
 F2_VENTA_SCRIPT = os.path.join(F2_VENTA_DIR, "F2_DEMANDA_MOTOR_v03.py")
+F2_DISPARAR_SCRIPT = os.path.join(F2_DEMANDA_DIR, "F2_DISPARAR_RECAPTURA_MERCADO_v01.py")
+MVB_ROOT_DEFAULT = r"D:\Work\PROJECTS\MercadoViviendaBogota"
 F3_DIST_SCRIPT = os.path.join(F3_DIR, "F3_DISTRIBUCION_v02.py")
 F3_ACCESOS_SCRIPT = os.path.join(F3_DIR, "F3_ACCESOS_INTEGRADOR_v02.py")
 F1_FETCH_SCRIPT = os.path.join(ROOT, "scripts", "utilities", "fetch-urban-context-v7.py")
@@ -1871,6 +1875,59 @@ def _gen_planta():
     return _PLANTA_MOD
 
 
+_DISPARAR_MOD = None
+_UMBRAL_MERCADO_DIAS = 14
+
+
+def _gen_disparar():
+    """Carga perezosa del validador/disparador de mercado F2."""
+    global _DISPARAR_MOD
+    if _DISPARAR_MOD is None:
+        import importlib.util
+        if not os.path.exists(F2_DISPARAR_SCRIPT):
+            return None
+        spec = importlib.util.spec_from_file_location(
+            "f2_disparar_recaptura_mercado", F2_DISPARAR_SCRIPT)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _DISPARAR_MOD = mod
+    return _DISPARAR_MOD
+
+
+def _disparar_mercado_al_arranque(umbral_dias: int) -> dict | None:
+    """Ejecuta el validador/disparador de mercado al arrancar el Orquestador.
+
+    Nunca bloquea el arranque: si algo falla, devuelve None y solo avisa por
+    consola. Nivel 1 (automatico): sincroniza export fresco de MVB si existe.
+    Nivel 2 (pendiente): genera pendiente_mercado.json si no hay export fresco.
+    """
+    mod = _gen_disparar()
+    if mod is None:
+        print("[MERCADO] aviso: F2_DISPARAR_RECAPTURA_MERCADO_v01.py no encontrado; se omite validacion al arranque.")
+        return None
+    try:
+        reporte = mod.disparar(
+            root=Path(ROOT),
+            mvb_root=Path(MVB_ROOT_DEFAULT),
+            umbral_dias=umbral_dias,
+            aplicar=True,
+            chip=None,
+            mes=None,
+            solo_validar=False,
+            hoy=datetime.date.today(),
+        )
+        print("[MERCADO] vigencia: {vencidos}/{total} archivos vencidos | "
+              "nivel {nivel} | salida {codigo}".format(
+                  vencidos=reporte["vencidos"], total=reporte["total_archivos"],
+                  nivel=reporte["nivel_alcanzado"], codigo=reporte["codigo_salida"]))
+        if reporte.get("pendiente_nivel2"):
+            print("[MERCADO] pendiente N2: {0}".format(reporte["pendiente_nivel2"]))
+        return reporte
+    except Exception as ex:
+        print("[MERCADO] aviso: validador de mercado fallo al arranque: {0}".format(ex))
+        return None
+
+
 def _firma_planta(chip):
     """Firma de los archivos que alimentan la planta (bloques + entrepisos).
 
@@ -2469,6 +2526,31 @@ class Handler(BaseHTTPRequestHandler):
                 self._json_error(str(e), 500)
             return
 
+        if parsed.path == "/api/recaptura-mercado":
+            chip = (data.get("chip") or "").strip() or None
+            aplicar = bool(data.get("aplicar", True))
+            mes = (data.get("mes") or "").strip() or None
+            umbral = int(data.get("umbral_dias") or _UMBRAL_MERCADO_DIAS)
+            try:
+                mod = _gen_disparar()
+                if mod is None:
+                    self._json_error("modulo de recaptura de mercado no disponible", 500)
+                    return
+                reporte = mod.disparar(
+                    root=ROOT,
+                    mvb_root=Path(MVB_ROOT_DEFAULT),
+                    umbral_dias=umbral,
+                    aplicar=aplicar,
+                    chip=chip,
+                    mes=mes,
+                    solo_validar=False,
+                    hoy=datetime.date.today(),
+                )
+                self._send(200, {"ok": True, "recaptura": reporte})
+            except Exception as e:
+                self._json_error(str(e), 500)
+            return
+
         if parsed.path == "/api/niveles-bloque":
             chip = (data.get("chip") or "").strip().upper()
             if not chip:
@@ -2729,11 +2811,17 @@ def _validar_alturas(alturas):
 def main():
     parser = argparse.ArgumentParser(description="Formulario interactivo DiseñoParametrico")
     parser.add_argument("--puerto", type=int, default=8900)
+    parser.add_argument("--umbral-mercado-dias", type=int, default=_UMBRAL_MERCADO_DIAS,
+                        help=f"Umbral de vigencia del mercado F2 en dias (default {_UMBRAL_MERCADO_DIAS}).")
     args = parser.parse_args()
     if not os.path.isdir(PROYECTOS):
         os.makedirs(PROYECTOS)
     if not os.path.isdir(PROVISIONAL):
         os.makedirs(PROVISIONAL)
+
+    # --- Validador y disparador de mercado al arrancar el Orquestador ---
+    _disparar_mercado_al_arranque(args.umbral_mercado_dias)
+
     server = HTTPServer(("127.0.0.1", args.puerto), Handler)
     print("=" * 64)
     print("Formulario DiseñoParametrico (Parte 1: F1 -> F3)")

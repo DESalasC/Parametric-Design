@@ -7,6 +7,13 @@
     "moneda": "COP",
     "fecha_ejecucion": "2026-08-12",
     "chip": "AAA0127AZPA",
+    "upz": {
+        "numero": 24,
+        "nombre": "Niza",
+        "tipo": "UPZ",
+        "descripcion": "UPZ Niza, localidad Suba",
+        "fuente": "Geobase SDP - UPZ Bogota (Decreto 190/2004)"
+    },
     "ciclo_desarrollo_anios": 2,
     "nota_general": "Los valores de mercado provienen de fuentes publicas consultadas el 2026-08-12 (ver seccion 'fuentes' por escenario y parametro). Antes de uso comercial, reemplazar el precio de suelo con el dato real del lote y validar precios de venta con comparables de radio 5 km."
   },

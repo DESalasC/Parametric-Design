@@ -6,7 +6,7 @@
     {
       "piso": 1,
       "altura_z": 0.0,
-      "altura_piso": 3.05,
+      "altura_piso": 2.55,
       "usos": [
         {
           "uso": "Vivienda",
@@ -22,8 +22,8 @@
     },
     {
       "piso": 2,
-      "altura_z": 3.05,
-      "altura_piso": 3.05,
+      "altura_z": 2.55,
+      "altura_piso": 2.55,
       "usos": [
         {
           "uso": "Vivienda",
@@ -39,8 +39,8 @@
     },
     {
       "piso": 3,
-      "altura_z": 6.1,
-      "altura_piso": 3.05,
+      "altura_z": 5.1,
+      "altura_piso": 2.55,
       "usos": [
         {
           "uso": "Vivienda",
@@ -56,8 +56,8 @@
     },
     {
       "piso": 4,
-      "altura_z": 9.15,
-      "altura_piso": 3.05,
+      "altura_z": 7.65,
+      "altura_piso": 2.55,
       "usos": [
         {
           "uso": "Vivienda",

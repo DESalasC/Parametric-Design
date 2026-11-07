@@ -1,0 +1,1938 @@
+{
+  "meta": {
+    "modelo": "F2_RENTA_MOTOR_v02",
+    "version": "2.0",
+    "fase": "Prefactibilidad (Fase 2) — Modelo Financiero Build-to-Rent",
+    "ciudad": "Bogota D.C., Colombia",
+    "moneda": "COP",
+    "fecha_ejecucion": "2026-08-14",
+    "chip": "AAA0030JKOE",
+    "origen_datos": "Lote real AAA0030JKOE (La Candelaria, UPZ 94; 946,45 m2; estrato 2; norma manual Decreto 492/07: IO 0,7 x 5 pisos -> GFA 3.312,6 m2). CL supuesto de ejercicio $1.420 M. Canones: zona turistica centro historico (supuestos de ejercicio; Ciencuadras Q1-2026 promedio Bogota $47.821/m2/mes como referencia).",
+    "nota_general": "Caso de estudio centro historico: alta demanda turistica (ocupacion CP alta), canones premium por m2, sobrecosto de restauracion. Canones parcialmente validados 2026-08-14 (Properati/Facebook ofertas Candelaria).",
+    "gfa_fuente": "grasshopper-f1 (gfa-gh.json)",
+    "override_uso": {
+      "activo": true,
+      "nota": "",
+      "token": "USO_OVERRIDE:Mixto;",
+      "uso": "Mixto"
+    }
+  },
+  "gfa_max_m2": 1845.3473,
+  "costo_lote_cop": 1420000000.0,
+  "parametros_usados": {
+    "financiero": {
+      "costos_blandos_pct": 15.0,
+      "marketing_leasing_pct": 2.0
+    },
+    "renta": {
+      "horizonte_anios": 10,
+      "incremento_canon_pct": 5.5,
+      "incremento_gastos_pct": 6.5,
+      "cap_rate_salida_pct": 6.2
+    },
+    "reglas_renta": {
+      "tasa_descuento_pct": 10.0,
+      "tir_minima_pct": 10.0,
+      "cap_rate_entrada_min_pct": 5.0,
+      "payback_max_anios": 8.0,
+      "cl_inversion_precaucion_pct": 25.0,
+      "cl_inversion_inviable_pct": 30.0
+    },
+    "sensibilidad": {
+      "variacion_pct": 10.0
+    },
+    "escenarios": {
+      "A_VIS": {
+        "nombre": "A — VIS / VIP",
+        "unidad_m2": 55.0,
+        "eficiencia_nga": 0.8,
+        "costo_construccion_m2": 2600000.0,
+        "canon_m2_mes": {
+          "CP": 61200.0,
+          "LP": 36000.0
+        },
+        "fuente_canon": "Centro historico zona turistica: LP $36.000/m2/mes (supuesto de ejercicio sobre FincaRaiz/Ciencuadras); CP = x1,7.",
+        "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+        "fuente_costo": "Konstruing + restauracion: $2,6 M/m2 (supuesto de ejercicio).",
+        "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+        "nota": "Supuestos de ejercicio."
+      },
+      "B_ESTANDAR": {
+        "nombre": "B — Estandar",
+        "unidad_m2": 85.0,
+        "eficiencia_nga": 0.75,
+        "costo_construccion_m2": 3400000.0,
+        "canon_m2_mes": {
+          "CP": 74800.0,
+          "LP": 44000.0
+        },
+        "fuente_canon": "Validado parcial 2026-08-14: apartaestudios turisticos Candelaria ,3-1,7 M/mes en 30-40 m2 (~-45.000/m2/mes); se mantiene .000 LP (zona turistica). CP = x1,7.",
+        "fuente_canon_url": "https://www.properati.com.co/s/la-candelaria-bogota-d-c/apartamento/arriendo",
+        "fuente_costo": "Konstruing + restauracion: $3,4 M/m2 (supuesto de ejercicio).",
+        "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+        "nota": "Canon mantenido en .000 LP tras validacion parcial 2026-08-14 (correccion de ajuste previo)."
+      },
+      "C_LUJO": {
+        "nombre": "C — Lujo / Alto nivel",
+        "unidad_m2": 150.0,
+        "eficiencia_nga": 0.7,
+        "costo_construccion_m2": 4800000.0,
+        "canon_m2_mes": {
+          "CP": 91800.0,
+          "LP": 54000.0
+        },
+        "fuente_canon": "Boutique premium centro: LP $54.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
+        "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
+        "fuente_costo": "Konstruing premium + restauracion: $4,8 M/m2 (supuesto de ejercicio).",
+        "fuente_costo_url": "https://konstruing.com.co/blog/cuanto-cuesta-construir-casa-bogota-2026.html",
+        "nota": "Supuestos de ejercicio."
+      },
+      "D_MIXTO": {
+        "nombre": "D - Mixto (override usuario)",
+        "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Canones ajustados a comparables 2026-08-14.",
+        "override_uso": true,
+        "mix_usos": [
+          {
+            "uso": "Local comercial turistico",
+            "pct_gfa": 0.3,
+            "unidad_m2": 40.0,
+            "eficiencia_nga": 0.85,
+            "costo_construccion_m2": 4500000,
+            "canon_m2_mes": {
+              "CP": 70000,
+              "LP": 42000
+            },
+            "fuente": "Local centro historico LP $42.000/m2/mes (supuesto de ejercicio)."
+          },
+          {
+            "uso": "Vivienda estandar",
+            "pct_gfa": 0.7,
+            "unidad_m2": 55.0,
+            "eficiencia_nga": 0.75,
+            "costo_construccion_m2": 4000000,
+            "canon_m2_mes": {
+              "CP": 74800,
+              "LP": 44000
+            },
+            "fuente": "Vivienda centro historico LP $44.000/m2/mes (apartaestudios turisticos 2026-08-14)."
+          }
+        ],
+        "fuente_canon": "Comparables 2026-08-14 + supuestos (mix uso multiple).",
+        "fuente_costo": "Supuestos de ejercicio 2026-08-14 (local restauracion $4,5 M/m2, vivienda $4,0 M/m2)."
+      },
+      "D_MIXTO_SALUD": {
+        "nombre": "D - Mixto Salud (sensibilidad)",
+        "nota": "USO-MULTIPLE + componente de salud (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
+        "override_uso": true,
+        "sensibilidad": "salud/oficinas",
+        "mix_usos": [
+          {
+            "uso": "Consultorios (salud)",
+            "pct_gfa": 0.25,
+            "unidad_m2": 40.0,
+            "eficiencia_nga": 0.75,
+            "costo_construccion_m2": 3300000.0,
+            "fuente": "Consultorios: canon no-prime $55-60k/m2/mes (rango ciudad 2026, ver nota).",
+            "canon_m2_mes": {
+              "CP": 60000,
+              "LP": 60000
+            }
+          },
+          {
+            "uso": "Vivienda estandar",
+            "pct_gfa": 0.75,
+            "unidad_m2": 70.0,
+            "eficiencia_nga": 0.75,
+            "costo_construccion_m2": 3000000,
+            "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+            "canon_m2_mes": {
+              "CP": 74800,
+              "LP": 44000
+            }
+          }
+        ],
+        "fuente_canon": "Canones de sensibilidad 2026-08-14 (consultorio rango ciudad; vivienda del caso).",
+        "fuente_costo": "Costo consultorio = estandar x1,10 (instalaciones medicas); vivienda del caso."
+      },
+      "D_MIXTO_OFICINAS": {
+        "nombre": "D - Mixto Oficinas (sensibilidad)",
+        "nota": "USO-MULTIPLE + componente de oficinas (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas.",
+        "override_uso": true,
+        "sensibilidad": "salud/oficinas",
+        "mix_usos": [
+          {
+            "uso": "Oficinas (servicios)",
+            "pct_gfa": 0.25,
+            "unidad_m2": 60.0,
+            "eficiencia_nga": 0.8,
+            "costo_construccion_m2": 3000000,
+            "fuente": "Oficinas: canon no-prime $38.000/m2/mes (clase A $82,7k, ver nota).",
+            "canon_m2_mes": {
+              "CP": 38000,
+              "LP": 38000
+            }
+          },
+          {
+            "uso": "Vivienda estandar",
+            "pct_gfa": 0.75,
+            "unidad_m2": 70.0,
+            "eficiencia_nga": 0.75,
+            "costo_construccion_m2": 3000000,
+            "fuente": "Vivienda del caso (canon/precio validado 2026-08-14).",
+            "canon_m2_mes": {
+              "CP": 74800,
+              "LP": 44000
+            }
+          }
+        ],
+        "fuente_canon": "Canones de sensibilidad 2026-08-14 (oficina no-prime; vivienda del caso).",
+        "fuente_costo": "Costo de vivienda del caso (oficina sin sobrecosto)."
+      }
+    },
+    "estrategias": {
+      "CP": {
+        "nombre": "Corto plazo — temporal amoblado (turismo)",
+        "ocupacion_pct": 80.0,
+        "administracion_m2_mes": 8000.0,
+        "gastos_operativos_pct_egi": 25.0,
+        "capex_pct_egi": 3.0,
+        "mobiliario_cop_m2": 500000.0,
+        "nota": "Zona turistica: ocupacion 80% (mayor que el 75% base)."
+      },
+      "LP": {
+        "nombre": "Largo plazo — arriendo tradicional",
+        "ocupacion_pct": 90.0,
+        "administracion_m2_mes": 6500.0,
+        "gastos_operativos_pct_egi": 12.0,
+        "capex_pct_egi": 1.0,
+        "mobiliario_cop_m2": 0.0,
+        "nota": "Centro historico: ocupacion 90% (menor que 95% por estacionalidad turistica)."
+      }
+    }
+  },
+  "resultados": [
+    {
+      "estrategia": "CP",
+      "estrategia_nombre": "Corto plazo — temporal amoblado (turismo)",
+      "escenario_id": "A_VIS",
+      "producto": "A — VIS / VIP",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1476.28,
+      "unidad_m2": 55.0,
+      "num_unidades": 26,
+      "area_arrendable_m2": 1430.0,
+      "canon_m2_mes": 61200.0,
+      "mix_usos_detalle": null,
+      "ocupacion_pct": 80.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 1050192000.0,
+      "egi_1_cop": 840153600.0,
+      "noi_1_cop": 467630592.0,
+      "inversion_total_cop": 7673592267.0,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 4797902980.0,
+      "costo_blando_cop": 719685447.0,
+      "marketing_leasing_cop": 21003840.0,
+      "mobiliario_cop": 715000000.0,
+      "salida_cop": 12548401627.8,
+      "sum_noi_cop": 5935923555.61,
+      "yield_bruto_pct": 13.69,
+      "cap_rate_entrada_pct": 6.09,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 11.17,
+      "VPN_cop": 670445745.96,
+      "payback_anios": 9.2,
+      "payback_descontado_anios": 9.9,
+      "multiplico_x": 2.41,
+      "CL_inversion_pct": 18.51,
+      "suelo_soportable_cop": 2090445745.96,
+      "ocupacion_breakeven_pct": 18.2,
+      "fuente_canon": "Centro historico zona turistica: LP $36.000/m2/mes (supuesto de ejercicio sobre FincaRaiz/Ciencuadras); CP = x1,7.",
+      "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+      "nota": "Supuestos de ejercicio."
+    },
+    {
+      "estrategia": "CP",
+      "estrategia_nombre": "Corto plazo — temporal amoblado (turismo)",
+      "escenario_id": "B_ESTANDAR",
+      "producto": "B — Estandar",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1384.01,
+      "unidad_m2": 85.0,
+      "num_unidades": 16,
+      "area_arrendable_m2": 1360.0,
+      "canon_m2_mes": 74800.0,
+      "mix_usos_detalle": null,
+      "ocupacion_pct": 80.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 1220736000.0,
+      "egi_1_cop": 976588800.0,
+      "noi_1_cop": 572583936.0,
+      "inversion_total_cop": 9339722663.0,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 6274180820.0,
+      "costo_blando_cop": 941127123.0,
+      "marketing_leasing_cop": 24414720.0,
+      "mobiliario_cop": 680000000.0,
+      "salida_cop": 15456347776.43,
+      "sum_noi_cop": 7291395132.9,
+      "yield_bruto_pct": 13.07,
+      "cap_rate_entrada_pct": 6.13,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 11.32,
+      "VPN_cop": 923843688.66,
+      "payback_anios": 9.2,
+      "payback_descontado_anios": 9.9,
+      "multiplico_x": 2.44,
+      "CL_inversion_pct": 15.2,
+      "suelo_soportable_cop": 2343843688.66,
+      "ocupacion_breakeven_pct": 14.9,
+      "fuente_canon": "Validado parcial 2026-08-14: apartaestudios turisticos Candelaria ,3-1,7 M/mes en 30-40 m2 (~-45.000/m2/mes); se mantiene .000 LP (zona turistica). CP = x1,7.",
+      "fuente_canon_url": "https://www.properati.com.co/s/la-candelaria-bogota-d-c/apartamento/arriendo",
+      "nota": "Canon mantenido en .000 LP tras validacion parcial 2026-08-14 (correccion de ajuste previo)."
+    },
+    {
+      "estrategia": "CP",
+      "estrategia_nombre": "Corto plazo — temporal amoblado (turismo)",
+      "escenario_id": "C_LUJO",
+      "producto": "C — Lujo / Alto nivel",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1291.74,
+      "unidad_m2": 150.0,
+      "num_unidades": 8,
+      "area_arrendable_m2": 1200.0,
+      "canon_m2_mes": 91800.0,
+      "mix_usos_detalle": null,
+      "ocupacion_pct": 80.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 1321920000.0,
+      "egi_1_cop": 1057536000.0,
+      "noi_1_cop": 646225920.0,
+      "inversion_total_cop": 12232755496.0,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 8857667040.0,
+      "costo_blando_cop": 1328650056.0,
+      "marketing_leasing_cop": 26438400.0,
+      "mobiliario_cop": 600000000.0,
+      "salida_cop": 17522737270.72,
+      "sum_noi_cop": 8249070626.63,
+      "yield_bruto_pct": 10.81,
+      "cap_rate_entrada_pct": 5.28,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 9.3,
+      "VPN_cop": -609045018.15,
+      "payback_anios": 9.3,
+      "payback_descontado_anios": null,
+      "multiplico_x": 2.11,
+      "CL_inversion_pct": 11.61,
+      "suelo_soportable_cop": 810954981.85,
+      "ocupacion_breakeven_pct": 12.1,
+      "fuente_canon": "Boutique premium centro: LP $54.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
+      "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
+      "nota": "Supuestos de ejercicio."
+    },
+    {
+      "estrategia": "CP",
+      "estrategia_nombre": "Corto plazo — temporal amoblado (turismo)",
+      "escenario_id": "D_MIXTO",
+      "producto": "D - Mixto (override usuario)",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1439.37,
+      "unidad_m2": 49.11,
+      "num_unidades": 28,
+      "area_arrendable_m2": 1375.0,
+      "canon_m2_mes": 73264.0,
+      "mix_usos_detalle": [
+        {
+          "uso": "Local comercial turistico",
+          "pct_gfa": 0.3,
+          "gfa_i": 553.6,
+          "nga_i": 470.56,
+          "unidades": 11,
+          "area": 440.0,
+          "canon": 70000,
+          "costo": 4500000
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.7,
+          "gfa_i": 1291.74,
+          "nga_i": 968.81,
+          "unidades": 17,
+          "area": 935.0,
+          "canon": 74800,
+          "costo": 4000000
+        }
+      ],
+      "ocupacion_pct": 80.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 1208856000.0,
+      "egi_1_cop": 967084800.0,
+      "noi_1_cop": 564301056.0,
+      "inversion_total_cop": 10938597109.25,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 7658191295.0,
+      "costo_blando_cop": 1148728694.25,
+      "marketing_leasing_cop": 24177120.0,
+      "mobiliario_cop": 687500000.0,
+      "salida_cop": 15224632865.34,
+      "sum_noi_cop": 7183858663.51,
+      "yield_bruto_pct": 11.05,
+      "cap_rate_entrada_pct": 5.16,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 8.92,
+      "VPN_cop": -827654107.3,
+      "payback_anios": 9.3,
+      "payback_descontado_anios": null,
+      "multiplico_x": 2.05,
+      "CL_inversion_pct": 12.98,
+      "suelo_soportable_cop": 592345892.7,
+      "ocupacion_breakeven_pct": 15.2,
+      "fuente_canon": "Comparables 2026-08-14 + supuestos (mix uso multiple).",
+      "fuente_canon_url": "",
+      "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Canones ajustados a comparables 2026-08-14."
+    },
+    {
+      "estrategia": "CP",
+      "estrategia_nombre": "Corto plazo — temporal amoblado (turismo)",
+      "escenario_id": "D_MIXTO_SALUD",
+      "producto": "D - Mixto Salud (sensibilidad)",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1384.01,
+      "unidad_m2": 59.09,
+      "num_unidades": 22,
+      "area_arrendable_m2": 1300.0,
+      "canon_m2_mes": 71156.92307692308,
+      "mix_usos_detalle": [
+        {
+          "uso": "Consultorios (salud)",
+          "pct_gfa": 0.25,
+          "gfa_i": 461.34,
+          "nga_i": 346.0,
+          "unidades": 8,
+          "area": 320.0,
+          "canon": 60000,
+          "costo": 3300000.0
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.75,
+          "gfa_i": 1384.01,
+          "nga_i": 1038.01,
+          "unidades": 14,
+          "area": 980.0,
+          "canon": 74800,
+          "costo": 3000000
+        }
+      ],
+      "ocupacion_pct": 80.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 1110048000.0,
+      "egi_1_cop": 888038400.0,
+      "noi_1_cop": 514587648.0,
+      "inversion_total_cop": 8617810349.62,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 5674442947.5,
+      "costo_blando_cop": 851166442.12,
+      "marketing_leasing_cop": 22200960.0,
+      "mobiliario_cop": 650000000.0,
+      "salida_cop": 13872570965.35,
+      "sum_noi_cop": 6548238242.52,
+      "yield_bruto_pct": 12.88,
+      "cap_rate_entrada_pct": 5.97,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 10.93,
+      "VPN_cop": 596860415.1,
+      "payback_anios": 9.2,
+      "payback_descontado_anios": 9.9,
+      "multiplico_x": 2.37,
+      "CL_inversion_pct": 16.48,
+      "suelo_soportable_cop": 2016860415.1,
+      "ocupacion_breakeven_pct": 15.6,
+      "fuente_canon": "Canones de sensibilidad 2026-08-14 (consultorio rango ciudad; vivienda del caso).",
+      "fuente_canon_url": "",
+      "nota": "USO-MULTIPLE + componente de salud (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas."
+    },
+    {
+      "estrategia": "CP",
+      "estrategia_nombre": "Corto plazo — temporal amoblado (turismo)",
+      "escenario_id": "D_MIXTO_OFICINAS",
+      "producto": "D - Mixto Oficinas (sensibilidad)",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1407.08,
+      "unidad_m2": 67.0,
+      "num_unidades": 20,
+      "area_arrendable_m2": 1340.0,
+      "canon_m2_mes": 64913.432835820895,
+      "mix_usos_detalle": [
+        {
+          "uso": "Oficinas (servicios)",
+          "pct_gfa": 0.25,
+          "gfa_i": 461.34,
+          "nga_i": 369.07,
+          "unidades": 6,
+          "area": 360.0,
+          "canon": 38000,
+          "costo": 3000000
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.75,
+          "gfa_i": 1384.01,
+          "nga_i": 1038.01,
+          "unidades": 14,
+          "area": 980.0,
+          "canon": 74800,
+          "costo": 3000000
+        }
+      ],
+      "ocupacion_pct": 80.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 1043808000.0,
+      "egi_1_cop": 835046400.0,
+      "noi_1_cop": 472593408.0,
+      "inversion_total_cop": 8477324345.0,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 5536041900.0,
+      "costo_blando_cop": 830406285.0,
+      "marketing_leasing_cop": 20876160.0,
+      "mobiliario_cop": 670000000.0,
+      "salida_cop": 12706224533.38,
+      "sum_noi_cop": 6005170321.43,
+      "yield_bruto_pct": 12.31,
+      "cap_rate_entrada_pct": 5.57,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 9.95,
+      "VPN_cop": -32137064.77,
+      "payback_anios": 9.2,
+      "payback_descontado_anios": null,
+      "multiplico_x": 2.21,
+      "CL_inversion_pct": 16.75,
+      "suelo_soportable_cop": 1387862935.23,
+      "ocupacion_breakeven_pct": 17.1,
+      "fuente_canon": "Canones de sensibilidad 2026-08-14 (oficina no-prime; vivienda del caso).",
+      "fuente_canon_url": "",
+      "nota": "USO-MULTIPLE + componente de oficinas (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas."
+    },
+    {
+      "estrategia": "LP",
+      "estrategia_nombre": "Largo plazo — arriendo tradicional",
+      "escenario_id": "A_VIS",
+      "producto": "A — VIS / VIP",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1476.28,
+      "unidad_m2": 55.0,
+      "num_unidades": 26,
+      "area_arrendable_m2": 1430.0,
+      "canon_m2_mes": 36000.0,
+      "mix_usos_detalle": null,
+      "ocupacion_pct": 90.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 617760000.0,
+      "egi_1_cop": 555984000.0,
+      "noi_1_cop": 372166080.0,
+      "inversion_total_cop": 6949943627.0,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 4797902980.0,
+      "costo_blando_cop": 719685447.0,
+      "marketing_leasing_cop": 12355200.0,
+      "mobiliario_cop": 0.0,
+      "salida_cop": 9981127712.27,
+      "sum_noi_cop": 4722719019.12,
+      "yield_bruto_pct": 8.89,
+      "cap_rate_entrada_pct": 5.35,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 9.37,
+      "VPN_cop": -312151168.47,
+      "payback_anios": 9.3,
+      "payback_descontado_anios": null,
+      "multiplico_x": 2.12,
+      "CL_inversion_pct": 20.43,
+      "suelo_soportable_cop": 1107848831.53,
+      "ocupacion_breakeven_pct": 20.8,
+      "fuente_canon": "Centro historico zona turistica: LP $36.000/m2/mes (supuesto de ejercicio sobre FincaRaiz/Ciencuadras); CP = x1,7.",
+      "fuente_canon_url": "https://www.ciencuadras.com/blog/evolucion-del-mercado-de-vivienda/novedades-mercado-inmobiliario-bogota-2026",
+      "nota": "Supuestos de ejercicio."
+    },
+    {
+      "estrategia": "LP",
+      "estrategia_nombre": "Largo plazo — arriendo tradicional",
+      "escenario_id": "B_ESTANDAR",
+      "producto": "B — Estandar",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1384.01,
+      "unidad_m2": 85.0,
+      "num_unidades": 16,
+      "area_arrendable_m2": 1360.0,
+      "canon_m2_mes": 44000.0,
+      "mix_usos_detalle": null,
+      "ocupacion_pct": 90.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 718080000.0,
+      "egi_1_cop": 646272000.0,
+      "noi_1_cop": 456176640.0,
+      "inversion_total_cop": 8649669543.0,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 6274180820.0,
+      "costo_blando_cop": 941127123.0,
+      "marketing_leasing_cop": 14361600.0,
+      "mobiliario_cop": 0.0,
+      "salida_cop": 12309008970.04,
+      "sum_noi_cop": 5807764816.47,
+      "yield_bruto_pct": 8.3,
+      "cap_rate_entrada_pct": 5.27,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 9.22,
+      "VPN_cop": -475277660.67,
+      "payback_anios": 9.3,
+      "payback_descontado_anios": null,
+      "multiplico_x": 2.09,
+      "CL_inversion_pct": 16.42,
+      "suelo_soportable_cop": 944722339.33,
+      "ocupacion_breakeven_pct": 17.0,
+      "fuente_canon": "Validado parcial 2026-08-14: apartaestudios turisticos Candelaria ,3-1,7 M/mes en 30-40 m2 (~-45.000/m2/mes); se mantiene .000 LP (zona turistica). CP = x1,7.",
+      "fuente_canon_url": "https://www.properati.com.co/s/la-candelaria-bogota-d-c/apartamento/arriendo",
+      "nota": "Canon mantenido en .000 LP tras validacion parcial 2026-08-14 (correccion de ajuste previo)."
+    },
+    {
+      "estrategia": "LP",
+      "estrategia_nombre": "Largo plazo — arriendo tradicional",
+      "escenario_id": "C_LUJO",
+      "producto": "C — Lujo / Alto nivel",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1291.74,
+      "unidad_m2": 150.0,
+      "num_unidades": 8,
+      "area_arrendable_m2": 1200.0,
+      "canon_m2_mes": 54000.0,
+      "mix_usos_detalle": null,
+      "ocupacion_pct": 90.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 777600000.0,
+      "egi_1_cop": 699840000.0,
+      "noi_1_cop": 515260800.0,
+      "inversion_total_cop": 11621869096.0,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 8857667040.0,
+      "costo_blando_cop": 1328650056.0,
+      "marketing_leasing_cop": 15552000.0,
+      "mobiliario_cop": 0.0,
+      "salida_cop": 13967288718.78,
+      "sum_noi_cop": 6576220257.81,
+      "yield_bruto_pct": 6.69,
+      "cap_rate_entrada_pct": 4.43,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 6.96,
+      "VPN_cop": -2356016338.77,
+      "payback_anios": 9.4,
+      "payback_descontado_anios": null,
+      "multiplico_x": 1.77,
+      "CL_inversion_pct": 12.22,
+      "suelo_soportable_cop": 0.0,
+      "ocupacion_breakeven_pct": 13.8,
+      "fuente_canon": "Boutique premium centro: LP $54.000/m2/mes (supuesto de ejercicio); CP = x1,7.",
+      "fuente_canon_url": "https://www.ciencuadras.com/arriendo/bogota/suba/prado-veraniego-norte/apartamento",
+      "nota": "Supuestos de ejercicio."
+    },
+    {
+      "estrategia": "LP",
+      "estrategia_nombre": "Largo plazo — arriendo tradicional",
+      "escenario_id": "D_MIXTO",
+      "producto": "D - Mixto (override usuario)",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1439.37,
+      "unidad_m2": 49.11,
+      "num_unidades": 28,
+      "area_arrendable_m2": 1375.0,
+      "canon_m2_mes": 43360.0,
+      "mix_usos_detalle": [
+        {
+          "uso": "Local comercial turistico",
+          "pct_gfa": 0.3,
+          "gfa_i": 553.6,
+          "nga_i": 470.56,
+          "unidades": 11,
+          "area": 440.0,
+          "canon": 42000,
+          "costo": 4500000
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.7,
+          "gfa_i": 1291.74,
+          "nga_i": 968.81,
+          "unidades": 17,
+          "area": 935.0,
+          "canon": 44000,
+          "costo": 4000000
+        }
+      ],
+      "ocupacion_pct": 90.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 715440000.0,
+      "egi_1_cop": 643896000.0,
+      "noi_1_cop": 452939520.0,
+      "inversion_total_cop": 10241228789.25,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 7658191295.0,
+      "costo_blando_cop": 1148728694.25,
+      "marketing_leasing_cop": 14308800.0,
+      "mobiliario_cop": 0.0,
+      "salida_cop": 12216967545.3,
+      "sum_noi_cop": 5765361440.77,
+      "yield_bruto_pct": 6.99,
+      "cap_rate_entrada_pct": 4.42,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 6.88,
+      "VPN_cop": -2127242802.35,
+      "payback_anios": 9.4,
+      "payback_descontado_anios": null,
+      "multiplico_x": 1.76,
+      "CL_inversion_pct": 13.87,
+      "suelo_soportable_cop": 0.0,
+      "ocupacion_breakeven_pct": 17.2,
+      "fuente_canon": "Comparables 2026-08-14 + supuestos (mix uso multiple).",
+      "fuente_canon_url": "",
+      "nota": "USO-MULTIPLE: override de usuario fuera de reglamentacion. Mix 30% local comercial turistico + 70% vivienda estandar (La Candelaria, sobrecosto restauracion). Canones ajustados a comparables 2026-08-14."
+    },
+    {
+      "estrategia": "LP",
+      "estrategia_nombre": "Largo plazo — arriendo tradicional",
+      "escenario_id": "D_MIXTO_SALUD",
+      "producto": "D - Mixto Salud (sensibilidad)",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1384.01,
+      "unidad_m2": 59.09,
+      "num_unidades": 22,
+      "area_arrendable_m2": 1300.0,
+      "canon_m2_mes": 47938.46153846154,
+      "mix_usos_detalle": [
+        {
+          "uso": "Consultorios (salud)",
+          "pct_gfa": 0.25,
+          "gfa_i": 461.34,
+          "nga_i": 346.0,
+          "unidades": 8,
+          "area": 320.0,
+          "canon": 60000,
+          "costo": 3300000.0
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.75,
+          "gfa_i": 1384.01,
+          "nga_i": 1038.01,
+          "unidades": 14,
+          "area": 980.0,
+          "canon": 44000,
+          "costo": 3000000
+        }
+      ],
+      "ocupacion_pct": 90.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 747840000.0,
+      "egi_1_cop": 673056000.0,
+      "noi_1_cop": 484158720.0,
+      "inversion_total_cop": 7960566189.62,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 5674442947.5,
+      "costo_blando_cop": 851166442.12,
+      "marketing_leasing_cop": 14956800.0,
+      "mobiliario_cop": 0.0,
+      "salida_cop": 13091361129.12,
+      "sum_noi_cop": 6170941237.97,
+      "yield_bruto_pct": 9.39,
+      "cap_rate_entrada_pct": 6.08,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 11.23,
+      "VPN_cop": 729203146.06,
+      "payback_anios": 9.2,
+      "payback_descontado_anios": 9.9,
+      "multiplico_x": 2.42,
+      "CL_inversion_pct": 17.84,
+      "suelo_soportable_cop": 2149203146.06,
+      "ocupacion_breakeven_pct": 15.6,
+      "fuente_canon": "Canones de sensibilidad 2026-08-14 (consultorio rango ciudad; vivienda del caso).",
+      "fuente_canon_url": "",
+      "nota": "USO-MULTIPLE + componente de salud (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas."
+    },
+    {
+      "estrategia": "LP",
+      "estrategia_nombre": "Largo plazo — arriendo tradicional",
+      "escenario_id": "D_MIXTO_OFICINAS",
+      "producto": "D - Mixto Oficinas (sensibilidad)",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1407.08,
+      "unidad_m2": 67.0,
+      "num_unidades": 20,
+      "area_arrendable_m2": 1340.0,
+      "canon_m2_mes": 42388.05970149254,
+      "mix_usos_detalle": [
+        {
+          "uso": "Oficinas (servicios)",
+          "pct_gfa": 0.25,
+          "gfa_i": 461.34,
+          "nga_i": 369.07,
+          "unidades": 6,
+          "area": 360.0,
+          "canon": 38000,
+          "costo": 3000000
+        },
+        {
+          "uso": "Vivienda estandar",
+          "pct_gfa": 0.75,
+          "gfa_i": 1384.01,
+          "nga_i": 1038.01,
+          "unidades": 14,
+          "area": 980.0,
+          "canon": 44000,
+          "costo": 3000000
+        }
+      ],
+      "ocupacion_pct": 90.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 681600000.0,
+      "egi_1_cop": 613440000.0,
+      "noi_1_cop": 429172800.0,
+      "inversion_total_cop": 7800080185.0,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 5536041900.0,
+      "costo_blando_cop": 830406285.0,
+      "marketing_leasing_cop": 13632000.0,
+      "mobiliario_cop": 0.0,
+      "salida_cop": 11568842411.05,
+      "sum_noi_cop": 5461046570.09,
+      "yield_bruto_pct": 8.74,
+      "cap_rate_entrada_pct": 5.5,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 9.79,
+      "VPN_cop": -115467674.76,
+      "payback_anios": 9.2,
+      "payback_descontado_anios": null,
+      "multiplico_x": 2.18,
+      "CL_inversion_pct": 18.2,
+      "suelo_soportable_cop": 1304532325.24,
+      "ocupacion_breakeven_pct": 17.6,
+      "fuente_canon": "Canones de sensibilidad 2026-08-14 (oficina no-prime; vivienda del caso).",
+      "fuente_canon_url": "",
+      "nota": "USO-MULTIPLE + componente de oficinas (override fuera de reglamentacion). SENSIBILIDAD 2026-08-14: sin comparable directo en la UPZ; rango ciudad: consultorios $45-140k/m2/mes (FincaRaiz, MercadoLibre, Ciencuadras, SaludTools) y oficinas clase A $82,7k / prime $88,3k (RentOfficeToday, ValoraAnalitik Q3-2025); se usa valor no-prime. Precio de venta derivado del canon (cap rate implicito 7,5-8,5%). Costo consultorio = estandar x1,10 (instalaciones medicas). CP = LP: el temporal amoblado no aplica a salud/oficinas."
+    }
+  ],
+  "alertas": {
+    "CP_A_VIS": [
+      {
+        "nivel": "advertencia",
+        "kpi": "Payback",
+        "texto": "Payback descontado 9.9 anos > 8 anos: recuperacion lenta."
+      }
+    ],
+    "CP_B_ESTANDAR": [
+      {
+        "nivel": "advertencia",
+        "kpi": "Payback",
+        "texto": "Payback descontado 9.9 anos > 8 anos: recuperacion lenta."
+      }
+    ],
+    "CP_C_LUJO": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 9.3% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -609.0 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      }
+    ],
+    "CP_D_MIXTO": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 8.9% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -827.7 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      }
+    ],
+    "CP_D_MIXTO_SALUD": [
+      {
+        "nivel": "advertencia",
+        "kpi": "Payback",
+        "texto": "Payback descontado 9.9 anos > 8 anos: recuperacion lenta."
+      }
+    ],
+    "CP_D_MIXTO_OFICINAS": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 9.9% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -32.1 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      }
+    ],
+    "LP_A_VIS": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 9.4% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -312.2 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      }
+    ],
+    "LP_B_ESTANDAR": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 9.2% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -475.3 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      }
+    ],
+    "LP_C_LUJO": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 7.0% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -2.356.0 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "Cap rate",
+        "texto": "Cap rate de entrada 4.4% < 5%: el NOI inicial no cubre el costo de capital."
+      }
+    ],
+    "LP_D_MIXTO": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 6.9% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -2.127.2 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "Cap rate",
+        "texto": "Cap rate de entrada 4.4% < 5%: el NOI inicial no cubre el costo de capital."
+      }
+    ],
+    "LP_D_MIXTO_SALUD": [
+      {
+        "nivel": "advertencia",
+        "kpi": "Payback",
+        "texto": "Payback descontado 9.9 anos > 8 anos: recuperacion lenta."
+      }
+    ],
+    "LP_D_MIXTO_OFICINAS": [
+      {
+        "nivel": "critica",
+        "kpi": "TIR",
+        "texto": "TIR 9.8% < 10%: no alcanza la tasa exigida por el inversionista para activos en renta en Bogota."
+      },
+      {
+        "nivel": "critica",
+        "kpi": "VPN",
+        "texto": "VPN -115.5 M < 0 a la tasa de descuento de 10%: el proyecto destruye valor."
+      }
+    ]
+  },
+  "sensibilidad": {
+    "variacion_pct": 10.0,
+    "nota_metodologica": "Sensibilidad marginal: impacto medido como variacion del VPN (COP) ante +-10% de cada variable, promediado sobre todas las combinaciones estrategia x escenario. El ranking pondera el impacto por el rango plausible de variacion de cada variable.",
+    "ranking": [
+      {
+        "variable": "ocupacion_pct",
+        "etiqueta": "Ocupacion promedio",
+        "impacto_vpn_promedio_cop": 1113913746.96,
+        "riesgo_esperado": 1113913746.96,
+        "rango_plausible_x": 1.0,
+        "prioridad_fetch": "Critica: depende de la gestion (CP) o del mercado (LP); rango plausible amplio.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": 670445745.96,
+            "vpn_minus_cop": -431064315.33,
+            "vpn_plus_cop": 1771955807.26,
+            "tir_base_pct": 11.17,
+            "tir_minus_pct": 9.21,
+            "tir_plus_pct": 12.96,
+            "impacto_vpn_cop": 1101510061.3
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -312151168.47,
+            "vpn_minus_cop": -1192954250.58,
+            "vpn_plus_cop": 568651913.63,
+            "tir_base_pct": 9.37,
+            "tir_minus_pct": 7.46,
+            "tir_plus_pct": 11.1,
+            "impacto_vpn_cop": 880803082.11
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": 923843688.66,
+            "vpn_minus_cop": -356544074.9,
+            "vpn_plus_cop": 2204231452.22,
+            "tir_base_pct": 11.32,
+            "tir_minus_pct": 9.46,
+            "tir_plus_pct": 13.02,
+            "impacto_vpn_cop": 1280387763.56
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -475277660.67,
+            "vpn_minus_cop": -1499117140.72,
+            "vpn_plus_cop": 548561819.38,
+            "tir_base_pct": 9.22,
+            "tir_minus_pct": 7.43,
+            "tir_plus_pct": 10.86,
+            "impacto_vpn_cop": 1023839480.05
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -609045018.15,
+            "vpn_minus_cop": -1995561179.22,
+            "vpn_plus_cop": 777471142.92,
+            "tir_base_pct": 9.3,
+            "tir_minus_pct": 7.6,
+            "tir_plus_pct": 10.86,
+            "impacto_vpn_cop": 1386516161.07
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2356016338.77,
+            "vpn_minus_cop": -3464719519.04,
+            "vpn_plus_cop": -1247313158.5,
+            "tir_base_pct": 6.96,
+            "tir_minus_pct": 5.33,
+            "tir_plus_pct": 8.46,
+            "impacto_vpn_cop": 1108703180.27
+          },
+          "CP_D_MIXTO": {
+            "vpn_base_cop": -827654107.3,
+            "vpn_minus_cop": -2095581349.8,
+            "vpn_plus_cop": 440273135.2,
+            "tir_base_pct": 8.92,
+            "tir_minus_pct": 7.14,
+            "tir_plus_pct": 10.55,
+            "impacto_vpn_cop": 1267927242.5
+          },
+          "LP_D_MIXTO": {
+            "vpn_base_cop": -2127242802.35,
+            "vpn_minus_cop": -3147318166.66,
+            "vpn_plus_cop": -1107167438.03,
+            "tir_base_pct": 6.88,
+            "tir_minus_pct": 5.16,
+            "tir_plus_pct": 8.44,
+            "impacto_vpn_cop": 1020075364.32
+          },
+          "CP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 596860415.1,
+            "vpn_minus_cop": -567430534.1,
+            "vpn_plus_cop": 1761151364.29,
+            "tir_base_pct": 10.93,
+            "tir_minus_pct": 9.07,
+            "tir_plus_pct": 12.64,
+            "impacto_vpn_cop": 1164290949.2
+          },
+          "LP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 729203146.06,
+            "vpn_minus_cop": -337068184.1,
+            "vpn_plus_cop": 1795474476.22,
+            "tir_base_pct": 11.23,
+            "tir_minus_pct": 9.41,
+            "tir_plus_pct": 12.89,
+            "impacto_vpn_cop": 1066271330.16
+          },
+          "CP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -32137064.77,
+            "vpn_minus_cop": -1126951169.29,
+            "vpn_plus_cop": 1062677039.76,
+            "tir_base_pct": 9.95,
+            "tir_minus_pct": 8.06,
+            "tir_plus_pct": 11.66,
+            "impacto_vpn_cop": 1094814104.53
+          },
+          "LP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -115467674.76,
+            "vpn_minus_cop": -1087293919.19,
+            "vpn_plus_cop": 856358569.67,
+            "tir_base_pct": 9.79,
+            "tir_minus_pct": 7.97,
+            "tir_plus_pct": 11.46,
+            "impacto_vpn_cop": 971826244.43
+          }
+        },
+        "puesto": 1
+      },
+      {
+        "variable": "canon_m2_mes",
+        "etiqueta": "Canon de arriendo (m2/mes)",
+        "impacto_vpn_promedio_cop": 1112044766.96,
+        "riesgo_esperado": 1112044766.96,
+        "rango_plausible_x": 1.0,
+        "prioridad_fetch": "Critica: dato de mercado por zona y tipologia; no controlable.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": 670445745.96,
+            "vpn_minus_cop": -428963931.33,
+            "vpn_plus_cop": 1769855423.26,
+            "tir_base_pct": 11.17,
+            "tir_minus_pct": 9.21,
+            "tir_plus_pct": 12.95,
+            "impacto_vpn_cop": 1099409677.3
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -312151168.47,
+            "vpn_minus_cop": -1191718730.58,
+            "vpn_plus_cop": 567416393.63,
+            "tir_base_pct": 9.37,
+            "tir_minus_pct": 7.46,
+            "tir_plus_pct": 11.1,
+            "impacto_vpn_cop": 879567562.11
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": 923843688.66,
+            "vpn_minus_cop": -354102602.9,
+            "vpn_plus_cop": 2201789980.22,
+            "tir_base_pct": 11.32,
+            "tir_minus_pct": 9.47,
+            "tir_plus_pct": 13.01,
+            "impacto_vpn_cop": 1277946291.56
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -475277660.67,
+            "vpn_minus_cop": -1497680980.72,
+            "vpn_plus_cop": 547125659.38,
+            "tir_base_pct": 9.22,
+            "tir_minus_pct": 7.44,
+            "tir_plus_pct": 10.85,
+            "impacto_vpn_cop": 1022403320.05
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -609045018.15,
+            "vpn_minus_cop": -1992917339.22,
+            "vpn_plus_cop": 774827302.92,
+            "tir_base_pct": 9.3,
+            "tir_minus_pct": 7.6,
+            "tir_plus_pct": 10.85,
+            "impacto_vpn_cop": 1383872321.07
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2356016338.77,
+            "vpn_minus_cop": -3463164319.04,
+            "vpn_plus_cop": -1248868358.5,
+            "tir_base_pct": 6.96,
+            "tir_minus_pct": 5.33,
+            "tir_plus_pct": 8.45,
+            "impacto_vpn_cop": 1107147980.27
+          },
+          "CP_D_MIXTO": {
+            "vpn_base_cop": -827654107.3,
+            "vpn_minus_cop": -2093163637.8,
+            "vpn_plus_cop": 437855423.2,
+            "tir_base_pct": 8.92,
+            "tir_minus_pct": 7.14,
+            "tir_plus_pct": 10.54,
+            "impacto_vpn_cop": 1265509530.5
+          },
+          "LP_D_MIXTO": {
+            "vpn_base_cop": -2127242802.35,
+            "vpn_minus_cop": -3145887286.66,
+            "vpn_plus_cop": -1108598318.03,
+            "tir_base_pct": 6.88,
+            "tir_minus_pct": 5.16,
+            "tir_plus_pct": 8.44,
+            "impacto_vpn_cop": 1018644484.32
+          },
+          "CP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 596860415.1,
+            "vpn_minus_cop": -565210438.1,
+            "vpn_plus_cop": 1758931268.29,
+            "tir_base_pct": 10.93,
+            "tir_minus_pct": 9.07,
+            "tir_plus_pct": 12.63,
+            "impacto_vpn_cop": 1162070853.2
+          },
+          "LP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 729203146.06,
+            "vpn_minus_cop": -335572504.1,
+            "vpn_plus_cop": 1793978796.22,
+            "tir_base_pct": 11.23,
+            "tir_minus_pct": 9.41,
+            "tir_plus_pct": 12.89,
+            "impacto_vpn_cop": 1064775650.16
+          },
+          "CP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -32137064.77,
+            "vpn_minus_cop": -1124863553.29,
+            "vpn_plus_cop": 1060589423.76,
+            "tir_base_pct": 9.95,
+            "tir_minus_pct": 8.07,
+            "tir_plus_pct": 11.66,
+            "impacto_vpn_cop": 1092726488.53
+          },
+          "LP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -115467674.76,
+            "vpn_minus_cop": -1085930719.19,
+            "vpn_plus_cop": 854995369.67,
+            "tir_base_pct": 9.79,
+            "tir_minus_pct": 7.97,
+            "tir_plus_pct": 11.46,
+            "impacto_vpn_cop": 970463044.43
+          }
+        },
+        "puesto": 2
+      },
+      {
+        "variable": "costo_construccion_m2",
+        "etiqueta": "Costo duro construccion (m2)",
+        "impacto_vpn_promedio_cop": 743636517.17,
+        "riesgo_esperado": 743636517.17,
+        "rango_plausible_x": 1.0,
+        "prioridad_fetch": "Critica: definir producto; depende del mercado de insumos (+15% 2026 CAMACOL).",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": 670445745.96,
+            "vpn_minus_cop": 1222204588.66,
+            "vpn_plus_cop": 118686903.26,
+            "tir_base_pct": 11.17,
+            "tir_minus_pct": 12.24,
+            "tir_plus_pct": 10.2,
+            "impacto_vpn_cop": 551758842.7
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -312151168.47,
+            "vpn_minus_cop": 239607674.23,
+            "vpn_plus_cop": -863910011.17,
+            "tir_base_pct": 9.37,
+            "tir_minus_pct": 10.51,
+            "tir_plus_pct": 8.34,
+            "impacto_vpn_cop": 551758842.7
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": 923843688.66,
+            "vpn_minus_cop": 1645374482.96,
+            "vpn_plus_cop": 202312894.36,
+            "tir_base_pct": 11.32,
+            "tir_minus_pct": 12.47,
+            "tir_plus_pct": 10.28,
+            "impacto_vpn_cop": 721530794.3
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -475277660.67,
+            "vpn_minus_cop": 246253133.63,
+            "vpn_plus_cop": -1196808454.97,
+            "tir_base_pct": 9.22,
+            "tir_minus_pct": 10.42,
+            "tir_plus_pct": 8.15,
+            "impacto_vpn_cop": 721530794.3
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -609045018.15,
+            "vpn_minus_cop": 409586691.45,
+            "vpn_plus_cop": -1627676727.75,
+            "tir_base_pct": 9.3,
+            "tir_minus_pct": 10.5,
+            "tir_plus_pct": 8.22,
+            "impacto_vpn_cop": 1018631709.6
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2356016338.77,
+            "vpn_minus_cop": -1337384629.17,
+            "vpn_plus_cop": -3374648048.37,
+            "tir_base_pct": 6.96,
+            "tir_minus_pct": 8.17,
+            "tir_plus_pct": 5.88,
+            "impacto_vpn_cop": 1018631709.6
+          },
+          "CP_D_MIXTO": {
+            "vpn_base_cop": -827654107.3,
+            "vpn_minus_cop": 53037891.62,
+            "vpn_plus_cop": -1708346106.23,
+            "tir_base_pct": 8.92,
+            "tir_minus_pct": 10.07,
+            "tir_plus_pct": 7.89,
+            "impacto_vpn_cop": 880691998.93
+          },
+          "LP_D_MIXTO": {
+            "vpn_base_cop": -2127242802.35,
+            "vpn_minus_cop": -1246550803.42,
+            "vpn_plus_cop": -3007934801.27,
+            "tir_base_pct": 6.88,
+            "tir_minus_pct": 8.06,
+            "tir_plus_pct": 5.82,
+            "impacto_vpn_cop": 880691998.93
+          },
+          "CP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 596860415.1,
+            "vpn_minus_cop": 1249421354.06,
+            "vpn_plus_cop": -55700523.87,
+            "tir_base_pct": 10.93,
+            "tir_minus_pct": 12.05,
+            "tir_plus_pct": 9.92,
+            "impacto_vpn_cop": 652560938.97
+          },
+          "LP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 729203146.06,
+            "vpn_minus_cop": 1381764085.03,
+            "vpn_plus_cop": 76642207.1,
+            "tir_base_pct": 11.23,
+            "tir_minus_pct": 12.45,
+            "tir_plus_pct": 10.12,
+            "impacto_vpn_cop": 652560938.97
+          },
+          "CP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -32137064.77,
+            "vpn_minus_cop": 604507753.73,
+            "vpn_plus_cop": -668781883.27,
+            "tir_base_pct": 9.95,
+            "tir_minus_pct": 11.04,
+            "tir_plus_pct": 8.96,
+            "impacto_vpn_cop": 636644818.5
+          },
+          "LP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -115467674.76,
+            "vpn_minus_cop": 521177143.74,
+            "vpn_plus_cop": -752112493.26,
+            "tir_base_pct": 9.79,
+            "tir_minus_pct": 10.98,
+            "tir_plus_pct": 8.73,
+            "impacto_vpn_cop": 636644818.5
+          }
+        },
+        "puesto": 3
+      },
+      {
+        "variable": "cap_rate_salida_pct",
+        "etiqueta": "Cap rate de salida",
+        "impacto_vpn_promedio_cop": 572837047.72,
+        "riesgo_esperado": 286418523.86,
+        "rango_plausible_x": 0.5,
+        "prioridad_fetch": "Alta: variable de mercado; define el valor de reventa del activo.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": 670445745.96,
+            "vpn_minus_cop": 1207995972.7,
+            "vpn_plus_cop": 230631924.08,
+            "tir_base_pct": 11.17,
+            "tir_minus_pct": 12.03,
+            "tir_plus_pct": 10.42,
+            "impacto_vpn_cop": 537550226.74
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -312151168.47,
+            "vpn_minus_cop": 115421810.46,
+            "vpn_plus_cop": -661983605.78,
+            "tir_base_pct": 9.37,
+            "tir_minus_pct": 10.22,
+            "tir_plus_pct": 8.61,
+            "impacto_vpn_cop": 427572978.93
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": 923843688.66,
+            "vpn_minus_cop": 1585964929.14,
+            "vpn_plus_cop": 382108128.27,
+            "tir_base_pct": 11.32,
+            "tir_minus_pct": 12.18,
+            "tir_plus_pct": 10.57,
+            "impacto_vpn_cop": 662121240.48
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -475277660.67,
+            "vpn_minus_cop": 52017429.1,
+            "vpn_plus_cop": -906700915.94,
+            "tir_base_pct": 9.22,
+            "tir_minus_pct": 10.08,
+            "tir_plus_pct": 8.47,
+            "impacto_vpn_cop": 527295089.77
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -609045018.15,
+            "vpn_minus_cop": 141596511.54,
+            "vpn_plus_cop": -1223206269.71,
+            "tir_base_pct": 9.3,
+            "tir_minus_pct": 10.16,
+            "tir_plus_pct": 8.55,
+            "impacto_vpn_cop": 750641529.69
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2356016338.77,
+            "vpn_minus_cop": -1757683623.54,
+            "vpn_plus_cop": -2845561287.59,
+            "tir_base_pct": 6.96,
+            "tir_minus_pct": 7.82,
+            "tir_plus_pct": 6.21,
+            "impacto_vpn_cop": 598332715.23
+          },
+          "CP_D_MIXTO": {
+            "vpn_base_cop": -827654107.3,
+            "vpn_minus_cop": -175459103.39,
+            "vpn_plus_cop": -1361268201.42,
+            "tir_base_pct": 8.92,
+            "tir_minus_pct": 9.78,
+            "tir_plus_pct": 8.17,
+            "impacto_vpn_cop": 652195003.91
+          },
+          "LP_D_MIXTO": {
+            "vpn_base_cop": -2127242802.35,
+            "vpn_minus_cop": -1603890596.32,
+            "vpn_plus_cop": -2555440061.83,
+            "tir_base_pct": 6.88,
+            "tir_minus_pct": 7.73,
+            "tir_plus_pct": 6.13,
+            "impacto_vpn_cop": 523352206.03
+          },
+          "CP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 596860415.1,
+            "vpn_minus_cop": 1191135597.63,
+            "vpn_plus_cop": 110635265.75,
+            "tir_base_pct": 10.93,
+            "tir_minus_pct": 11.79,
+            "tir_plus_pct": 10.18,
+            "impacto_vpn_cop": 594275182.53
+          },
+          "LP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 729203146.06,
+            "vpn_minus_cop": 1290012749.71,
+            "vpn_plus_cop": 270358924.9,
+            "tir_base_pct": 11.23,
+            "tir_minus_pct": 12.08,
+            "tir_plus_pct": 10.47,
+            "impacto_vpn_cop": 560809603.65
+          },
+          "CP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -32137064.77,
+            "vpn_minus_cop": 512174002.22,
+            "vpn_plus_cop": -477482483.2,
+            "tir_base_pct": 9.95,
+            "tir_minus_pct": 10.8,
+            "tir_plus_pct": 9.19,
+            "impacto_vpn_cop": 544311066.99
+          },
+          "LP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -115467674.76,
+            "vpn_minus_cop": 380120053.91,
+            "vpn_plus_cop": -520948543.67,
+            "tir_base_pct": 9.79,
+            "tir_minus_pct": 10.65,
+            "tir_plus_pct": 9.04,
+            "impacto_vpn_cop": 495587728.67
+          }
+        },
+        "puesto": 4
+      },
+      {
+        "variable": "incremento_canon_pct",
+        "etiqueta": "Incremento anual del canon",
+        "impacto_vpn_promedio_cop": 441732392.28,
+        "riesgo_esperado": 220866196.14,
+        "rango_plausible_x": 0.5,
+        "prioridad_fetch": "Media: atado al IPC; piso de rentabilidad real.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": 670445745.96,
+            "vpn_minus_cop": 253363922.46,
+            "vpn_plus_cop": 1105902992.6,
+            "tir_base_pct": 11.17,
+            "tir_minus_pct": 10.46,
+            "tir_plus_pct": 11.88,
+            "impacto_vpn_cop": 435457246.64
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -312151168.47,
+            "vpn_minus_cop": -645556801.26,
+            "vpn_plus_cop": 35948047.15,
+            "tir_base_pct": 9.37,
+            "tir_minus_pct": 8.66,
+            "tir_plus_pct": 10.07,
+            "impacto_vpn_cop": 348099215.62
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": 923843688.66,
+            "vpn_minus_cop": 437281635.16,
+            "vpn_plus_cop": 1431765208.37,
+            "tir_base_pct": 11.32,
+            "tir_minus_pct": 10.64,
+            "tir_plus_pct": 11.99,
+            "impacto_vpn_cop": 507921519.71
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -475277660.67,
+            "vpn_minus_cop": -864247145.91,
+            "vpn_plus_cop": -69228455.21,
+            "tir_base_pct": 9.22,
+            "tir_minus_pct": 8.55,
+            "tir_plus_pct": 9.89,
+            "impacto_vpn_cop": 406049205.46
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -609045018.15,
+            "vpn_minus_cop": -1137515384.57,
+            "vpn_plus_cop": -57444748.48,
+            "tir_base_pct": 9.3,
+            "tir_minus_pct": 8.66,
+            "tir_plus_pct": 9.94,
+            "impacto_vpn_cop": 551600269.67
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2356016338.77,
+            "vpn_minus_cop": -2778508981.52,
+            "vpn_plus_cop": -1915028277.06,
+            "tir_base_pct": 6.96,
+            "tir_minus_pct": 6.33,
+            "tir_plus_pct": 7.59,
+            "impacto_vpn_cop": 440988061.71
+          },
+          "CP_D_MIXTO": {
+            "vpn_base_cop": -827654107.3,
+            "vpn_minus_cop": -1309317618.91,
+            "vpn_plus_cop": -324838996.26,
+            "tir_base_pct": 8.92,
+            "tir_minus_pct": 8.25,
+            "tir_plus_pct": 9.59,
+            "impacto_vpn_cop": 502815111.04
+          },
+          "LP_D_MIXTO": {
+            "vpn_base_cop": -2127242802.35,
+            "vpn_minus_cop": -2514688212.15,
+            "vpn_plus_cop": -1722780465.41,
+            "tir_base_pct": 6.88,
+            "tir_minus_pct": 6.22,
+            "tir_plus_pct": 7.53,
+            "impacto_vpn_cop": 404462336.94
+          },
+          "CP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 596860415.1,
+            "vpn_minus_cop": 154782898.16,
+            "vpn_plus_cop": 1058360667.78,
+            "tir_base_pct": 10.93,
+            "tir_minus_pct": 10.25,
+            "tir_plus_pct": 11.61,
+            "impacto_vpn_cop": 461500252.68
+          },
+          "LP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 729203146.06,
+            "vpn_minus_cop": 323566122.63,
+            "vpn_plus_cop": 1152627739.09,
+            "tir_base_pct": 11.23,
+            "tir_minus_pct": 10.56,
+            "tir_plus_pct": 11.89,
+            "impacto_vpn_cop": 423424593.03
+          },
+          "CP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -32137064.77,
+            "vpn_minus_cop": -447154028.17,
+            "vpn_plus_cop": 401143619.62,
+            "tir_base_pct": 9.95,
+            "tir_minus_pct": 9.25,
+            "tir_plus_pct": 10.64,
+            "impacto_vpn_cop": 433280684.39
+          },
+          "LP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -115467674.76,
+            "vpn_minus_cop": -484445851.29,
+            "vpn_plus_cop": 269722535.68,
+            "tir_base_pct": 9.79,
+            "tir_minus_pct": 9.11,
+            "tir_plus_pct": 10.47,
+            "impacto_vpn_cop": 385190210.44
+          }
+        },
+        "puesto": 5
+      },
+      {
+        "variable": "tasa_descuento_pct",
+        "etiqueta": "Tasa de descuento",
+        "impacto_vpn_promedio_cop": 673268737.58,
+        "riesgo_esperado": 201980621.27,
+        "rango_plausible_x": 0.3,
+        "prioridad_fetch": "Alta: costo de oportunidad del inversionista; politica.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": 670445745.96,
+            "vpn_minus_cop": 1302579300.5,
+            "vpn_plus_cop": 93835767.43,
+            "tir_base_pct": 11.17,
+            "tir_minus_pct": 11.17,
+            "tir_plus_pct": 11.17,
+            "impacto_vpn_cop": 632133554.54
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -312151168.47,
+            "vpn_minus_cop": 190682345.42,
+            "vpn_plus_cop": -770819216.22,
+            "tir_base_pct": 9.37,
+            "tir_minus_pct": 9.37,
+            "tir_plus_pct": 9.37,
+            "impacto_vpn_cop": 502833513.89
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": 923843688.66,
+            "vpn_minus_cop": 1702007233.09,
+            "vpn_plus_cop": 214046966.93,
+            "tir_base_pct": 11.32,
+            "tir_minus_pct": 11.32,
+            "tir_plus_pct": 11.32,
+            "impacto_vpn_cop": 778163544.43
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -475277660.67,
+            "vpn_minus_cop": 144455433.82,
+            "vpn_plus_cop": -1040564008.76,
+            "tir_base_pct": 9.22,
+            "tir_minus_pct": 9.22,
+            "tir_plus_pct": 9.22,
+            "impacto_vpn_cop": 619733094.49
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -609045018.15,
+            "vpn_minus_cop": 272761334.06,
+            "vpn_plus_cop": -1413364632.73,
+            "tir_base_pct": 9.3,
+            "tir_minus_pct": 9.3,
+            "tir_plus_pct": 9.3,
+            "impacto_vpn_cop": 881806352.21
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2356016338.77,
+            "vpn_minus_cop": -1653111613.61,
+            "vpn_plus_cop": -2997155670.6,
+            "tir_base_pct": 6.96,
+            "tir_minus_pct": 6.96,
+            "tir_plus_pct": 6.96,
+            "impacto_vpn_cop": 702904725.16
+          },
+          "CP_D_MIXTO": {
+            "vpn_base_cop": -827654107.3,
+            "vpn_minus_cop": -61115933.77,
+            "vpn_plus_cop": -1526848294.91,
+            "tir_base_pct": 8.92,
+            "tir_minus_pct": 8.92,
+            "tir_plus_pct": 8.92,
+            "impacto_vpn_cop": 766538173.53
+          },
+          "LP_D_MIXTO": {
+            "vpn_base_cop": -2127242802.35,
+            "vpn_minus_cop": -1512120386.18,
+            "vpn_plus_cop": -2688324393.93,
+            "tir_base_pct": 6.88,
+            "tir_minus_pct": 6.88,
+            "tir_plus_pct": 6.88,
+            "impacto_vpn_cop": 615122416.17
+          },
+          "CP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 596860415.1,
+            "vpn_minus_cop": 1295378177.91,
+            "vpn_plus_cop": -40291233.0,
+            "tir_base_pct": 10.93,
+            "tir_minus_pct": 10.93,
+            "tir_plus_pct": 10.93,
+            "impacto_vpn_cop": 698517762.81
+          },
+          "LP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 729203146.06,
+            "vpn_minus_cop": 1388189808.06,
+            "vpn_plus_cop": 128116803.97,
+            "tir_base_pct": 11.23,
+            "tir_minus_pct": 11.23,
+            "tir_plus_pct": 11.23,
+            "impacto_vpn_cop": 658986662.0
+          },
+          "CP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -32137064.77,
+            "vpn_minus_cop": 607823267.59,
+            "vpn_plus_cop": -615881868.81,
+            "tir_base_pct": 9.95,
+            "tir_minus_pct": 9.95,
+            "tir_plus_pct": 9.95,
+            "impacto_vpn_cop": 639960332.36
+          },
+          "LP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -115467674.76,
+            "vpn_minus_cop": 467057044.59,
+            "vpn_plus_cop": -646816681.51,
+            "tir_base_pct": 9.79,
+            "tir_minus_pct": 9.79,
+            "tir_plus_pct": 9.79,
+            "impacto_vpn_cop": 582524719.35
+          }
+        },
+        "puesto": 6
+      },
+      {
+        "variable": "gastos_operativos_pct_egi",
+        "etiqueta": "Gastos operativos (% EGI)",
+        "impacto_vpn_promedio_cop": 280882660.23,
+        "riesgo_esperado": 140441330.12,
+        "rango_plausible_x": 0.5,
+        "prioridad_fetch": "Media: controlable parcialmente por gestion.",
+        "por_combo": {
+          "CP_A_VIS": {
+            "vpn_base_cop": 670445745.96,
+            "vpn_minus_cop": 1052914517.24,
+            "vpn_plus_cop": 287976974.68,
+            "tir_base_pct": 11.17,
+            "tir_minus_pct": 11.81,
+            "tir_plus_pct": 10.51,
+            "impacto_vpn_cop": 382468771.28
+          },
+          "LP_A_VIS": {
+            "vpn_base_cop": -312151168.47,
+            "vpn_minus_cop": -190661088.18,
+            "vpn_plus_cop": -433641248.76,
+            "tir_base_pct": 9.37,
+            "tir_minus_pct": 9.62,
+            "tir_plus_pct": 9.12,
+            "impacto_vpn_cop": 121490080.29
+          },
+          "CP_B_ESTANDAR": {
+            "vpn_base_cop": 923843688.66,
+            "vpn_minus_cop": 1368422773.23,
+            "vpn_plus_cop": 479264604.09,
+            "tir_base_pct": 11.32,
+            "tir_minus_pct": 11.93,
+            "tir_plus_pct": 10.7,
+            "impacto_vpn_cop": 444579084.57
+          },
+          "LP_B_ESTANDAR": {
+            "vpn_base_cop": -475277660.67,
+            "vpn_minus_cop": -334058422.05,
+            "vpn_plus_cop": -616496899.3,
+            "tir_base_pct": 9.22,
+            "tir_minus_pct": 9.46,
+            "tir_plus_pct": 8.99,
+            "impacto_vpn_cop": 141219238.63
+          },
+          "CP_C_LUJO": {
+            "vpn_base_cop": -609045018.15,
+            "vpn_minus_cop": -127615795.56,
+            "vpn_plus_cop": -1090474240.74,
+            "tir_base_pct": 9.3,
+            "tir_minus_pct": 9.86,
+            "tir_plus_pct": 8.73,
+            "impacto_vpn_cop": 481429222.59
+          },
+          "LP_C_LUJO": {
+            "vpn_base_cop": -2356016338.77,
+            "vpn_minus_cop": -2203091762.18,
+            "vpn_plus_cop": -2508940915.36,
+            "tir_base_pct": 6.96,
+            "tir_minus_pct": 7.18,
+            "tir_plus_pct": 6.75,
+            "impacto_vpn_cop": 152924576.59
+          },
+          "CP_D_MIXTO": {
+            "vpn_base_cop": -827654107.3,
+            "vpn_minus_cop": -387401592.55,
+            "vpn_plus_cop": -1267906622.06,
+            "tir_base_pct": 8.92,
+            "tir_minus_pct": 9.5,
+            "tir_plus_pct": 8.32,
+            "impacto_vpn_cop": 440252514.76
+          },
+          "LP_D_MIXTO": {
+            "vpn_base_cop": -2127242802.35,
+            "vpn_minus_cop": -1986542752.1,
+            "vpn_plus_cop": -2267942852.6,
+            "tir_base_pct": 6.88,
+            "tir_minus_pct": 7.1,
+            "tir_plus_pct": 6.65,
+            "impacto_vpn_cop": 140700050.25
+          },
+          "CP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 596860415.1,
+            "vpn_minus_cop": 1001128105.79,
+            "vpn_plus_cop": 192592724.4,
+            "tir_base_pct": 10.93,
+            "tir_minus_pct": 11.54,
+            "tir_plus_pct": 10.31,
+            "impacto_vpn_cop": 404267690.7
+          },
+          "LP_D_MIXTO_SALUD": {
+            "vpn_base_cop": 729203146.06,
+            "vpn_minus_cop": 876275053.67,
+            "vpn_plus_cop": 582131238.46,
+            "tir_base_pct": 11.23,
+            "tir_minus_pct": 11.46,
+            "tir_plus_pct": 10.98,
+            "impacto_vpn_cop": 147071907.61
+          },
+          "CP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -32137064.77,
+            "vpn_minus_cop": 348006721.53,
+            "vpn_plus_cop": -412280851.06,
+            "tir_base_pct": 9.95,
+            "tir_minus_pct": 10.56,
+            "tir_plus_pct": 9.32,
+            "impacto_vpn_cop": 380143786.3
+          },
+          "LP_D_MIXTO_OFICINAS": {
+            "vpn_base_cop": -115467674.76,
+            "vpn_minus_cop": 18577324.47,
+            "vpn_plus_cop": -249512673.99,
+            "tir_base_pct": 9.79,
+            "tir_minus_pct": 10.03,
+            "tir_plus_pct": 9.55,
+            "impacto_vpn_cop": 134044999.23
+          }
+        },
+        "puesto": 7
+      }
+    ]
+  },
+  "recomendacion": {
+    "estado": "VIABLE",
+    "ranking": [
+      {
+        "combo": "CP_B_ESTANDAR",
+        "estrategia": "Corto plazo — temporal amoblado (turismo)",
+        "producto": "B — Estandar",
+        "TIR_pct": 11.32,
+        "VPN_cop": 923843688.66,
+        "cap_rate_entrada_pct": 6.13
+      },
+      {
+        "combo": "LP_D_MIXTO_SALUD",
+        "estrategia": "Largo plazo — arriendo tradicional",
+        "producto": "D - Mixto Salud (sensibilidad)",
+        "TIR_pct": 11.23,
+        "VPN_cop": 729203146.06,
+        "cap_rate_entrada_pct": 6.08
+      },
+      {
+        "combo": "CP_A_VIS",
+        "estrategia": "Corto plazo — temporal amoblado (turismo)",
+        "producto": "A — VIS / VIP",
+        "TIR_pct": 11.17,
+        "VPN_cop": 670445745.96,
+        "cap_rate_entrada_pct": 6.09
+      },
+      {
+        "combo": "CP_D_MIXTO_SALUD",
+        "estrategia": "Corto plazo — temporal amoblado (turismo)",
+        "producto": "D - Mixto Salud (sensibilidad)",
+        "TIR_pct": 10.93,
+        "VPN_cop": 596860415.1,
+        "cap_rate_entrada_pct": 5.97
+      },
+      {
+        "combo": "CP_D_MIXTO_OFICINAS",
+        "estrategia": "Corto plazo — temporal amoblado (turismo)",
+        "producto": "D - Mixto Oficinas (sensibilidad)",
+        "TIR_pct": 9.95,
+        "VPN_cop": -32137064.77,
+        "cap_rate_entrada_pct": 5.57
+      },
+      {
+        "combo": "LP_D_MIXTO_OFICINAS",
+        "estrategia": "Largo plazo — arriendo tradicional",
+        "producto": "D - Mixto Oficinas (sensibilidad)",
+        "TIR_pct": 9.79,
+        "VPN_cop": -115467674.76,
+        "cap_rate_entrada_pct": 5.5
+      },
+      {
+        "combo": "LP_A_VIS",
+        "estrategia": "Largo plazo — arriendo tradicional",
+        "producto": "A — VIS / VIP",
+        "TIR_pct": 9.37,
+        "VPN_cop": -312151168.47,
+        "cap_rate_entrada_pct": 5.35
+      },
+      {
+        "combo": "CP_C_LUJO",
+        "estrategia": "Corto plazo — temporal amoblado (turismo)",
+        "producto": "C — Lujo / Alto nivel",
+        "TIR_pct": 9.3,
+        "VPN_cop": -609045018.15,
+        "cap_rate_entrada_pct": 5.28
+      },
+      {
+        "combo": "LP_B_ESTANDAR",
+        "estrategia": "Largo plazo — arriendo tradicional",
+        "producto": "B — Estandar",
+        "TIR_pct": 9.22,
+        "VPN_cop": -475277660.67,
+        "cap_rate_entrada_pct": 5.27
+      },
+      {
+        "combo": "CP_D_MIXTO",
+        "estrategia": "Corto plazo — temporal amoblado (turismo)",
+        "producto": "D - Mixto (override usuario)",
+        "TIR_pct": 8.92,
+        "VPN_cop": -827654107.3,
+        "cap_rate_entrada_pct": 5.16
+      },
+      {
+        "combo": "LP_C_LUJO",
+        "estrategia": "Largo plazo — arriendo tradicional",
+        "producto": "C — Lujo / Alto nivel",
+        "TIR_pct": 6.96,
+        "VPN_cop": -2356016338.77,
+        "cap_rate_entrada_pct": 4.43
+      },
+      {
+        "combo": "LP_D_MIXTO",
+        "estrategia": "Largo plazo — arriendo tradicional",
+        "producto": "D - Mixto (override usuario)",
+        "TIR_pct": 6.88,
+        "VPN_cop": -2127242802.35,
+        "cap_rate_entrada_pct": 4.42
+      }
+    ],
+    "veredicto_textual": "La mejor combinacion viable es Corto plazo — temporal amoblado (turismo) x B — Estandar con TIR 11.3% (VPN 923.8 M, cap rate de entrada 6.1%). 4 de 12 combinaciones cumplen las reglas. Producto: 16 unidades de 85 m2 con canon 74.800/m2/mes y ocupacion 80%.",
+    "recomendado": {
+      "estrategia": "CP",
+      "estrategia_nombre": "Corto plazo — temporal amoblado (turismo)",
+      "escenario_id": "B_ESTANDAR",
+      "producto": "B — Estandar",
+      "gfa_m2": 1845.35,
+      "nga_m2": 1384.01,
+      "unidad_m2": 85.0,
+      "num_unidades": 16,
+      "area_arrendable_m2": 1360.0,
+      "canon_m2_mes": 74800.0,
+      "mix_usos_detalle": null,
+      "ocupacion_pct": 80.0,
+      "horizonte_anios": 10,
+      "gpi_1_cop": 1220736000.0,
+      "egi_1_cop": 976588800.0,
+      "noi_1_cop": 572583936.0,
+      "inversion_total_cop": 9339722663.0,
+      "costo_lote_cop": 1420000000.0,
+      "costo_duro_cop": 6274180820.0,
+      "costo_blando_cop": 941127123.0,
+      "marketing_leasing_cop": 24414720.0,
+      "mobiliario_cop": 680000000.0,
+      "salida_cop": 15456347776.43,
+      "sum_noi_cop": 7291395132.9,
+      "yield_bruto_pct": 13.07,
+      "cap_rate_entrada_pct": 6.13,
+      "cap_rate_salida_pct": 6.2,
+      "TIR_pct": 11.32,
+      "VPN_cop": 923843688.66,
+      "payback_anios": 9.2,
+      "payback_descontado_anios": 9.9,
+      "multiplico_x": 2.44,
+      "CL_inversion_pct": 15.2,
+      "suelo_soportable_cop": 2343843688.66,
+      "ocupacion_breakeven_pct": 14.9,
+      "fuente_canon": "Validado parcial 2026-08-14: apartaestudios turisticos Candelaria ,3-1,7 M/mes en 30-40 m2 (~-45.000/m2/mes); se mantiene .000 LP (zona turistica). CP = x1,7.",
+      "fuente_canon_url": "https://www.properati.com.co/s/la-candelaria-bogota-d-c/apartamento/arriendo",
+      "nota": "Canon mantenido en .000 LP tras validacion parcial 2026-08-14 (correccion de ajuste previo)."
+    }
+  }
+}

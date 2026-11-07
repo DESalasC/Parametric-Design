@@ -2,8 +2,8 @@
   "AAA0030JKOE": {
     "chip": "AAA0030JKOE",
     "modo": "iguales",
-    "pisos": 4,
-    "altura_maxima_msnm": 2.85,
+    "pisos": 5,
+    "altura_maxima_msnm": 2.55,
     "grupos": {
       "g1": [
         "B1",
@@ -14,7 +14,7 @@
     },
     "alturas_por_grupo": {
       "g1": [
-        3.05
+        2.55
       ]
     }
   }

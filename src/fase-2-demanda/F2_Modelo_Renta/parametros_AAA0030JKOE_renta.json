@@ -7,6 +7,13 @@
     "moneda": "COP",
     "fecha_ejecucion": "2026-08-14",
     "chip": "AAA0030JKOE-CANDELARIA",
+    "upz": {
+        "numero": 94,
+        "nombre": "La Candelaria",
+        "tipo": "PEMP",
+        "descripcion": "Plan Especial de Manejo y Proteccion del Centro Historico de Bogota (Decreto 492/07)",
+        "fuente": "Geobase SDP - UPZ y PEMP del Centro Historico"
+    },
     "origen_datos": "Lote real AAA0030JKOE (La Candelaria, UPZ 94; 946,45 m2; estrato 2; norma manual Decreto 492/07: IO 0,7 x 5 pisos -> GFA 3.312,6 m2). CL supuesto de ejercicio $1.420 M. Canones: zona turistica centro historico (supuestos de ejercicio; Ciencuadras Q1-2026 promedio Bogota $47.821/m2/mes como referencia).",
     "nota_general": "Caso de estudio centro historico: alta demanda turistica (ocupacion CP alta), canones premium por m2, sobrecosto de restauracion. Canones parcialmente validados 2026-08-14 (Properati/Facebook ofertas Candelaria)."
   },

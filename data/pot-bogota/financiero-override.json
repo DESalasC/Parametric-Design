@@ -64,15 +64,15 @@
           "costo_construccion_m2": 2400000
         },
         "B_ESTANDAR": {
-          "precio_venta_m2": 7500000,
+          "precio_venta_m2": 9500000,
           "costo_construccion_m2": 3400000
         },
         "C_LUJO": {
-          "precio_venta_m2": 10500000,
+          "precio_venta_m2": 12500000,
           "costo_construccion_m2": 4800000
         }
       },
-      "ultima_edicion": "2026-11-03 21:35"
+      "ultima_edicion": "2026-11-06 19:45"
     }
   }
 }

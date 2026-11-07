@@ -1,0 +1,40 @@
+{
+  "fecha_validacion": "2026-11-06",
+  "umbral_dias": 14,
+  "total_archivos": 3,
+  "vencidos": 3,
+  "frescos": 0,
+  "invalidos": 0,
+  "archivos": [
+    {
+      "ruta": "D:\\Work\\PROJECTS\\DiseñoParametrico\\data\\fase-2-demanda\\mercado\\parametros_AAA0127AZPA_f2mercado_2026-09.json",
+      "chip": "AAA0127AZPA",
+      "existe": true,
+      "valido": true,
+      "fecha_datos": "2026-09-03",
+      "dias_transcurridos": 64,
+      "vencido": true,
+      "error": null
+    },
+    {
+      "ruta": "D:\\Work\\PROJECTS\\DiseñoParametrico\\src\\fase-2-demanda\\F2_Modelo_Financiero\\parametros_entrada.json",
+      "chip": "entrada.json",
+      "existe": true,
+      "valido": true,
+      "fecha_datos": "2026-08-12",
+      "dias_transcurridos": 86,
+      "vencido": true,
+      "error": null
+    },
+    {
+      "ruta": "D:\\Work\\PROJECTS\\DiseñoParametrico\\src\\fase-2-demanda\\F2_Modelo_Renta\\parametros_entrada.json",
+      "chip": "entrada.json",
+      "existe": true,
+      "valido": true,
+      "fecha_datos": "2026-08-13",
+      "dias_transcurridos": 85,
+      "vencido": true,
+      "error": null
+    }
+  ]
+}

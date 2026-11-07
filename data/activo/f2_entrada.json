@@ -22,8 +22,8 @@
       "media": 6500000
     },
     "modalidad_dueno_lote": {
-      "tipo": "aporte_completo",
-      "pago_parcial_pct": 0.0
+      "tipo": "venta_completa",
+      "pago_parcial_pct": 100.0
     }
   },
   "financiacion_saldo": [
