@@ -114,3 +114,7 @@ scripts/utilities/data/
 data/fase-2-demanda/gfa-export-flag.json
 src/fase-3-masa/casos/CASO/
 src/fase-3-masa/casos/*.bak-*/
+
+# Archivos grandes de lotes de ejemplo (exceden 100 MB de GitHub — mantener solo localmente)
+
+data/lotes-ejemplo/
