@@ -1,6 +1,6 @@
 {
   "nombre": "",
-  "chip": "AAA0030JKOE",
+  "chip": "AAA0125LZAF",
   "variables": {
     "tipologia": "Continua",
     "piso_adicional": true,
@@ -28,7 +28,7 @@
     "B_ESTANDAR"
   ],
   "vecinos_por_lado": {
-    "chip": "AAA0127AZPA",
+    "chip": "AAA0125LZAF",
     "crs": "ESRI:102233",
     "azimuth_norte_grados": 189.41145413566696,
     "n_lados": 4,
@@ -176,5 +176,5 @@
     ]
   },
   "crear_estructura": false,
-  "caso": "B"
+  "caso": "C"
 }
