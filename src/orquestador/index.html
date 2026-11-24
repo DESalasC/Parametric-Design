@@ -2129,6 +2129,7 @@ async function guardarVecinos(){
   const aviso = $('vecinos-aviso');
   const r = await api('/api/vecinos-por-lado', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chip, vecinos_por_lado: clon}) });
   if(aviso){ aviso.textContent = r.ok ? ('Guardado en ' + (r.ruta||'')) : ('Error: ' + (r.error||'desconocido')); }
+  if(r.ok && typeof Frontal !== 'undefined'){ Frontal.recargar(); }
 }
 
 async function cargarArchivos(){
