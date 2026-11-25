@@ -103,7 +103,8 @@
           '<span id="fr-lado-label" class="fr-lado-fixed">—</span></div>' +
         '<div class="fr-tool fr-grow"><label>Vista</label>' +
           '<select id="fr-vista"><option value="">—</option></select>' +
-          '<span class="fr-badge" id="fr-badge">FRONTAL</span>' +
+          '<button class="fr-ghost" id="fr-refresh" type="button" title="Actualizar datos desde la sección anterior">↻</button>' +
+          '<span class="fr-badge" id="fr-badge">VISTA</span>' +
           '<span class="fr-src" id="fr-src"></span></div>' +
         '<div class="fr-tool"><label for="fr-msnm">Nivel 0,00 (MSNM)</label>' +
           '<div class="fr-inline"><input type="text" id="fr-msnm" inputmode="decimal" placeholder="2.634,79">' +
@@ -140,7 +141,7 @@
     var pt = q('#fr-puntos', S.cont); if (pt) pt.innerHTML = '';
     var le = q('#fr-leyenda', S.cont); if (le) le.innerHTML = '';
     var no = q('#fr-notes', S.cont); if (no) no.innerHTML = '';
-    var bd = q('#fr-badge', S.cont); if (bd) bd.textContent = 'FRONTAL';
+    var bd = q('#fr-badge', S.cont); if (bd) bd.textContent = 'VISTA';
     var sc = q('#fr-src', S.cont); if (sc) sc.textContent = '';
   }
 
@@ -187,6 +188,7 @@
       S.lado = v === '' ? null : parseInt(v, 10);
       cargar(false);
     });
+    q('#fr-refresh', c).addEventListener('click', function () { cargar(true); });
     q('#fr-fijar', c).addEventListener('click', fijarMSNM);
     q('#fr-msnm', c).addEventListener('keydown', function (e) {
       if (e.key === 'Enter') { e.preventDefault(); fijarMSNM(); }
@@ -229,6 +231,12 @@
     if (!S || !S.chip) return;
     S.busy = true;
     cargando();
+    if (S.lado == null) {
+      try {
+        var _lg = localStorage.getItem('dp_lado_frontal_' + S.chip);
+        if (_lg) S.lado = parseInt(_lg, 10);
+      } catch (e) {}
+    }
     var url = '/api/frontal?chip=' + encodeURIComponent(S.chip) +
       (S.lado != null ? '&lado=' + encodeURIComponent(S.lado) : '') +
       '&mdt=' + encodeURIComponent(S.mdt) + (regen ? '&regen=1' : '');
@@ -323,7 +331,7 @@
       [tip[0], -tip[1]].join(',') + ' ' +
       [tip[0] + n[0] * 2.0 + (-n[1]) * 0.9, -(tip[1] + n[1] * 2.0 + n[0] * 0.9)].join(',') + ' ' +
       [tip[0] + n[0] * 2.0 - (-n[1]) * 0.9, -(tip[1] + n[1] * 2.0 - n[0] * 0.9)].join(',') }, svg);
-    text(svg, mid[0] + n[0] * 5.7, -(mid[1] + n[1] * 5.7) - 0.2, 'FRONTAL',
+    text(svg, mid[0] + n[0] * 5.7, -(mid[1] + n[1] * 5.7) - 0.2, 'VISTA',
       { size: 2.2, weight: 700, fill: fr.color, anchor: 'middle', halo: true, haloWidth: 0.7 });
 
     // puntos
@@ -551,6 +559,11 @@
 
     // --- vecinos
     (d.vecinos || []).slice().sort(function (a, b) { return a.prof - b.prof; }).forEach(function (v) {
+      if (v._sin_geometria) {
+        var mx = (X(v.x0) + X(v.x1)) / 2;
+        text(svg, mx, M.t + 18, v.id + ' (sin altura)', { size: 8, fill: '#6b7280', anchor: 'middle', halo: true });
+        return;
+      }
       var xa = Math.max(v.x0, x0), xb = Math.min(v.x1, x1);
       if (xb - xa < 0.2) return;
       var lat = v.rol === 'lateral_izq' || v.rol === 'lateral_der';
@@ -590,7 +603,7 @@
       poly(svg, pts, l.color, l.lado_id === d.frente.lado_id ? 3.0 : 2.0, null);
       if (l.lado_id === d.frente.lado_id) {
         var mid = pts[Math.floor(pts.length / 2)];
-        text(svg, mid[0], mid[1] + 14, 'FRONTAL',
+        text(svg, mid[0], mid[1] + 14, 'VISTA',
           { size: 10, weight: 700, fill: l.color, anchor: 'middle', halo: true });
       }
     });

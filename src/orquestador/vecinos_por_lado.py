@@ -201,11 +201,11 @@ def clasificar_vecinos_por_lado(contexto: Dict,
         ep_polys.append(p)
     eps = unary_union(ep_polys) if ep_polys else None
 
-    vecinos: List[Tuple[str, Polygon]] = []
+    vecinos: List[Tuple[str, Polygon, Optional[float], Optional[int]]] = []
     for v in contexto.get("vecinos", []):
         p = _poly2d(v.get("vertices_3d_local", []))
         if p is not None:
-            vecinos.append((v.get("chip", ""), p))
+            vecinos.append((v.get("chip", ""), p, v.get("altura_m"), v.get("pisos")))
 
     # segmentos del lote + fracciones de contacto + direcci\u00f3n (para colinealidad)
     segments: List[Dict] = []
@@ -239,7 +239,7 @@ def clasificar_vecinos_por_lado(contexto: Dict,
         colindantes: Dict[str, Dict] = {}
         seg_vecinos: Dict[int, List[str]] = {}
         for seg in grupo:
-            for chip_v, poly in vecinos:
+            for chip_v, poly, _h, _p in vecinos:
                 frac = _frac_dentro(seg["line"], poly, tol_vecino)
                 if frac >= MIN_FRACCION_VECINO:
                     seg_vecinos.setdefault(seg["id"], [])
@@ -271,12 +271,20 @@ def clasificar_vecinos_por_lado(contexto: Dict,
         if frente == "predio":
             ordenados = sorted(colindantes.values(), key=lambda vv: (vv["seg_min"], vv["t"]))
             for k, vv in enumerate(ordenados, start=1):
+                # Buscar altura/pisos del vecino en los datos de contexto (geobase)
+                altura_m = None
+                pisos = None
+                for vchip, _vpoly, v_altura, v_pisos in vecinos:
+                    if vchip == vv["chip"]:
+                        altura_m = v_altura
+                        pisos = v_pisos
+                        break
                 vecinos_out.append({
                     "chip": vv["chip"],
                     "nombre": "%s%d" % (card, k),
                     "longitud_colindancia_m": vv["longitud_colindancia_m"],
-                    "altura_m": None,
-                    "pisos": None,
+                    "altura_m": altura_m,
+                    "pisos": pisos,
                 })
                 colindantes_global[vv["chip"]] = colindantes_global.get(vv["chip"], 0.0) + vv["longitud_colindancia_m"]
 

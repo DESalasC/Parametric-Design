@@ -606,9 +606,27 @@ def main(chip, output_dir="data/pot-cache", gpkg_path=None, pot_gdb_path=None,
     for idx, row in vecinos_gdf.iterrows():
         v_geom = make_geom_valid(row.geometry)
         v_xy = list(v_geom.exterior.coords)
+        # Intentar extraer altura/pisos de campos disponibles en la capa Lote
+        v_altura_m = None
+        v_pisos = None
+        for f in ('ALTURA_MAXIMA', 'ALTURA', 'HEIGHT', 'NRO_PISOS', 'PISOS', 'NUM_PISOS',
+                  'ALTURA_EDIF', 'CANT_PISOS', 'N_PISOS'):
+            if f in row.index:
+                try:
+                    _val = row[f]
+                    if _val is not None and str(_val).strip() != '':
+                        if 'PISOS' in f.upper() or 'NUM' in f.upper() or 'CANT' in f.upper():
+                            v_pisos = int(float(_val))
+                        else:
+                            v_altura_m = float(_val)
+                        break
+                except (ValueError, TypeError):
+                    pass
         vecinos_data.append({
             "chip": str(row.get(chip_field, 'N/A')),
-            "vertices_3d": [(x, y, 0.0) for x, y in v_xy]
+            "vertices_3d": [(x, y, 0.0) for x, y in v_xy],
+            "altura_m": v_altura_m,
+            "pisos": v_pisos,
         })
 
     # --- COORDENADAS LOCALES ---
@@ -618,7 +636,9 @@ def main(chip, output_dir="data/pot-cache", gpkg_path=None, pot_gdb_path=None,
     # cotas reales habria desplazado la geometria hacia abajo por -min_z)
     vecinos_local = [{
         "chip": v["chip"],
-        "vertices_3d_local": [(x - minx, y - miny, 0.0) for x, y, z in v["vertices_3d"]]
+        "vertices_3d_local": [(x - minx, y - miny, 0.0) for x, y, z in v["vertices_3d"]],
+        "altura_m": v.get("altura_m"),
+        "pisos": v.get("pisos"),
     } for v in vecinos_data]
     # v7: se descartan puntos sin cota (antes caian a 0.0 -> z local absurdo con
     # cotas reales); el conteo de fallidos queda en topografia.resumen

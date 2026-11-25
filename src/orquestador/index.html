@@ -377,7 +377,7 @@ async function init(){
     const o = document.createElement('option'); o.value = c; o.textContent = c;
     sel.appendChild(o);
   });
-  sel.addEventListener('change', () => { activarChip(); cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); if(window.cargarNivelesBloque) cargarNivelesBloque(sel.value);
+  sel.addEventListener('change', () => { try { Object.keys(localStorage).forEach(function(k){ if(k.indexOf('dp_lado_frontal_') === 0) localStorage.removeItem(k); }); } catch(e){} activarChip(); cargarPredio(); cargarUsos(); cargarFinanciero(); cargarVecinos(); cargarPlano(); syncCasoConChip(); if(window.cargarNivelesBloque) cargarNivelesBloque(sel.value);
     if(window.cargarElevacionesZonas) cargarElevacionesZonas(sel.value); cargarNormaOverride(); if(window.Planta) Planta.setChip(sel.value);
     if(window.Frontal) Frontal.setChip(sel.value); });
 
@@ -714,7 +714,13 @@ function renderVecinos(data){
     const tag = document.createElement('span'); tag.className='frente-sin-altura'; tag.style.cssText='font-size:11px;color:#64748b;';
     const refrescarTag = () => { tag.textContent = frenteSinAltura(sel.value) ? '(altura de vecinos: no aplica)' : ''; };
     refrescarTag();
-    sel.addEventListener('change', () => { PLANO_OVERRIDES[lado.lado_id] = sel.value; if(PLANO_DATA) renderPlano(PLANO_DATA); pintarBadgeFrente(lado, badge); refrescarTag(); actualizarAlturasPorFrente(); });
+    sel.addEventListener('change', () => { PLANO_OVERRIDES[lado.lado_id] = sel.value; if(PLANO_DATA) renderPlano(PLANO_DATA); pintarBadgeFrente(lado, badge); refrescarTag(); actualizarAlturasPorFrente();
+      var _chip2 = $('chip') ? $('chip').value : '';
+      if (_chip2) {
+        if (sel.value === 'via') { try { localStorage.setItem('dp_lado_frontal_' + _chip2, String(lado.lado_id)); } catch (e) {} }
+        else { var _gv2 = localStorage.getItem('dp_lado_frontal_' + _chip2); if (_gv2 === String(lado.lado_id)) { try { localStorage.removeItem('dp_lado_frontal_' + _chip2); } catch (e) {} } }
+      }
+    });
     row.appendChild(sel); row.appendChild(badge); row.appendChild(tag);
     ladosSec.appendChild(row);
   });
@@ -1363,6 +1369,18 @@ function ciclarLado(lado, el){
     if(tagF) tagF.textContent = frenteSinAltura(sig) ? '(altura de vecinos: no aplica)' : '';
   }
   actualizarAlturasPorFrente();
+  // Sincronizar lado frontal con 1d via localStorage (chip-scoped)
+  var _chip = $('chip') ? $('chip').value : '';
+  if (_chip) {
+    if (sig === 'via') {
+      try { localStorage.setItem('dp_lado_frontal_' + _chip, String(lado.lado_id)); } catch (e) {}
+    } else {
+      var _gv = localStorage.getItem('dp_lado_frontal_' + _chip);
+      if (_gv === String(lado.lado_id)) {
+        try { localStorage.removeItem('dp_lado_frontal_' + _chip); } catch (e) {}
+      }
+    }
+  }
 }
 
 function pintarLeyenda(){

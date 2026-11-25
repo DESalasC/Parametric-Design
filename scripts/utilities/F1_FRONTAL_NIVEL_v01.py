@@ -539,8 +539,10 @@ def _vecinos(c50: Optional[Dict[str, Any]], ctx: Dict[str, Any], lote_xy: List[S
     sin_dato = 0
     for e in c50.get("edificios") or []:
         zb = e.get("z_base_m")
+        if zb is None:
+            zb = 0.0  # cota de base no muestreada: usar nivel de terreno
         h = e.get("altura_m")
-        if zb is None or not h:
+        if not h:
             sin_dato += 1
             continue
         ring = (e.get("anillos") or [e.get("vertices")])[0] or []
@@ -777,6 +779,39 @@ def construir(chip: str, lado_id: Optional[int] = None, ancho_via: float = 3.0,
     c50 = _json(ruta_contexto50(chip), {}) or {}
     vecinos, n_sin_altura = _vecinos(c50, ctx, [[v[0], v[1]] for v in lote], proj, prof,
                                      profundidad, L, color_izq, color_der)
+
+    # -------- vecinos de lados[].vecinos ausentes de contexto50 (p. ej. 009123016019)
+    ctx50_chips = set()
+    for e in (c50.get("edificios") or []):
+        eid = (e.get("id") or "")[:11]
+        if eid:
+            ctx50_chips.add(eid)
+    for l in lados:
+        for v in (l.get("vecinos") or []):
+            chip = (v.get("chip") or "").strip()
+            if not chip or chip in ctx50_chips:
+                continue
+            poly = l.get("polyline") or []
+            if len(poly) < 2:
+                continue
+            p0 = poly[0]; p1 = poly[-1]
+            mx = (float(p0[0]) + float(p1[0])) / 2
+            my = (float(p0[1]) + float(p1[1])) / 2
+            xf_mid = proj((mx, my))
+            prof_m = prof((mx, my))
+            vecinos.append({
+                "id": chip,
+                "rol": "lateral",
+                "color": l.get("color", "#9ca3af"),
+                "x0": round(xf_mid - 1.0, 2),
+                "x1": round(xf_mid + 1.0, 2),
+                "prof": round(prof_m, 2),
+                "z_base": None,
+                "h": v.get("altura_m"),
+                "z_top": None,
+                "anillo": [],
+                "_sin_geometria": True,
+            })
 
     # -------- altura reglamentaria (override del operador > geobase)
     pot = ctx.get("pot_data") or {}
