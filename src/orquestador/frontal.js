@@ -100,8 +100,9 @@
     return '' +
       '<div class="fr-toolbar">' +
         '<div class="fr-tool" style="min-width:190px"><label for="fr-lado">Lado frontal (calle)</label>' +
-          '<select id="fr-lado"><option value="">—</option></select></div>' +
+          '<span id="fr-lado-label" class="fr-lado-fixed">—</span></div>' +
         '<div class="fr-tool fr-grow"><label>Vista</label>' +
+          '<select id="fr-vista"><option value="">—</option></select>' +
           '<span class="fr-badge" id="fr-badge">FRONTAL</span>' +
           '<span class="fr-src" id="fr-src"></span></div>' +
         '<div class="fr-tool"><label for="fr-msnm">Nivel 0,00 (MSNM)</label>' +
@@ -181,7 +182,7 @@
 
   function bind() {
     var c = S.cont;
-    q('#fr-lado', c).addEventListener('change', function () {
+    q('#fr-vista', c).addEventListener('change', function () {
       var v = this.value;
       S.lado = v === '' ? null : parseInt(v, 10);
       cargar(false);
@@ -254,7 +255,10 @@
   // ------------------------------------------------------------------ toolbar
   function renderToolbar() {
     var d = S.data, c = S.cont;
-    var sel = q('#fr-lado', c);
+    var lbl = q('#fr-lado-label', c);
+    if (lbl) lbl.textContent = (d.frente.cardinal_label || d.frente.cardinal || 'lado ' + d.frente.lado_id) +
+      ' · ' + d.frente.etiqueta + ' · ' + f2(d.frente.largo_m) + ' m';
+    var sel = q('#fr-vista', c);
     var actual = String(d.frente.lado_id);
     sel.innerHTML = '';
     (d.lados || []).forEach(function (l) {
@@ -265,7 +269,7 @@
       sel.appendChild(o);
     });
     sel.value = actual;
-    q('#fr-badge', c).textContent = 'FRONTAL · ' + (d.frente.etiqueta || ('lado ' + d.frente.lado_id)) +
+    q('#fr-badge', c).textContent = 'Vista lado del predio · ' + (d.frente.cardinal_label || d.frente.etiqueta || ('lado ' + d.frente.lado_id)) +
       ' · ' + f2(d.frente.largo_m) + ' m';
     var fuentes = [];
     if (d.frente.via_cercana) fuentes.push('vía ' + d.frente.via_cercana);
@@ -553,7 +557,7 @@
       var yT = Y(v.z_top), yB = Y(v.z_base);
       rect(svg, X(xa), Math.max(M.t, yT), X(xb) - X(xa), Math.min(M.t + hp, yB) - Math.max(M.t, yT),
         v.color, lat ? 0.18 : 0.09, v.color, lat ? 0.9 : 0.5);
-      if (lat) {
+      if (v.h != null && isFinite(v.h)) {
         var mx = (X(xa) + X(xb)) / 2;
         text(svg, mx, Math.max(M.t + 11, yT - 6), 'h ' + f2(v.h) + ' m',
           { size: 10.2, weight: 700, fill: '#374151', anchor: 'middle', halo: true });
@@ -694,7 +698,7 @@
       { size: 9.5, fill: '#8a9492', anchor: 'middle' });
 
     // --- titulo
-    text(svg, M.l, 26, 'FRONTAL · ' + (d.frente.etiqueta || '') + ' · frente ' + f2(d.frente.largo_m) + ' m',
+    text(svg, M.l, 26, 'Vista lado del predio · ' + (d.frente.cardinal_label || d.frente.etiqueta || '') + ' · frente ' + f2(d.frente.largo_m) + ' m',
       { size: 14.5, weight: 700, fill: '#15201f' });
     text(svg, M.l, 43, 'msnm = z local + ' + f3(zr) + ' m · ' + d.mdt.metodo,
       { size: 10, fill: '#6b7280' });
