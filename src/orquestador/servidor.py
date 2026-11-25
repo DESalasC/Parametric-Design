@@ -2117,8 +2117,12 @@ class Handler(BaseHTTPRequestHandler):
             if not chip:
                 self._json_error("chip requerido")
                 return
+            lado_raw = q.get("lado")
+            lado_id = int(lado_raw[0]) if lado_raw else None
+            mdt = (q.get("mdt") or ["malla"])[0]
+            regen = (q.get("regen") or ["false"])[0].lower() == "true"
             try:
-                self._send(200, {"ok": True, "frontal": _frontal_datos(chip)})
+                self._send(200, {"ok": True, "frontal": _frontal_datos(chip, lado=lado_id, mdt=mdt, regen=regen)})
             except SystemExit as e:
                 self._json_error(str(e), 404)
             except Exception as e:
